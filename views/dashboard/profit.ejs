@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+      <title>Profits Dashboard - FinanceHub</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+      <link rel="stylesheet" href="/css/profit.css" />
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+
+     <div class="app-container">
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+
+    <div class="container">
+        <div class="header">
+            <h1>Profits Dashboard</h1>
+            <p>Comprehensive profit analysis and performance metrics for <%= date %></p>
+        </div>
+
+        <div class="controls">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="timeRange">Time Range</label>
+                    <select id="timeRange">
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d" selected>Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                        <option value="1y">Last Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="category">Category</label>
+                    <select id="category">
+                        <option value="all">All Categories</option>
+                        <option value="revenue">Revenue</option>
+                        <option value="expenses">Expenses</option>
+                        <option value="investments">Investments</option>
+                        <option value="trading">Trading</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDazte" disabled />
+                </div>
+                <div class="control-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" disabled />
+                </div>
+                <div class="control-group">
+                    <button class="btn" onclick="updateDashboard()">Update Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Updating dashboard...</p>
+        </div>
+
+<% 
+  const totalCost = expenseTotal + productionTotal;
+  const profit = salesTotal - totalCost;
+  const profitPercent = totalCost > 0 ? Math.round((profit / totalCost) * 100) : 0;
+  const isProfitPositive = profitPercent >= 0;
+  const profitClass = isProfitPositive ? 'positive' : 'negative';
+  const profitArrow = isProfitPositive ? 'arrow-up' : 'arrow-down';
+  const profitSign = isProfitPositive ? '+' : '';
+%>
+
+<div class="metrics-grid">
+    <!-- Total Profit -->
+    <div class="metric-card">
+        <h3>Total Profit</h3>
+        <div class="metric-value <%= profitClass %>" id="totalProfit">
+            ₦<%= profit.toLocaleString() %>
+        </div>
+        <div class="metric-change <%= profitClass %> trend-indicator <%= profitArrow %>">
+            <%= profitSign %><%= profitPercent %>% vs last period
+        </div>
+    </div>
+
+    <!-- Daily Profit (same logic reused for simplicity) -->
+    <div class="metric-card">
+        <h3>Daily Profit</h3>
+        <div class="metric-value <%= profitClass %>" id="dailyProfit">
+            ₦<%= profit.toLocaleString() %>
+        </div>
+        <div class="metric-change <%= profitClass %> trend-indicator <%= profitArrow %>">
+            <%= profitSign %><%= profitPercent %>% vs yesterday
+        </div>
+    </div>
+
+    <!-- Profit Margin -->
+    <div class="metric-card">
+        <h3>Profit Margin</h3>
+        <div class="metric-value <%= profit >= 0 ? 'positive' : 'negative' %>" id="profitMargin">
+            <%= salesTotal > 0 ? Math.round((profit / salesTotal) * 100) : 0 %>%
+        </div>
+        <div class="metric-change neutral trend-indicator">Compared to revenue</div>
+    </div>
+
+    <!-- Net ROI -->
+    <div class="metric-card">
+        <h3>Net ROI</h3>
+        <div class="metric-value <%= profitClass %>" id="netRoi">
+            <%= profitSign %><%= profitPercent %>%
+        </div>
+        <div class="metric-change <%= profitClass %> trend-indicator <%= profitArrow %>">
+            Based on total cost
+        </div>
+    </div>
+</div>
+
+
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>Profit Trend Analysis</h3>
+                <div class="chart-wrapper">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3>Profit by Category</h3>
+                <div class="chart-wrapper">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <h3>Recent Profit Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                      <th>Type</th>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Margin</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionTable">
+                    <% sales.forEach(sale => { %>
+                        <tr>
+                          <td>Sales</td>
+                            <td><%= sale.date.toLocaleString() %></td>
+                            <td><%= sale.item || 'N/A' %></td>
+                            <td><%= sale.description || 'Sale Transaction' %></td>
+                            <td class="<%= sale.amount >= 0 ? 'positive' : 'negative' %>">
+                                <%= sale.amount >= 0 ? '+' : '' %>₦<%= Math.abs(sale.amount).toLocaleString() %>
+                            </td>
+                            <td><%= Math.round((sale.amount / (expenseTotal + productionTotal)) * 100) || 0 %>%</td>
+                            <td><span class="trend-indicator <%= sale.amount >= 0 ? 'positive arrow-up' : 'negative arrow-down' %>">Received</span></td>
+                        </tr>
+                    <% }); %>
+                    <% expenses.forEach(expense => { %>
+                        <tr>
+                          <td>Expenses</td>
+                            <td><%= expense.createdAt.toISOString().split('T')[0] %></td>
+                            <td><%= expense.category || 'N/A' %></td>
+                            <td><%= expense.description || 'Expense Transaction' %></td>
+                            <td class="<%= expense.amount >= 0 ? 'positive' : 'negative' %>">
+                                <%= expense.amount >= 0 ? '+' : '' %>₦<%= Math.abs(expense.amount).toLocaleString() %>
+                            </td>
+                            <td><%= Math.round((expense.amount / (salesTotal)) * 100) || 0 %>%</td>
+                            <td><span class="trend-indicator <%= expense.amount >= 0 ? 'positive arrow-up' : 'negative arrow-down' %>">Paid</span></td>
+                        </tr>
+                    <% }); %>
+                    <% production.forEach(prod => { %>
+                        <tr>
+                          <td>Production</td>
+                            <td><%= prod.createdAt.toISOString().split('T')[0] %></td>
+                            <td><%= prod.category || 'N/A' %></td>
+                            <td><%= prod.description || 'Production Cost' %></td>
+                            <td class="<%= prod.amount >= 0 ? 'positive' : 'negative' %>">
+                                <%= prod.amount >= 0 ? '+' : '' %>₦<%= Math.abs(prod.amount).toLocaleString() %>
+                            </td>
+                            <td><%= Math.round((prod.amount / (salesTotal)) * 100) || 0 %>%</td>
+                            <td><span class="trend-indicator <%= prod.amount >= 0 ? 'positive arrow-up' : 'negative arrow-down' %>">Incurred</span></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    </div>
+    <script>
+        // Generate profit data for charts (simplified to use backend data)
+        function generateProfitData(days = 30) {
+            const data = [];
+            const labels = [];
+            const baseProfit = <%= profit %> / days; // Distribute profit over days
+
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+                data.push(baseProfit); // Static for now; adjust with historical data later
+            }
+
+            return { labels, data };
+        }
+
+        // Generate transaction data (using backend data)
+        function generateTransactionData(days = 30, category = "<%= category %>") {
+            const transactions = [];
+            // Use existing sales, expenses, and production data from backend
+            return transactions; // Placeholder; expand with full data if needed
+        }
+
+        // Update transaction table (using backend data)
+        function updateTransactionTable() {
+            const tableBody = document.getElementById("transactionTable");
+            tableBody.innerHTML = ""; // Clear existing rows (already populated by EJS)
+        }
+
+        // Initialize charts with backend profit
+        function initCharts() {
+            const profitData = generateProfitData(30);
+
+            const profitCtx = document.getElementById("profitChart").getContext("2d");
+            new Chart(profitCtx, {
+                type: "line",
+                data: {
+                    labels: profitData.labels,
+                    datasets: [{
+                        label: "Daily Profit",
+                        data: profitData.data,
+                        borderColor: "#667eea",
+                        backgroundColor: "rgba(102, 126, 234, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: "#667eea",
+                        pointBorderColor: "#fff",
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: value => "₦" + value.toLocaleString() } } }
+                }
+            });
+
+            const categoryCtx = document.getElementById("categoryChart").getContext("2d");
+            new Chart(categoryCtx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Revenue", "Expenses", "Production"],
+                    datasets: [{
+                        data: [<%= salesTotal %>, <%= expenseTotal %>, <%= productionTotal %>],
+                        backgroundColor: ["#667eea", "#e74c3c", "#f1c40f"],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: "bottom", labels: { padding: 20, usePointStyle: true } } }
+                }
+            });
+
+            window.charts = { profitChart: profitCtx.chart, categoryChart: categoryCtx.chart };
+        }
+
+        // Update metrics with backend data
+        function updateMetrics() {
+            document.getElementById("totalProfit").textContent = "₦<%= profit.toLocaleString() %>";
+            document.getElementById("dailyProfit").textContent = "₦<%= profit.toLocaleString() %>";
+            document.getElementById("profitMargin").textContent = "<%= salesTotal> 0 ? Math.round((profit / salesTotal) * 100) : 0 %>%";
+        }
+
+        // Update charts (simplified)
+        function updateCharts() {
+            if (window.charts) {
+                const timeRange = document.getElementById("timeRange").value;
+                let days = timeRange === '7d' ? 7 : timeRange === '90d' ? 90 : timeRange === '1y' ? 365 : 30;
+
+                const newProfitData = generateProfitData(days);
+                window.charts.profitChart.data.labels = newProfitData.labels;
+                window.charts.profitChart.data.datasets[0].data = newProfitData.data;
+                window.charts.profitChart.update();
+
+                window.charts.categoryChart.data.datasets[0].data = [<%= salesTotal %>, <%= expenseTotal %>, <%= productionTotal %>];
+                window.charts.categoryChart.update();
+            }
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            const loading = document.getElementById("loading");
+            loading.style.display = "block";
+
+            setTimeout(() => {
+                try {
+                    updateMetrics();
+                    updateCharts();
+                    updateTransactionTable();
+                    console.log("Dashboard updated successfully");
+                } catch (error) {
+                    console.error("Error updating dashboard:", error);
+                }
+                loading.style.display = "none";
+            }, 1500);
+        }
+
+        // Handle time range and category changes
+        document.getElementById("timeRange").addEventListener("change", function () {
+            const startDate = document.getElementById("startDate");
+            const endDate = document.getElementById("endDate");
+
+            if (this.value === "custom") {
+                startDate.disabled = false;
+                endDate.disabled = false;
+            } else {
+                startDate.disabled = true;
+                endDate.disabled = true;
+            }
+            // Trigger update with new range (requires backend call)
+            window.location.href = `/Profit?timeRange=${this.value}&category=${document.getElementById("category").value}`;
+        });
+
+        document.getElementById("category").addEventListener("change", function () {
+            window.location.href = `/Profit?timeRange=${document.getElementById("timeRange").value}&category=${this.value}`;
+        });
+
+        // Initialize dashboard
+        document.addEventListener("DOMContentLoaded", function () {
+            try {
+                initCharts();
+                updateMetrics();
+                updateCharts();
+                updateTransactionTable();
+
+                const today = new Date();
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+                document.getElementById("endDate").valueAsDate = today;
+                document.getElementById("startDate").valueAsDate = lastMonth;
+            } catch (error) {
+                console.error("Error initializing dashboard:", error);
+            }
+        });
+    </script>
+</body>
+</html>

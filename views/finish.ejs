@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signup Complete</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f7f9fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    .finish-container {
+      position: relative;
+      z-index: 2;
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      margin: 100px auto;
+      animation: fadeInUp 1s ease;
+    }
+
+    .finish-container h1 {
+      font-size: 28px;
+      color: #2e7d32;
+      margin-bottom: 10px;
+      animation: popIn 1s ease;
+    }
+
+    .finish-container p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 30px;
+      animation: fadeIn 1.5s ease;
+    }
+
+    .finish-container a {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s ease;
+      animation: fadeIn 2s ease;
+    }
+
+    .finish-container a:hover {
+      background: #256c28;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="finish-container">
+    <h1>🎉 Signup Complete!</h1>
+    <p>Congratulations, your account setup is complete.</p>
+    <a href="/Dashboard">Go to Dashboard</a>
+  </div>
+
+  <script>
+    // Confetti animation
+    const canvas = document.getElementById("confettiCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const confetti = [];
+    const colors = ["#2e7d32", "#66bb6a", "#81c784", "#43a047", "#388e3c", "#c8e6c9"];
+
+    function createConfettiPiece() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        size: Math.random() * 7 + 3,
+        speed: Math.random() * 3 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        swing: Math.random() * 2 + 1,
+        sway: Math.random() * 100
+      };
+    }
+
+    for (let i = 0; i < 150; i++) {
+      confetti.push(createConfettiPiece());
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(p => {
+        p.y += p.speed;
+        p.x += Math.sin((p.y + p.sway) * 0.02) * p.swing;
+
+        if (p.y > canvas.height) {
+          p.y = -10;
+          p.x = Math.random() * canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+      requestAnimationFrame(animateConfetti);
+    }
+
+    animateConfetti();
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>

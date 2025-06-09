@@ -1,0 +1,89 @@
+/* Import base styles */
+
+
+
+
+/* Step Navigation Styles */
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+}
+
+.stepper {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: gray;
+}
+
+.stepper div {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.stepper div.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+
+/* Form Element Styles */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-group small {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Phone Input Container */
+.phone-input-container {
+    display: flex;
+    align-items: center;
+}
+
+.phone-input-container select {
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.phone-input-container input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

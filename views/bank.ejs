@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adnet - Bank Info</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="registration-container">
+      <!-- Sidebar -->
+      <%- include ("_sidebar2") %>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+          <h1>Activate <span>Wizdek Media</span></h1>
+        </header>
+
+        <!-- Step Indicator -->
+        <!-- Step Indicator -->
+        <div class="stepper">
+          <div id="ss1" class="step-indicator">1</div>
+          <div id="ss2" class="step-indicator">2</div>
+          <div id="ss3" class="step-indicator">3</div>
+          <div id="ss4" class="step-indicator">4</div>
+        </div>
+
+        <!-- Bank Info Form -->
+      <form action="/api/auth/bank-info" method="post" id="stepperForm" class="form-content">
+  <h2>Enter Your Bank Information</h2>
+  <p>Please provide your bank details to complete the process.</p>
+
+     <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+
+  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+    <label for="bankName">Bank Name</label>
+    <select id="bankName" name="bankName" required>
+      <option value="">Select your Bank</option>
+      <option value="Access Bank">Access Bank</option>
+      <option value="UBA">UBA</option>
+      <option value="GTBank">GTBank</option>
+      <option value="First Bank">First Bank</option>
+      <option value="Zenith Bank">Zenith Bank</option>
+      <option value="Kuda Bank">Kuda Bank</option>
+      <option value="Opay">Opay</option>
+      <option value="Moniepoint">Moniepoint</option>
+      <option value="PalmPay">PalmPay</option>
+      <option value="Wema Bank">Wema Bank</option>
+    </select>
+  </div>
+
+  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+    <label for="accountNumber">Account Number</label>
+    <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your account number" required />
+  </div>
+
+  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+    <label for="accountName">Account Name</label>
+    <input type="text" value="you" id="accountName" name="accountName" placeholder="Account name will appear here" readonly />
+
+    <p style="opacity: 0; margin: 0px; padding: 0px; margin-left: auto; font-size: 12px; color: red;" class="accError">Error: Account Not Fount</p>
+  </div>
+
+  <div class="form-group">
+    <label for="accountType">Account Type</label>
+    <select id="accountType" name="accountType" required>
+      <option value="">Select type</option>
+      <option value="savings">Savings</option>
+      <option value="checking">Checking</option>
+      <option value="current">Current</option>
+      <option value="domiciliary">Domiciliary</option>
+      <option value="joint">Joint Account</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="accountHolder">Account Holder Name</label>
+    <input type="text" id="accountHolder" name="accountHolder" placeholder="Enter account holder's name" required />
+  </div>
+
+  <div class="form-group">
+    <label for="routingNumber">Routing Number</label>
+    <input type="text" id="routingNumber" name="routingNumber" placeholder="Enter your routing number" required />
+  </div>
+
+  <button id="nextBtn"
+              class="btn next-btn" type="submit">Submit</button>
+</form>
+
+
+      </main>
+    </div>
+    <script src="/js/bank.js"></script>
+  </body>
+</html>

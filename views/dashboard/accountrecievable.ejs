@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Receivable Dashboard</title>
+        <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+ 
+    <link rel="stylesheet" href="/css/accountreceivable.css">
+</head>
+<body>
+            <!-- Sidebar -->
+<%- include ("_sidebar1") %>
+
+ <div class="main-contentt" >
+
+ 
+          <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Accounts Payable</h1>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
+                    </div>
+                </div>
+            </header>
+    <div class="container">
+
+      
+      
+     
+
+    <!-- Summary Cards -->
+<div class="summary-section">
+    <div class="summary-card total">
+        <div class="card-headerr">
+            <div class="card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="card-title">Total Receivables</div>
+        </div>
+        <div class="card-amount" id="totalAmount">
+            $<%= summary.totalReceivables.toLocaleString() %>
+        </div>
+        <div class="card-subtitle">Outstanding balance across all invoices</div>
+        <div class="card-trend trend-up">
+            <i class="fas fa-arrow-up"></i>
+            <span>12.5% from last month</span> <!-- Optional logic later -->
+        </div>
+    </div>
+
+    <div class="summary-card paid">
+        <div class="card-headerr">
+            <div class="card-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="card-title">Collected</div>
+        </div>
+        <div class="card-amount" id="paidAmount">
+            $<%= summary.collectedAmount.toLocaleString() %>
+        </div>
+        <div class="card-subtitle">Successfully collected payments</div>
+        <div class="card-trend trend-up">
+            <i class="fas fa-arrow-up"></i>
+            <span>8.3% from last month</span> <!-- Optional logic later -->
+        </div>
+    </div>
+
+    <div class="summary-card overdue">
+        <div class="card-headerr">
+            <div class="card-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="card-title">Past Due</div>
+        </div>
+        <div class="card-amount" id="overdueAmount">
+            $<%= summary.overdueAmount.toLocaleString() %>
+        </div>
+        <div class="card-subtitle">Overdue invoices requiring attention</div>
+        <div class="card-trend trend-down">
+            <i class="fas fa-arrow-down"></i>
+            <span>3.2% from last month</span> <!-- Optional logic later -->
+        </div>
+    </div>
+</div>
+
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controls-headerr">
+                <h3 class="controls-title">Invoice Filters & Search</h3>
+            </div>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="searchInput"><i class="fas fa-search"></i> Search Invoices</label>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by ID, customer, amount, or email...">
+                </div>
+                
+                <div class="control-group">
+                    <label for="statusFilter"><i class="fas fa-filter"></i> Status Filter</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="paid">Paid</option>
+                        <option value="pending">Pending</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="dateFrom"><i class="fas fa-calendar-alt"></i> From Date</label>
+                    <input type="date" id="dateFrom" class="date-input">
+                </div>
+
+                <div class="control-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-clear" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-section">
+            <div class="table-headerr">
+                <div class="tho">
+                      <h2 class="table-title">Invoice Management</h2>
+                <p class="table-subtitle">Comprehensive view of all receivable transactions</p>
+                </div>
+            <button onclick="openReceivableForm()">
+  <i class="fa fa-plus"></i> Add
+</button>
+
+            </div>
+            <div class="table-container">
+       <table>
+  <thead>
+    <tr>
+        <th>Transaction Invoice</th>
+      <th>Customer Details</th>
+      <th>Invoice Date</th>
+      <th>Amount</th>
+      <th>Remaining Amount</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (receivables.length === 0) { %>
+      <tr><td colspan="5">No receivables found.</td></tr>
+    <% } else { %>
+      <% receivables.forEach(receivable => { %>
+        <tr>
+            <td>#<%= receivable.id %></td>
+          <td><%= receivable.customerName %></td>
+          <td><%= receivable.dueDate.toDateString() %></td>
+          <td>$<%= receivable.amount.toLocaleString() %></td>
+          <td>$<%= receivable.ramount.toLocaleString() %></td>
+          <td>
+            <% if (receivable.status === 'paid') { %>
+              <span style="color: green;">Paid</span>
+            <% } else if (receivable.status === 'partially paid') { %>
+              <span style="color: orange;">Partially Paid</span>
+            <% } else { %>
+              <span style="color: red;">Not Paid</span>
+            <% } %>
+          </td>
+          <td>
+                 <div class="action-buttons">
+            <% if (receivable.status !== 'paid') { %>
+            <button class="btn btn-primary" onclick="openPayNowModal('<%= receivable._id %>', <%= receivable.ramount %>)">
+  <i class="fas fa-credit-card"></i>
+  Pay Now
+</button>
+
+            <% } %>
+            <button class="btn btn-secondary">
+              <i class="fas fa-eye"></i>
+              View
+            </button>
+            <% if (receivable.status === 'paid') { %>
+              <button class="btn btn-secondary">
+                <i class="fas fa-receipt"></i>
+                Receipt
+              </button>
+            <% } %>
+          </div>
+          </td>
+        </tr>
+      <% }) %>
+    <% } %>
+  </tbody>
+</table>
+
+                <div id="noResults" class="no-results" style="display: none;">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+        </div>
+
+<div id="payNowModal" class="modal">
+  <form method="POST" action="/user/PayAreceivable" class="modal-content">
+    <h2 class="modal-title">Pay Receivable</h2>
+    <input type="hidden" name="id" id="payReceivableId" class="input-field">
+
+    <label class="label">Amount to Pay</label>
+    <input type="number" name="amountPaid" id="payAmount" required class="input-field">
+
+    <label class="label">Note (optional)</label>
+    <textarea name="note" class="input-field textarea"></textarea>
+
+    <div class="button-group">
+      <button type="button" onclick="closePayNowModal()" class="btn btn-secondary">Cancel</button>
+      <button type="submit" class="btn btn-primary">Submit Payment</button>
+    </div>
+  </form>
+</div>
+    </div>
+
+    
+
+    </div>
+
+
+
+    <div id="receivableFormPopup" class="popup-overlay" style="display: none;">
+  <div class="popup-form">
+    <h3>Add Account Receivable</h3>
+    <form action="user/createAreceivable" method="POST">
+      <label>Customer Name</label>
+      <input type="text" name="customerName" required>
+
+      <label>Invoice Number</label>
+      <input type="text" name="invoiceNumber" required>
+
+      <label>Due Date</label>
+      <input type="date" name="dueDate" required>
+
+    <label>Amount (₦)</label>
+    <input type="number" name="amount" id="amount" required class="w-full border px-3 py-2 rounded">
+
+
+        <input type="number" name="ramount" id="ramount" required class="w-full border px-3 py-2 rounded" hidden>
+ 
+
+      <label>Status</label>
+      <select name="status" required>
+        <option value="not paid">Not Paid</option>
+        <option value="partially paid">Partially Paid</option>
+        <option value="paid">Paid</option>
+      </select>
+
+      <input type="hidden" name="recipientId" value="<%= user._id %>">
+
+      <button type="submit">Submit</button>
+      <button type="button" onclick="closeReceivableForm()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+<script>
+  function openPayNowModal(receivableId, maxAmount) {
+    document.getElementById('payReceivableId').value = receivableId;
+    const amountInput = document.getElementById('payAmount');
+    amountInput.max = maxAmount;
+    amountInput.value = maxAmount;
+    document.getElementById('payNowModal').style.display = 'flex';
+    document.getElementById('payNowModal').classList.add('active');
+  }
+
+  function closePayNowModal() {
+    document.getElementById('payNowModal').style.display = 'none';
+        document.getElementById('payNowModal').classList.remove('active');
+  }
+</script>
+
+
+
+
+
+<script>
+  const amountInput = document.getElementById("amount");
+  const ramountInput = document.getElementById("ramount");
+
+  amountInput.addEventListener("input", () => {
+    ramountInput.value = amountInput.value; // copy the full amount initially
+  });
+</script>
+
+<script>
+function openReceivableForm() {
+  document.getElementById("receivableFormPopup").style.display = "flex";
+}
+function closeReceivableForm() {
+  document.getElementById("receivableFormPopup").style.display = "none";
+}
+</script>
+
+
+    <script src="/js/accountreceivable.js"></script>
+</body>
+
+</html>

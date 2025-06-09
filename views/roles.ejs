@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/roles.css" />
+    <title>Super Admin</title>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <%include ("_sidebar3") %>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Navbar -->
+      <nav>
+        <i class="bx bx-menu"></i>
+        <form action="#">
+          <div class="form-input">
+            <input
+              type="search"
+              placeholder="Search..."
+              style="
+                width: 60px;
+                height: 35px;
+                font-size: 12px;
+                padding: 4px;
+                border-radius: 10px;
+              "
+            />
+            <button
+              class="search-btn"
+              type="submit"
+              style="height: 30px; font-size: 1px; border-radius: 10px"
+            >
+              <i class="bx bx-search" style="font-size: 14px"></i>
+            </button>
+          </div>
+        </form>
+        <input type="checkbox" id="theme-toggle" hidden />
+        <label for="theme-toggle" class="theme-toggle"></label>
+        <a href="#" class="notif">
+          <i class="bx bx-bell"></i>
+          <span class="count">12</span>
+        </a>
+        <a href="#" class="profile">
+          <img src="images/profile-1.jpg" />
+        </a>
+      </nav>
+      <!-- End of Navbar -->
+
+      <main>
+        <!-- Insights -->
+        <ul class="insights">
+          <li>
+            <i class="bx bx-calendar-check"></i>
+            <span class="info">
+              <h3>1,074</h3>
+              <p>Paid Order</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-show-alt"></i>
+            <span class="info">
+              <h3>3,944</h3>
+              <p>Site Visit</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-line-chart"></i>
+            <span class="info">
+              <h3>14,721</h3>
+              <p>Searches</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-dollar-circle"></i>
+            <span class="info">
+              <h3>$6,742</h3>
+              <p>Total Sales</p>
+            </span>
+          </li>
+        </ul>
+        <!-- End of Insights -->
+
+        <main class="main-content">
+          <!-- First Roles Section -->
+          <div class="bottom-data">
+            <div class="roles">
+              <div class="header">
+                <i class="bx bx-user-circle"></i>
+                <h3>New Roles</h3>
+                <button id="addRoleBtn" class="btn add-role">+ Add Role</button>
+              </div>
+
+              <!-- Role Input Form (Initially Hidden) -->
+              <div id="roleForm" class="role-form hidden">
+                <label>Role Name:</label>
+                <input
+                  type="text"
+                  id="roleName"
+                  placeholder="Enter Role Name"
+                />
+                <label>Tasks:</label>
+                <input
+                  type="text"
+                  id="roleTasks"
+                  placeholder="Enter Tasks (comma separated)"
+                />
+                <label>Upload Image:</label>
+                <input type="file" id="roleImage" />
+                <div class="form-buttons">
+                  <button id="saveRoleBtn" class="btn save-role">Save</button>
+                  <button id="cancelRoleBtn" class="btn cancel-role">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Profile</th>
+                    <th>Role</th>
+                    <th>Tasks</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="roleList">
+                  <!-- Dynamically added roles appear here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Second Roles Section (Duplicate, removed in this clean version) -->
+        </main>
+      </main>
+    </div>
+
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

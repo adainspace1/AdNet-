@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link rel="stylesheet" href="/css/addnewexpenses.css" />
+  </head>
+  <body>
+    <div class="all">
+      <!-- Sidebar -->
+      <%- include ("_sidebar1") %>
+
+      <!-- Main Content -->
+      <div class="container">
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+          <div class="summary-card">
+            <h3>Total Expenses For Today</h3>
+            <div class="amount">₦<%= totalAmountToday %></div>
+            <div class="trend up">↑ 12% from last month</div>
+          </div>
+          <div class="summary-card">
+            <h3>Budget</h3>
+            <div class="amount">$1343.51</div>
+            <div class="trend up">↑ 5% from last month</div>
+          </div>
+          <div class="summary-card">
+            <h3>Total Transactions For Today</h3>
+            <div class="amount"><%= totalExpensesToday %></div>
+            <div class="trend down">↓ 3% from last month</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-container">
+            <div class="chart-header">
+              <div class="chart-title">Expenses by Category Over Time</div>
+              <div class="chart-options">This Month ▼</div>
+            </div>
+            <canvas id="barChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <div class="chart-title">Monthly Expense Trend</div>
+            </div>
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="transactions">
+          <div class="transactions-header">
+            <div class="chart-title">Expense Transactions</div>
+            <a href="/viewallexpenses" class="view-all">View All Expenses →</a>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <% expenses.forEach(exp => { %>
+                <tr>
+                  <td><%= exp.time %></td>
+                  <td><%= exp.description %></td>
+                  <td><%= exp.category %></td>
+                  <td><%= exp.amount.toLocaleString() %></td>
+                </tr>
+         
+                   <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Add Expense Button -->
+        <button class="add-expense-btn" id="addExpenseBtn">+</button>
+
+            <div id="expenseForm" class="form-container">
+     
+
+      <form action="/user/createexpenses" method="post">
+
+         <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">New Expense</h3>
+
+          <input type="hidden" name="recipientId" value="<%= user.id %>" required>
+
+              <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
+
+  
+      <label style="display: block; margin-bottom: 0.5rem;">
+        Category:
+        <select name="category" id="expenseCategory" style="border: 1px solid #d1d5db; border-radius: 0.25rem; padding: 0.25rem; width: 100%;">
+          <option value="">Select a category</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Supplies">Supplies</option>
+          <option value="Transport">Transport</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+      </label>
+
+
+      <label style="display: block; margin-bottom: 0.5rem;">
+        Amount (₦):
+        <input name="amount" type="number" id="expenseAmountInput" min="0" step="0.01" style="border: 1px solid #d1d5db; border-radius: 0.25rem; padding: 0.25rem; width: 100%;">
+      </label>
+
+
+      <label style="display: block; margin-bottom: 0.5rem;">
+        Description:
+        <textarea name="description" id="expenseDescription" style="border: 1px solid #d1d5db; border-radius: 0.25rem; padding: 0.25rem; width: 100%;" rows="4"></textarea>
+      </label>
+
+      <button type="submit" onmouseover="this.style.backgroundColor='#1d4ed8';" onmouseout="this.style.backgroundColor='#2563eb';">Save Expense</button>
+
+      <button type="button" onclick="closeModal()">Close</button>
+
+          </form>
+    </div>
+    
+      </div>
+    </div>
+
+    <script src="/js/addnewexpenses.js"></script>
+
+
+
+
+
+
+  <script>
+    // Popup functionality
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const expenseForm = document.getElementById('expenseForm');
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;';
+    document.body.appendChild(overlay);
+
+    addExpenseBtn.addEventListener('click', () => {
+      expenseForm.style.display = 'block';
+      overlay.style.display = 'block';
+      document.getElementById('expenseCategory').value = '';
+      document.getElementById('expenseAmountInput').value = '';
+      document.getElementById('expenseDescription').value = '';
+    });
+
+    overlay.addEventListener('click', () => {
+      expenseForm.style.display = 'none';
+      overlay.style.display = 'none';
+    });
+
+ 
+  
+  </script>
+</body>
+</html>

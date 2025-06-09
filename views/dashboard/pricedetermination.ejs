@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Determine Your Selling Price</title>
+
+    <link rel="stylesheet" href="/css/pricedeterminant.css">
+
+         <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+     <%- include ("_sidebar1") %>
+
+
+           <div class="main-contentt" >
+            <!-- headerr -->
+       
+                 <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Accounts Payable</h1>
+                </div>
+                <div class="header-right">
+                    <button onclick="toggleTheme()" class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
+                    </div>
+                </div>
+            </header>
+
+
+    <div class="container">
+        <div class="headerr">
+            <h1>Determine Your Selling Price</h1>
+            <p>Enter your cost price and profit goal to calculate how much to sell your goods for. Get accurate pricing with fees and taxes included.</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card1">
+    <h2>Select Mode</h2>
+    <p>Would you like to calculate automatically or manually?</p>
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="chooseMode('automatic')">Automatic</button>
+        <button class="btn btn-primary" onclick="chooseMode('manual')">Manual</button>
+    </div>
+</div>
+
+            <div class="card" id="manualForm" style="display: none;">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                        <path d="M3 3v18h18"/>
+                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                    </svg>
+                    Price Calculator
+                </h2>
+
+                <div >
+                
+                <div class="form-group">
+                    <label>
+                        Cost Price 
+                        <span class="tooltip" data-tooltip="The amount you paid for the item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <point x="12" y="17"/>
+                            </svg>
+                        </span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">₦</span>
+                        <input type="number" id="costPrice" placeholder="0" oninput="calculatePrice()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Profit Type</label>
+                    <div class="profit-toggle">
+                        <button type="button" class="active" onclick="setProfitType('percentage')">Percentage (%)</button>
+                        <button type="button" onclick="setProfitType('fixed')">Fixed Amount (₦)</button>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <span class="input-prefix" id="profitPrefix">%</span>
+                        <input type="number" id="profitValue" placeholder="0" oninput="calculatePrice()">
+                    </div>
+                </div>
+
+                <div class="optional-section">
+                    <div class="optional-headerr" onclick="toggleOptional()">
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                        <span>Optional Fees & Charges</span>
+                    </div>
+                    
+                    <div class="optional-fields" id="optionalFields">
+                        <div class="form-group">
+                            <label>
+                                Delivery/Shipping Fee
+                                <span class="tooltip" data-tooltip="Cost of shipping or delivery">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <point x="12" y="17"/>
+                                    </svg>
+                                </span>
+                            </label>
+                            <div class="input-wrapper">
+                                <span class="input-prefix">₦</span>
+                                <input type="number" id="deliveryFee" placeholder="0" oninput="calculatePrice()">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                Platform/Transaction Fee
+                                <span class="tooltip" data-tooltip="Fees charged by payment platforms">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <point x="12" y="17"/>
+                                    </svg>
+                                </span>
+                            </label>
+                            <div class="input-wrapper">
+                                <span class="input-prefix">₦</span>
+                                <input type="number" id="platformFee" placeholder="0" oninput="calculatePrice()">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                Tax
+                                <span class="tooltip" data-tooltip="Government tax or VAT">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <point x="12" y="17"/>
+                                    </svg>
+                                </span>
+                            </label>
+                            <select id="taxType" onchange="calculatePrice()">
+                                <option value="none">No Tax</option>
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="fixed">Fixed Amount (₦)</option>
+                            </select>
+                            <div class="input-wrapper" style="margin-top: 8px;">
+                                <span class="input-prefix" id="taxPrefix">₦</span>
+                                <input type="number" id="taxValue" placeholder="0" oninput="calculatePrice()" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              
+
+
+            </div>
+
+        </div>
+
+        
+ <div class="card" id="automaticForm" style="display: none;">
+    <h2>Automatic Price Calculator</h2>
+    <div class="form-group">
+        <label>Select a Product</label>
+        <select id="productSelect" onchange="fillAutoPrice()">
+            <option value="">-- Select Product --</option>
+            <% if (productions && productions.length > 0) { %>
+                <% productions.forEach(function(product) { %>
+                    <option value="<%= product._id %>"><%= product.itemName %></option>
+                <% }); %>
+            <% } else { %>
+                <option value="">No products available</option>
+            <% } %>
+        </select>
+    </div>
+    <div class="auto-price-fields" style="margin-top: 10px; display: none;">
+        <div class="form-group">
+            <label>Cost Price</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">₦</span>
+                <input type="number" id="autoCostPrice" placeholder="0" oninput="calculatePrice()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Profit</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">₦</span>
+                <input type="number" id="autoProfit" placeholder="0" oninput="calculatePrice()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Extra Fees</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">₦</span>
+                <input type="number" id="autoFees" placeholder="0" oninput="calculatePrice()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Suggested Selling Price</label>
+            <div class="input-wrapper">
+                <span class="input-prefix">₦</span>
+                <input type="number" id="autoTotal" placeholder="0" readonly>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+            <div class="card results-card">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Price Breakdown
+                </h2>
+                
+                <div class="breakdown-item">
+                    <span>Cost Price:</span>
+                    <span id="displayCost">₦0</span>
+                </div>
+                
+                <div class="breakdown-item">
+                    <span>Profit:</span>
+                    <span id="displayProfit">₦0</span>
+                </div>
+                
+                <div class="breakdown-item">
+                    <span>Extra Fees:</span>
+                    <span id="displayFees">₦0</span>
+                </div>
+                
+                <div class="breakdown-item">
+                    <span>Suggested Selling Price:</span>
+                    <span id="displayTotal">₦0</span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveAutoPrice()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17,21 17,13 7,13 7,21"/>
+                            <polyline points="7,3 7,8 15,8"/>
+                        </svg>
+                        Save Price
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadEstimate()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="addToInventory()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                        Add to Inventory
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetCalculator()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <polyline points="23,4 23,10 17,10"/>
+                            <polyline points="1,20 1,14 7,14"/>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+
+     
+    </div>
+    
+    <div class="faq-section">
+            <div class="card">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <point x="12" y="17"/>
+                    </svg>
+                    Frequently Asked Questions
+                </h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(0)">
+                        <span>How do I determine the right profit margin?</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Profit margins vary by industry. Retail typically ranges from 2-10%, while services can be 15-50%. Research your competitors and consider your business costs when setting margins.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(1)">
+                        <span>Should I include all fees in my selling price?</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, include all costs (shipping, platform fees, taxes) to ensure profitability. Customers often prefer transparent, all-inclusive pricing over surprise charges at checkout.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(2)">
+                        <span>What's the difference between markup and margin?</span>
+                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Markup is profit added to cost price. Margin is profit as a percentage of selling price. A 50% markup equals a 33% margin. This calculator uses markup for percentage profits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+           </div>
+
+<script>
+      let profitType = 'percentage';
+    let calculations = {
+        costPrice: 0,
+        profit: 0,
+        fees: 0,
+        total: 0
+    };
+
+    function chooseMode(mode) {
+        document.getElementById("manualForm").style.display = "none";
+        document.getElementById("automaticForm").style.display = "none";
+
+        // Reset calculator when switching modes
+        document.getElementById('costPrice').value = '';
+        document.getElementById('profitValue').value = '';
+        document.getElementById('deliveryFee').value = '';
+        document.getElementById('platformFee').value = '';
+        document.getElementById('taxValue').value = '';
+        document.getElementById('taxType').value = 'none';
+        document.getElementById('autoCostPrice').value = '';
+        document.getElementById('autoProfit').value = '';
+        document.getElementById('autoFees').value = '';
+        document.getElementById('autoTotal').value = '';
+        calculations = { costPrice: 0, profit: 0, fees: 0, total: 0 };
+        calculatePrice();
+
+        if (mode === "automatic") {
+            document.getElementById("automaticForm").style.display = "block";
+        } else {
+            document.getElementById("manualForm").style.display = "block";
+        }
+    }
+
+async function fillAutoPrice() {
+    const productId = document.getElementById("productSelect").value;
+    const autoFields = document.querySelector(".auto-price-fields");
+    const resultDiv = document.getElementById("autoPriceResult");
+
+    if (productId) {
+        try {
+            // Fetch product data from your server
+            const productResponse = await fetch(`/pricedeterminant/product/${productId}`);
+            const productData = await productResponse.json();
+
+            if (productData.success) {
+                const { unitPrice: costPrice, amount: total, fees } = productData.product;
+
+                // Fetch exchange rate via proxy
+                const exchangeResponse = await fetch('/api/exchange-rate');
+                if (!exchangeResponse.ok) throw new Error(`HTTP error! status: ${exchangeResponse.status}`);
+                const exchangeData = await exchangeResponse.json();
+                if (exchangeData.error) throw new Error(exchangeData.error);
+
+                // Extract NGN rate (Frankfurter returns rates relative to base currency)
+                let baseRate = 1; // USD as base
+                let ngnRate = exchangeData.rates?.NGN || 1;
+                let exchangeRateChange = ((ngnRate - baseRate) / baseRate) * 100; // Percentage change
+
+                // Use exchange rate change as a proxy for inflation, capped at 20%
+                const calculatedProfit = (costPrice * Math.min(exchangeRateChange / 100, 0.20)).toFixed(2);
+
+                // Populate editable fields
+                document.getElementById("autoCostPrice").value = costPrice || 0;
+                document.getElementById("autoProfit").value = calculatedProfit;
+                document.getElementById("autoProfit").readOnly = true;
+                document.getElementById("autoFees").value = fees || 0;
+                document.getElementById("autoTotal").value = total || 0;
+
+                autoFields.style.display = "block";
+                calculatePrice(); // Sync with results card
+            } else {
+                autoFields.style.display = "none";
+                if (resultDiv) resultDiv.innerHTML = "<p>No data available for this product.</p>";
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            autoFields.style.display = "none";
+            if (resultDiv) resultDiv.innerHTML = `<p>Error loading product or exchange data: ${error.message}. Using default profit.</p>`;
+            // Fallback: Use a default profit if exchange data fails
+            const costPrice = parseFloat(document.getElementById("autoCostPrice").value) || 0;
+            const defaultProfit = (costPrice * 0.05).toFixed(2); // 5% default profit
+            document.getElementById("autoProfit").value = defaultProfit;
+            calculatePrice(); // Recalculate with default profit
+        }
+    } else {
+        autoFields.style.display = "none";
+        if (resultDiv) resultDiv.innerHTML = "";
+    }
+}
+
+
+
+    // Function to save updated prices
+            async function saveAutoPrice() {
+                const productId = document.getElementById("productSelect").value;
+                if (!productId) return;
+
+                const autoCostPrice = parseFloat(document.getElementById("autoCostPrice").value) || 0;
+                let autoProfit = parseFloat(document.getElementById("autoProfit").value) || 0;
+                const autoFees = parseFloat(document.getElementById("autoFees").value) || 0;
+                const autoTotal = parseFloat(document.getElementById("autoTotal").value) || 0;
+
+                // Validate profit against latest exchange rate change
+                try {
+                    const exchangeResponse = await fetch('/api/exchange-rate');
+                    const exchangeData = await exchangeResponse.json();
+                    if (exchangeData.error) throw new Error(exchangeData.error);
+
+                    let baseRate = 1; // USD as base
+                    let ngnRate = exchangeData.rates.NGN || 1;
+                    let exchangeRateChange = ((ngnRate - baseRate) / baseRate) * 100;
+                    const maxAllowedProfit = (autoCostPrice * Math.min(exchangeRateChange / 100, 0.20)).toFixed(2);
+                    if (autoProfit > maxAllowedProfit) {
+                        alert(`Profit cannot exceed the exchange-adjusted maximum (₦${maxAllowedProfit.toLocaleString()}). Auto-adjusting to maximum allowed.`);
+                        autoProfit = maxAllowedProfit;
+                        document.getElementById("autoProfit").value = autoProfit;
+                    }
+                } catch (error) {
+                    console.error("Error validating exchange rate:", error);
+                    alert("Could not validate profit due to exchange rate error. Using current profit.");
+                }
+
+                try {
+                    const response = await fetch(`/pricedeterminant/product/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            unitPrice: autoCostPrice,
+                            profit: autoProfit,
+                            fees: autoFees,
+                            amount: autoTotal
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        alert("Price updated successfully!");
+                        fillAutoPrice(); // Refresh to reflect updated data
+                        calculatePrice(); // Sync with results card
+                    } else {
+                        alert("Failed to update price: " + data.message);
+                    }
+                } catch (error) {
+                    console.error("Error saving product data:", error);
+                    alert("Error saving price data.");
+                }
+            }
+
+
+
+    // Add save button to the automatic form
+    document.querySelector(".auto-price-fields").innerHTML += `
+        <div class="form-group" style="margin-top: 12px;">
+            <button class="btn btn-primary" onclick="saveAutoPrice()">Save Changes</button>
+        </div>
+    `;
+
+    function setProfitType(type) {
+        profitType = type;
+        const buttons = document.querySelectorAll('.profit-toggle button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const prefix = document.getElementById('profitPrefix');
+        prefix.textContent = type === 'percentage' ? '%' : '₦';
+        
+        calculatePrice();
+    }
+
+    function toggleOptional() {
+        const fields = document.getElementById('optionalFields');
+        const chevron = document.querySelector('.optional-headerr .chevron');
+        
+        fields.classList.toggle('show');
+        chevron.classList.toggle('rotated');
+    }
+
+    function calculatePrice() {
+        let costPrice = parseFloat(document.getElementById('costPrice').value) || parseFloat(document.getElementById('autoCostPrice').value) || 0;
+        let profitValue = parseFloat(document.getElementById('profitValue').value) || parseFloat(document.getElementById('autoProfit').value) || 0;
+        let deliveryFee = parseFloat(document.getElementById('deliveryFee').value) || 0;
+        let platformFee = parseFloat(document.getElementById('platformFee').value) || 0;
+        let autoFees = parseFloat(document.getElementById('autoFees').value) || 0; // Get autoFees input value
+        
+        let profit = 0;
+        if (profitType === 'percentage' && document.getElementById('profitValue').value) {
+            profit = (costPrice * profitValue) / 100;
+        } else {
+            profit = profitValue;
+        }
+
+        const subtotal = costPrice + profit;
+        let tax = 0;
+        const taxType = document.getElementById('taxType').value;
+        const taxValue = parseFloat(document.getElementById('taxValue').value) || 0;
+
+        if (taxType === 'percentage') {
+            tax = (subtotal * taxValue) / 100;
+        } else if (taxType === 'fixed') {
+            tax = taxValue;
+        }
+
+        const totalFees = deliveryFee + platformFee + tax + (document.getElementById("automaticForm").style.display !== "none" ? autoFees : 0); // Include autoFees in automatic mode
+        const total = subtotal + totalFees;
+
+        calculations = {
+            costPrice: costPrice,
+            profit: profit,
+            fees: totalFees,
+            total: total
+        };
+
+        document.getElementById('displayCost').textContent = `₦${costPrice.toLocaleString()}`;
+        document.getElementById('displayProfit').textContent = `₦${profit.toLocaleString()}`;
+        document.getElementById('displayFees').textContent = `₦${totalFees.toLocaleString()}`; // Update displayFees
+        document.getElementById('displayTotal').textContent = `₦${total.toLocaleString()}`;
+
+        // Update auto total if in automatic mode
+        if (document.getElementById("automaticForm").style.display !== "none") {
+            document.getElementById("autoTotal").value = total || 0;
+        }
+
+        const taxInput = document.getElementById('taxValue');
+        const taxPrefix = document.getElementById('taxPrefix');
+        
+        if (taxType === 'none') {
+            taxInput.disabled = true;
+            taxInput.value = '';
+        } else {
+            taxInput.disabled = false;
+            taxPrefix.textContent = taxType === 'percentage' ? '%' : '₦';
+        }
+    }
+
+    function toggleFaq(index) {
+        const faqItems = document.querySelectorAll('.faq-item');
+        const answer = faqItems[index].querySelector('.faq-answer');
+        const chevron = faqItems[index].querySelector('.chevron');
+        
+        faqItems.forEach((item, i) => {
+            if (i !== index) {
+                item.querySelector('.faq-answer').classList.remove('show');
+                item.querySelector('.chevron').style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        answer.classList.toggle('show');
+        chevron.style.transform = answer.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+
+    function savePrice() {
+        const data = {
+            costPrice: calculations.costPrice,
+            profit: calculations.profit,
+            fees: calculations.fees,
+            sellingPrice: calculations.total,
+            timestamp: new Date().toISOString()
+        };
+        
+        alert(`Price saved successfully!\n\nSelling Price: ₦${calculations.total.toLocaleString()}\n\nThis would typically save to your price history.`);
+    }
+
+    function downloadEstimate() {
+        const productSelect = document.getElementById("productSelect");
+        const productName = productSelect.options[productSelect.selectedIndex].text || "Unknown_Product";
+        const sanitizedProductName = productName.replace(/[^a-zA-Z0-9]/g, '_'); // Sanitize for filename
+
+        const content = `Price Estimate for ${productName}\n================\n\nCost Price: ₦${calculations.costPrice.toLocaleString()}\nProfit: ₦${calculations.profit.toLocaleString()}\nExtra Fees: ₦${calculations.fees.toLocaleString()}\nSuggested Selling Price: ₦${calculations.total.toLocaleString()}\n\nGenerated on: ${new Date().toLocaleDateString()}`;
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `price-estimate-${sanitizedProductName}.txt`; // Include product name in filename
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+
+    function addToInventory() {
+        alert(`Item would be added to inventory with:\n\nSelling Price: ₦${calculations.total.toLocaleString()}\nProfit Margin: ${((calculations.profit / calculations.total) * 100).toFixed(1)}%\n\nThis would typically integrate with your inventory system.`);
+    }
+
+    function resetCalculator() {
+        document.getElementById('costPrice').value = '';
+        document.getElementById('profitValue').value = '';
+        document.getElementById('deliveryFee').value = '';
+        document.getElementById('platformFee').value = '';
+        document.getElementById('taxValue').value = '';
+        document.getElementById('taxType').value = 'none';
+        document.getElementById('autoCostPrice').value = '';
+        document.getElementById('autoProfit').value = '';
+        document.getElementById('autoFees').value = '';
+        document.getElementById('autoTotal').value = '';
+        
+        calculations = { costPrice: 0, profit: 0, fees: 0, total: 0 };
+        calculatePrice();
+    }
+
+    // Initialize
+    calculatePrice();
+ </script>
+
+
+</body>
+</html>

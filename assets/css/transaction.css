@@ -1,0 +1,282 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+/* Main Styles */
+body {
+  font-family: poppins, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 240px;
+  background-color: #2c3e50;
+  color: white;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+h1{
+  color: #fff;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Elements */
+label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: normal;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+button {
+  width: auto;
+  padding: 10px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.button-group {
+  margin-left: 60px;
+  margin-top: 60px;
+  width: 100%;
+  display: flex;
+  gap: 20px;
+}
+
+.clear-btn {
+  background-color: red;
+  color: white;
+}
+
+.export-btn {
+  background-color: #007bff;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0px;
+  background: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 10px;
+}
+
+th {
+  background-color: #007bffcb;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* dropdownmmary Section */
+.summary {
+  text-align: left;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.summary span {
+  font-weight: bold;
+  color: #28a745;
+}
+
+/* Main Content Styling */
+.top-container {
+  /* Adjust based on sidebar width */
+  transition: margin-left 0.3s;
+  padding: 20px;
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+/* Navbar Styling */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo i {
+  font-size: 24px;
+}
+
+.logo a {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Notification Styling */
+.notification {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notification i {
+  cursor: pointer;
+  font-size: 24px;
+  color: #ffffff;
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff4d4d;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* Dropdown Menus */
+
+#notificationDropdown p {
+  padding: 12px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+#notificationDropdown a {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+#notificationDropdown a i.bx-comment-detail {
+  color: #4d88ff;
+  font-size: 20px;
+}
+
+#notificationDropdown a i.bx-user-plus {
+  color: #42c47f;
+  font-size: 20px;
+}
+
+#notificationDropdown a i.bx-message {
+  color: #ffb648;
+  font-size: 20px;
+}
+
+#notificationDropdown a.view-all {
+  padding: 12px;
+  color: #007bff;
+  text-align: center;
+  font-size: 14px;
+  border-top: 1px solid #eee;
+  text-decoration: none;
+}
+
+/* Profile Styling */
+.profile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile .info {
+  display: inline-flex;
+  align-items: center;
+}
+
+.profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.profile .info a {
+  color: #e0e0e0;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.profile .info p {
+  margin: 0;
+  font-size: 14px;
+  color: #f3f3f3;
+}
+
+.profile i {
+  cursor: pointer;
+}
+
+#profileDropdown {
+  min-width: 120px;
+}
+
+#profileDropdown a {
+  padding: 10px;
+  color: #333;
+  text-decoration: none;
+  display: block;
+}
+

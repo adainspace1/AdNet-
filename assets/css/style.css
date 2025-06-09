@@ -1,0 +1,359 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    height: 100%;
+}
+
+
+a{
+    color: #fff;
+    text-decoration: none;
+}
+
+
+/* ? */
+.step1 {
+    display: block;
+}
+.step2 {
+    display: none;
+}
+.step3 {
+    display: none;
+}
+.step4 {
+    display: none;
+}
+
+.step1.active {
+    display: none;
+}
+.step2.active {
+    display: block;
+}
+.step3.active {
+    display: block;
+}
+.step4.active {
+    display: block;
+}
+
+
+.stepper {
+  margin-top: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: gray;
+}
+
+.stepper div {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.stepper #ss1 {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss1.active {
+    background-color: #fff;
+    color: grey;
+}
+
+.stepper #ss2.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss2 {
+    background-color: #fff;
+    color: gray;
+}
+
+.stepper #ss3.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss3 {
+    background-color: #fff;
+    color: gray;
+}
+
+.stepper #ss4.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss4 {
+    background-color: #fff;
+    color: gray;
+}
+
+
+
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.buttons #nextBtn4{
+    margin-top: 20px;
+    margin-left: 87%;
+}
+
+.next-btn, .prev-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.next-btn:hover, .prev-btn:hover {
+    background-color: #45a049;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* /? */
+
+.registration-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+
+
+/* General styles */
+.sidebar-menu a {
+    color: white; /* Keep text color white */
+    text-decoration: none; /* Remove underline */
+}
+
+.sidebar-menu a:hover {
+    text-decoration: underline; /* Optional: underline on hover */
+    color: #ddd; /* Optional: change color on hover */
+}
+
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin: 10px 0;
+}
+
+.sidebar-menu a {
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar-menu a:hover {
+    color: rgb(255, 255, 255);
+}
+
+.sidebar-menu li.active a {
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+}
+
+
+/* Sidebar */
+.sidebar {
+    background-color: #2d9bdb;
+    width: 250px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    padding: 15px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-menu li i {
+    margin-right: 10px;
+}
+
+.sidebar-menu li.active {
+    background-color: #1d8ac1;
+    border-radius: 8px;
+}
+
+.sidebar-menu li:hover {
+    background-color: #1d8ac1;
+    border-radius: 8px;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.header span {
+    color: #2d9cdb;
+}
+
+
+
+/* Checkbox Group Styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Form */
+.form-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-content h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.form-content p {  
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #2d9cdb;
+    outline: none;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input {
+    margin-right: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-btn {
+    background-color: #ddd;
+    color: #333;
+}
+
+.back-btn:hover {
+    background-color: #bbb;
+}
+
+.next-btn {
+    background-color: #2d9cdb;
+    color: white;
+}
+
+.next-btn:hover {
+    background-color: #1d8ac1;
+}
+
+/* Ensuring the blue sidebar flows down */
+html, body {
+    height: 100%;
+}
+
+.sidebar {
+    height: 100vh;
+}

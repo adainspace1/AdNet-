@@ -1,0 +1,474 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --pending-color: #ffc107;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #495057;
+  --border-color: #dee2e6;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: poppins, sans-serif;
+}
+body {
+  background-color: #031224;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.all {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  max-height: 100%;
+  overflow: hidden;
+  background-color: blue;
+}
+.all .bx-menu {
+  display: none;
+}
+/* Navigation */
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 1rem;
+}
+
+.nav-tabs {
+  display: flex;
+  list-style: none;
+}
+
+.nav-tab {
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+}
+
+.nav-tab.active {
+  border-bottom: 2px solid var(--primary-color);
+  font-weight: 500;
+}
+
+.search-box {
+  margin-left: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  padding: 0 0.5rem;
+}
+
+.search-icon {
+  color: var(--secondary-color);
+}
+
+.user-icons {
+  display: flex;
+  margin-left: 1rem;
+}
+
+.user-icon {
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+/* Main Content */
+.container {
+  padding: 1.5rem;
+  width: 100%;
+  overflow: hidden;
+  overflow-y: scroll;
+  height: 100vh;
+  margin: 0 auto;
+  background: #031224;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 32%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card h3 {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  margin-bottom: 0.5rem;
+}
+
+.summary-card .amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.summary-card .trend {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.summary-card .trend.up {
+  color: var(--success-color);
+}
+
+.summary-card .trend.down {
+  color: var(--danger-color);
+}
+
+/* Charts */
+.charts-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.chart-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 48%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.chart-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.chart-options {
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+}
+
+/* Transactions Table */
+.transactions {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+}
+
+tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status.approved {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--success-color);
+}
+
+.status.pending {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: var(--pending-color);
+}
+
+.status.declined {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--danger-color);
+}
+
+.view-all {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  color: var(--secondary-color);
+  font-size: 0.8rem;
+  margin-top: 2rem;
+}
+
+.footer-links {
+  display: flex;
+}
+
+.footer-link {
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+/* Add Expense Button */
+.add-expense-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.add-expense-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.4);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--modal-overlay);
+  z-index: 1000;
+  overflow-y: auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background-color: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.close-modal {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--secondary-color);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--dark-gray);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background-color: var(--light-gray);
+  border: 1px solid var(--border-color);
+  color: var(--dark-gray);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+@media (max-width: 768px) {
+  .summary-cards,
+  .charts-row {
+    flex-direction: column;
+  }
+
+  .summary-card,
+  .chart-container {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+
+
+
+
+
+
+#expenseForm{
+  display: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #0000008e;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.form-container form{
+  width: 90%;
+  padding: 10px 10px;
+  max-width: 600px;
+  background-color: #fff;
+}
+
+.form-container form input,
+.form-container form label,
+.form-container form select{
+  width: 100%;
+}
+.form-container form input,
+.form-container form select{
+  height: 40px;
+}
+.form-container form textarea{
+  height: 100px;
+}
+
+.form-container form button{
+  background-color: #2563eb; 
+  color: #ffffff; 
+  padding: 0.5rem 1rem; 
+  border-radius: 0.25rem; 
+  border: none; 
+  cursor: pointer; 
+  transition: background-color 0.3s;
+}

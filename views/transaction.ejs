@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/transaction.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Adnet</title>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+
+    <!-- Main Content -->
+    <div class="top-container">
+      <!-- Navbar -->
+      <div class="nav">
+        <div class="logo">
+          <i class="bx bxl-codepen"></i>
+          <a href="#">Adnet</a>
+        </div>
+
+        <div class="right-section">
+          <div class="notification">
+            <i class="bx bx-bell" onclick="toggleNotificationDropdown()">
+              <!-- Notification Badge -->
+              <span class="badge">3</span>
+            </i>
+
+            <!-- Notification Dropdown Menu -->
+            <div class="dropdown" id="notificationDropdown">
+              <p>Notifications</p>
+
+              <a href="#">
+                <i class="bx bx-comment-detail"></i>
+                <span>New comment on product</span>
+              </a>
+              <a href="#">
+                <i class="bx bx-user-plus"></i>
+                <span>You have a new buyer</span>
+              </a>
+              <a href="#">
+                <i class="bx bx-message"></i>
+                <span>New message from Sarah</span>
+              </a>
+
+              <!-- "View All" Link -->
+              <a href="#" class="view-all">View All</a>
+            </div>
+          </div>
+
+          <i class="bx bx-search"></i>
+
+          <div class="profile">
+            <div class="info">
+              <img src="/images/profile.png" alt="Profile Picture" />
+              <div>
+                <a href="#">Alex Johnson</a>
+                <p>Entrepreneur</p>
+              </div>
+            </div>
+            <i class="bx bx-chevron-down" onclick="toggleDropdown()"></i>
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown" id="profileDropdown">
+              <a href="#">Profile</a>
+              <a href="#">Settings</a>
+              <a href="#">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Section -->
+      <div class="status">
+        <div class="header">
+          <h4 id="big">Your Analysis</h4>
+          <h4 id="small">Weekly Activity</h4>
+        </div>
+
+        <div class="items-list">
+          <div class="item">
+            <div class="info">
+              <div>
+                <h5>Total Sales/Income</h5>
+                <p>- ₦ 500,000.00 Profit</p>
+                <p>- ₦ 130,386,900 Gross</p>
+              </div>
+              <i class="bx bx-coin-stack"></i>
+            </div>
+            <div class="progress">
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="info">
+              <div>
+                <h5>Gross Profit</h5>
+                <p>- ₦ 130,386,900 Gross</p>
+                <p>- 5000 Stocks</p>
+              </div>
+              <i class="bx bx-wallet"></i>
+            </div>
+            <div class="progress">
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="info">
+              <div>
+                <h5>Total Loss</h5>
+                <p>- 114 Containers of Crude</p>
+                <p>- 8 investors left</p>
+              </div>
+              <i class="bx bx-sad"></i>
+            </div>
+            <div class="progress">
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="item">
+            <canvas class="activity-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Container -->
+      <div class="bottom-container">
+        <!-- Progress Status Section -->
+        <div class="prog-status">
+          <div class="header">
+            <h4>Transaction Input</h4>
+            <div class="tabs">
+              <a href="#" class="active">1W</a>
+            </div>
+          </div>
+          <label>Item Name: <input type="text" id="itemName" /></label>
+          <label
+            >Purchase Price: <input type="number" id="purchasePrice"
+          /></label>
+          <label
+            >Selling Price: <input type="number" id="sellingPrice"
+          /></label>
+          <label>Quantity: <input type="number" id="quantity" /></label>
+          <div class="button-group">
+            <button id="addUpdateBtn" onclick="addOrUpdateTransaction()">
+              Add Transaction
+            </button>
+            <button onclick="clearTransactions()" class="clear-btn">
+              Clear All
+            </button>
+            <button onclick="exportToCSV()" class="export-btn">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="popular">
+          <div class="header">
+            <h4>Transaction Records</h4>
+            <a href="#"># Growth</a>
+          </div>
+          <div class="audio">
+            <a href="#">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Purchase Price</th>
+                    <th>Selling Price</th>
+                    <th>Quantity</th>
+                    <th>Total Cost</th>
+                    <th>Total Revenue</th>
+                    <th>Profit/Loss</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionTable"></tbody>
+              </table>
+            </a>
+          </div>
+
+          <div class="summary">
+            <p>Total Revenue: <span id="totalRevenue">0</span></p>
+            <p>Total Cost: <span id="totalCost">0</span></p>
+            <p>Gross Profit: <span id="grossProfit">0</span></p>
+          </div>
+
+          <div class="listen">
+            <div class="author">
+              <img src="images/profile.png" />
+              <div>
+                <a href="#">Alex</a>
+                <p>Industry Expert</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/js/dashbord.js"></script>
+    <script src="/js/transaction.js"></script>
+  </body>
+</html>

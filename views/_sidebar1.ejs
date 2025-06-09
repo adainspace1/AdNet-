@@ -1,0 +1,609 @@
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+    :root {
+      --sidebar-width: 300px;
+      --sidebar-collapsed-width: 76px;
+      --primary-color: #1a73e8;
+      --sidebar-bg: #ffffff;
+      --text-color: #4f4f4f;
+      --hover-bg: #f5f5f5;
+      --transition-speed: 0.3s;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --border-radius: 8px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: poppins, sans-serif;
+    }
+    
+    body {
+      background-color: #f9f9f9;
+      display: flex;
+    }
+    
+    .sidebar {
+      /* position: fixed; */
+      width: var(--sidebar-collapsed-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      padding: 20px 0;
+      box-shadow: var(--shadow);
+      transition: width var(--transition-speed);
+      overflow-x: hidden;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      margin-left: -10px;
+    }
+    
+    /* Expand sidebar on hover */
+    .sidebar:hover {
+      width: var(--sidebar-width);
+      
+    }
+    
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      padding: 0 24px 24px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .sidebar-header img {
+      height: 32px;
+      margin-right: 12px;
+    }
+    
+    .sidebar-header h3 {
+      font-size: 18px;
+      color: var(--primary-color);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .toggle-btn {
+      display: none; /* Hide the toggle button since we're using hover */
+    }
+    
+    .sidebar-items {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: background-color var(--transition-speed);
+      margin: 4px 12px;
+      border-radius: var(--border-radius);
+    }
+    
+    .nav-link i {
+      font-size: 20px;
+      min-width: 32px; /* Ensure consistent width for icons */
+      display: flex;
+      justify-content: center;
+      align-items: center; /* Align icons vertically */
+      margin-right: 0; /* Prevent margin issues */
+    }
+    
+    .nav-link span {
+      margin-left: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity var(--transition-speed);
+    }
+    
+    /* Hide text in collapsed state */
+    .sidebar .nav-link span,
+    .sidebar .dropdown-btn span,
+    .sidebar .logout-link span {
+      display: none;
+    }
+    
+    /* Show text when sidebar is hovered */
+    .sidebar:hover .nav-link span {
+      opacity: 1;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: var(--hover-bg);
+      color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+      font-weight: 500;
+      background-color: rgba(26, 115, 232, 0.1);
+    }
+    
+    .dropdown {
+      margin: 4px 12px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    
+    .dropdown-btn {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      color: var(--text-color);
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      transition: background-color var(--transition-speed);
+    }
+    
+    .dropdown-btn:hover {
+      background-color: var(--hover-bg);
+    }
+    .mobile-toggle{
+      display: none;
+    }
+    .dropdown-btn i:first-child {
+      font-size: 20px;
+      min-width: 32px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .dropdown-btn span {
+      margin-left: 12px;
+      flex-grow: 1;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity var(--transition-speed);
+    }
+    
+    /* Show text when sidebar is hovered */
+    .sidebar:hover .dropdown-btn span {
+      opacity: 1;
+    }
+    
+    .dropdown-btn .chevron {
+      transition: transform var(--transition-speed);
+      font-size: 16px;
+      opacity: 0;
+    }
+    
+    .sidebar:hover .dropdown-btn .chevron {
+      opacity: 1;
+    }
+    
+    .dropdown-btn.active .chevron {
+      transform: rotate(180deg);
+    }
+    
+    .dropdown-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-speed);
+      background-color: rgba(245, 245, 245, 0.5);
+      margin-left: 24px;
+      margin-right: 8px;
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      display: none;
+    }
+    
+    /* Show dropdown content only when sidebar is hovered and dropdown is open */
+    .sidebar:hover .dropdown.open .dropdown-content {
+      max-height: 1000px;
+      display: block;
+    }
+    
+    .submenu {
+      padding: 8px 0;
+    }
+    
+    .submenu-section {
+      margin-bottom: 8px;
+    }
+    
+    .submenu-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 8px 32px;
+      color: #757575;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .submenu-title .chevron {
+      transition: transform var(--transition-speed);
+      font-size: 14px;
+    }
+    
+    .submenu-title.active .chevron {
+      transform: rotate(180deg);
+    }
+    
+    .submenu-items {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-speed);
+    }
+    
+    .submenu-section.open .submenu-items {
+      max-height: 500px;
+    }
+    
+    .submenu-link {
+      display: block;
+      padding: 8px 16px 8px 40px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color var(--transition-speed);
+      white-space: nowrap;
+    }
+    
+    .submenu-link:hover {
+      color: var(--primary-color);
+    }
+    
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+    }
+    
+    .logout-link {
+      display: flex;
+      align-items: center;
+      color: #d93025;
+      text-decoration: none;
+      padding: 12px 24px;
+      margin: 4px 12px;
+      border-radius: var(--border-radius);
+      transition: background-color var(--transition-speed);
+    }
+    
+    .logout-link i {
+      font-size: 20px;
+      min-width: 32px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .logout-link span {
+      margin-left: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity var(--transition-speed);
+    }
+    
+    /* Show text when sidebar is hovered */
+    .sidebar:hover .logout-link span {
+      opacity: 1;
+    }
+    
+    .logout-link:hover {
+      background-color: rgba(217, 48, 37, 0.1);
+    }
+    
+    /* Default collapsed state - ensure icons are always visible and aligned */
+    .sidebar .nav-link i,
+    #pos-dropdown i,
+    .sidebar .dropdown-btn i,
+    .sidebar .logout-link i {
+      font-size: 20px;
+      min-width: 32px; /* Ensure consistent width for icons */
+      display: flex;
+      justify-content: center;
+      align-items: center; /* Align icons vertically */
+      margin-right: 0; /* Prevent margin issues */
+    }
+    #pos-dropdown #cog{
+margin-left: 30px;
+    }
+    /* Hide text in collapsed state */
+    .sidebar .nav-link span,
+    .sidebar .dropdown-btn span,
+    .sidebar .logout-link span {
+      display: none;
+    }
+    
+    /* Show text on hover */
+    .sidebar:hover .nav-link span,
+    .sidebar:hover .dropdown-btn span,
+    .sidebar:hover .logout-link span {
+      display: inline;
+      opacity: 1;
+    }
+    
+    /* Adjust padding and alignment for collapsed state */
+    .sidebar .nav-link,
+    .sidebar .dropdown-btn,
+    .sidebar .logout-link {
+      justify-content: center;
+      padding: 12px;
+      text-align: center; /* Center-align content */
+    }
+    
+    /* Adjust padding and alignment for expanded state */
+    .sidebar:hover .nav-link,
+    .sidebar:hover .dropdown-btn,
+    .sidebar:hover .logout-link {
+      justify-content: flex-start;
+      padding: 12px 24px;
+      text-align: left; /* Left-align content */
+    }
+    
+    /* Sidebar header alignment */
+    .sidebar .sidebar-header {
+      display: flex;
+      align-items: center; /* Vertically align header content */
+      justify-content: center; /* Center-align header in collapsed state */
+      padding: 0 0 24px 0;
+    }
+    
+    .sidebar:hover .sidebar-header {
+      justify-content: flex-start; /* Align header content to the left */
+      padding: 0 24px 24px;
+    }
+    
+    .sidebar .sidebar-header img {
+      margin-right: 0;
+    }
+    
+    .sidebar:hover .sidebar-header img {
+      margin-right: 12px;
+    }
+    
+    .sidebar .sidebar-header h3 {
+      display: none;
+    }
+    
+    .sidebar:hover .sidebar-header h3 {
+      display: block;
+    }
+    
+    /* Responsive behavior */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        padding: 0;
+      }
+      
+      .sidebar.mobile-open {
+        width: var(--sidebar-width);
+        padding: 20px 0;
+      }
+      
+      .sidebar.mobile-open .nav-link span,
+      .sidebar.mobile-open .dropdown-btn span,
+      .sidebar.mobile-open .logout-link span,
+      .sidebar.mobile-open .sidebar-header h3,
+      .sidebar.mobile-open .dropdown-btn .chevron {
+        opacity: 1;
+      }
+      
+      .sidebar.mobile-open .sidebar-header {
+        justify-content: flex-start;
+        padding: 0 24px 24px;
+      }
+      
+      .sidebar.mobile-open .sidebar-header img {
+        margin-right: 12px;
+      }
+      
+      .sidebar.mobile-open .sidebar-header h3 {
+        display: block;
+      }
+      
+      .sidebar.mobile-open .nav-link,
+      .sidebar.mobile-open .dropdown-btn,
+      .sidebar.mobile-open .logout-link {
+        justify-content: flex-start;
+        padding: 12px 24px;
+      }
+      
+      .mobile-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 101;
+        box-shadow: var(--shadow);
+      }
+    }
+    
+    /* Main content area */
+    .main-content {
+      margin-left: var(--sidebar-collapsed-width);
+      padding: 24px;
+      width: 100%;
+      transition: margin-left var(--transition-speed);
+    }
+    
+    .sidebar:hover ~ .main-content {
+      margin-left: var(--sidebar-width);
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .sidebar.mobile-open ~ .main-content {
+        margin-left: var(--sidebar-width);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile sidebar toggle button -->
+  <button class="mobile-toggle">
+    <i class='bx bx-menu'></i>
+  </button>
+  
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+ 
+
+    <div class="sidebar-items">
+      <!-- Main Navigation Links -->
+      <a href="/Dashboard" class="nav-link active">
+        <i class='bx bxs-dashboard'></i>
+        <span>Dashboard</span>
+      </a>
+      
+      <a href="#" class="nav-link">
+        <i class='bx bx-chart'></i>
+        <span>Analytics</span>
+      </a>
+      
+      <a href="/Transactions" class="nav-link">
+        <i class='bx bx-history'></i>
+        <span>Transactions</span>
+      </a>
+      
+      <!-- POS Dropdown -->
+      <div class="dropdown" id="pos-dropdown">
+        <button class="dropdown-btn">
+          <i class='bx bx-cog' id="cog"></i>
+          <span>POS</span>
+          <i class='bx bx-chevron-down chevron'></i>
+        </button>
+        
+        <div class="dropdown-content">
+          <div class="submenu">
+            <!-- Sales Section -->
+            <div class="submenu-section" id="sales-section">
+              <div class="submenu-title">
+                <span>Sales</span>
+                <i class='bx bx-chevron-down chevron'></i>
+              </div>
+              
+              <div class="submenu-items">
+                <a href="/newsales" class="submenu-link">New Sale Interface</a>
+                <a href="/salehistory" class="submenu-link">Sales History</a>
+                <a href="#" class="submenu-link">Refund/Return Handling</a>
+                <a href="#" class="submenu-link">Hold/Resume Sales</a>
+              </div>
+            </div>
+            
+            <!-- Expenses Section -->
+            <div class="submenu-section" id="expenses-section">
+              <div class="submenu-title">
+                <span>Expenses</span>
+                <i class='bx bx-chevron-down chevron'></i>
+              </div>
+              
+              <div class="submenu-items">
+                <a href="/addnewexpenses" class="submenu-link">Add New Expense</a>
+                <a href="/viewallexpenses" class="submenu-link">View All Expenses</a>
+                
+              </div>
+            </div>
+            
+            <!-- Inventory Section -->
+            <div class="submenu-section" id="inventory-section">
+              <div class="submenu-title">
+                <span>Inventory</span>
+                <i class='bx bx-chevron-down chevron'></i>
+              </div>
+              
+              <div class="submenu-items">
+                <a href="#" class="submenu-link">Product List</a>
+                <a href="#" class="submenu-link">Add/Edit Product</a>
+                <a href="#" class="submenu-link">Inventory Reports</a>
+              </div>
+            </div>
+            
+            <!-- Maintenance Section -->
+            <div class="submenu-section" id="maintenance-section">
+              <div class="submenu-title">
+                <span>Maintenance</span>
+                <i class='bx bx-chevron-down chevron'></i>
+              </div>
+              
+              <div class="submenu-items">
+                <a href="#" class="submenu-link">System Backup</a>
+                <a href="#" class="submenu-link">User Roles & Permissions</a>
+                <a href="#" class="submenu-link">Activity Logs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Logout Link in the footer -->
+    <div class="sidebar-footer">
+      <a href="/" class="logout-link">
+        <i class='bx bx-log-out'></i>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Main Content Area -->
+  
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile toggle functionality
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      
+      // Mobile toggle
+      mobileToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('mobile-open');
+      });
+      
+      // POS dropdown toggle - click needed for mobile
+      const posDropdown = document.getElementById('pos-dropdown');
+      const posDropdownBtn = posDropdown.querySelector('.dropdown-btn');
+      
+      posDropdownBtn.addEventListener('click', function() {
+        posDropdown.classList.toggle('open');
+        this.classList.toggle('active');
+      });
+      
+      // Submenu toggles
+      const submenuSections = document.querySelectorAll('.submenu-section');
+      
+      submenuSections.forEach(section => {
+        const title = section.querySelector('.submenu-title');
+        
+        title.addEventListener('click', function() {
+          section.classList.toggle('open');
+          this.classList.toggle('active');
+        });
+      });
+      
+      // Auto-open first submenu section for demonstration
+      document.getElementById('sales-section').classList.add('open');
+      document.getElementById('sales-section').querySelector('.submenu-title').classList.add('active');
+      
+      // Make sure POS dropdown is open by default to show submenu sections
+      posDropdown.classList.add('open');
+      posDropdownBtn.classList.add('active');
+    });
+  </script>

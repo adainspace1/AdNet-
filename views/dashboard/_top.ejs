@@ -1,0 +1,56 @@
+
+
+<style>
+
+ body {
+      background: #f4f6f8;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+.topsidebar {
+    position: sticky;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-bottom: 20px;
+}
+.topsidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+}
+.topsidebar li {
+    margin: 0 10px;
+}
+.topsidebar a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+</style>
+
+<div class="topsidebar">
+    <h3 class="text-2xl font-semibold mb-4">Dashboard</h3>
+    <ul>
+        <li><a href="/Inventory">Inventory</a></li>
+                <li><a href="/Sales">Sales</a></li>
+                        <li><a href="/Expenses">Expenses</a></li>
+                <li><a href="/Transaction">Transaction</a></li>
+
+                <li><a href="/Production">Production</a></li>
+                <li><a href="/Profit">Profit</a></li>
+    </ul>
+</div>

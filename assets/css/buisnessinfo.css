@@ -1,0 +1,131 @@
+
+
+
+
+
+
+
+
+   
+
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+}
+
+.stepper {
+  margin-top: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: gray;
+}
+
+.stepper div {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.stepper div.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.form-group label {
+    flex: 0 0 150px;
+    margin-right: 10px;
+}
+.form-group input, 
+.form-group select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.button-group {
+    margin-top: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.stepper #ss1 {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss1.active {
+    background-color: #fff;
+    color: grey;
+}
+
+.stepper #ss2.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss2 {
+    background-color: #fff;
+    color: gray;
+}
+
+.stepper #ss3.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss3 {
+    background-color: #fff;
+    color: gray;
+}
+
+.stepper #ss4.active {
+    background-color: #2d9cdb;
+    color: white;
+}
+.stepper #ss4 {
+    background-color: #fff;
+    color: gray;
+}
+
+
+
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.buttons #nextBtn4{
+    margin-top: 20px;
+    margin-left: 87%;
+}

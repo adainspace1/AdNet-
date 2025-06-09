@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Details Registration</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/company.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="registration-container">
+      <!-- Sidebar -->
+      <!-- Sidebar -->
+      <%- include ("_sidebar2") %>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+          <h1>Activate <span>Wizdek Media</span></h1>
+        </header>
+
+        <!-- Step Indicator -->
+        <div class="stepper">
+          <div class="step-indicator">1</div>
+          <div class="step-indicator">2</div>
+          <div class="step-indicator">3</div>
+          <div class="step-indicator">4</div>
+        </div>
+
+        <!-- Company Details Form -->
+        <form
+          action="/api/auth/submitCompany"
+          enctype="multipart/form-data"
+          method="post"
+          id="stepperForm"
+          class="form-content"
+        >
+
+
+         <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+
+          <div class="step active">
+            <!-- Section 1: Basic Info -->
+            <section class="form-section" id="section-1">
+              <h2>Company Information</h2>
+              <div class="form-group">
+                <label for="companyName">Company Name</label>
+                <input
+                  type="text"
+                  id="companyName"
+                  name="companyName"
+                  placeholder="Enter company name"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="businessStructure">Industry</label>
+                <select
+                  id="industry"
+                  name="industry"
+                  required
+                >
+                  <option value="">Select Industry</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Science">Science</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="industry">Address</label>
+                <input
+                  type="text"
+                  id="Address"
+                  name="Address"
+                  placeholder="No: 40, Sulule Cresent"
+                />
+              </div>
+            </section>
+          </div>
+
+          <!-- business -->
+          <div class="step">
+            <h2>Business Structure</h2>
+
+            <div class="form-group">
+              <label for="businessStructure">Business Structure</label>
+              <select id="businessStructure" name="businessStructure" required>
+                <option value="">Select Structure</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Corporation">Corporation</option>
+                <option value="Limited Liability Company">LLC</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="cacNumber">CAC Registration Number</label>
+              <input
+                type="text"
+                id="cacNumber"
+                name="cacNumber"
+                placeholder="Enter CAC number"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="additionalDocs">CAC Documents</label>
+              <input
+                type="file"
+                id="additionalDocs"
+                name="CACDocs"
+                accept="application/pdf,image/*"
+                multiple
+              />
+              <small>Upload CAC Certificate.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="additionalDocs">MOA Documents</label>
+              <input
+                type="file"
+                id="additionalDocs"
+                name="MOADocs"
+                accept="application/pdf,image/*"
+                multiple
+              />
+              <small>Upload MOA documents.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="additionalDocs">FOC Documents</label>
+              <input
+                type="file"
+                id="additionalDocs"
+                name="FOCDocs"
+                accept="application/pdf,image/*"
+                multiple
+              />
+              <small>Upload FOC documents.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="incorporationDate">Date of Incorporation</label>
+              <input
+                type="date"
+                id="incorporationDate"
+                name="incorporationDate"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="taxId">Tax Identification Number (TIN)</label>
+              <input
+                type="text"
+                id="taxId"
+                name="taxId"
+                placeholder="Enter TIN"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="shareholderAgreement">Shareholder Agreement</label>
+              <input
+                type="file"
+                id="shareholderAgreement"
+                name="shareholderAgreement"
+                accept="application/pdf,image/*"
+                required
+              />
+              <small>Upload the shareholder agreement if applicable.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="additionalDocs"
+                >Additional Registration Documents</label
+              >
+              <input
+                type="file"
+                id="additionalDocs"
+                name="AddRegistrationDocs"
+                accept="application/pdf,image/*"
+                multiple
+              />
+              <small
+                >Upload other Certificate, tax documents, or any other
+                registration documents.</small
+              >
+            </div>
+          </div>
+
+          <!-- contact -->
+          <div class="step">
+            <h2>Contact Information</h2>
+            <div class="form-group">
+              <label for="email">Company Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="contact@company.com"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="phone">Company Phone</label>
+              <div class="phone-input-container">
+                <select id="countryCode" name="countryCode" required>
+                  <option value="">Select Country Code</option>
+                  <option value="+1">USA (+1)</option>
+                  <option value="+44">UK (+44)</option>
+                  <option value="+234">Nigeria (+234)</option>
+                  <option value="+91">India (+91)</option>
+                  <option value="+49">Germany (+49)</option>
+                  <option value="+81">Japan (+81)</option>
+                  <option value="+33">France (+33)</option>
+                  <option value="+61">Australia (+61)</option>
+                  <!-- Add more country codes as needed -->
+                </select>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <div class="buttons">
+              <button
+                id="prevBtn"
+                class="btn back-btn"
+                onclick="changeStep(-1)"
+                type="button"
+              >
+                <i class="bx bx-left-arrow-alt"></i> Previous
+              </button>
+              <button
+                id="nextBtn"
+                class="btn next-btn"
+                onclick="changeStep(1)"
+                type="button"
+              >
+                <i class="bx bx-right-arrow-alt"></i> Next
+              </button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <script src="/js/company.js"></script>
+  </body>
+</html>

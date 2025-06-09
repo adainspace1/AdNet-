@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sales History Viewer</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link rel="stylesheet" href="/css/salehistory.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  </head>
+  <body>
+    <!-- Sidebar (this is a placeholder - your actual sidebar content will be included here) -->
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+
+    <main>
+      <div class="dashboard">
+        <aside class="filters">
+          <div class="filter-section">
+            <h3>Date Range</h3>
+            <label for="date-from">From</label>
+            <input type="date" id="date-from" />
+            <label for="date-to">To</label>
+            <input type="date" id="date-to" />
+          </div>
+
+          <div class="filter-section">
+            <h3>Product Category</h3>
+            <select id="category-filter">
+              <option value="">All Categories</option>
+              <option value="electronics">Electronics</option>
+              <option value="clothing">Clothing</option>
+              <option value="furniture">Furniture</option>
+              <option value="home-goods">Home Goods</option>
+              <option value="sporting-goods">Sporting Goods</option>
+            </select>
+          </div>
+
+          <div class="filter-section">
+            <h3>Sales Representative</h3>
+            <select id="rep-filter">
+              <option value="">All Representatives</option>
+              <option value="john-doe">John Doe</option>
+              <option value="jane-smith">Jane Smith</option>
+              <option value="robert-johnson">Robert Johnson</option>
+              <option value="emily-davis">Emily Davis</option>
+            </select>
+          </div>
+
+          <div class="filter-section">
+            <h3>Customer</h3>
+            <input
+              type="text"
+              id="customer-search"
+              placeholder="Search customers..."
+            />
+          </div>
+
+          <div class="filter-section">
+            <h3>Sale Amount</h3>
+            <label for="min-amount">Minimum ($)</label>
+            <input type="number" id="min-amount" min="0" step="0.01" />
+            <label for="max-amount">Maximum ($)</label>
+            <input type="number" id="max-amount" min="0" step="0.01" />
+          </div>
+
+          <button id="apply-filters">Apply Filters</button>
+          <button
+            id="reset-filters"
+            class="btn-secondary"
+            style="margin-top: 0.5rem"
+          >
+            Reset
+          </button>
+        </aside>
+
+        <div class="content">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Sales Overview</h2>
+              <div class="card-actions">
+                <select id="chart-type">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+            </div>
+            <div class="summary">
+              <div class="summary-item">
+                <div class="summary-label">Total Sales</div>
+                <div class="summary-value" id="total-sales">$0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Number of Orders</div>
+                <div class="summary-value" id="order-count">0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Average Order Value</div>
+                <div class="summary-value" id="avg-value">$0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Top Category</div>
+                <div class="summary-value" id="top-category">-</div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="sales-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Sales History</h2>
+              <div class="card-actions">
+                <button id="export-csv" class="btn-secondary">
+                  Export CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Sales Rep</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body">
+                  <!-- Table data will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="/js/saleshistory.js"></script>
+  </body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adnet- Business Info</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/buisnessinfo.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="registration-container">
+      <!-- Sidebar -->
+      <%- include ("_sidebar2") %>
+
+      <main class="main-content">
+        <header class="header">
+          <h1>Activate <span>Wizdek Media</span></h1>
+        </header>
+
+        <!-- Step Indicator -->
+        <div class="stepper">
+          <div id="ss1" class="step-indicator">1</div>
+          <div id="ss2" class="step-indicator">2</div>
+          <div id="ss3" class="step-indicator">3</div>
+          <div id="ss4" class="step-indicator">4</div>
+        </div>
+
+        <form
+          action="/api/auth/submitBusiness"
+          method="post"
+          id="stepperForm"
+          class="form-content"
+  enctype="multipart/form-data"
+        >
+          <div class="step1">
+            <h2>Business Registration Form</h2>
+            <p>
+              Please provide the necessary information to register your
+              business.
+            </p>
+
+            <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+
+            <div class="form-group">
+              <label for="businessName">Business Name</label>
+              <input
+                type="text"
+                id="businessName"
+                name="businessName"
+                placeholder="Your Business Name"
+                required
+              />
+            </div>
+
+            <div
+              class="form-group"
+              style="
+                display: flex;
+                align-items: center;
+                font-family: 'Poppins', sans-serif;
+              "
+            >
+              <label
+                for="businessType"
+                style="margin-right: 10px; font-size: 16px; color: #333"
+                >Business Type</label
+              >
+              <select
+                id="businessType"
+                name="businessType"
+                required
+                style="
+                  font-family: 'Poppins', sans-serif;
+                  font-size: 16px;
+                  padding: 10px;
+                "
+              >
+                <option value="">Select Business Type</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Corporation">Corporation</option>
+                <option value="Limited Liability Company">
+                  Limited Liability Company
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="businessAddress">Business Address</label>
+              <input
+                type="text"
+                id="businessAddress"
+                name="businessAddress"
+                placeholder="Business Address"
+                required
+              />
+            </div>
+
+            <button id="nextBtn1" class="btn next-btn">
+              <i class="bx bx-right-arrow-alt"></i> Next
+            </button>
+          </div>
+
+          <!-- contact -->
+          <div class="step2">
+            <h2>Contact Information</h2>
+            <p>Please provide your contact details.</p>
+
+            <div class="form-group">
+              <label for="contactName">Name</label>
+              <input
+                type="text"
+                id="contactName"
+                name="contactName"
+                placeholder="Your Name"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Email</label>
+              <input
+                type="email"
+                id="contactEmail"
+                name="contactEmail"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="contactPhone">Phone</label>
+              <input
+                type="tel"
+                id="contactPhone"
+                name="contactPhone"
+                placeholder="Your Phone Number"
+                required
+              />
+            </div>
+
+            <div class="buttons">
+              <button id="prevBtn1" class="btn back-btn" type="button">
+                <i class="bx bx-left-arrow-alt"></i> Previous
+              </button>
+              <button id="nextBtn2" class="btn next-btn" type="button">
+                <i class="bx bx-right-arrow-alt"></i> Next
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 2: Business Structure -->
+          <div class="step3">
+            <h2>Business Structure</h2>
+
+            <!-- Directors Section -->
+            <div class="form-group">
+              <label for="directorName">Director's Name</label>
+              <input
+                type="text"
+                id="directorName"
+                name="directorName"
+                placeholder="Enter director's name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="directorPhone">Director's Phone</label>
+              <input
+                type="tel"
+                id="directorPhone"
+                name="directorPhone"
+                placeholder="Enter director's phone number"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="directorDocs">Director's Documents</label>
+              <input
+                type="file"
+                id="directorDocs"
+                name="directorDocs"
+                accept="application/pdf,image/*"
+                required
+              />
+            </div>
+
+            <!-- Investors Section -->
+            <div class="form-group">
+              <label for="investorName">Investor's Name</label>
+              <input
+                type="text"
+                id="investorName"
+                name="investorName"
+                placeholder="Enter investor's name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorPhone">Investor's Phone</label>
+              <input
+                type="tel"
+                id="investorPhone"
+                name="investorPhone"
+                placeholder="Enter investor's phone number"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="investorDocs">Investor's Documents</label>
+              <input
+                type="file"
+                id="investorDocs"
+                name="investorDocs"
+                accept="application/pdf,image/*"
+                required
+              />
+            </div>
+
+            <!-- Admins Section -->
+            <div class="form-group">
+              <label for="adminName">Admin's Name</label>
+              <input
+                type="text"
+                id="adminName"
+                name="adminName"
+                placeholder="Enter admin's name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="adminPhone">Admin's Phone</label>
+              <input
+                type="tel"
+                id="adminPhone"
+                name="adminPhone"
+                placeholder="Enter admin's phone number"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="adminDocs">Admin's Documents</label>
+              <input
+                type="file"
+                id="adminDocs"
+                name="adminDocs"
+                accept="application/pdf,image/*"
+                required
+              />
+            </div>
+
+            <!-- Owner Section -->
+            <div class="form-group">
+              <label for="ownerName">Owner's Name</label>
+              <input
+                type="text"
+                id="ownerName"
+                name="ownerName"
+                placeholder="Enter owner's name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="ownerPhone">Owner's Phone</label>
+              <input
+                type="tel"
+                id="ownerPhone"
+                name="ownerPhone"
+                placeholder="Enter owner's phone number"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="ownerDocs">Owner's Documents</label>
+              <input
+                type="file"
+                id="ownerDocs"
+                name="ownerDocs"
+                accept="application/pdf,image/*"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="regNumber">Registration Number</label>
+              <input
+                type="text"
+                id="regNumber"
+                name="regNumber"
+                placeholder="Enter registration number"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="foundingDate">Founding Date</label>
+              <input
+                type="date"
+                id="foundingDate"
+                name="foundingDate"
+                required
+              />
+            </div>
+
+            <div class="buttons">
+              <button id="prevBtn2" class="btn back-btn" type="button">
+                <i class="bx bx-left-arrow-alt"></i> Previous
+              </button>
+              <button id="nextBtn3" class="btn next-btn" type="button">
+                <i class="bx bx-right-arrow-alt"></i> Next
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Confirmation -->
+          <div class="step4">
+            <h2>Step 4: Confirmation</h2>
+            <div class="form-content">
+              <p>Please review your details and click "Submit".</p>
+            </div>
+
+            <div class="buttons">
+              <button id="nextBtn4" class="btn next-btn" type="submit">
+                <i class="bx bx-right-arrow-alt"></i> Submitt
+              </button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <!-- Include the external JavaScript file -->
+    <script src="/js/businessinfo.js"></script>
+  </body>
+</html>

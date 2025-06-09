@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/admin.css" />
+
+    <title>Super Admin</title>
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <%- include ("_sidebar3") %>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Navbar -->
+      <nav>
+        <i class="bx bx-menu"></i>
+        <form action="#">
+          <div class="form-input">
+            <input type="search" placeholder="Search..." />
+            <button class="search-btn" type="submit">
+              <i class="bx bx-search"></i>
+            </button>
+          </div>
+        </form>
+        <input type="checkbox" id="theme-toggle" hidden />
+        <label for="theme-toggle" class="theme-toggle"></label>
+        <a href="#" class="notif">
+          <i class="bx bx-bell"></i>
+          <span class="count">12</span>
+        </a>
+        <a href="#" class="profile">
+          <img src="images/profile-1.jpg" />
+        </a>
+      </nav>
+
+      <!-- End of Navbar -->
+
+      <main>
+        <!-- Insights -->
+        <ul class="insights">
+          <li>
+            <i class="bx bx-briefcase-alt"></i>
+            <span class="info">
+              <h3>1,074</h3>
+              <p>Completed Deals</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-bar-chart-alt-2"></i>
+            <span class="info">
+              <h3>3,944</h3>
+              <p>Client Engagements</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-trending-up"></i>
+            <span class="info">
+              <h3>14,721</h3>
+              <p>Market Inquiries</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bx-wallet"></i>
+            <span class="info">
+              <h3>$6,742</h3>
+              <p>Revenue Generated</p>
+            </span>
+          </li>
+        </ul>
+
+        <!-- End of Insights -->
+
+        <div class="bottom-data">
+          <div class="orders">
+            <div class="header">
+              <i class="bx bx-receipt"></i>
+              <h3>Registered User</h3>
+              <i class="bx bx-filter"></i>
+              <i class="bx bx-search"></i>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Order Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <img src="/images/load.jpeg" alt="Dr. Marcus Niyu" />
+                    <p>Dr. Marcus Niyu</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-check-circle" title="Complete"></i></td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/profile-1.jpg" alt="Mr. John Chukwu" />
+                    <p>Mr. John Chukwu</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-time-five" title="Pending"></i></td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/Lawyer.jpeg" alt="Engr. Laruence Smith" />
+                    <p>Engr. Laruence Smith</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td>
+                    <i class="bx bx-loader-circle" title="In Process"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/Woman.jpeg" alt="Miss. Sandra Smith" />
+                    <p>Miss. Sandra Smith</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-block" title="Suspended"></i></td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/down.jpeg" alt="Mr. Dennis Collins" />
+                    <p>Mr. Dennis Collins</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-check-circle" title="Complete"></i></td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/load.jpeg" alt="Dr. Marcus Niyu" />
+                    <p>Dr. Marcus Niyu</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-check-circle" title="Complete"></i></td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/Lawyer.jpeg" alt="Engr. Laruence Smith" />
+                    <p>Engr. Laruence Smith</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td>
+                    <i class="bx bx-loader-circle" title="In Process"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <img src="/images/profile-1.jpg" alt="Mr. John Chukwu" />
+                    <p>Mr. John Chukwu</p>
+                  </td>
+                  <td>14-08-2023</td>
+                  <td><i class="bx bx-time-five" title="Pending"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Reminders -->
+          <div class="reminders">
+            <div class="header">
+              <i class="bx bx-note"></i>
+              <h3>Remiders</h3>
+              <i class="bx bx-filter"></i>
+              <i class="bx bx-plus"></i>
+            </div>
+            <ul class="task-list">
+              <li class="completed">
+                <div class="task-title">
+                  <i class="bx bx-check-circle"></i>
+                  <p>Meeting with Adam Comms</p>
+                </div>
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </li>
+              <li class="completed">
+                <div class="task-title">
+                  <i class="bx bx-check-circle"></i>
+                  <p>Analyse Our Site</p>
+                </div>
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </li>
+              <li class="not-completed">
+                <div class="task-title">
+                  <i class="bx bx-x-circle"></i>
+                  <p>Auditing</p>
+                </div>
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </li>
+            </ul>
+          </div>
+          <!-- End of Reminders-->
+        </div>
+      </main>
+    </div>
+
+    <script src="/js/admin.js"></script>
+    <script src="/js/roles.js"></script>
+  </body>
+</html>

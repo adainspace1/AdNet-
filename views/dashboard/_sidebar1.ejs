@@ -1,0 +1,137 @@
+<head>
+  <link rel="stylesheet" href="/css/sidebar1.css" />
+</head>
+<body>
+  <!-- Mobile sidebar toggle button -->
+  <button class="mobile-toggle">
+    <i class="bx bx-menu"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-items">
+      <!-- Main Navigation Links -->
+      <a href="/Dashboard" class="nav-link active">
+        <i class="bx bxs-dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="#" class="nav-link">
+        <i class="bx bx-chart"></i>
+        <span>Analytics</span>
+      </a>
+
+      <a href="/Transactions" class="nav-link">
+        <i class="bx bx-history"></i>
+        <span>Transactions</span>
+      </a>
+
+      <!-- POS Dropdown -->
+      <div class="dropdown" id="pos-dropdown">
+        <button class="dropdown-btn">
+          <i class="bx bx-cog" id="cog"></i>
+          <span>POS</span>
+          <i class="bx bx-chevron-down chevron"></i>
+        </button>
+
+        <div class="dropdown-content">
+          <div class="submenu">
+            <!-- Sales Section -->
+            <div class="submenu-section" id="sales-section">
+              <div class="submenu-title">
+                <span>Sales</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/newsales" class="submenu-link">New Sale Interface</a>
+                <a href="/salehistory" class="submenu-link">Sales History</a>
+                <a href="#" class="submenu-link">Refund/Return Handling</a>
+                <a href="#" class="submenu-link">Hold/Resume Sales</a>
+              </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div class="submenu-section" id="expenses-section">
+              <div class="submenu-title">
+                <span>Expenses</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/addnewexpenses" class="submenu-link"
+                  >Add New Expense</a
+                >
+                <a href="/viewallexpenses" class="submenu-link"
+                  >View All Expenses</a
+                >
+              </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div class="submenu-section" id="inventory-section">
+              <div class="submenu-title">
+                <span>Cash Analysis</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/cashanalysis" class="submenu-link">Cash Analysis</a>
+
+                <a href="/profit" class="submenu-link">profit Reports</a>
+              </div>
+            </div>
+            <div class="submenu-section" id="inventory-section">
+              <div class="submenu-title">
+                <span>Inventory</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/inventory" class="submenu-link">Product List</a>
+
+                <a href="#" class="submenu-link">Inventory Reports</a>
+              </div>
+            </div>
+            <!-- Maintenance Section -->
+            <div class="submenu-section" id="maintenance-section">
+              <div class="submenu-title">
+                <span>Maintenance</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/maintenance" class="submenu-link"
+                  >User Roles & Permissions</a
+                >
+                <a href="/Q&A" class="submenu-link">Q&A</a>
+              </div>
+            </div>
+            <!-- production section -->
+            <div class="submenu-section" id="maintenance-section">
+              <div class="submenu-title">
+                <span>Production</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+
+              <div class="submenu-items">
+                <a href="/production" class="submenu-link">Production</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Link in the footer -->
+    <div class="sidebar-footer">
+      <a href="/" class="logout-link">
+        <i class="bx bx-log-out"></i>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <script src="/js/sidebar1.js"></script>
+</body>
