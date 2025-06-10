@@ -38,6 +38,9 @@
             justify-content: space-between;
             align-items: center;
         }
+        .ham{
+            display: none;
+        }
 
         .logo {
             font-size: 1.8rem;
@@ -384,9 +387,43 @@
                 align-items: center;
             }
             
-            .nav-links {
-                display: none;
+            .ham{
+                display: flex;
             }
+            .ham i{
+                font-size: 30px;
+            }
+            .nav-links {
+                display: block;
+                position: fixed;
+                margin: 0px;
+                background-color: rgba(255, 255, 255, 0.98);
+                height: 92vh;
+                left: 0;
+                top: 0;
+                padding: 20px 50px;
+                width: 200px;
+                z-index: 1000;
+                margin-top: 76px;
+                min-width: 200px;
+                max-width: 200px;
+                backdrop-filter: blur(10px);
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                margin-left: -300px;
+                transition: margin-left 0.3s ease;
+            }
+            .nav-links.active{
+                margin-left: 0px;
+            }
+         
+            .nav-links a{
+                min-width: 100%;
+                min-height: 100%;
+                font-size: 20px;
+            }
+            
             
             .features-grid {
                 grid-template-columns: 1fr;
