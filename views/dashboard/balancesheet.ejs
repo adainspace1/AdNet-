@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Balance Sheet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/balancesheet.css">
+</head>
+
+<body>
+  <header>
+    <h1><i class="fas fa-balance-scale"></i> Balance Sheet</h1>
+    <button class="btn-print" onclick="window.print()">
+      <i class="fas fa-print"></i> Print
+    </button>
+  </header>
+
+  <main class="balance-sheet">
+    <section class="section">
+      <h2><i class="fas fa-wallet"></i> Assets</h2>
+<div class="item"><span>Cash</span><span>$<%= assets.cash %></span></div>
+<div class="item"><span>Accounts Receivable</span><span>$<%= assets.accountreceivables %></span></div>
+<div class="item"><span>Inventory</span><span>$<%= assets.inventory %></span></div>
+<div class="item"><span>Equipment</span><span>$<%= assets.equipment %></span></div>
+<div class="item"><span>Investments</span><span>$<%= assets.investments %></span></div>
+<div class="item total"><span>Total Assets</span><span>$<%= totalAssets %></span></div>
+
+    </section>
+
+    <section class="section">
+      <h2><i class="fas fa-money-bill-wave"></i> Liabilities</h2>
+    <div class="item"><span>Accounts Payable</span><span>$<%= liabilities.accountpayables %></span></div>
+<div class="item"><span>Loans</span><span>$<%= liabilities.loans %></span></div>
+<div class="item"><span>Credit Cards</span><span>$<%= liabilities.creditCards %></span></div>
+<div class="item"><span>Taxes Owed</span><span>$<%= liabilities.taxesOwed %></span></div>
+<div class="item total"><span>Total Liabilities</span><span>$<%= totalLiabilities %></span></div>
+
+    </section>
+
+    <section class="section">
+      <h2><i class="fas fa-user-shield"></i> Equity</h2>
+     <div class="item"><span>Owner's Capital</span><span>$<%= totalEquity %></span></div>
+<div class="item"><span>Retained Earnings</span><span>$<%= equity.retainedEarnings %></span></div>
+<div class="item total"><span>Total Equity</span><span>$<%= totalEquity %></span></div>
+
+    </section>
+  </main>
+
+  <div class="summary">
+    <h3> Assets - Liabilities + Equity</h3>
+   <p>$<%= totalAssets %> - $<%= totalLiabilities %> = $<%= totalEquity %></p>
+  </div>
+
+  <div class="ratios">
+<div class="ratio-card">
+  <h4><i class="fas fa-percentage"></i> Debt Ratio</h4>
+  <p><%= debtRatio %>%</p>
+</div>
+<div class="ratio-card">
+  <h4><i class="fas fa-chart-line"></i> Equity Ratio</h4>
+  <p><%= equityRatio %>%</p>
+</div>
+<div class="ratio-card">
+  <h4><i class="fas fa-calculator"></i> Net Worth</h4>
+  <p>$<%= totalEquity %></p>
+</div>
+  </div>
+
+  <div class="notes">
+    <h3><i class="fas fa-sticky-note"></i> Notes</h3>
+    <textarea placeholder="Add additional notes or explanations here..."></textarea>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 AdaIn Technologies. All rights reserved.</p>
+  </footer>
+</body>
+
+</html>

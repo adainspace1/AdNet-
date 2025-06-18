@@ -28,10 +28,11 @@ const {
     AccountPayable,
     accountreceivable,
     payAccountPayable,
-    payReceivable
+    payReceivable,
      
   } = require("../controllers/usercontroller")
  
+    console.log(" two", payReceivable);
 
 
   router.post('/createinventory', createInventory);
@@ -42,7 +43,6 @@ const {
         router.post('/PayApayable',     payAccountPayable);
         router.post('/createAreceivable',     accountreceivable);
                 router.post('/PayAreceivable',     payReceivable);
-
 
 
   router.post('/reset-password/:token', resetpassword);

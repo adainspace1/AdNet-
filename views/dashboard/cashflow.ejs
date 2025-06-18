@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cash Flow Statement</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/cashflow.css">
+</head>
+
+<body>
+  <header>
+    <h1>Cash Flow Statement</h1>
+    <button class="btn-print" onclick="window.print()">
+      <i class="fas fa-print"></i> Print
+    </button>
+  </header>
+
+
+
+
+
+
+  <div class="statement">
+    <h2>For the Year Ended <%= date %></h2>
+
+    <div class="section">
+      <h3>Cash Flows from Operating Activities</h3>
+      <div class="item"><span>Net Income</span><span>$<%= cashFlow.operatingActivities.netIncome.toFixed(2) %></span></div>
+      <div class="item"><span>Depreciation</span><span>$<%= cashFlow.operatingActivities.depreciation.toFixed(2) %></span></div>
+      <div class="item"><span>Change in Working Capital</span><span>$<%= cashFlow.operatingActivities.changeInWorkingCapital.toFixed(2) %></span></div>
+      <div class="item total"><span>Net Cash from Operating Activities</span><span>$<%= cashFlow.operatingActivities.netCashFromOperating.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Cash Flows from Investing Activities</h3>
+      <div class="item"><span>Purchase of Equipment</span><span>$<%= cashFlow.investingActivities.purchaseOfEquipment.toFixed(2) %></span></div>
+      <div class="item"><span>Investment Income</span><span>$<%= cashFlow.investingActivities.investmentIncome.toFixed(2) %></span></div>
+      <div class="item total"><span>Net Cash from Investing Activities</span><span>$<%= cashFlow.investingActivities.netCashFromInvesting.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Cash Flows from Financing Activities</h3>
+      <div class="item"><span>Loan Received</span><span>$<%= cashFlow.financingActivities.loanReceived.toFixed(2) %></span></div>
+      <div class="item"><span>Dividends Paid</span><span>$<%= cashFlow.financingActivities.dividendsPaid.toFixed(2) %></span></div>
+      <div class="item total"><span>Net Cash from Financing Activities</span><span>$<%= cashFlow.financingActivities.netCashFromFinancing.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Net Increase in Cash</h3>
+      <div class="item total"><span>Total Net Cash Flow</span><span>$<%= cashFlow.netIncreaseInCash.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Cash Balance Summary</h3>
+      <div class="item"><span>Cash at Beginning of Year</span><span>$<%= cashFlow.cashBalanceSummary.cashAtBeginning.toFixed(2) %></span></div>
+      <div class="item"><span>Net Increase in Cash</span><span>$<%= cashFlow.netIncreaseInCash.toFixed(2) %></span></div>
+      <div class="item total"><span>Cash at End of Year</span><span>$<%= cashFlow.cashBalanceSummary.cashAtEnd.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Non-Cash Transactions</h3>
+      <div class="item"><span>Equipment Acquired through Leasing</span><span>$<%= cashFlow.nonCashTransactions.toFixed(2) %></span></div>
+    </div>
+
+    <div class="section">
+      <h3>Notes</h3>
+      <div class="item"><span><%= cashFlow.notes %></span><span></span></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 FinEdge Tools. All rights reserved.</p>
+  </footer>
+
+
+
+
+</body>
+
+</html>

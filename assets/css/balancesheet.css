@@ -1,0 +1,157 @@
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f4f7fa;
+      padding: 2rem;
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background-color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #007bff;
+    }
+
+    .btn-print {
+      background: #007bff;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .btn-print:hover {
+      background: #0056b3;
+    }
+
+    .balance-sheet {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .section {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 1.8rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+    }
+
+    .section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .total {
+      font-weight: 600;
+      margin-top: 1rem;
+      border-top: 1px solid #ccc;
+      padding-top: 0.5rem;
+      color: #007bff;
+    }
+
+    .summary, .ratios, .notes {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .summary h3, .ratios h3, .notes h3 {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .summary p, .ratios p {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #28a745;
+    }
+
+    .ratios {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .ratio-card {
+      background: #f0f8ff;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .ratio-card h4 {
+      color: #007bff;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .notes textarea {
+      width: 100%;
+      height: 100px;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      resize: none;
+      font-size: 1rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      .btn-print, footer, .notes {
+        display: none;
+      }
+    }

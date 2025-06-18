@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/assetms.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+           <div class="oneaside">
+             <h1 class="dashboard-title">Asset Management System</h1>
+            <p class="dashboard-subtitle">Advanced Asset Tracking & Management Dashboard</p>
+           </div>
+           <button id="addassets" class="btn btn-primary">Add Assets</button>
+        </div>
+
+              <div class="tab-container">
+            <div class="tab-navigation">
+                <button class="tab-button active" onclick="showTab('register')">
+                    <i class="fas fa-database"></i> Fixed Asset Register
+                </button>
+                <button class="tab-button" onclick="showTab('schedule')">
+                    <i class="fas fa-calendar-alt"></i> Fixed Asset Schedule
+                </button>
+                <button class="tab-button" onclick="showTab('accounts')">
+                    <i class="fas fa-chart-line"></i> Fixed Asset Accounts
+                </button>
+            </div>
+
+
+
+            <div class="tab-content">
+                <!-- Fixed Asset Register Tab -->
+                <div id="register" class="tab-panel active">
+                    <!-- Add Asset Form -->
+                    <div class="controls-section">
+
+                        <div class="add-assetform">
+
+                            
+                             <button type="button" class="btn btn-close"><i class="fa fa-close"></i></button>
+
+                             <form class="fai" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px;">
+                                <h2 style="color: #1e293b; font-weight: 600; text-align: center;">Select Ledger Type</h2>
+                                  <button class="btn btn-primary" id="farbtn" type="button">Fixed Asset Register</button>
+
+                                    <button class="btn btn-primary" id="fasbtn" type="button">Fixed Asset Schedule</button>
+
+                                <button class="btn btn-primary" id="faabtn" type="button">Fixed Asset Accounts</button>
+                             </form>
+                       <form class="far" action="/assets/add" method="POST">
+
+                        <div class="topp">
+                                  <i id="back" class="fa fa-arrow-left"></i>
+    <h2 style="color: #1e293b; font-weight: 600;">Add New Asset</h2>
+                        </div>
+                  
+
+    <input type="text" name="userId" placeholder="" value="<%= user.id %>" required>
+    <input type="text" name="id" placeholder="Asset ID (e.g., AST-001)" required>
+    <input type="text" name="product" placeholder="Product" required>
+
+    <select name="status" required>
+        <option value="Active">Active</option>
+        <option value="Maintenance">Maintenance</option>
+        <option value="Retired">Retired</option>
+    </select>
+
+    <input type="text" name="serial" placeholder="Serial Number" required>
+    <input type="text" name="orderNo" placeholder="Order No. (e.g., PO-2023-0045)" required>
+    <input type="date" name="purchaseDate" required>
+    <input type="number" step="0.01" name="cost" placeholder="Cost (e.g., 1299.00)" required>
+    <input type="text" name="category" placeholder="Category" required>
+    <input type="text" name="manufacturer" placeholder="Manufacturer" required>
+
+    <!-- Ledger Type Dropdown -->
+    <input hidden name="ledgerType" value="Fixed Assets Register" required>
+
+
+    <button type="submit" class="btn btn-primary">Add Asset</button>
+   
+                        </form>
+
+                        <form class="fass" action="/assets/add" method="POST">
+                            
+                                                    <div class="topp">
+                                                        <i id="back" class="fa fa-arrow-left"></i>
+                            <h2 style="color: #1e293b; font-weight: 600;">Add New Asset</h2>
+                                                </div>
+
+                        <input type="text" name="userId" placeholder="" value="<%= user.id %>" required>
+
+                        <input type="hidden" name="ledgerType" value="Fixed Asset Schedule">
+
+                        <input type="text" name="id" placeholder="Asset ID" required>
+                        <input type="text" name="product" placeholder="Product" required>
+                        
+                        <select name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Retired">Retired</option>
+                        </select>
+
+                        <input type="text" name="serial" placeholder="Serial Number" required>
+                        <input type="text" name="orderNo" placeholder="Order No." required>
+                        <input type="date" name="purchaseDate" required>
+                        <input type="number" step="0.01" name="cost" placeholder="Cost" required>
+                        <input type="text" name="category" placeholder="Category" required>
+                        <input type="text" name="manufacturer" placeholder="Manufacturer">
+
+                        <!-- Schedule-specific fields -->
+                        <input type="number" step="0.01" name="depreciationRate" placeholder="Depreciation Rate (%)">
+                        <input type="number" name="usefulLife" placeholder="Useful Life (Years)">
+
+                        <button type="submit" class="btn btn-primary">Add to Schedule</button>
+                        </form>
+
+
+                        <form class="faa" action="/assets/add" method="POST">
+
+                                                    <div class="topp">
+                                                        <i id="back" class="fa fa-arrow-left"></i>
+                            <h2 style="color: #1e293b; font-weight: 600;">Add New Asset</h2>
+                                                </div>
+                                                
+                           <input type="text" name="userId" placeholder="" value="<%= user.id %>" required>
+
+                           
+                        <input type="hidden" name="ledgerType" value="Fixed Asset Accounts">
+
+                        <input type="text" name="id" placeholder="Asset ID" required>
+                        <input type="text" name="product" placeholder="Product" required>
+                        
+                        <select name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Retired">Retired</option>
+                        </select>
+
+                        <input type="text" name="serial" placeholder="Serial Number" required>
+                        <input type="text" name="orderNo" placeholder="Order No." required>
+                        <input type="date" name="purchaseDate" required>
+                        <input type="number" step="0.01" name="cost" placeholder="Cost" required>
+                        <input type="text" name="category" placeholder="Category" required>
+                        <input type="text" name="manufacturer" placeholder="Manufacturer">
+
+                        <!-- Accounting-specific fields -->
+                        <input type="text" name="glAccountCode" placeholder="GL Account Code">
+                        <input type="text" name="costCenter" placeholder="Cost Center">
+
+                        <button type="submit" class="btn btn-primary">Add to Accounts</button>
+                        </form>
+
+                        </div>
+                    
+                        <div class="search-container">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Search assets...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <div class="export-buttons">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-file-csv"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                <% if (registerAssets.length > 0) { %>
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Product</th>
+        <th>Status</th>
+        <th>Serial</th>
+        <th>Order No.</th>
+        <th>Purchase Date</th>
+        <th>Cost</th>
+        <th>Category</th>
+        <th>Manufacturer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% registerAssets.forEach(asset => { %>
+      <tr>
+        <td><%= asset.id %></td>
+        <td><%= asset.product %></td>
+        <td><span class="status-badge status-<%= asset.status.toLowerCase() %>"><%= asset.status %></span></td>
+        <td><%= asset.serial %></td>
+        <td><%= asset.orderNo %></td>
+        <td><%= asset.purchaseDate.toISOString().split('T')[0] %></td>
+        <td>$<%= asset.cost.toFixed(2) %></td>
+        <td><%= asset.category %></td>
+        <td><%= asset.manufacturer %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } else { %>
+  <p>No fixed asset register items found.</p>
+<% } %>
+
+                </div>
+
+                <!-- Fixed Asset Schedule Tab -->
+                <div id="schedule" class="tab-panel">
+                    <div class="controls-section">
+                        <h2 style="color: #1e293b; font-weight: 600;">Asset Lifecycle Management</h2>
+                        <div class="export-buttons">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i> Refresh Data
+                            </button>
+                        </div>
+                    </div>
+
+                  <% if (scheduleAssets.length > 0) { %>
+  <% scheduleAssets.forEach(asset => { %>
+    <div class="expandable-section">
+      <div class="expandable-header" onclick="toggleExpand(this)">
+        <div>
+          <h3><%= asset.product %> Schedule</h3>
+          <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">ID: <%= asset.id %> • Cost: $<%= asset.cost.toFixed(2) %></p>
+        </div>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="expandable-content">
+        <div class="asset-details">
+          <div class="detail-item">
+            <span class="detail-label">Depreciation Rate:</span>
+            <span class="detail-value"><%= asset.depreciationRate %>%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Useful Life:</span>
+            <span class="detail-value"><%= asset.usefulLife %> years</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Purchase Date:</span>
+            <span class="detail-value"><%= asset.purchaseDate.toISOString().split('T')[0] %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Category:</span>
+            <span class="detail-value"><%= asset.category %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% }) %>
+<% } else { %>
+  <p>No scheduled assets available.</p>
+<% } %>
+
+
+                    <!-- Add more expandable sections as needed -->
+                </div>
+
+                <!-- Fixed Asset Accounts Tab -->
+                <div id="accounts" class="tab-panel">
+                    <div class="controls-section">
+                        <h2 style="color: #1e293b; font-weight: 600;">Financial Transaction Log</h2>
+                        <div class="export-buttons">
+                            <input type="date" class="search-input" style="max-width: 200px;">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="financial-log">
+                    <% if (accountAssets.length > 0) { %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Asset ID</th>
+      <th>Account Code</th>
+      <th>Cost Center</th>
+      <th>Product</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% accountAssets.forEach(asset => { %>
+    <tr>
+      <td><%= asset.purchaseDate.toISOString().split('T')[0] %></td>
+      <td><%= asset.id %></td>
+      <td><%= asset.glAccountCode %></td>
+      <td><%= asset.costCenter %></td>
+      <td><%= asset.product %></td>
+      <td class="amount-positive">+$<%= asset.cost.toFixed(2) %></td>
+    </tr>
+    <% }) %>
+  </tbody>
+</table>
+<% } else { %>
+  <p>No financial account assets available.</p>
+<% } %>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script>
+
+        document.getElementById("addassets").addEventListener("click", function() {
+            const form = document.querySelector(".add-assetform");
+            form.style.display = form.style.display === "none" ? "flex" : "none";
+        });
+        document.querySelector(".btn-close").addEventListener("click", function() {
+            const form = document.querySelector(".add-assetform");
+            form.style.display = "none";
+        });
+
+        let assetForm = document.querySelector(".fai");
+        let allassetForms = document.querySelector(".add-assetform");
+
+        document.getElementById("farbtn").addEventListener("click", function() {
+            document.querySelector(".far").style.display = "flex";
+            document.querySelector(".fass").style.display = "none";
+            document.querySelector(".faa").style.display = "none";
+            assetForm.style.display = "none";
+        });
+        document.getElementById("fasbtn").addEventListener("click", function() {
+            document.querySelector(".fass").style.display = "flex";
+            document.querySelector(".far").style.display = "none";
+            document.querySelector(".faa").style.display = "none";
+              assetForm.style.display = "none";
+        });
+        document.getElementById("faabtn").addEventListener("click", function() {
+            document.querySelector(".faa").style.display = "flex";
+            document.querySelector(".far").style.display = "none";
+            document.querySelector(".fass").style.display = "none";
+              assetForm.style.display = "none";
+        });
+
+        document.querySelectorAll("#back").forEach(button => {
+        button.addEventListener("click", function () {
+               allassetForms.style.display = "flex";
+            document.querySelector(".far").style.display = "none";
+            document.querySelector(".fass").style.display = "none";
+            document.querySelector(".faa").style.display = "none";
+            assetForm.style.display = "flex";
+        });
+        });
+    </script>
+
+    <script>
+        function showTab(tabName) {
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function toggleExpand(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('active');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        document.querySelector('#searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#register .table tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        document.querySelectorAll('.table tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.002)';
+            });
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

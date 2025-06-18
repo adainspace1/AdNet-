@@ -14,12 +14,15 @@ const Production = require('./models/production');
 const axios = require('axios');
 const AccountsPayable = require('./models/AccountsPayable');
 const AccountReceivable = require("./models/AccountReceivable");
+const CashFlow = require('./models/CashFlow');
+const Liquidity = require("./models/Liquidity");
 
 const Personal = require('./models/personal');
 
 const Business = require("./models/business");
 const Company = require("./models/company");
 const BankInfo = require("./models/bank");
+const Asset = require('./models/Asset');
 
 const port=4000
 const MongoStore = require("connect-mongo");
@@ -128,7 +131,8 @@ app.get('/api/exchange-rate', async (req, res) => {
         });
         // Fallback to a default rate if API fails
         res.status(200).json({
-            rates: { NGN: 1500.50 }, // Default NGN rate (adjust as needed)
+            rates: { NGN: 1500.50 }, // Default NGN rate (a
+            // djust as needed)
             base: 'USD',
             date: new Date().toISOString().split('T')[0]
         });
@@ -1156,6 +1160,554 @@ app.put('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
+
+
+
+
+
+
+
+
+app.get("/statementofaccount", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const salesitem = await Sales.find({ recipientId: userId });
+    const expenses = await Expense.find({ recipientId: userId });
+    const production = await Production.find({ recipientId: userId });
+
+    // Transform all into a single `transactions` array
+    let transactions = [];
+
+    salesitem.forEach((sale, i) => {
+      transactions.push({
+        date: sale.date,
+        type: "Income",
+        docNo: `SAL-${i + 1}`,
+        description: `Sale of ${sale.item} to ${sale.custormername}`,
+        debit: 0,
+        credit: sale.amount,
+      });
+    });
+
+    expenses.forEach((exp, i) => {
+      transactions.push({
+        date: exp.createdAt,
+        type: "Expense",
+        docNo: `EXP-${i + 1}`,
+        description: `${exp.category}: ${exp.description}`,
+        debit: exp.amount,
+        credit: 0,
+      });
+    });
+
+    production.forEach((prod, i) => {
+      const net = prod.profit - prod.fees;
+      if (net >= 0) {
+        transactions.push({
+          date: prod.createdAt,
+          type: "Production Profit",
+          docNo: `PRO-${i + 1}`,
+          description: `Produced ${prod.itemName} (${prod.category})`,
+          debit: 0,
+          credit: net,
+        });
+      } else {
+        transactions.push({
+          date: prod.createdAt,
+          type: "Production Loss",
+          docNo: `PRO-${i + 1}`,
+          description: `Loss on ${prod.itemName} (${prod.category})`,
+          debit: Math.abs(net),
+          credit: 0,
+        });
+      }
+    });
+
+    // Sort all by date (latest first)
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Compute running balance
+    let runningBalance = 0;
+    transactions = transactions.reverse().map((tx) => {
+      runningBalance += (tx.credit || 0) - (tx.debit || 0);
+      return {
+        ...tx,
+        balance: runningBalance,
+        formattedDate: new Date(tx.date).toISOString().split('T')[0],
+      };
+    }).reverse(); // Reverse again to restore descending order
+
+    // Send to EJS
+    const businessinfo = await Business.findOne({ reciepientId: userId });
+
+    // === Summary Calculations ===
+let openingBalance = 2450000; // or fetch from DB if saved
+
+let totalInvoiced = 0;
+let totalPayments = 0;
+let totalCreditNotes = 0;
+let totalExpenses = 0;
+
+// Sales
+salesitem.forEach(sale => {
+  totalInvoiced += sale.amount;
+  totalPayments += sale.amount; // Assuming full payments
+});
+
+// Expenses
+expenses.forEach(exp => {
+  totalExpenses += exp.amount;
+});
+
+// Production
+production.forEach(prod => {
+  const net = prod.profit - prod.fees;
+  if (net >= 0) {
+    totalInvoiced += net;
+  } else {
+    totalCreditNotes += Math.abs(net);
+  }
+});
+
+const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCreditNotes;
+
+
+    res.render('dashboard/statement of account.ejs', {
+      user: req.user,
+      transactions,
+      businessinfo,
+        summary: {
+    openingBalance,
+    totalInvoiced,
+    totalPayments,
+    totalCreditNotes,
+    closingBalance
+  }
+    });
+
+  } catch (err) {
+    console.error('Error loading statement of account page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+
+
+
+app.get("/Assests", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const allAssets = await Asset.find({ userId }).sort({ createdAt: -1 });
+
+    // Group assets by ledgerType
+    const registerAssets = allAssets.filter(a => a.ledgerType === 'Fixed Assets Register');
+    const scheduleAssets = allAssets.filter(a => a.ledgerType === 'Fixed Asset Schedule');
+    const accountAssets = allAssets.filter(a => a.ledgerType === 'Fixed Asset Accounts');
+
+    res.render("dashboard/Assetms.ejs", { 
+      user: req.user,
+      registerAssets,
+      scheduleAssets,
+      accountAssets
+    });
+
+  } catch (error) {
+    res.status(500).send('Error fetching assets: ' + error.message);
+  }
+});
+
+
+
+
+
+app.post('/assets/add', async (req, res) => {
+  try {
+    const {
+      id,
+      userId,
+      product,
+      status,
+      serial,
+      orderNo,
+      purchaseDate,
+      cost,
+      category,
+      manufacturer,
+      ledgerType,
+
+      depreciationRate,
+      usefulLife,
+      glAccountCode,
+      costCenter
+    } = req.body;
+
+    // Basic required fields
+    if (!id || !userId || !product || !status || !serial || !orderNo || !purchaseDate || !cost || !category || !ledgerType) {
+      return res.status(400).send('Missing required asset fields.');
+    }
+
+    // Additional checks based on ledgerType
+    if (ledgerType === "Fixed Asset Schedule") {
+      if (!depreciationRate || !usefulLife) {
+        return res.status(400).send("Schedule: Depreciation rate and useful life are required.");
+      }
+    }
+
+    if (ledgerType === "Fixed Asset Accounts") {
+      if (!glAccountCode || !costCenter) {
+        return res.status(400).send("Accounts: GL Account Code and Cost Center are required.");
+      }
+    }
+
+    // Create asset object
+    const assetData = {
+      id: id.trim(),
+      userId,
+      product: product.trim(),
+      status: status.trim(),
+      serial: serial.trim(),
+      orderNo: orderNo.trim(),
+      purchaseDate: new Date(purchaseDate),
+      cost: parseFloat(cost),
+      category: category.trim(),
+      manufacturer: manufacturer?.trim(),
+      ledgerType: ledgerType.trim()
+    };
+
+    // Conditionally add optional fields
+    if (ledgerType === "Fixed Asset Schedule") {
+      assetData.depreciationRate = parseFloat(depreciationRate);
+      assetData.usefulLife = parseInt(usefulLife);
+    }
+
+    if (ledgerType === "Fixed Asset Accounts") {
+      assetData.glAccountCode = glAccountCode?.trim();
+      assetData.costCenter = costCenter?.trim();
+    }
+
+    const asset = new Asset(assetData);
+    console.log('Adding asset:', asset);
+    await asset.save();
+
+    res.redirect('/Assests');
+  } catch (error) {
+    console.error('Error adding asset:', error.message);
+    res.status(500).send('Error adding asset: ' + error.message);
+  }
+});
+
+
+
+
+
+
+
+
+app.get("/cashflow", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    let { start, end } = req.query;
+
+    let startDate = start ? new Date(start) : new Date("2000-01-01");
+    let endDate = end ? new Date(end) : new Date();
+    endDate.setHours(23, 59, 59, 999);
+    startDate.setHours(0, 0, 0, 0);
+
+    const [sales, expenses, productions, assetPurchases] = await Promise.all([
+      Sales.find({ recipientId: userId, date: { $gte: startDate, $lte: endDate } }),
+      Expense.find({ recipientId: userId, createdAt: { $gte: startDate, $lte: endDate } }),
+      Production.find({ recipientId: userId, createdAt: { $gte: startDate, $lte: endDate } }),
+      Asset.find({ userId, purchaseDate: { $gte: startDate, $lte: endDate } })
+    ]);
+
+    // Mock Calculation (Replace with your actual logic)
+    const netIncome = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0) -
+                      expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    const depreciation = assetPurchases.reduce((sum, a) => sum + ((a.depreciation || 0)), 0);
+    const changeInWorkingCapital = 1000; // Placeholder
+    const investmentIncome = 800; // Placeholder
+    const loanReceived = 3000; // Placeholder
+    const dividendsPaid = 1200; // Placeholder
+    const leasingValue = 2500; // Placeholder
+    const notes = "Generated based on available data.";
+
+    const netCashFromOperating = netIncome + depreciation + changeInWorkingCapital;
+    const purchaseOfEquipment = assetPurchases.reduce((sum, a) => sum + (a.amount || 0), 0);
+    const netCashFromInvesting = investmentIncome - purchaseOfEquipment;
+    const netCashFromFinancing = loanReceived - dividendsPaid;
+    const netIncreaseInCash = netCashFromOperating + netCashFromInvesting + netCashFromFinancing;
+
+    const cashAtBeginning = 10000; // placeholder
+    const cashAtEnd = cashAtBeginning + netIncreaseInCash;
+
+    const cashFlow = {
+      operatingActivities: {
+        netIncome,
+        depreciation,
+        changeInWorkingCapital,
+        netCashFromOperating
+      },
+      investingActivities: {
+        purchaseOfEquipment,
+        investmentIncome,
+        netCashFromInvesting
+      },
+      financingActivities: {
+        loanReceived,
+        dividendsPaid,
+        netCashFromFinancing
+      },
+      netIncreaseInCash,
+      cashBalanceSummary: {
+        cashAtBeginning,
+        cashAtEnd
+      },
+      nonCashTransactions: leasingValue,
+      notes
+    };
+
+    res.render("dashboard/cashflow", {
+      user: req.user,
+      sales,
+      expenses,
+      productions,
+      assetPurchases,
+      startDate,
+      endDate,
+      date: endDate.toLocaleDateString("en-US", {
+        year: "numeric", month: "long", day: "numeric"
+      }),
+      cashFlow // ✅ Send this to EJS
+    });
+
+  } catch (err) {
+    console.error("Error loading /cashflow:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+app.get("/balancesheet", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // --- Fetch from DB ---
+    const inventoryItems = await Inventory.find({ recipientId: userId });
+    const salesItems = await Sales.find({ recipientId: userId });
+    const productionItems = await Production.find({ recipientId: userId });
+
+    const accountPayables = await AccountsPayable.find({ recipientId: userId });
+
+     const receivables = await AccountReceivable.find({ recipientId: userId }).sort({ createdAt: -1 });
+
+    // --- Assets ---
+    const cash = salesItems.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
+    const inventoryValue = inventoryItems.reduce((sum, item) => sum + (item.scost * item.currentquantity), 0);
+
+    const accountpayables = accountPayables.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
+
+        const accountreceivables = receivables.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
+
+    const assets = {
+      cash,
+      inventory: inventoryValue,
+      equipment: 0, // Add logic if you track equipment
+      accountreceivables, // Add logic if needed
+      investments: 0 // Optional
+    };
+
+    // --- Liabilities ---
+    const productionCost = productionItems.reduce((sum, prod) => sum + (prod.cost || 0), 0);
+    const liabilities = {
+      productionCosts: productionCost,
+      loans: 0, // Add logic if loans are stored
+      taxesOwed: 0,
+      creditCards: 0,
+      accountpayables
+    };
+
+    // --- Equity ---
+    const capital = 20000; // Replace with DB value if available
+    const retainedEarnings = cash - productionCost; // A simple assumption
+
+    const equity = {
+      capital,
+      retainedEarnings
+    };
+
+const totalAssets = Object.values(assets).reduce((a, b) => a + b, 0);
+const totalLiabilities = Object.values(liabilities).reduce((a, b) => a + b, 0);
+
+// Calculate equity from assets and liabilities
+const totalEquity = totalAssets - totalLiabilities;
+
+
+    const debtRatio = totalAssets ? ((totalLiabilities / totalAssets) * 100).toFixed(1) : 0;
+    const equityRatio = totalAssets ? ((totalEquity / totalAssets) * 100).toFixed(1) : 0;
+
+    res.render("dashboard/balancesheet", {
+      user: req.user,
+      assets,
+      liabilities,
+      equity,
+      totalAssets,
+      totalLiabilities,
+      totalEquity,
+      debtRatio,
+      equityRatio
+    });
+
+  } catch (err) {
+    console.error("Error loading /balancesheet:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+// GET Liquidity Page
+app.get("/ledgerliquidity", requireLogin, async (req, res) => {
+  try {
+    const entries = await Liquidity.find({ userId: req.user._id }).sort({ createdAt: -1 });
+
+    // Sum all entries
+    const totalCash = entries.reduce((sum, e) => sum + (e.cash || 0), 0);
+    const totalBank = entries.reduce((sum, e) => sum + (e.bank || 0), 0);
+    const totalLiabilities = entries.reduce((sum, e) => sum + (e.liabilities || 0), 0);
+    const netLiquidity = totalCash + totalBank - totalLiabilities;
+
+    const totalLiquidity = {
+      cash: totalCash,
+      bank: totalBank,
+      liabilities: totalLiabilities,
+      netLiquidity: netLiquidity
+    };
+
+    console.log("Total Liquidity Summary:", totalLiquidity);
+
+    res.render("dashboard/ledgerliquidity.ejs", {
+      user: req.user,
+      liquidity: totalLiquidity,
+      liquidityEntries: entries
+    });
+  } catch (err) {
+    console.error('Error loading ledger liquidity page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+// POST Liquidity Entry
+app.post("/ledgerliquidity", requireLogin, async (req, res) => {
+  try {
+    const { cash, bank, liabilities } = req.body;
+    const numCash = parseFloat(cash);
+    const numBank = parseFloat(bank);
+    const numLiabilities = parseFloat(liabilities);
+    const netLiquidity = numCash + numBank - numLiabilities;
+
+    const newEntry = new Liquidity({
+      userId: req.user._id,
+      cash: numCash,
+      bank: numBank,
+      liabilities: numLiabilities,
+      netLiquidity
+    });
+
+    await newEntry.save();
+
+    res.redirect("/ledgerliquidity");
+  } catch (err) {
+    console.error("Error saving liquidity:", err);
+    res.status(500).send("Server error");
+  }
+});
+app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
+  try {
+    await Liquidity.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    res.redirect("/ledgerliquidity");
+  } catch (err) {
+    console.error("Error deleting liquidity entry:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

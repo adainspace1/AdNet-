@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/css/SOA.css">
+    <title>Statement of Account</title>
+
+</head>
+<body>
+           
+   <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+      
+    <div class="container">
+
+
+
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Accounts Payable</h1>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
+                    </div>
+                </div>
+            </header>
+
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="statement-title">STATEMENT OF ACCOUNT</h1>
+
+            <!-- Customer Information Block -->
+            <div class="customer-info">
+                <div class="customer-details">
+                    <h3>Customer Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value"><%= businessinfo.businessName %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value"><%= businessinfo.businessAddress %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value"><%= businessinfo.contactEmail %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value"><%= businessinfo.contactPhone %></span>
+                    </div>
+                </div>
+                <div class="statement-details">
+                    <h3>Statement Details</h3>
+                    <div class="info-item">
+                        <span class="info-label">Statement ID:</span>
+                        <span class="info-value"><%= businessinfo._id %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Period:</span>
+                        <span class="info-value">January 1, 2025 - June 1, 2025</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Generated:</span>
+                        <span class="info-value" id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statement Summary Panel -->
+            <div class="summary-panel">
+                <h2 class="summary-title">Account Summary</h2>
+                <div class="summary-grid">
+          <div class="summary-item">
+  <div class="summary-label">Opening Balance</div>
+  <div class="summary-amount">₦<%= summary.openingBalance.toLocaleString() %></div>
+</div>
+<div class="summary-item">
+  <div class="summary-label">Total Invoiced</div>
+  <div class="summary-amount">₦<%= summary.totalInvoiced.toLocaleString() %></div>
+</div>
+<div class="summary-item">
+  <div class="summary-label">Total Payments</div>
+  <div class="summary-amount">₦<%= summary.totalPayments.toLocaleString() %></div>
+</div>
+<div class="summary-item">
+  <div class="summary-label">Credit Notes</div>
+  <div class="summary-amount">₦<%= summary.totalCreditNotes.toLocaleString() %></div>
+</div>
+<div class="summary-item closing-balance">
+  <div class="summary-label">Closing Balance</div>
+  <div class="summary-amount">₦<%= summary.closingBalance.toLocaleString() %></div>
+</div>
+
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="dateFrom">From Date</label>
+                        <input type="date" id="dateFrom" value="2025-01-01">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateTo">To Date</label>
+                        <input type="date" id="dateTo" value="2025-06-01">
+                    </div>
+                    <div class="filter-group">
+                        <label for="docType">Document Type</label>
+                        <select id="docType">
+                            <option value="">All Types</option>
+                            <option value="Invoice">Invoice</option>
+                            <option value="Payment">Payment</option>
+                            <option value="Credit Note">Credit Note</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="filterTransactions()">🔍 Filter</button>
+                    <button class="btn btn-secondary" onclick="clearFilters()">🗑️ Clear</button>
+                    <button class="btn btn-primary" onclick="downloadPDF()">📄 Download PDF</button>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Date</th>
+                                <th onclick="sortTable(1)">Document Type</th>
+                                <th onclick="sortTable(2)">Document No.</th>
+                                <th onclick="sortTable(3)">Description</th>
+                                <th onclick="sortTable(4)">Debit (₦)</th>
+                                <th onclick="sortTable(5)">Credit (₦)</th>
+                                <th onclick="sortTable(6)">Running Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <% transactions.forEach((tx) => { %>
+  <tr>
+    <td><%= tx.formattedDate %></td>
+    <td>
+      <% if (tx.type === 'Income') { %>
+        <span class="badge badge-success">Sales</span>
+      <% } else if (tx.type === 'Expense') { %>
+        <span class="badge badge-danger">Expense</span>
+      <% } else if (tx.type === 'Production Profit') { %>
+        <span class="badge badge-primary">Prod. Profit</span>
+      <% } else if (tx.type === 'Production Loss') { %>
+        <span class="badge badge-warning">Prod. Loss</span>
+      <% } %>
+    </td>
+    <td><%= tx.docNo %></td>
+    <td><%= tx.description %></td>
+    <td style="color:red;"><%= tx.debit ? `₦${tx.debit.toLocaleString()}` : '-' %></td>
+    <td style="color:green;"><%= tx.credit ? `₦${tx.credit.toLocaleString()}` : '-' %></td>
+    <td><strong>₦<%= tx.balance.toLocaleString() %></strong></td>
+  </tr>
+<% }) %>
+
+
+                          </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Payment Terms</h4>
+                    <p>• All payments are due within 14 days of receipt of this statement</p>
+                    <p>• Late payment charges of 2% per month may apply</p>
+                    <p>• Please reference your account number on all payments</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Important Notes</h4>
+                    <p>• Please verify all transactions and report any discrepancies within 30 days</p>
+                    <p>• This statement is computer generated and does not require a signature</p>
+                    <p>• For inquiries, contact our accounts department</p>
+                </div>
+            </div>
+            <div class="thank-you">
+                Thank you for your continued business partnership with ACME Corporation
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Sample transaction data
+     
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN',
+                minimumFractionDigits: 2
+            }).format(amount).replace('NGN', '₦');
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Get document type class
+        function getDocTypeClass(type) {
+            switch(type.toLowerCase()) {
+                case 'invoice': return 'doc-invoice';
+                case 'payment': return 'doc-payment';
+                case 'credit note': return 'doc-credit';
+                default: return '';
+            }
+        }
+
+        // Populate transactions table
+        function populateTransactions(data = transactions) {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+
+            data.forEach(transaction => {
+                const row = document.createElement('tr');
+                
+                const debitAmount = transaction.debit > 0 ? formatCurrency(transaction.debit) : '';
+                const creditAmount = transaction.credit > 0 ? formatCurrency(transaction.credit) : '';
+                
+                row.innerHTML = `
+                    <td>${formatDate(transaction.date)}</td>
+                    <td><span class="doc-type ${getDocTypeClass(transaction.type)}">${transaction.type}</span></td>
+                    <td>${transaction.docNo}</td>
+                    <td>${transaction.description}</td>
+                    <td class="amount debit">${debitAmount}</td>
+                    <td class="amount credit">${creditAmount}</td>
+                    <td class="balance">${formatCurrency(transaction.balance)}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Sort table
+        let sortDirection = 1;
+        function sortTable(columnIndex) {
+            const table = document.getElementById('transactionsTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+
+                // Handle different data types
+                if (columnIndex === 0) { // Date column
+                    return sortDirection * (new Date(aValue.split('/').reverse().join('-')) - new Date(bValue.split('/').reverse().join('-')));
+                } else if (columnIndex === 4 || columnIndex === 5 || columnIndex === 6) { // Amount columns
+                    const aNum = parseFloat(aValue.replace(/[₦,]/g, '')) || 0;
+                    const bNum = parseFloat(bValue.replace(/[₦,]/g, '')) || 0;
+                    return sortDirection * (aNum - bNum);
+                } else {
+                    return sortDirection * aValue.localeCompare(bValue);
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+            sortDirection *= -1;
+        }
+
+        // Filter transactions
+        function filterTransactions() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const docType = document.getElementById('docType').value;
+
+            let filtered = transactions;
+
+            if (dateFrom) {
+                filtered = filtered.filter(t => new Date(t.date) >= new Date(dateFrom));
+            }
+
+            if (dateTo) {
+                filtered = filtered.filter(t => new Date(t.date) <= new Date(dateTo));
+            }
+
+            if (docType) {
+                filtered = filtered.filter(t => t.type === docType);
+            }
+
+            populateTransactions(filtered);
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('dateFrom').value = '2025-01-01';
+            document.getElementById('dateTo').value = '2025-06-01';
+            document.getElementById('docType').value = '';
+            populateTransactions();
+        }
+
+        // Download PDF (basic implementation)
+        function downloadPDF() {
+            window.print();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Populate transactions
+            populateTransactions();
+        });
+    </script>
+</body>
+</html>

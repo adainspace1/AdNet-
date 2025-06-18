@@ -10,6 +10,8 @@ const AccountReceivable = require("../models/AccountReceivable");
     const APPayment = require('../models/APPayment');
     const ARInvoice = require('../models/ARInvoice');
 
+const Asset = require('../models/Asset');
+
 const cloudinary = require("../cloudinary");
 const streamifier  = require("streamifier");
 
@@ -523,6 +525,29 @@ const payReceivable = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   
 
@@ -541,5 +566,5 @@ const payReceivable = async (req, res) => {
     AccountPayable,
     accountreceivable,
     payAccountPayable,
-    payReceivable
+    payReceivable,
 };
