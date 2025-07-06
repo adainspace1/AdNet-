@@ -9,7 +9,7 @@ const AccountsPayable = require('../models/AccountsPayable');
 const AccountReceivable = require("../models/AccountReceivable");
     const APPayment = require('../models/APPayment');
     const ARInvoice = require('../models/ARInvoice');
-
+const Payroll = require('../models/Payroll');
 const Asset = require('../models/Asset');
 
 const cloudinary = require("../cloudinary");
@@ -290,7 +290,7 @@ const saveExpense = async (req, res) => {
 
 
 // Show all expenses
-exports.getAllExpenses = async (req, res) => {
+const getAllExpenses = async (req, res) => {
   try {
     const expenses = await Expense.find().sort({ createdAt: -1 });
     const categories = ['Utilities', 'Supplies', 'Transport', 'Miscellaneous'];
@@ -522,6 +522,46 @@ const payReceivable = async (req, res) => {
 
 
 
+const createPayroll = async (req, res) => {
+    try {
+        const newPayroll = new Payroll(req.body);
+        await newPayroll.save();
+        res.redirect('/payroll'); // change to your desired route
+    } catch (error) {
+        console.error('Error creating payroll:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+
+const editpayroll = async (req, res) => {
+  try {
+    const updateData = req.body;
+    const payrollId = req.params.id;
+
+    if (!updateData || Object.keys(updateData).length === 0) {
+      return res.status(400).send("No data provided for update");
+    }
+
+    await Payroll.findByIdAndUpdate(payrollId, updateData);
+    res.redirect("/payroll");
+  } catch (err) {
+    console.error("Error updating payroll:", err);
+    if (err.name === "ValidationError") {
+      res.status(400).send("Validation error");
+    } else {
+      res.status(500).send("Server error");
+    }
+  }
+};
+
+
+
+
+
+
+
 
 
 
@@ -567,4 +607,7 @@ const payReceivable = async (req, res) => {
     accountreceivable,
     payAccountPayable,
     payReceivable,
+    createPayroll,
+    getAllExpenses,
+    editpayroll,
 };

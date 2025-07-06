@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management Dashboard</title>
+        <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/payrol.css">
+ 
+</head>
+<body>
+     <!-- Sidebar -->
+      <%- include ("_sidebar1") %>
+
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-building"></i> TechCorp Solutions
+            </div>
+            <div class="nav-title">
+                <i class="fas fa-calculator"></i> Payroll Management System
+            </div>
+        </nav>
+
+        <!-- Summary Cards -->
+   <div class="summary-cards">
+        <div class="summary-card employees">
+            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            </div>
+            <div class="card-value"><%= totalEmployeesPaid %></div>
+            <div class="card-label">Total Employees Paid</div>
+        </div>
+
+        <div class="summary-card total-payroll">
+            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            </div>
+            <div class="card-value">
+            ₦<%= totalPayroll.toLocaleString("en-NG", { minimumFractionDigits: 2 }) %>
+            </div>
+            <div class="card-label">Total Monthly Payroll</div>
+        </div>
+
+        <div class="summary-card pending">
+            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            </div>
+            <div class="card-value"><%= pendingPayrolls %></div>
+            <div class="card-label">Pending Payrolls</div>
+        </div>
+        </div>
+
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-filter">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search employee name...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="processed">Processed</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="addPayrollBtn">
+                    <i class="fas fa-plus"></i> Add Payroll Entry
+                </button>
+                <button class="btn btn-success" id="exportBtn">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Payroll Table -->
+        <div class="table-container">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Employee Name</th>
+      <th>Department</th>
+      <th>Basic Salary</th>
+      <th>Allowances</th>
+      <th>Deductions</th>
+      <th>Net Pay</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+    <tbody id="payrollTableBody">
+    <% payrolls.forEach(p => { %>
+        <tr class="payroll-row" data-name="<%= p.name.toLowerCase() %>" data-status="<%= p.status %>">
+        <td><%= p.name %></td>
+        <td><%= p.department %></td>
+        <td>₦<%= p.basicSalary.toLocaleString() %></td>
+        <td>₦<%= p.allowances.toLocaleString() %></td>
+        <td>₦<%= p.deductions.toLocaleString() %></td>
+        <td>₦<%= p.netPay.toLocaleString() %></td>
+        <td>
+            <span class="badge <%= p.status === 'processed' ? 'bg-success' : 'bg-warning' %>">
+            <%= p.status %>
+            </span>
+        </td>
+        <td>
+            <button class="btn btn-sm btn-primary edit-btn"
+            data-id="<%= p._id %>"
+            data-name="<%= p.name %>"
+            data-department="<%= p.department %>"
+            data-basicsalary="<%= p.basicSalary %>"
+            data-allowances="<%= p.allowances %>"
+            data-deductions="<%= p.deductions %>"
+            data-netpay="<%= p.netPay %>"
+            data-status="<%= p.status %>">
+            Edit
+            </button>
+        </td>
+        </tr>
+    <% }) %>
+    </tbody>
+
+</table>
+
+
+        </div>
+    </div>
+
+<!-- Modal Popup Form -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Add Payroll Entry</h3>
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="payrollForm" action="/user/payroll" method="post">
+
+                <input type="text" name="userId" id="" value="<%= user._id %>" >
+
+
+                <input type="text" name="id" id="payrollId" />
+
+
+                <div class="form-group">
+                    <label class="form-label">Employee Name</label>
+                    <input type="text" class="form-input" name="name" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-input" name="department" id="department" required>
+                        <option value="">Select Department</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Basic Salary ($)</label>
+                        <input type="number" class="form-input" name="basicSalary" id="basicSalary" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Allowances ($)</label>
+                        <input type="number" class="form-input" name="allowances" id="allowances" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Deductions ($)</label>
+                    <input type="number" class="form-input" name="deductions" id="deductions" min="0" step="0.01" value="0">
+                </div>
+
+                <div class="net-pay-display">
+                    <div class="net-pay-value" id="netPayDisplay">$0.00</div>
+                    <input type="text" name="netPay" id="netPay" value="0.00" hidden>
+                    <div class="net-pay-label">Net Pay</div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label">Status</label>
+                    <select class="form-input" name="status" id="status" required>
+                        <option value="pending">Pending</option>
+                        <option value="processed">Processed</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Save Entry
+                    </button>
+                    <button type="button" class="btn" style="background: #6c757d; color: white; flex: 1;" id="cancelBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS: Popup Controls + Net Pay Calculation -->
+<script>
+  const modal = document.getElementById('modalOverlay');
+  const openBtn = document.getElementById('addPayrollBtn');
+  const closeBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const form = document.getElementById('payrollForm');
+
+  const nameInput = document.getElementById('name');
+  const departmentInput = document.getElementById('department');
+  const basicSalaryInput = document.getElementById('basicSalary');
+  const allowancesInput = document.getElementById('allowances');
+  const deductionsInput = document.getElementById('deductions');
+  const netPayInput = document.getElementById('netPay');
+  const netPayDisplay = document.getElementById('netPayDisplay');
+  const statusInput = document.getElementById('status');
+  const idInput = document.getElementById('payrollId');
+
+  function updateNetPay() {
+    const basic = parseFloat(basicSalaryInput.value) || 0;
+    const allow = parseFloat(allowancesInput.value) || 0;
+    const deduct = parseFloat(deductionsInput.value) || 0;
+    const net = basic + allow - deduct;
+    netPayDisplay.textContent = `$${net.toFixed(2)}`;
+    netPayInput.value = net.toFixed(2);
+  }
+
+  [basicSalaryInput, allowancesInput, deductionsInput].forEach(input => {
+    input.addEventListener('input', updateNetPay);
+  });
+
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        modal.style.display = 'block';
+      nameInput.value = btn.dataset.name;
+      departmentInput.value = btn.dataset.department;
+      basicSalaryInput.value = btn.dataset.basicsalary;
+      allowancesInput.value = btn.dataset.allowances;
+      deductionsInput.value = btn.dataset.deductions;
+      statusInput.value = btn.dataset.status;
+      idInput.value = btn.dataset.id;
+      netPayInput.value = btn.dataset.netpay;
+      netPayDisplay.textContent = `$${parseFloat(btn.dataset.netpay).toFixed(2)}`;
+
+      form.action = `/user/editpayroll/${btn.dataset.id}?_method=POST`;
+      
+    });
+  });
+
+  openBtn?.addEventListener('click', () => {
+    form.action = '/user/payroll';
+    form.reset();
+    idInput.value = '';
+    netPayDisplay.textContent = '$0.00';
+    modal.style.display = 'block';
+  });
+
+  closeBtn.addEventListener('click', () => modal.style.display = 'none');
+  cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+</script>
+
+<script>
+  const searchBox = document.getElementById("searchBox");
+  const statusFilter = document.getElementById("statusFilter");
+  const payrollRows = document.querySelectorAll(".payroll-row");
+
+  function filterPayrolls() {
+    const searchValue = searchBox.value.toLowerCase();
+    const statusValue = statusFilter.value;
+
+    payrollRows.forEach(row => {
+      const name = row.dataset.name;
+      const status = row.dataset.status;
+
+      const nameMatches = name.includes(searchValue);
+      const statusMatches = !statusValue || status === statusValue;
+
+      if (nameMatches && statusMatches) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
+
+  searchBox.addEventListener("input", filterPayrolls);
+  statusFilter.addEventListener("change", filterPayrolls);
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

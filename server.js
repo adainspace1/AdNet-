@@ -18,6 +18,8 @@ const CashFlow = require('./models/CashFlow');
 const Liquidity = require("./models/Liquidity");
 
 const Personal = require('./models/personal');
+const Payroll = require('./models/Payroll');
+
 
 const Business = require("./models/business");
 const Company = require("./models/company");
@@ -1651,6 +1653,40 @@ app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
   }
 });
 
+
+
+
+
+
+
+app.get("/payroll", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const payrolls = await Payroll.find({ userId });
+
+    // Total Employees Paid
+    const totalEmployeesPaid = payrolls.filter(p => p.status === "processed").length;
+
+    // Total Payroll (sum of netPay of processed ones)
+    const totalPayroll = payrolls
+      .filter(p => p.status === "processed")
+      .reduce((sum, p) => sum + p.netPay, 0);
+
+    // Pending Payrolls Count
+    const pendingPayrolls = payrolls.filter(p => p.status === "pending").length;
+
+    res.render("dashboard/payrol.ejs", {
+      user: req.user,
+      payrolls,
+      totalEmployeesPaid,
+      totalPayroll,
+      pendingPayrolls,
+    });
+  } catch (err) {
+    console.error("Error loading payroll page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
