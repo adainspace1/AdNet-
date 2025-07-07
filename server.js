@@ -340,9 +340,6 @@ app.get("/addnewexpenses", (req, res) => {
 app.get("/viewallexpenses", (req, res) => {
   res.render("viewallexpenses");
 });
-app.get("/salehistory", (req, res) => {
-  res.render("salehistory");
-});
 
 
 
@@ -595,6 +592,172 @@ app.get('/Sales', requireLogin, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+
+app.get("/salehistory", requireLogin, async (req, res) => {
+  try {
+    const {
+      dateFrom,
+      dateTo,
+      category,
+      rep,
+      customer,
+      minAmount,
+      maxAmount
+    } = req.query;
+
+    const filters = { recipientId: req.user._id };
+
+    if (dateFrom || dateTo) {
+      filters.date = {};
+      if (dateFrom) filters.date.$gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        filters.date.$lte = end;
+      }
+    }
+
+    if (category) filters.category = category;
+    if (rep) filters.salesRep = rep;
+    if (customer) filters.customer = new RegExp(customer, 'i');
+    if (minAmount || maxAmount) {
+      filters.amount = {};
+      if (minAmount) filters.amount.$gte = parseFloat(minAmount);
+      if (maxAmount) filters.amount.$lte = parseFloat(maxAmount);
+    }
+
+    const salesitem = await Sales.find(filters).sort({ date: -1 });
+
+    // If AJAX, return JSON
+    if (req.headers.accept.includes("application/json")) {
+      return res.json(salesitem);
+    }
+
+    // Otherwise, render full page
+    res.render("dashboard/salehistory", {
+      user: req.user,
+      salesitem
+    });
+
+  } catch (err) {
+    console.error("Error loading filtered sales:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+app.get("/api/sales-chart-data", requireLogin, async (req, res) => {
+  const { type } = req.query;
+  const recipientId = req.user._id;
+
+  let groupFormat;
+  let labelFormat;
+
+  if (type === "daily") {
+    groupFormat = {
+      year: { $year: "$date" },
+      month: { $month: "$date" },
+      day: { $dayOfMonth: "$date" }
+    };
+    labelFormat = d => `${d.day}/${d.month}/${d.year}`;
+  } else if (type === "monthly") {
+    groupFormat = {
+      year: { $year: "$date" },
+      month: { $month: "$date" }
+    };
+    labelFormat = d => `${d.month}/${d.year}`;
+  } else if (type === "quarterly") {
+    groupFormat = {
+      year: { $year: "$date" },
+      quarter: { $ceil: { $divide: [{ $month: "$date" }, 3] } }
+    };
+    labelFormat = d => `Q${d.quarter} ${d.year}`;
+  } else if (type === "yearly") {
+    groupFormat = {
+      year: { $year: "$date" }
+    };
+    labelFormat = d => `${d.year}`;
+  } else {
+    return res.status(400).json({ error: "Invalid type" });
+  }
+
+  // 1. Chart Aggregation
+  const salesData = await Sales.aggregate([
+    { $match: { recipientId: new mongoose.Types.ObjectId(recipientId) } },
+    {
+      $group: {
+        _id: groupFormat,
+        totalSales: { $sum: "$amount" },
+        count: { $sum: 1 },
+        avg: { $avg: "$amount" },
+        categories: { $push: "$category" }
+      }
+    },
+    {
+      $sort: {
+        "_id.year": 1,
+        "_id.month": 1,
+        "_id.day": 1,
+        "_id.quarter": 1
+      }
+    }
+  ]);
+
+  const labels = salesData.map(d => labelFormat(d._id));
+  const values = salesData.map(d => d.totalSales);
+  const count = salesData.reduce((sum, d) => sum + d.count, 0);
+  const total = salesData.reduce((sum, d) => sum + d.totalSales, 0);
+  const avg = count > 0 ? total / count : 0;
+
+  // 2. Top Category
+  const allCategories = salesData.flatMap(d => d.categories);
+  const categoryCounts = allCategories.reduce((acc, cat) => {
+    if (cat) acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+  const topCategory = Object.keys(categoryCounts).reduce((a, b) => categoryCounts[a] > categoryCounts[b] ? a : b, '-');
+
+  // 3. ✅ Top Selling Item from Inventory-based logic
+  const inventoryItems = await Inventory.find({ recipientId });
+  const salesItems = await Sales.find({ recipientId });
+
+  const itemSalesMap = {};
+  salesItems.forEach(sale => {
+    const name = sale.item;
+    if (typeof name === 'string' && name.trim() !== '') {
+      if (!itemSalesMap[name]) itemSalesMap[name] = 0;
+      itemSalesMap[name] += sale.quantity || 0;
+    }
+  });
+
+  let topSellingItem = "N/A";
+  let maxSales = 0;
+  for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
+    if (totalQty > maxSales) {
+      maxSales = totalQty;
+      topSellingItem = itemName;
+    }
+  }
+
+  console.log("Top Selling Item:", topSellingItem);
+
+  res.json({
+    labels,
+    values,
+    total,
+    count,
+    avg,
+    topCategory,
+    topSellingItem
+  });
+});
+
+
+
 
 
 

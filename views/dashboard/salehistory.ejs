@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sales History Viewer</title>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link rel="stylesheet" href="/css/salehistory.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  </head>
+  <body>
+    <!-- Sidebar (this is a placeholder - your actual sidebar content will be included here) -->
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+
+    <main>
+      <div class="dashboard">
+     <form id="filter-form">
+  <aside class="filters">
+    <div class="filter-section">
+      <h3>Date Range</h3>
+      <label for="date-from">From</label>
+      <input type="date" id="date-from" name="dateFrom" />
+      <label for="date-to">To</label>
+      <input type="date" id="date-to" name="dateTo" />
+    </div>
+
+    <div class="filter-section">
+      <h3>Product Category</h3>
+      <select id="category-filter" name="category">
+        <option value="">All Categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+        <option value="furniture">Furniture</option>
+        <option value="home-goods">Home Goods</option>
+        <option value="sporting-goods">Sporting Goods</option>
+      </select>
+    </div>
+
+    <div class="filter-section">
+      <h3>Sales Representative</h3>
+      <select id="rep-filter" name="rep">
+        <option value="">All Representatives</option>
+        <option value="john-doe">John Doe</option>
+        <option value="jane-smith">Jane Smith</option>
+        <option value="robert-johnson">Robert Johnson</option>
+        <option value="emily-davis">Emily Davis</option>
+      </select>
+    </div>
+
+    <div class="filter-section">
+      <h3>Customer</h3>
+      <input type="text" name="customer" placeholder="Search customers..." />
+    </div>
+
+    <div class="filter-section">
+      <h3>Sale Amount</h3>
+      <label for="min-amount">Minimum</label>
+      <input type="number" id="min-amount" name="minAmount" min="0" step="0.01" />
+      <label for="max-amount">Maximum</label>
+      <input type="number" id="max-amount" name="maxAmount" min="0" step="0.01" />
+    </div>
+
+    <button type="submit">Apply Filters</button>
+    <a href="/salehistory" class="btn-secondary" style="margin-top: 0.5rem;">Reset</a>
+  </aside>
+        </form>
+
+
+        <div class="content">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Sales Overview</h2>
+              <div class="card-actions">
+                <select id="chart-type">
+                  <option value="daily">Daily</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+            </div>
+            <div class="summary">
+              <div class="summary-item">
+                <div class="summary-label">Total Sales</div>
+                <div class="summary-value" id="total-sales">₦0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Number of Orders</div>
+                <div class="summary-value" id="order-count">0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Average Order Value</div>
+                <div class="summary-value" id="avg-value">₦0</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Top Category</div>
+                <div class="summary-value" id="top-cate"></div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="sales-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card tablecard">
+            <div class="card-header">
+              <h2 class="card-title">Sales History</h2>
+              <div class="card-actions">
+                <button id="export-csv" class="btn-secondary">
+                  Export CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body">
+                    <% if (salesitem && salesitem.length > 0) { %>
+                      <% salesitem.forEach(sale => { %>
+                        <tr>
+                          <td id="tdid"><%= sale._id %></td>
+                          <td><%= sale.date.toDateString() %></td>
+                          <td><%= sale.custormername || 'N/A' %></td>
+                          <td><%= sale.item || 'N/A' %></td>
+                          <td>₦<%= sale.amount.toLocaleString() %></td>
+                          <td><%= sale.status || 'Completed' %></td>
+                        </tr>
+                      <% }) %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="8">No sales found.</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+
+              </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+
+
+
+
+
+
+
+    <script>
+document.getElementById("filter-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const params = new URLSearchParams(new FormData(form)).toString();
+
+  const res = await fetch(`/salehistory?${params}`, {
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  const data = await res.json();
+
+  const tbody = document.getElementById("sales-table-body");
+  tbody.innerHTML = ""; // Clear old rows
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8">No sales found.</td></tr>`;
+  } else {
+    data.forEach(sale => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${sale._id}</td>
+        <td>${new Date(sale.date).toDateString()}</td>
+        <td>${sale.custormername || "N/A"}</td>
+        <td>${sale.item || "N/A"}</td>
+        <td>₦${parseFloat(sale.amount).toLocaleString()}</td>
+        <td>${sale.status || "Completed"}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+});
+</script>
+
+
+
+<script>
+let salesChart;
+
+function formatNumberShort(n) {
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+  return n.toString();
+}
+
+
+function updateOverviewSummary({ total, count, avg, topSellingItem }) {
+  document.getElementById("total-sales").textContent = `₦${formatNumberShort(total)}`;
+  document.getElementById("order-count").textContent = formatNumberShort(count);
+  document.getElementById("avg-value").textContent = `₦${formatNumberShort(avg)}`;
+  document.getElementById("top-cate").textContent = topSellingItem || "-";
+  
+
+}
+
+
+
+
+async function renderChart(type) {
+  const res = await fetch(`/api/sales-chart-data?type=${type}`);
+  const data = await res.json();
+
+  updateOverviewSummary(data);
+
+  const ctx = document.getElementById("sales-chart").getContext("2d");
+
+  if (salesChart) salesChart.destroy();
+
+  salesChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        label: 'Sales (₦)',
+        data: data.values,
+        backgroundColor: '#007bff',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+// Initial chart
+renderChart('daily');
+
+// Dropdown to change chart type
+document.getElementById("chart-type").addEventListener("change", (e) => {
+  renderChart(e.target.value);
+});
+</script>
+
+
+    <!-- <script src="/js/saleshistory.js"></script> -->
+  </body>
+</html>

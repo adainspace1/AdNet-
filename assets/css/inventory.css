@@ -1,4 +1,7 @@
 
+body{
+  background: var(--background);
+}
 
 
 .layout {
