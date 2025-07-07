@@ -337,9 +337,7 @@ app.get("/newsales", (req, res) => {
 app.get("/addnewexpenses", (req, res) => {
   res.render("addnewexpenses");
 });
-app.get("/viewallexpenses", (req, res) => {
-  res.render("viewallexpenses");
-});
+
 
 
 
@@ -619,7 +617,7 @@ app.get("/salehistory", requireLogin, async (req, res) => {
       }
     }
 
-    if (category) filters.category = category;
+    if (category) filters.item = category;
     if (rep) filters.salesRep = rep;
     if (customer) filters.customer = new RegExp(customer, 'i');
     if (minAmount || maxAmount) {
@@ -630,6 +628,10 @@ app.get("/salehistory", requireLogin, async (req, res) => {
 
     const salesitem = await Sales.find(filters).sort({ date: -1 });
 
+    // Get distinct categories for the dropdown
+      const categories = await Sales.distinct("item", { recipientId: req.user._id });
+
+
     // If AJAX, return JSON
     if (req.headers.accept.includes("application/json")) {
       return res.json(salesitem);
@@ -638,7 +640,8 @@ app.get("/salehistory", requireLogin, async (req, res) => {
     // Otherwise, render full page
     res.render("dashboard/salehistory", {
       user: req.user,
-      salesitem
+      salesitem,
+      categories,
     });
 
   } catch (err) {
@@ -813,10 +816,60 @@ app.get('/Expenses', requireLogin, async (req, res) => {
 });
 
 
+app.get("/viewallexpenses", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const expenses = await Expense.find({ recipientId: userId });
+
+    const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalTransactions = expenses.length;
+    const averageExpense = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
+
+    res.render("dashboard/viewallexpenses", {
+      user: req.user,
+      totalAmount,
+      totalTransactions,
+      averageExpense,
+      expenses
+    });
+  } catch (err) {
+    console.error('Error rendering view all expenses page:', err);
+    res.status(500).send('Server error');
+  }
+});
 
 
 
+app.get("/api/expenses/summary", requireLogin, async (req, res) => {
+  try {
+    const expenses = await Expense.find({ recipientId: req.user._id });
 
+    const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalTransactions = expenses.length;
+    const averageExpense = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
+
+    res.json({
+      totalAmount,
+      totalTransactions,
+      averageExpense
+    });
+  } catch (err) {
+    console.error('Error loading expense summary:', err);
+    res.status(500).json({ error: "Failed to load summary" });
+  }
+});
+
+
+app.get("/api/expenses/all", requireLogin, async (req, res) => {
+  try {
+    const expenses = await Expense.find({ recipientId: req.user._id }).sort({ createdAt: -1 });
+    res.json({ expenses });
+  } catch (err) {
+    console.error("Error loading expenses:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 

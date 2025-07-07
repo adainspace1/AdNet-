@@ -15,20 +15,21 @@
     <div class="container">
         <h1>Expenses History</h1>
 
-        <div class="stat-cards">
-            <div class="stat-card">
-                <div class="stat-label">Total Expenses</div>
-                <div class="stat-value" id="total-amount">$0.00</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Number of Transactions</div>
-                <div class="stat-value" id="transaction-count">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Average Expense</div>
-                <div class="stat-value" id="average-expense">$0.00</div>
-            </div>
-        </div>
+   <div class="stat-cards">
+  <div class="stat-card">
+    <div class="stat-label">Total Expenses</div>
+    <div class="stat-value" id="total-amount">₦<%= totalAmount.toLocaleString() %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Number of Transactions</div>
+    <div class="stat-value" id="transaction-count"><%= totalTransactions %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Average Expense</div>
+    <div class="stat-value" id="average-expense">₦<%= averageExpense.toLocaleString() %></div>
+  </div>
+</div>
+
 
         <div class="filters">
             <div class="filter-item">
@@ -76,6 +77,11 @@
             <!-- Pagination will be added here -->
         </div>
     </div>
+
+
+
+
+
 
   <script src="/js/viewallexpense.js"></script>
 </body>

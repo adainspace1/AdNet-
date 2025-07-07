@@ -37,25 +37,13 @@
 
     <div class="filter-section">
       <h3>Product Category</h3>
-      <select id="category-filter" name="category">
-        <option value="">All Categories</option>
-        <option value="electronics">Electronics</option>
-        <option value="clothing">Clothing</option>
-        <option value="furniture">Furniture</option>
-        <option value="home-goods">Home Goods</option>
-        <option value="sporting-goods">Sporting Goods</option>
-      </select>
-    </div>
+        <select id="category-filter" name="category">
+      <option value="">All Categories</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat %>"><%= cat %></option>
+      <% }) %>
+    </select>
 
-    <div class="filter-section">
-      <h3>Sales Representative</h3>
-      <select id="rep-filter" name="rep">
-        <option value="">All Representatives</option>
-        <option value="john-doe">John Doe</option>
-        <option value="jane-smith">Jane Smith</option>
-        <option value="robert-johnson">Robert Johnson</option>
-        <option value="emily-davis">Emily Davis</option>
-      </select>
     </div>
 
     <div class="filter-section">

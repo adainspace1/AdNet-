@@ -1,370 +1,164 @@
-// Sample expense data (would normally come from a database)
-const expenses = [
-  {
-    id: 1,
-    date: "2025-05-10",
-    description: "Grocery shopping",
-    category: "food",
-    amount: 85.47,
-  },
-  {
-    id: 2,
-    date: "2025-05-08",
-    description: "Monthly rent payment",
-    category: "housing",
-    amount: 1200.0,
-  },
-  {
-    id: 3,
-    date: "2025-05-03",
-    description: "Gas station",
-    category: "transportation",
-    amount: 45.23,
-  },
-  {
-    id: 4,
-    date: "2025-05-01",
-    description: "Dinner at restaurant",
-    category: "food",
-    amount: 65.89,
-  },
-  {
-    id: 5,
-    date: "2025-04-28",
-    description: "Internet bill",
-    category: "utilities",
-    amount: 79.99,
-  },
-  {
-    id: 6,
-    date: "2025-04-25",
-    description: "Movie tickets",
-    category: "entertainment",
-    amount: 32.5,
-  },
-  {
-    id: 7,
-    date: "2025-04-20",
-    description: "Pharmacy",
-    category: "health",
-    amount: 43.75,
-  },
-  {
-    id: 8,
-    date: "2025-04-18",
-    description: "Clothing store",
-    category: "shopping",
-    amount: 128.95,
-  },
-  {
-    id: 9,
-    date: "2025-04-15",
-    description: "Electricity bill",
-    category: "utilities",
-    amount: 112.34,
-  },
-  {
-    id: 10,
-    date: "2025-04-10",
-    description: "Coffee shop",
-    category: "food",
-    amount: 12.45,
-  },
-  {
-    id: 11,
-    date: "2025-04-05",
-    description: "Gym membership",
-    category: "fitness",
-    amount: 50.0,
-  },
-  {
-    id: 12,
-    date: "2025-04-01",
-    description: "Office supplies",
-    category: "work",
-    amount: 35.78,
-  },
-  {
-    id: 13,
-    date: "2025-03-28",
-    description: "Phone bill",
-    category: "utilities",
-    amount: 89.99,
-  },
-  {
-    id: 14,
-    date: "2025-03-25",
-    description: "Books",
-    category: "education",
-    amount: 48.32,
-  },
-  {
-    id: 15,
-    date: "2025-03-20",
-    description: "Car maintenance",
-    category: "transportation",
-    amount: 230.0,
-  },
-  {
-    id: 16,
-    date: "2025-03-15",
-    description: "Streaming service",
-    category: "entertainment",
-    amount: 14.99,
-  },
-  {
-    id: 17,
-    date: "2025-03-10",
-    description: "Lunch at work",
-    category: "food",
-    amount: 11.5,
-  },
-  {
-    id: 18,
-    date: "2025-03-05",
-    description: "Public transit card",
-    category: "transportation",
-    amount: 75.0,
-  },
-  {
-    id: 19,
-    date: "2025-03-01",
-    description: "Home insurance",
-    category: "insurance",
-    amount: 145.5,
-  },
-  {
-    id: 20,
-    date: "2025-02-28",
-    description: "Pet supplies",
-    category: "pets",
-    amount: 67.8,
-  },
-];
 
-// Sort expenses by date (ascending order by default)
-expenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+  function formatShort(n) {
+    if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+    return n.toFixed(2);
+  }
 
-// Constants
-const ITEMS_PER_PAGE = 5;
+  async function loadExpenseSummary() {
+    try {
+      const res = await fetch('/api/expenses/summary');
+      const data = await res.json();
+
+      document.getElementById("total-amount").textContent = "₦" + formatShort(data.totalAmount);
+      document.getElementById("transaction-count").textContent = formatShort(data.totalTransactions);
+      document.getElementById("average-expense").textContent = "₦" + formatShort(data.averageExpense);
+    } catch (err) {
+      console.error("Error loading expenses summary:", err);
+    }
+  }
+
+  loadExpenseSummary();
+
+let allExpenses = []; // to be populated from server or API
+let filteredExpenses = [];
 let currentPage = 1;
-let filteredExpenses = [...expenses];
+const ITEMS_PER_PAGE = 10;
 
-// DOM elements
-const expensesTable = document.getElementById("expenses-data");
 const searchInput = document.getElementById("search");
 const categorySelect = document.getElementById("category");
 const dateFromInput = document.getElementById("date-from");
 const dateToInput = document.getElementById("date-to");
-const resetButton = document.getElementById("reset-filters");
+const resetBtn = document.getElementById("reset-filters");
+const tbody = document.getElementById("expenses-data");
+const noResults = document.getElementById("no-results");
 const paginationDiv = document.getElementById("pagination");
-const noResultsDiv = document.getElementById("no-results");
-const totalAmountDiv = document.getElementById("total-amount");
-const transactionCountDiv = document.getElementById("transaction-count");
-const averageExpenseDiv = document.getElementById("average-expense");
 
-// Populate category dropdown
-function populateCategories() {
-  const categories = [...new Set(expenses.map((expense) => expense.category))];
-  categories.sort();
+function loadExpenses() {
+  // Fetch from backend or pass through EJS
+  fetch("/api/expenses/all") // You must create this route
+    .then(res => res.json())
+    .then(data => {
+      allExpenses = data.expenses;
+      populateCategoryOptions();
+      applyFilters();
+    })
+    .catch(err => console.error("Error loading expenses:", err));
+}
 
-  categories.forEach((category) => {
-    const option = document.createElement("option");
-    option.value = category;
-    option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-    categorySelect.appendChild(option);
+function populateCategoryOptions() {
+  const categories = [...new Set(allExpenses.map(e => e.category))];
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    categorySelect.appendChild(opt);
   });
 }
 
-// Format currency
-function formatCurrency(amount) {
-  return "$" + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
-}
-
-// Format date for display
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-// Filter expenses based on search criteria
-function filterExpenses() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const category = categorySelect.value;
+function applyFilters() {
+  const search = searchInput.value.toLowerCase();
+  const selectedCategory = categorySelect.value;
   const dateFrom = dateFromInput.value ? new Date(dateFromInput.value) : null;
   const dateTo = dateToInput.value ? new Date(dateToInput.value) : null;
 
-  filteredExpenses = expenses.filter((expense) => {
-    // Search term filter
-    const matchesSearch =
-      !searchTerm ||
-      expense.description.toLowerCase().includes(searchTerm) ||
-      expense.category.toLowerCase().includes(searchTerm);
-
-    // Category filter
-    const matchesCategory = !category || expense.category === category;
-
-    // Date range filter
-    const expenseDate = new Date(expense.date);
-    const matchesDateFrom = !dateFrom || expenseDate >= dateFrom;
-    const matchesDateTo = !dateTo || expenseDate <= dateTo;
-
-    return matchesSearch && matchesCategory && matchesDateFrom && matchesDateTo;
+  filteredExpenses = allExpenses.filter(exp => {
+    const descMatch = exp.description.toLowerCase().includes(search);
+    const catMatch = !selectedCategory || exp.category === selectedCategory;
+    const dateMatch =
+      (!dateFrom || new Date(exp.date) >= dateFrom) &&
+      (!dateTo || new Date(exp.date) <= dateTo);
+    return descMatch && catMatch && dateMatch;
   });
 
-  // Keep sort by date ascending
-  filteredExpenses.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  // Reset to first page and update display
   currentPage = 1;
-  updateStatistics();
   renderExpenses();
   renderPagination();
 }
 
-// Update statistics
-function updateStatistics() {
-  const total = filteredExpenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  const count = filteredExpenses.length;
-  const average = count > 0 ? total / count : 0;
-
-  totalAmountDiv.textContent = formatCurrency(total);
-  transactionCountDiv.textContent = count;
-  averageExpenseDiv.textContent = formatCurrency(average);
-}
-
-// Render expenses table
 function renderExpenses() {
-  expensesTable.innerHTML = "";
+  tbody.innerHTML = "";
 
   if (filteredExpenses.length === 0) {
-    noResultsDiv.style.display = "block";
+    noResults.style.display = "block";
     return;
   }
 
-  noResultsDiv.style.display = "none";
+  noResults.style.display = "none";
 
-  // Calculate pagination
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedExpenses = filteredExpenses.slice(startIndex, endIndex);
+  const paginated = filteredExpenses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Create rows
-  paginatedExpenses.forEach((expense) => {
+  paginated.forEach(exp => {
     const row = document.createElement("tr");
 
-    const dateCell = document.createElement("td");
-    dateCell.className = "expense-date";
-    dateCell.textContent = formatDate(expense.date);
+    const createdAt = new Date(exp.createdAt); // ✅ Convert string to Date
+    const dateFormatted = createdAt.toLocaleDateString();
 
-    const descriptionCell = document.createElement("td");
-    descriptionCell.textContent = expense.description;
+    row.innerHTML = `
+      <td>${dateFormatted}</td>
+      <td>${exp.description}</td>
+      <td>${exp.category}</td>
+      <td>₦${Number(exp.amount).toLocaleString()}</td>
+    `;
 
-    const categoryCell = document.createElement("td");
-    categoryCell.className = "expense-category";
-    categoryCell.textContent = expense.category;
-
-    const amountCell = document.createElement("td");
-    amountCell.className = "amount";
-    amountCell.textContent = formatCurrency(expense.amount);
-
-    row.appendChild(dateCell);
-    row.appendChild(descriptionCell);
-    row.appendChild(categoryCell);
-    row.appendChild(amountCell);
-
-    expensesTable.appendChild(row);
+    tbody.appendChild(row);
   });
 }
 
-// Render pagination
+
 function renderPagination() {
   paginationDiv.innerHTML = "";
 
   const totalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
+  if (totalPages <= 1) return;
 
-  if (totalPages <= 1) {
-    return;
-  }
-
-  // Create "Previous" button
-  const prevButton = document.createElement("button");
-  prevButton.textContent = "←";
-  prevButton.disabled = currentPage === 1;
-  prevButton.addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
+  const createButton = (label, disabled, page) => {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.disabled = disabled;
+    btn.addEventListener("click", () => {
+      currentPage = page;
       renderExpenses();
       renderPagination();
-    }
-  });
-  paginationDiv.appendChild(prevButton);
+    });
+    return btn;
+  };
 
-  // Create page number buttons
+  paginationDiv.appendChild(createButton("←", currentPage === 1, currentPage - 1));
+
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, startPage + 4);
-
-  if (endPage - startPage < 4) {
-    startPage = Math.max(1, endPage - 4);
-  }
+  if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
 
   for (let i = startPage; i <= endPage; i++) {
-    const pageButton = document.createElement("button");
-    pageButton.textContent = i;
-    pageButton.className = i === currentPage ? "active" : "";
-    pageButton.addEventListener("click", () => {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    if (i === currentPage) btn.classList.add("active");
+    btn.addEventListener("click", () => {
       currentPage = i;
       renderExpenses();
       renderPagination();
     });
-    paginationDiv.appendChild(pageButton);
+    paginationDiv.appendChild(btn);
   }
 
-  // Create "Next" button
-  const nextButton = document.createElement("button");
-  nextButton.textContent = "→";
-  nextButton.disabled = currentPage === totalPages;
-  nextButton.addEventListener("click", () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderExpenses();
-      renderPagination();
-    }
-  });
-  paginationDiv.appendChild(nextButton);
+  paginationDiv.appendChild(createButton("→", currentPage === totalPages, currentPage + 1));
 }
 
-// Reset filters
-function resetFilters() {
+resetBtn.addEventListener("click", () => {
   searchInput.value = "";
   categorySelect.value = "";
   dateFromInput.value = "";
   dateToInput.value = "";
+  applyFilters();
+});
 
-  filteredExpenses = [...expenses];
-  currentPage = 1;
-
-  updateStatistics();
-  renderExpenses();
-  renderPagination();
-}
+searchInput.addEventListener("input", applyFilters);
+categorySelect.addEventListener("change", applyFilters);
+dateFromInput.addEventListener("change", applyFilters);
+dateToInput.addEventListener("change", applyFilters);
 
 // Initialize
-populateCategories();
-updateStatistics();
-renderExpenses();
-renderPagination();
-
-// Event listeners
-searchInput.addEventListener("input", filterExpenses);
-categorySelect.addEventListener("change", filterExpenses);
-dateFromInput.addEventListener("change", filterExpenses);
-dateToInput.addEventListener("change", filterExpenses);
-resetButton.addEventListener("click", resetFilters);
+loadExpenses();
