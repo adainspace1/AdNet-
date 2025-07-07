@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Login | Adnet</title>
+  <link rel="stylesheet" href="/css/login.css">
+
 </head>
 <body>
 
+  <div class="login-container">
+    <form action="/api/auth/login" method="POST">
+      <h2>Login</h2>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="hidden" name="redirect" value="<%= redirect || '/' %>">
+      <button type="submit">Log In</button>
 
+      <div class="extras">
+        <a href="/forgot-password">Forgot password?</a>
+        <a href="/register">Create account</a>
+      </div>
+    </form>
+  </div>
 
-
-<form action="/api/auth/login" method="POST">
-  <h2>Login</h2>
-  <input type="email" name="email" placeholder="Email" required><br>
-  <input type="password" name="password" placeholder="Password" required><br>
-  <input type="hidden" name="redirect" value="<%= redirect || '/' %>"><br>
-  <button type="submit">Log In</button>
-</form>
-
-
-    
 </body>
 </html>

@@ -1662,7 +1662,7 @@ app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
 app.get("/payroll", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
-    const payrolls = await Payroll.find({ userId });
+    const payrolls = await Payroll.find({ userId }).sort({ createdAt: -1 });
 
     // Total Employees Paid
     const totalEmployeesPaid = payrolls.filter(p => p.status === "processed").length;
@@ -1701,6 +1701,183 @@ app.get("/payroll", requireLogin, async (req, res) => {
 
 
 
+// const Budget = require("../models/Budget"); // Add this if not already
+// const Lead = require("../models/Lead");
+
+app.get("/salesmetricoverview", requireLogin, async (req, res) => {
+  try {
+    const userId = req.query.id || req.user._id;
+
+    const salesItems = await Sales.find({ recipientId: userId });
+    const expenseItems = await Expense.find({ recipientId: userId });
+
+    // TOTALS
+    const totalSalesAmount = salesItems.reduce((sum, sale) => sum + sale.amount, 0);
+    const totalSalesCount = salesItems.reduce((sum, sale) => sum + sale.quantity, 0);
+    const totalExpenseAmount = expenseItems.reduce((sum, ex) => sum + ex.amount, 0);
+
+    const avgOrderValue = totalSalesCount > 0
+      ? totalSalesAmount / totalSalesCount
+      : 0;
+
+    const netProfit = totalSalesAmount - totalExpenseAmount;
+
+    const profitMargin = totalSalesAmount > 0
+      ? ((netProfit / totalSalesAmount) * 100).toFixed(1)
+      : 0;
+
+    // SALES TREND CHARTS
+    const dailyLabels = [], dailyData = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(day.getDate() - i);
+      const start = new Date(day.setHours(0, 0, 0, 0));
+      const end = new Date(day.setHours(23, 59, 59, 999));
+      const daySales = await Sales.find({ recipientId: userId, date: { $gte: start, $lte: end } });
+      dailyLabels.push(start.toLocaleDateString('en-NG', { weekday: 'short' }));
+      dailyData.push(daySales.reduce((sum, s) => sum + s.amount, 0));
+    }
+
+    const weeklyLabels = [], weeklyData = [];
+    for (let i = 3; i >= 0; i--) {
+      const start = new Date();
+      start.setDate(start.getDate() - (i * 7));
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      const weekSales = await Sales.find({ recipientId: userId, date: { $gte: start, $lte: end } });
+      weeklyLabels.push(`Week ${4 - i}`);
+      weeklyData.push(weekSales.reduce((sum, s) => sum + s.amount, 0));
+    }
+
+    const monthlyLabels = [], monthlyData = [], monthlyBudget = [];
+    for (let i = 5; i >= 0; i--) {
+      const month = new Date();
+      month.setMonth(month.getMonth() - i);
+      const year = month.getFullYear();
+      const monthIndex = month.getMonth();
+      const start = new Date(year, monthIndex, 1);
+      const end = new Date(year, monthIndex + 1, 0, 23, 59, 59);
+
+      const monthlySales = await Sales.find({ recipientId: userId, date: { $gte: start, $lte: end } });
+      const budget = await Budget.findOne({ recipientId: userId, month: monthIndex }); // Month 0-11
+
+      monthlyLabels.push(month.toLocaleString('en-NG', { month: 'short' }));
+      monthlyData.push(monthlySales.reduce((sum, s) => sum + s.amount, 0));
+      monthlyBudget.push(budget ? budget.amount : 0);
+    }
+
+    // LEAD SOURCE BREAKDOWN
+    const leadSources = await Lead.find({ recipientId: userId });
+    const leadCounts = {};
+    leadSources.forEach(lead => {
+      leadCounts[lead.source] = (leadCounts[lead.source] || 0) + 1;
+    });
+
+    const leadLabels = Object.keys(leadCounts);
+    const leadData = Object.values(leadCounts);
+
+    const salesChartData = {
+      daily: { labels: dailyLabels, data: dailyData },
+      weekly: { labels: weeklyLabels, data: weeklyData },
+      monthly: { labels: monthlyLabels, data: monthlyData }
+    };
+
+    res.render("dashboard/salesmetricoverview", {
+      user: req.user,
+      salesChartData,
+      totalSalesAmount,
+      totalSalesCount,
+      avgOrderValue,
+      profitMargin,
+      monthlyLabels,
+      monthlyData,
+      monthlyBudget,
+      leadLabels,
+      leadData,
+    });
+  } catch (err) {
+    console.error("Error loading sales metric overview:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+app.get("/salesforecast", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const now = new Date();
+    const oneYearAgo = new Date(now);
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+    // Fetch all sales and expenses for the past 12 months
+    const allSales = await Sales.find({
+      recipientId: userId,
+      date: { $gte: oneYearAgo, $lte: now }
+    });
+
+    const allExpenses = await Expense.find({
+      recipientId: userId,
+      createdAt: { $gte: oneYearAgo, $lte: now }
+    });
+
+    // Group monthly sales
+    const monthlySales = Array(12).fill(0);
+    allSales.forEach(sale => {
+      const date = new Date(sale.date);
+      const index = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
+      if (index >= 0 && index < 12) {
+        monthlySales[11 - index] += sale.amount;
+      }
+    });
+
+    // Calculate month-over-month differences
+    const growthDiffs = [];
+    for (let i = 0; i < monthlySales.length - 1; i++) {
+      growthDiffs.push(monthlySales[i + 1] - monthlySales[i]);
+    }
+
+    const avgGrowth = growthDiffs.length
+      ? growthDiffs.reduce((a, b) => a + b, 0) / growthDiffs.length
+      : 0;
+
+    // Forecast next revenue
+    const nextMonthRevenue = monthlySales[11] + avgGrowth;
+    const nextQuarterRevenue = nextMonthRevenue + avgGrowth * 2;
+
+    const trendPercent = monthlySales[10]
+      ? ((monthlySales[11] - monthlySales[10]) / monthlySales[10]) * 100
+      : 0;
+
+    const monthlyTotal = monthlySales[11];
+    const quarterlyTotal = monthlySales.slice(9, 12).reduce((a, b) => a + b, 0);
+
+    const confidenceLevel = Math.min(95, Math.max(70, (Math.random() * 20 + 75).toFixed(0))); // mock confidence
+
+    res.render("dashboard/salesforecasting", {
+      forecast: {
+        nextMonth: nextMonthRevenue.toFixed(2),
+        nextQuarter: nextQuarterRevenue.toFixed(2),
+        trendPercent: trendPercent.toFixed(2),
+        monthlyTotal: monthlyTotal.toFixed(2),
+        quarterlyTotal: quarterlyTotal.toFixed(2),
+        confidenceLevel,
+        accuracyNote: confidenceLevel > 80 ? "High Accuracy" : "Medium Confidence"
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading sales forecast page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
@@ -1714,9 +1891,15 @@ app.get("/payroll", requireLogin, async (req, res) => {
 
 
 
-
-
-
+app.get("/crm", requireLogin, async (req, res) => {
+  try{
+    
+  res.render("dashboard/CRM.ejs");
+  } catch (err){
+    console.error("Error loading CRM page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 

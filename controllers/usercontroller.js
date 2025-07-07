@@ -12,6 +12,9 @@ const AccountReceivable = require("../models/AccountReceivable");
 const Payroll = require('../models/Payroll');
 const Asset = require('../models/Asset');
 
+const Forecast = require("../models/Forecast");
+const Deal = require('../models/Deal');
+
 const cloudinary = require("../cloudinary");
 const streamifier  = require("streamifier");
 
@@ -563,6 +566,30 @@ const editpayroll = async (req, res) => {
 
 
 
+const forcastsales = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // ... your existing forecasting logic here ...
+
+    const forecastData = {
+      userId,
+      nextMonth,
+      nextQuarter,
+      trendPercent,
+      cycleLength,
+    };
+
+    await Forecast.create(forecastData); // ✅ Store it
+
+    res.render("dashboard/salesforecasting", {
+      forecast: forecastData,
+    });
+  } catch (err) {
+    console.error("Error loading sales forecast page:", err);
+    res.status(500).send("Server error");
+  }
+};
 
 
 
@@ -570,6 +597,37 @@ const editpayroll = async (req, res) => {
 
 
 
+
+
+
+const createdeal = async (req, res) => {
+  try {
+    const {
+      dealName,
+      customerName,
+      dealValue,
+      closeDate,
+      dealType,
+      dealStatus
+    } = req.body;
+
+    const newDeal = new Deal({
+      dealName,
+      customerName,
+      dealValue,
+      closeDate,
+      dealType,
+      dealStatus,
+      recipientId: req.user._id
+    });
+
+    await newDeal.save();
+    res.redirect('/crm'); // or wherever you want after saving
+  } catch (err) {
+    console.error('Error saving deal:', err);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
 
 
@@ -610,4 +668,6 @@ const editpayroll = async (req, res) => {
     createPayroll,
     getAllExpenses,
     editpayroll,
+    forcastsales,
+    createdeal
 };

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> CRM Dashboard</title>
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="/css/crm.css">
+ 
+</head>
+<body class="flex min-h-screen">
+<!--  -->
+          <!-- Sidebar -->
+      <%- include ("_sidebar1") %>
+
+   <!-- Main Content Area -->
+<main class="flex-1 p-6 overflow-y-auto main-content-container text-sm">
+    <header class="flex flex-col sm:flex-row justify-between items-center mb-6 pb-3 border-b border-blue-200">
+        <h2 class="text-xl font-semibold text-blue-500 mb-3 sm:mb-0">CRM</h2>
+        <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            
+            <!-- Date Range Filters -->
+            <div class="flex items-center space-x-1 text-xs">
+                <label for="startDate" class="text-white hidden sm:block">From:</label>
+                <input type="date" id="startDate" class="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-24">
+
+                <label for="endDate" class="text-white hidden sm:block">To:</label>
+                <input type="date" id="endDate" class="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-24">
+
+                <button id="applyFilterBtn" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs transition duration-200 shadow-sm">
+                    <i class="fas fa-filter text-xs"></i> <span class="hidden sm:inline">Filter</span>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <input type="text" placeholder="Search..." class="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32 sm:w-auto text-xs">
+
+            <!-- Action Buttons -->
+            <!-- <button class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors duration-200 shadow-sm text-xs">
+                <i class="fas fa-bell text-xs"></i>
+            </button>
+            <button class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors duration-200 shadow-sm text-xs">
+                <i class="fas fa-user text-xs"></i>
+            </button> -->
+        </div>
+    </header>
+
+    <!-- Metrics Section -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-4 text-sm" id="metricsSection">
+
+        <!-- Metrics dynamically populated -->
+    </section>
+
+   <!-- Charts Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-2 mb-4">
+    <!-- Deal Status Chart -->
+    <div class="bg-white p-2 rounded-md shadow-sm">
+        <h3 class="text-base font-semibold text-blue-800 mb-2">Deal Status & Pipeline</h3>
+        <div class="relative h-60">
+            <canvas id="dealStatusChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Deal Type Chart -->
+    <div class="bg-white p-2 rounded-md shadow-sm">
+        <h3 class="text-base font-semibold text-blue-800 mb-2">Deals by Type</h3>
+        <div class="relative h-60 flex items-center justify-center">
+            <canvas id="dealTypeChart"></canvas>
+        </div>
+    </div>
+</section>
+
+
+        <!-- Report of Won and Closed Deals -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-semibold text-blue-800 mb-6 flex justify-between items-center">
+                Won & Closed Deals
+                <button id="addDealBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md flex items-center">
+                    <i class="fas fa-plus mr-2 " id="addbtn"></i> Add New Deal
+                </button>
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">
+                                Deal Name
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Customer
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Value
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Close Date
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">
+                                Status
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="dealsTableBody">
+                        <!-- Deals will be dynamically populated here -->
+                    </tbody>
+                </table>
+                <p id="noDealsMessage" class="text-center text-gray-500 mt-4 hidden">No deals found for the selected period.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+
+    <!-- Add/Edit Deal Modal -->
+    <div id="dealModal" class="fixed inset-0 hidden modal-overlay">
+        <div class="modal-content p-8 w-11/12 md:w-2/3 lg:w-1/2">
+          <h3 class="text-sm font-normal text-blue-800 mb-3" id="dealModalTitle">Add New Deal</h3>
+
+           <form id="dealForm" action="/user/createdeal" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label for="dealName" class="block text-gray-700 text-sm font-bold mb-2">Deal Name:</label>
+    <input name="dealName" type="text" id="dealName" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+  </div>
+  <div>
+    <label for="customerName" class="block text-gray-700 text-sm font-bold mb-2">Customer Name:</label>
+    <input name="customerName" type="text" id="customerName" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+  </div>
+  <div>
+    <label for="dealValue" class="block text-gray-700 text-sm font-bold mb-2">Value ($):</label>
+    <input name="dealValue" type="number" id="dealValue" required min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+  </div>
+  <div>
+    <label for="closeDate" class="block text-gray-700 text-sm font-bold mb-2">Close Date:</label>
+    <input name="closeDate" type="date" id="closeDate" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+  </div>
+  <div>
+    <label for="dealType" class="block text-gray-700 text-sm font-bold mb-2">Deal Type:</label>
+    <select name="dealType" id="dealType" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Select Type</option>
+      <option value="New Business">New Business</option>
+      <option value="Expansion">Expansion</option>
+      <option value="Renewal">Renewal</option>
+      <option value="Upsell">Upsell</option>
+    </select>
+  </div>
+  <div>
+    <label for="dealStatus" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
+    <select name="dealStatus" id="dealStatus" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="">Select Status</option>
+      <option value="New Lead">New Lead</option>
+      <option value="Qualification">Qualification</option>
+      <option value="Proposal">Proposal</option>
+      <option value="Negotiation">Negotiation</option>
+      <option value="Won">Won</option>
+      <option value="Lost">Lost</option>
+      <option value="Closed">Closed</option>
+    </select>
+  </div>
+  <div class="md:col-span-2 flex justify-end space-x-4 mt-6">
+    <button type="button" id="cancelDealBtn" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Save Deal</button>
+  </div>
+</form>
+
+        </div>
+    </div>
+
+    <!-- Customer Details Modal -->
+    <div id="customerDetailsModal" class="fixed inset-0 hidden modal-overlay">
+        <div class="modal-content p-8 w-11/12 md:w-2/3 lg:w-1/2">
+            <h3 class="text-2xl font-semibold text-blue-800 mb-6">Customer Details</h3>
+            <div id="customerDetailsContent">
+                <!-- Content will be populated by JS -->
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="button" id="closeCustomerDetailsBtn" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200 shadow-md">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script>
+        document.querySelector("#addbtn").addEventListener("click", function() {
+            alert("Add Deal button clicked");
+            document.getElementById("dealModal").classList.remove("hidden");
+        });
+
+
+                document.querySelector("#cancelDealBtn").addEventListener("click", function() {
+            document.getElementById("dealModal").classList.add("hidden");
+        });
+    </script>
+</body>
+</html>

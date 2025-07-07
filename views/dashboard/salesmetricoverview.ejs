@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+       <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="/css/smo.css">
+   
+  </head>
+  <body>
+         <!-- Sidebar -->
+      <%- include ("_sidebar1") %>
+    <div class="dashboard">
+    
+      <!-- Main Content -->
+      <main class="main-contentt">
+        <!-- Header -->
+        <div class="header">
+          <h1>Financial Dashboard</h1>
+          <div class="date-filter">
+            <button class="filter-btn" onclick="setTimeRange('daily')">
+              Daily
+            </button>
+            <button class="filter-btn active" onclick="setTimeRange('weekly')">
+              Weekly
+            </button>
+            <button class="filter-btn" onclick="setTimeRange('monthly')">
+              Monthly
+            </button>
+          </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Sales Metrics -->
+          <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="metric-value" id="totalRevenue">₦<%= totalSalesAmount.toLocaleString() %></div>
+            <div class="metric-label">Total Revenue</div>
+            <div class="change-indicator change-positive">
+              <i class="fas fa-arrow-up"></i> +12.5%
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="metric-value" id="totalSales"><%= totalSalesCount %></div>
+            <div class="metric-label">Total Sales</div>
+            <div class="change-indicator change-positive">
+              <i class="fas fa-arrow-up"></i> +8.2%
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-receipt"></i>
+            </div>
+            <div class="metric-value" id="avgOrderValue">₦<%= avgOrderValue.toFixed(2).toLocaleString() %></div>
+            <div class="metric-label">Avg Order Value</div>
+            <div class="change-indicator change-positive">
+              <i class="fas fa-arrow-up"></i> +3.7%
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="metric-value" id="profitMargin"><%= profitMargin %>%</div>
+            <div class="metric-label">Net Profit Margin</div>
+            <div class="change-indicator change-negative">
+              <i class="fas fa-arrow-down"></i> -2.1%
+            </div>
+          </div>
+
+          <!-- Sales Trend Chart -->
+          <div class="card chart-card" style="height: 350px">
+            <div class="chart-header">
+              <h3 class="chart-title">Sales Trend</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" onclick="updateChart('daily')">
+                  Daily
+                </button>
+                <button class="chart-btn" onclick="updateChart('weekly')">
+                  Weekly
+                </button>
+                <button class="chart-btn" onclick="updateChart('monthly')">
+                  Monthly
+                </button>
+              </div>
+            </div>
+            <div style="height: 270px">
+              <canvas
+                id="salesChart"
+                style="width: 100%; height: 100%"
+              ></canvas>
+            </div>
+          </div>
+
+
+          <!-- Budget vs Actual Chart -->
+          <div class="card chart-card" style="height: 350px">
+            <div class="chart-header">
+              <h3 class="chart-title">Budget vs Actual</h3>
+            </div>
+            <div style="height: 270px">
+              <canvas
+                id="budgetChart"
+                style="width: 100%; height: 100%"
+              ></canvas>
+            </div>
+          </div>
+
+          <!-- Lead Source Breakdown -->
+          <div class="card">
+            <div class="chart-header">
+              <h3 class="chart-title">Lead Sources</h3>
+            </div>
+            <div style="height: 270px">
+              <canvas
+                id="leadSourceChart"
+                style="width: 100%; height: 100%"
+              ></canvas>
+            </div>
+          </div>
+
+          <!-- Customer Metrics -->
+          <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="metric-value" id="newLeads">156</div>
+            <div class="metric-label">New Leads</div>
+            <div class="change-indicator change-positive">
+              <i class="fas fa-arrow-up"></i> +18.6%
+            </div>
+          </div>
+
+          <!-- <div class="card metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="metric-value" id="conversionRate">24.5%</div>
+            <div class="metric-label">Conversion Rate</div>
+            <div class="change-indicator change-positive">
+              <i class="fas fa-arrow-up"></i> +4.2%
+            </div>
+          </div> -->
+
+          <!-- Top Leads -->
+          <div class="card">
+            <div class="chart-header">
+              <h3 class="chart-title">Top Active Leads</h3>
+            </div>
+            <ul class="lead-list">
+              <li class="lead-item">
+                <div class="lead-avatar">JD</div>
+                <div class="lead-info">
+                  <div class="lead-name">John Doe</div>
+                  <div class="lead-company">TechCorp Inc.</div>
+                </div>
+                <div class="lead-status status-hot">Hot</div>
+              </li>
+              <li class="lead-item">
+                <div class="lead-avatar">SM</div>
+                <div class="lead-info">
+                  <div class="lead-name">Sarah Miller</div>
+                  <div class="lead-company">Innovation Labs</div>
+                </div>
+                <div class="lead-status status-warm">Warm</div>
+              </li>
+              <li class="lead-item">
+                <div class="lead-avatar">RJ</div>
+                <div class="lead-info">
+                  <div class="lead-name">Robert Johnson</div>
+                  <div class="lead-company">Digital Solutions</div>
+                </div>
+                <div class="lead-status status-hot">Hot</div>
+              </li>
+              <li class="lead-item">
+                <div class="lead-avatar">EW</div>
+                <div class="lead-info">
+                  <div class="lead-name">Emily Wilson</div>
+                  <div class="lead-company">StartupX</div>
+                </div>
+                <div class="lead-status status-cold">Cold</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Activity Timeline -->
+          <div class="card">
+            <div class="chart-header">
+              <h3 class="chart-title">Recent Activity</h3>
+            </div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">2 hours ago</div>
+                <div class="timeline-content">
+                  New lead from website contact form
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">4 hours ago</div>
+                <div class="timeline-content">
+                  Sales call completed with TechCorp Inc.
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">1 day ago</div>
+                <div class="timeline-content">
+                  Proposal sent to Innovation Labs
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">2 days ago</div>
+                <div class="timeline-content">
+                  Follow-up email sent to 5 prospects
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+
+    
+<script>
+  const salesChartCtx = document.getElementById("salesChart").getContext("2d");
+  const salesChartData = <%- JSON.stringify(salesChartData) %>;
+
+  // Initialize Sales Chart with default (weekly)
+  const salesChart = new Chart(salesChartCtx, {
+    type: "line",
+    data: {
+      labels: salesChartData.weekly.labels,
+      datasets: [
+        {
+          label: "Sales",
+          data: salesChartData.weekly.data,
+          borderColor: "#007bffcb",
+          backgroundColor: "rgba(76, 175, 80, 0.1)",
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: "#007bffcb",
+          pointBorderColor: "#ffffff",
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: "#f0f0f0" } },
+        x: { grid: { display: false } },
+      },
+    },
+  });
+
+  function updateChart(period) {
+    document.querySelectorAll(".chart-btn").forEach((btn) => btn.classList.remove("active"));
+    event.target.classList.add("active");
+
+    const chartData = salesChartData[period];
+    salesChart.data.labels = chartData.labels;
+    salesChart.data.datasets[0].data = chartData.data;
+    salesChart.update();
+  }
+</script>
+
+
+<script>
+  // Format numbers like ₦2.5K, ₦1.3M, ₦4.8B
+  function formatCurrency(value) {
+    const num = Number(value);
+    if (isNaN(num)) return value;
+
+    if (num >= 1e9) return `₦${(num / 1e9).toFixed(1)}B`;
+    if (num >= 1e6) return `₦${(num / 1e6).toFixed(1)}M`;
+    if (num >= 1e3) return `₦${(num / 1e3).toFixed(1)}K`;
+
+    return `₦${num.toLocaleString()}`;
+  }
+
+  // Update all relevant currency elements
+  document.addEventListener("DOMContentLoaded", () => {
+    const currencyTargets = document.querySelectorAll(
+      ".forecast-value, .trend-value, .metric-value"
+    );
+
+    currencyTargets.forEach(el => {
+      const hasNaira = el.textContent.includes("₦");
+      const numberOnly = el.textContent.replace(/[₦,%]/g, '').trim();
+
+      if (hasNaira && !isNaN(numberOnly)) {
+        el.textContent = formatCurrency(numberOnly);
+      }
+    });
+  });
+</script>
+
+
+  </body>
+</html>
