@@ -107,9 +107,14 @@ app.get('/signup', (req,res) =>{
 })
 
 
-app.get('/login', (req, res) => {
-  const redirect = req.query.redirect || '/';
-  res.render('dashboard/login', { redirect }); // assuming you're using EJS
+app.get('/login', requireLogin, async (req, res) => {
+  try{
+    
+  res.render('dashboard/login',); // assuming you're using EJS
+  } catch (err){
+    console.error('Error rendering login page:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 
