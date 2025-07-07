@@ -107,7 +107,7 @@ app.get('/signup', (req,res) =>{
 })
 
 
-app.get('/login', requireLogin, async (req, res) => {
+app.get('/login', (req, res) => {
   try{
     
   res.render('dashboard/login',); // assuming you're using EJS
