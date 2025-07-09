@@ -79,44 +79,6 @@ app.use("/user", userRoutes);
 
 
 
-const requireLogin = async (req, res, next) => {
-  if (!req.session.userId) {
-    const redirectTo = encodeURIComponent(req.originalUrl); // e.g., /Dashboard
-    return res.redirect(`/login?redirect=${redirectTo}`);
-  }
-
-  try {
-    const user = await Personal.findById(req.session.userId);
-    if (!user) {
-      const redirectTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?redirect=${redirectTo}`);
-    }
-
-    req.user = user; // Attach user to req
-    next();
-  } catch (err) {
-    console.error('Auth middleware error:', err);
-    res.status(500).send('Server error');
-  }
-};
-
-
-
-app.get('/signup', (req,res) =>{
-    res.render('dashboard/signup')
-})
-
-
-app.get('/login', (req, res) => {
-  try{
-    
-  res.render('dashboard/login',); // assuming you're using EJS
-  } catch (err){
-    console.error('Error rendering login page:', err);
-    res.status(500).send('Server error');
-  }
-});
-
 
 
 
@@ -328,15 +290,7 @@ app.get("/Finished", async (req, res) => {
 app.get("/admin", (req, res) => {
   res.render("admin");
 });
-app.get("/roles", (req, res) => {
-  res.render("roles");
-});
-app.get("/newsales", (req, res) => {
-  res.render("newsales");
-});
-app.get("/addnewexpenses", (req, res) => {
-  res.render("addnewexpenses");
-});
+
 
 
 
@@ -347,6 +301,53 @@ app.get('/email-exists', (req, res) => {
   const email = req.query.email || '';
   res.render('dashboard/emailExists', { email });
 });
+
+
+
+
+
+
+
+
+const requireLogin = async (req, res, next) => {
+  if (!req.session.userId) {
+    console.log('No session userId found, redirecting to login');
+    const redirectTo = encodeURIComponent(req.originalUrl); // e.g., /Dashboard
+    return res.redirect(`/login?redirect=${redirectTo}`);
+  }
+
+  try {
+    const user = await Personal.findById(req.session.userId);
+    if (!user) {
+      console.warn('User not found for session ID:', req.session.userId);
+      const redirectTo = encodeURIComponent(req.originalUrl);
+      return res.redirect(`/login?redirect=${redirectTo}`);
+    }
+
+    req.user = user; // Attach user to req
+    console.log('User found for session ID:', req.session.userId);
+    next();
+  } catch (err) {
+    console.error('Auth middleware error:', err);
+    res.status(500).send('Server error');
+  }
+};
+
+
+
+
+
+
+app.get('/login', (req, res) => {
+  try {
+    const redirect = req.query.redirect || '/Dashboard';
+    res.render('dashboard/login', { redirect });
+  } catch (err) {
+    console.error('Error rendering login page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
 
 
 
@@ -553,6 +554,10 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
 
 
 
+
+app.get("/newsales", (req, res) => {
+  res.redirect("/Sales");
+});
 
 app.get('/Sales', requireLogin, async (req, res) => {
   try {

@@ -352,7 +352,7 @@ const createBankInfo = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
+  console.log('Login attempt with email:', req.body);
   try {
     const user = await Personal.findOne({ email });
     if (!user) {
@@ -365,6 +365,8 @@ const login = async (req, res) => {
     }
 
     req.session.userId = user._id;
+
+    
 
     const redirect = req.body.redirect || '/Dashboard';
     console.log('Redirecting to:', redirect);
