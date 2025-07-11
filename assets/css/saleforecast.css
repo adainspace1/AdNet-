@@ -257,7 +257,7 @@ body {
 .trend-analysis-section {
   margin-top: -1px;
   padding: 24px;
-  height: 255px;
+  min-height: 255px;
   background: white;
   border-radius: 16px;
   border: 1px solid #2d9bdd;
@@ -299,7 +299,10 @@ body {
   background: white;
   border-radius: 12px;
   padding: 10px;
-  height: 130px;
+  min-height: 130px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #2d9bdd;
   text-align: center;
   transition: all 0.3s ease;
@@ -313,7 +316,6 @@ body {
 
 .trend-card h3 {
     position: relative;
-    top: 50px;
   font-size: 12px;
   font-weight: 500;
   color: #6B7280;
@@ -321,6 +323,7 @@ body {
 
 .trend-metric {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
@@ -330,7 +333,6 @@ body {
   font-size: 24px;
   font-weight: 700;
   color: #2d9bdd;
-  margin-left: 45px;
 }
 
 .trend-change {
@@ -470,5 +472,15 @@ body {
     
     .user-details {
         display: none;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+   
+    .content-grid .forecast-section{
+        width: 100%;
+        margin-bottom: 20px;
     }
 }
