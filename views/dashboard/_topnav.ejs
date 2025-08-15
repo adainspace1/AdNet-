@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/topnav.css">
+</head>
+<body>
+    <!-- Navbar -->
+        <div class="nav">
+          <div class="logo" style="margin-left: 20px;">
+            <i class="bx bxl-codepen"></i>
+            <a href="#">Adnet</a>
+          </div>
+
+          <div
+            class="right-section"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 20px;
+              position: relative;
+            "
+          >
+            <!-- Notification -->
+            <div
+              class="notification"
+              style="position: relative; display: flex; align-items: center"
+            >
+              <i
+                class="bx bx-bell"
+                id="notificationToggle"
+                style="cursor: pointer; position: relative"
+              >
+                <span
+                  class="badge"
+                  style="
+                    background-color: red;
+                    color: white;
+                    font-size: 10px;
+                    padding: 2px 6px;
+                    border-radius: 50%;
+                    position: absolute;
+                    top: -5px;
+                    right: -5px;
+                  "
+                  >5</span
+                >
+              </i>
+
+              <div
+                id="notificationDropdown"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 120%;
+                  right: 0;
+                  background: white;
+                  border: 1px solid #ccc;
+                  width: 220px;
+                  flex-direction: column;
+                  z-index: 100;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <p
+                  style="
+                    padding: 10px;
+                    font-weight: bold;
+                    border-bottom: 1px solid #eee;
+                  "
+                >
+                  Notifications
+                </p>
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                  "
+                  ><i class="bx bx-comment-detail" style="margin-right: 8px"></i
+                  >New comment on product</a
+                >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                  "
+                  ><i class="bx bx-user-plus" style="margin-right: 8px"></i>You
+                  have a new buyer</a
+                >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                  "
+                  ><i class="bx bx-message" style="margin-right: 8px"></i>New
+                  message from Sarah</a
+                >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    text-align: center;
+                    display: block;
+                    border-top: 1px solid #eee;
+                  "
+                  >View All</a
+                >
+              </div>
+            </div>
+
+            <!-- Search -->
+            <!-- <div class="search-bar" style="display: flex; align-items: center; border: 1px solid #363636; border-radius: 8px; padding: 5px 10px;">
+                    <input type="text" placeholder="Search..." style="border: none; outline: none; font-size: 14px; background-color: none;">
+                    <i class='bx bx-search' style="margin-left: 8px; cursor: pointer;"></i>
+                </div> -->
+
+            <!-- Profile -->
+            <div
+              class="profile"
+              style="
+                position: relative;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+              "
+            >
+              <div
+                class="info"
+                style="display: flex; align-items: center; gap: 10px"
+              >
+                <img
+                  src="/images/profile.png"
+                  alt="Profile Picture"
+                  style="width: 35px; height: 35px; border-radius: 50%"
+                />
+                <div>
+                  <a
+                    href="#"
+                    style="
+                      display: block;
+                      font-weight: bold;
+                      text-decoration: none;
+                    "
+                    >Alex Johnson</a
+                  >
+                  <p style="margin: 0; font-size: 12px">Entrepreneur</p>
+                </div>
+              </div>
+              <i
+                class="bx bx-chevron-down"
+                id="profileToggle"
+                style="margin-left: 8px"
+              ></i>
+
+              <div
+                id="profileDropdown"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 120%;
+                  right: 0;
+                  background: white;
+                  border: 1px solid #ccc;
+                  width: 150px;
+                  flex-direction: column;
+                  z-index: 100;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    display: block;
+                  "
+                  >Profile</a
+                >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    display: block;
+                  "
+                  >Settings</a
+                >
+                <a
+                  href="#"
+                  style="
+                    padding: 10px;
+                    text-decoration: none;
+                    color: #333;
+                    display: block;
+                  "
+                  >Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+            <script src="/js/dashbord.js"></script>
+
+</body>
+</html>

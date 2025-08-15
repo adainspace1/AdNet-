@@ -21,6 +21,9 @@ const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
 
 
+const Order = require("./models/Order");
+
+
 const Business = require("./models/business");
 const Company = require("./models/company");
 const BankInfo = require("./models/bank");
@@ -310,31 +313,23 @@ app.get('/email-exists', (req, res) => {
 
 
 
-const requireLogin = async (req, res, next) => {
-  if (!req.session.userId) {
-    const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login?redirect=${returnTo}`);
+
+
+
+
+
+function ensureAuthenticated(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
   }
 
-  try {
-    const user = await Personal.findById(req.session.userId);
-    if (!user) {
-      return res.redirect('/login');
-    }
-
-    req.user = user; // ✅ Attach full user object to request
-    next();
-  } catch (err) {
-    console.error('Error in requireLogin:', err);
-    res.status(500).send('Server error');
-  }
-};
-
-
-
-
-
-
+  // Optionally attach the attempted URL so we can return after login
+  const attemptedUrl = req.originalUrl;
+  console.log("redirecting")
+  console.log("redirecting", attemptedUrl)
+  return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+  
+}
 
 
 
@@ -365,16 +360,16 @@ app.get('/login', (req, res) => {
 
 
 
-app.get("/Dashboard", requireLogin, async (req, res) => {
+app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.query.id || req.user._id;
+    const userId = req.session.user._id;
     console.log("Dashboard - Looking for company info using ID:", userId);
 
-    const inventoryItems = await Inventory.find({ recipientId: req.user._id });
+    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
     const companyinfo = await Company.findOne({ reciepientId: userId });
 
 
-    const salesItems = await Sales.find({ recipientId: req.user._id });
+    const salesItems = await Sales.find({ recipientId: req.session.user._id });
 
      const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
 
@@ -397,7 +392,7 @@ const salesPercentage = totalInventory > 0
 
     // Get today's sales
   const todaySales = await Sales.find({
-  recipientId: req.user._id,
+  recipientId: req.session.user._id,
   date: { $gte: todayStart, $lte: todayEnd }
 })
 .sort({ date: -1 })       // sort by latest first
@@ -445,7 +440,7 @@ const oneWeekAgo = new Date();
 oneWeekAgo.setDate(oneWeekAgo.getDate() - 6); // 7 days total including today
 
 const weeklySales = await Sales.find({
-  recipientId: req.user._id,
+  recipientId: req.session.user._id,
   date: { $gte: oneWeekAgo, $lte: new Date() }
 });
 
@@ -496,10 +491,10 @@ res.render('dashboard/dashboard', {
 
 
 
-app.get('/Inventory', requireLogin, async (req, res) => {
+app.get('/Inventory', ensureAuthenticated, async (req, res) => {
   try {
-    const inventoryItems = await Inventory.find({ recipientId: req.user._id });
-    const salesItems = await Sales.find({ recipientId: req.user._id });
+    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
+    const salesItems = await Sales.find({ recipientId: req.session.user._id });
 
     // 1. Total Inventory Value (scost * currentquantity)
     const totalInventoryValue = inventoryItems.reduce((sum, item) => {
@@ -553,12 +548,12 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
 
 
 
-app.get('/Sales', requireLogin, async (req, res) => {
+app.get('/Sales', ensureAuthenticated, async (req, res) => {
   try {
-    const inventoryItems = await Inventory.find({ recipientId: req.user._id });
-    const salesitem = await Sales.find({ recipientId: req.user._id });
+    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
+    const salesitem = await Sales.find({ recipientId: req.session.user._id });
 
-    const oneinventoryItems = await Inventory.findOne({ recipientId: req.user._id });
+    const oneinventoryItems = await Inventory.findOne({ recipientId: req.session.user._id });
 
     // Get today's date range
     const todayStart = new Date();
@@ -568,7 +563,7 @@ app.get('/Sales', requireLogin, async (req, res) => {
 
     // Get today's sales
     const todaySales = await Sales.find({
-      recipientId: req.user._id,
+      recipientId: req.session.user._id,
       date: { $gte: todayStart, $lte: todayEnd }
     });
 
@@ -592,7 +587,7 @@ app.get('/Sales', requireLogin, async (req, res) => {
 
 
 
-app.get("/salehistory", requireLogin, async (req, res) => {
+app.get("/salehistory", ensureAuthenticated, async (req, res) => {
   try {
     const {
       dateFrom,
@@ -604,7 +599,7 @@ app.get("/salehistory", requireLogin, async (req, res) => {
       maxAmount
     } = req.query;
 
-    const filters = { recipientId: req.user._id };
+    const filters = { recipientId: req.session.user._id };
 
     if (dateFrom || dateTo) {
       filters.date = {};
@@ -628,7 +623,7 @@ app.get("/salehistory", requireLogin, async (req, res) => {
     const salesitem = await Sales.find(filters).sort({ date: -1 });
 
     // Get distinct categories for the dropdown
-      const categories = await Sales.distinct("item", { recipientId: req.user._id });
+      const categories = await Sales.distinct("item", { recipientId: req.session.user._id });
 
 
     // If AJAX, return JSON
@@ -652,9 +647,9 @@ app.get("/salehistory", requireLogin, async (req, res) => {
 
 
 
-app.get("/api/sales-chart-data", requireLogin, async (req, res) => {
+app.get("/api/sales-chart-data", ensureAuthenticated, async (req, res) => {
   const { type } = req.query;
-  const recipientId = req.user._id;
+  const recipientId = req.session.user._id;
 
   let groupFormat;
   let labelFormat;
@@ -763,9 +758,9 @@ app.get("/api/sales-chart-data", requireLogin, async (req, res) => {
 
 
 
-app.get('/Expenses', requireLogin, async (req, res) => {
+app.get('/Expenses', ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     // All expenses by user
     const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
@@ -808,9 +803,9 @@ app.get('/Expenses', requireLogin, async (req, res) => {
 
 
 
-app.get("/viewallexpenses", requireLogin, async (req, res) => {
+app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const expenses = await Expense.find({ recipientId: userId });
 
@@ -833,9 +828,9 @@ app.get("/viewallexpenses", requireLogin, async (req, res) => {
 
 
 
-app.get("/api/expenses/summary", requireLogin, async (req, res) => {
+app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
   try {
-    const expenses = await Expense.find({ recipientId: req.user._id });
+    const expenses = await Expense.find({ recipientId: req.session.user._id });
 
     const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
     const totalTransactions = expenses.length;
@@ -853,9 +848,9 @@ app.get("/api/expenses/summary", requireLogin, async (req, res) => {
 });
 
 
-app.get("/api/expenses/all", requireLogin, async (req, res) => {
+app.get("/api/expenses/all", ensureAuthenticated, async (req, res) => {
   try {
-    const expenses = await Expense.find({ recipientId: req.user._id }).sort({ createdAt: -1 });
+    const expenses = await Expense.find({ recipientId: req.session.user._id }).sort({ createdAt: -1 });
     res.json({ expenses });
   } catch (err) {
     console.error("Error loading expenses:", err);
@@ -875,9 +870,9 @@ app.get("/api/expenses/all", requireLogin, async (req, res) => {
 
 
 
-app.get("/Transaction", requireLogin, async (req, res) => {
+app.get("/Transaction", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
     const { type } = req.query;
 
 
@@ -950,10 +945,10 @@ app.get("/Transaction", requireLogin, async (req, res) => {
 
 
 
-app.get('/Production', requireLogin, async (req, res) => {
+app.get('/Production', ensureAuthenticated, async (req, res) => {
   try {
 
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
 
       const allProductions = await Production.find();
@@ -1036,9 +1031,9 @@ const summary = {
 
 
 
-app.get('/Profit', requireLogin, async (req, res) => {
+app.get('/Profit', ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const start = new Date();
     start.setHours(0, 0, 0, 0);
@@ -1053,7 +1048,7 @@ app.get('/Profit', requireLogin, async (req, res) => {
 
     // Get today's sales
     const sales = await Sales.find({
-      recipientId: req.user._id,
+      recipientId: req.session.user._id,
       date: { $gte: todayStart, $lte: todayEnd }
     });
     console.log("Sales:", sales);
@@ -1144,9 +1139,9 @@ res.render('dashboard/profit', {
 
 
 
-app.get("/accountpayable", requireLogin, async (req, res) => {
+app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const accountPayables = await AccountsPayable.find({ recipientId: userId }).sort({ createdAt: -1 });
 
@@ -1212,9 +1207,9 @@ app.get("/accountpayable", requireLogin, async (req, res) => {
 
 
 
-app.get("/accountreceivable", requireLogin, async (req, res) => {
+app.get("/accountreceivable", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const receivables = await AccountReceivable.find({ recipientId: userId }).sort({ createdAt: -1 });
 
@@ -1252,10 +1247,10 @@ const collectedAmount = receivables
 
 
 
-app.get("/pricedeterminant", requireLogin, async (req, res) => {
+app.get("/pricedeterminant", ensureAuthenticated, async (req, res) => {
   try{
     
-     const userId = req.user._id;
+     const userId = req.session.user._id;
 
           const allProductions = await Production.find();
 const uniqueCategories = [...new Set(allProductions.map(p => p.category.toLowerCase()))];
@@ -1308,10 +1303,10 @@ const summary = {
 
 
 // GET endpoint to fetch product details
-app.get('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
+app.get('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
     try {
         const productId = req.params.id;
-        const userId = req.user._id;
+        const userId = req.session.user._id;
 
         const product = await Production.findOne({ _id: productId, recipientId: userId });
         if (!product) {
@@ -1336,10 +1331,10 @@ app.get('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
 });
 
 // PUT endpoint to update product details
-app.put('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
+app.put('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
     try {
         const productId = req.params.id;
-        const userId = req.user._id;
+        const userId = req.session.user._id;
         const { unitPrice, profit, fees, amount } = req.body; // Expecting updated values from frontend
 
         console.log("bosy", req.body)
@@ -1383,9 +1378,9 @@ app.put('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
 
 
 
-app.get("/statementofaccount", requireLogin, async (req, res) => {
+app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const salesitem = await Sales.find({ recipientId: userId });
     const expenses = await Expense.find({ recipientId: userId });
@@ -1513,9 +1508,9 @@ const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCre
 
 
 
-app.get("/Assests", requireLogin, async (req, res) => {
+app.get("/Assests", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const allAssets = await Asset.find({ userId }).sort({ createdAt: -1 });
 
@@ -1623,9 +1618,9 @@ app.post('/assets/add', async (req, res) => {
 
 
 
-app.get("/cashflow", requireLogin, async (req, res) => {
+app.get("/cashflow", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
     let { start, end } = req.query;
 
     let startDate = start ? new Date(start) : new Date("2000-01-01");
@@ -1711,9 +1706,9 @@ app.get("/cashflow", requireLogin, async (req, res) => {
 
 
 
-app.get("/balancesheet", requireLogin, async (req, res) => {
+app.get("/balancesheet", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     // --- Fetch from DB ---
     const inventoryItems = await Inventory.find({ recipientId: userId });
@@ -1798,9 +1793,9 @@ const totalEquity = totalAssets - totalLiabilities;
 
 
 // GET Liquidity Page
-app.get("/ledgerliquidity", requireLogin, async (req, res) => {
+app.get("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
   try {
-    const entries = await Liquidity.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const entries = await Liquidity.find({ userId: req.session.user._id }).sort({ createdAt: -1 });
 
     // Sum all entries
     const totalCash = entries.reduce((sum, e) => sum + (e.cash || 0), 0);
@@ -1832,7 +1827,7 @@ app.get("/ledgerliquidity", requireLogin, async (req, res) => {
 
 
 // POST Liquidity Entry
-app.post("/ledgerliquidity", requireLogin, async (req, res) => {
+app.post("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
   try {
     const { cash, bank, liabilities } = req.body;
     const numCash = parseFloat(cash);
@@ -1841,7 +1836,7 @@ app.post("/ledgerliquidity", requireLogin, async (req, res) => {
     const netLiquidity = numCash + numBank - numLiabilities;
 
     const newEntry = new Liquidity({
-      userId: req.user._id,
+      userId: req.session.user._id,
       cash: numCash,
       bank: numBank,
       liabilities: numLiabilities,
@@ -1858,9 +1853,9 @@ app.post("/ledgerliquidity", requireLogin, async (req, res) => {
 });
 
 
-app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
+app.post("/ledgerliquidity/delete/:id", ensureAuthenticated, async (req, res) => {
   try {
-    await Liquidity.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    await Liquidity.findOneAndDelete({ _id: req.params.id, userId: req.session.user._id });
     res.redirect("/ledgerliquidity");
   } catch (err) {
     console.error("Error deleting liquidity entry:", err);
@@ -1870,9 +1865,9 @@ app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
 
 
 
-app.get("/budget", requireLogin, async (req, res) => {
+app.get("/budget", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
     const budgets = await Budget.find({ recipientId: userId }).sort({ createdAt: -1 });
 
     // Prepare chart labels and usage (spent = initial - current)
@@ -1894,9 +1889,9 @@ app.get("/budget", requireLogin, async (req, res) => {
 
 
 
-app.get("/payroll", requireLogin, async (req, res) => {
+app.get("/payroll", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
     const payrolls = await Payroll.find({ userId }).sort({ createdAt: -1 });
 
     // Total Employees Paid
@@ -1939,9 +1934,9 @@ app.get("/payroll", requireLogin, async (req, res) => {
 // const Budget = require("../models/Budget"); // Add this if not already
 // const Lead = require("../models/Lead");
 
-app.get("/salesmetricoverview", requireLogin, async (req, res) => {
+app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.query.id || req.user._id;
+    const userId = req.query.id || req.session.user._id;
 
     const salesItems = await Sales.find({ recipientId: userId });
     const expenseItems = await Expense.find({ recipientId: userId });
@@ -2044,9 +2039,9 @@ app.get("/salesmetricoverview", requireLogin, async (req, res) => {
 
 
 
-app.get("/salesforecast", requireLogin, async (req, res) => {
+app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const now = new Date();
     const oneYearAgo = new Date(now);
@@ -2126,7 +2121,7 @@ app.get("/salesforecast", requireLogin, async (req, res) => {
 
 
 
-app.get("/crm", requireLogin, async (req, res) => {
+app.get("/crm", ensureAuthenticated, async (req, res) => {
   try{
     
   res.render("dashboard/CRM.ejs");
@@ -2163,7 +2158,7 @@ app.get("/crm", requireLogin, async (req, res) => {
 
 
 
-app.get("/OrderManagement", requireLogin, async (req, res) => {
+app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
   try {
     const now = new Date();
 
@@ -2176,11 +2171,13 @@ app.get("/OrderManagement", requireLogin, async (req, res) => {
       { $set: { status: 'overdue' } }
     );
 
+    const products = await Inventory.find();
     const orders = await Order.find().populate("recipientId").lean();
 
     res.render("dashboard/order", {
       user: req.session.user,
-      orders
+      orders,
+      products
     });
   } catch (err) {
     console.error("Error loading Order Management page:", err);
@@ -2279,7 +2276,7 @@ app.post('/api/auth/createOrder', async (req, res) => {
 
 
 // View single order
-app.get("/order/:id", requireLogin, async (req, res) => {
+app.get("/order/:id", ensureAuthenticated, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate("recipientId", "name email") // show recipient details
@@ -2304,7 +2301,7 @@ app.get("/order/:id", requireLogin, async (req, res) => {
 
 
 // GET confirmation page
-app.get("/order-placed/:buyername/:orderId", requireLogin, async (req, res) => {
+app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, res) => {
   try {
     const { buyername, orderId } = req.params;
     const order = await Order.findById(orderId).lean();

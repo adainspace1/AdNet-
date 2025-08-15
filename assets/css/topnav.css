@@ -1,0 +1,211 @@
+
+
+
+
+
+.nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            width: 100%;
+            border-radius: 5px;
+            flex-wrap: wrap;
+            box-shadow: 1px 1px 30px -20px ;
+            margin: 0px;
+        }
+
+ .nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+  .nav .logo i {
+            color: #f1f3f2;
+            font-size: 24px;
+        }
+
+  .nav .logo a {
+            font-size: 16px;
+            color: #f1f3f2;
+            text-decoration: none;
+        }
+
+  .nav .right-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Notification Styling */
+        .notification {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .notification i {
+            cursor: pointer;
+            font-size: 24px;
+            color: #ffffff;
+            position: relative;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 50%;
+        }
+
+        .notification i .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff4d4d;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        #notificationDropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: #fff;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            min-width: 250px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        #notificationDropdown p {
+            padding: 12px;
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        #notificationDropdown a {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        #notificationDropdown a:hover {
+            background: #f5f5f5;
+        }
+
+        /* Profile Styling */
+        .profile {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e293b;
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .profile .info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile .info img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 1px solid #f1f3f2;
+        }
+
+        .profile .info div a {
+            color: #e0e0e0;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .profile .info div p {
+            margin: 0;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .profile > i {
+            color: #f1f3f2;
+            font-size: 22px;
+        }
+
+        #profileDropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            min-width: 150px;
+            z-index: 1000;
+        }
+
+        #profileDropdown a {
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: background 0.3s;
+        }
+
+        #profileDropdown a:hover {
+            background: #f5f5f5;
+        }
+
+       
+       
+
+      
+     
+
+
+
+       
+
+        /* Mobile specific styles */
+        @media screen and (max-width: 767px) {
+
+            
+            .profile .info div {
+                display: none;
+            }
+            
+
+            
+      
+            
+            #notificationDropdown,
+            #profileDropdown {
+                min-width: 200px;
+                right: -50px;
+            }
+        }
+
+        /* Extra small devices */
+        @media screen and (max-width: 480px) {
+           .nav {
+                padding: 10px;
+            }
+            
+   
+        }
