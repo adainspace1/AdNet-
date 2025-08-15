@@ -190,12 +190,6 @@ const createSale = async (req, res) => {
       amount,
       paymentMethod,
       custormername,
-
-
-
-
-
-      
       discription
     } = req.body;
 

@@ -334,6 +334,19 @@ const requireLogin = async (req, res, next) => {
 
 
 
+function ensureAuthenticated(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  }
+
+  // Optionally attach the attempted URL so we can return after login
+  const attemptedUrl = req.originalUrl;
+  console.log("redirecting")
+  console.log("redirecting", attemptedUrl)
+  return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+  
+}
+
 
 
 
