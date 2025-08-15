@@ -91,17 +91,7 @@
   <i class="fa fa-cloud-download"></i>
 </div>
 
-<script>
-  document.querySelector('.qr-container').addEventListener('click', function () {
-    const qrImage = document.getElementById('qrImage');
-    const link = document.createElement('a');
-    link.href = qrImage.src;
-    link.download = 'qr-code.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-</script>
+
 
 
     <a href="/OrderManagement" class="btn btn-secondary mt-3">Back</a>
