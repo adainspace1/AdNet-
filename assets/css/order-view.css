@@ -147,3 +147,79 @@ img[alt="QR Code"] {
     max-width: 120px; /* Smaller QR code on mobile */
   }
 }
+
+
+
+/* Container for QR code and icon */
+.qr-container {
+  position: relative; /* Allows absolute positioning of the icon */
+  display: inline-block; /* Keeps the container size to the image */
+  margin: 15px 0; /* Spacing around the container */
+  cursor: pointer;
+}
+
+/* QR code image styling */
+.qr-container img[alt="QR Code"] {
+  max-width: 150px; /* Consistent QR code size */
+  height: auto;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #fff; /* White background for light theme */
+  display: block; /* Ensure image behaves as a block for positioning */
+}
+
+/* Icon styling */
+.qr-container .fa-cloud-download {
+  position: absolute;
+  top: 10px; /* Position near the top-left, adjustable */
+  left: 10px; /* Adjust as needed for placement within frame */
+  font-size: 24px; /* Icon size */
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  color: #fff;
+  width: 40px;
+  height: 40px; /* Size of the icon background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* Circular icon background */
+  transition: opacity 0.3s ease; /* Smooth fade effect */
+}
+
+/* Laptop screens (hover effect) */
+@media (min-width: 769px) {
+  .qr-container .fa-cloud {
+    opacity: 0; /* Hidden by default */
+  }
+
+  .qr-container:hover .fa-cloud-download {
+    opacity: 1; /* Visible on hover */
+  }
+}
+
+/* Phone screens (always visible) */
+@media (max-width: 768px) {
+  .qr-container .fa-cloud-download {
+    opacity: 1; /* Always visible */
+  }
+
+  .qr-container img[alt="QR Code"] {
+    max-width: 120px; /* Smaller size for mobile */
+  }
+
+  .qr-container .fa-cloud-download {
+    top: 5px; /* Adjust for smaller image */
+    left: 5px;
+    font-size: 20px; /* Slightly smaller icon */
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .qr-container img[alt="QR Code"] {
+    background-color: #2c2c2c; /* Dark background */
+  }
+
+  .qr-container .fa-cloud-download {
+    background-color: rgba(44, 44, 44, 0.8); /* Dark semi-transparent background */
+  }
+}

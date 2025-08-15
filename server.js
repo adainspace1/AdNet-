@@ -468,7 +468,7 @@ const weeklySalesData = [
 
 
 res.render('dashboard/dashboard', {
-  user: req.user,
+  user: req.session.user._id,
   inventory: inventoryItems,
   companyinfo,
   todayExpenses,
@@ -535,7 +535,7 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
 
 
     res.render('dashboard/inventory', {
-      user: req.user,
+      user: req.session.user._id,
       inventory: inventoryItems,
       totalInventoryValue,
       totalItemsCount,
@@ -575,7 +575,7 @@ app.get('/Sales', ensureAuthenticated, async (req, res) => {
     const totalAmountToday = todaySales.reduce((sum, sale) => sum + sale.amount, 0);
 
     res.render('dashboard/sales', {
-      user: req.user,
+      user: req.session.user._id,
       inventory: inventoryItems,
       salesitem,
       totalSalesToday,
@@ -636,7 +636,7 @@ app.get("/salehistory", ensureAuthenticated, async (req, res) => {
 
     // Otherwise, render full page
     res.render("dashboard/salehistory", {
-      user: req.user,
+      user: req.session.user._id,
       salesitem,
       categories,
     });
@@ -789,7 +789,7 @@ app.get('/Expenses', ensureAuthenticated, async (req, res) => {
     const totalAmountToday = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString();
 
     res.render('dashboard/expenses', {
-      user: req.user,
+      user: req.session.user._id,
       expenses,
       todayExpenses,
       totalExpensesToday,
@@ -817,7 +817,7 @@ app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
     const averageExpense = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
 
     res.render("dashboard/viewallexpenses", {
-      user: req.user,
+      user: req.session.user._id,
       totalAmount,
       totalTransactions,
       averageExpense,
@@ -997,7 +997,7 @@ const summary = {
 
   res.render('dashboard/production', 
     {
-      user: req.user,
+      user: req.session.user._id,
        summary,
        categoryBreakdown,
        sortedProductions,
@@ -1116,7 +1116,7 @@ production.forEach(p => {
 
 
 res.render('dashboard/profit', {
-  user: req.user,
+  user: req.session.user._id,
   salesTotal,
   expenseTotal,
   productionTotal,
@@ -1183,7 +1183,7 @@ app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
     });
 
     res.render("dashboard/accountpayable", {
-      user: req.user,
+      user: req.session.user._id,
       accountPayables,
       summary: {
         totalOutstanding,
@@ -1230,7 +1230,7 @@ const collectedAmount = receivables
       .reduce((sum, r) => sum + (r.ramount - (r.amountPaid || 0)), 0);
 
     res.render("dashboard/accountrecievable", {
-      user: req.user,
+      user: req.session.user._id,
       receivables,
       summary: {
         totalReceivables,
@@ -1285,7 +1285,7 @@ const summary = {
 };
 
   res.render("dashboard/pricedetermination", {
-    user: req.user,
+    user: req.session.user._id,
     allProductions,
     uniqueCategories,
     summary,
@@ -1487,7 +1487,7 @@ const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCre
 
 
     res.render('dashboard/statement of account.ejs', {
-      user: req.user,
+      user: req.session.user._id,
       transactions,
       businessinfo,
         summary: {
@@ -1523,7 +1523,7 @@ app.get("/Assests", ensureAuthenticated, async (req, res) => {
     const accountAssets = allAssets.filter(a => a.ledgerType === 'Fixed Asset Accounts');
 
     res.render("dashboard/Assetms.ejs", { 
-      user: req.user,
+      user: req.session.user._id,
       registerAssets,
       scheduleAssets,
       accountAssets
@@ -1685,7 +1685,7 @@ app.get("/cashflow", ensureAuthenticated, async (req, res) => {
     };
 
     res.render("dashboard/cashflow", {
-      user: req.user,
+      user: req.session.user._id,
       sales,
       expenses,
       productions,
@@ -1768,7 +1768,7 @@ const totalEquity = totalAssets - totalLiabilities;
     const equityRatio = totalAssets ? ((totalEquity / totalAssets) * 100).toFixed(1) : 0;
 
     res.render("dashboard/balancesheet", {
-      user: req.user,
+      user: req.session.user._id,
       assets,
       liabilities,
       equity,
@@ -1816,7 +1816,7 @@ app.get("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
     console.log("Total Liquidity Summary:", totalLiquidity);
 
     res.render("dashboard/ledgerliquidity.ejs", {
-      user: req.user,
+      user: req.session.user._id,
       liquidity: totalLiquidity,
       liquidityEntries: entries
     });
@@ -1878,7 +1878,7 @@ app.get("/budget", ensureAuthenticated, async (req, res) => {
     const chartData = budgets.map(b => b.amount - b.currentamount);
 
     res.render("dashboard/budget", {
-      user: req.user,
+      user: req.session.user._id,
       budgets,
       chartLabels: JSON.stringify(chartLabels),
       chartData: JSON.stringify(chartData),
@@ -1909,7 +1909,7 @@ app.get("/payroll", ensureAuthenticated, async (req, res) => {
     const pendingPayrolls = payrolls.filter(p => p.status === "pending").length;
 
     res.render("dashboard/payrol.ejs", {
-      user: req.user,
+      user: req.session.user._id,
       payrolls,
       totalEmployeesPaid,
       totalPayroll,
@@ -2016,7 +2016,7 @@ app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
     };
 
     res.render("dashboard/salesmetricoverview", {
-      user: req.user,
+      user: req.session.user._id,
       salesChartData,
       totalSalesAmount,
       totalSalesCount,
@@ -2325,6 +2325,7 @@ app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, re
 });
 
 // POST confirmation
+// POST confirmation
 app.post("/order-placed/:buyername/:orderId", async (req, res) => {
   try {
     const { buyername, orderId } = req.params;
@@ -2342,13 +2343,32 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
       order.productpassword === password &&
       order.buyername === name
     ) {
+      // Mark as delivered
       order.status = "delivered";
       await order.save();
+
+      // 🔹 Reduce inventory quantities for each item in the order
+      await Promise.all(
+        order.items.map(async (item) => {
+          const product = await Inventory.findOne({
+            itemName: item.productName, // match on productName from order
+          });
+
+          if (product) {
+            // Subtract ordered quantity from both quantity and currentquantity
+            product.quantity = Math.max(product.quantity - item.quantity, 0);
+            product.currentquantity = Math.max(product.currentquantity - item.quantity, 0);
+            await product.save();
+          } else {
+            console.warn(`No inventory record found for ${item.productName}`);
+          }
+        })
+      );
 
       return res.render("dashboard/order-confirm", {
         order: order.toObject(),
         error: null,
-        success: "Goods successfully confirmed and marked as delivered!"
+        success: "Goods confirmed, marked as delivered, and inventory updated!"
       });
     } else {
       return res.render("dashboard/order-confirm", {
@@ -2362,6 +2382,8 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
 
 
 

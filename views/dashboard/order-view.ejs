@@ -86,9 +86,23 @@
     <p><strong>Grand Total:</strong> $<%= order.grandTotal.toFixed(2) %></p>
 
     <h6>QR Code</h6>
-    <div>
-      <img src="<%= order.qrCode %>" alt="QR Code">
-    </div>
+    <div class="qr-container">
+  <img id="qrImage" src="<%= order.qrCode %>" alt="QR Code">
+  <i class="fa fa-cloud-download"></i>
+</div>
+
+<script>
+  document.querySelector('.qr-container').addEventListener('click', function () {
+    const qrImage = document.getElementById('qrImage');
+    const link = document.createElement('a');
+    link.href = qrImage.src;
+    link.download = 'qr-code.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
+
 
     <a href="/OrderManagement" class="btn btn-secondary mt-3">Back</a>
   </div>
@@ -101,6 +115,18 @@
 
 
  </div>
+
+<script>
+  document.querySelector('.qr-container').addEventListener('click', function () {
+    const qrImage = document.getElementById('qrImage');
+    const link = document.createElement('a');
+    link.href = qrImage.src;
+    link.download = 'qr-code.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
 
 
     <script>

@@ -185,7 +185,7 @@
                   <form id="inventory-form" method="POST" action="/user/createinventory">
                     <h2>Add Inventory Item</h2>
 
-                            <input type="hidden" name="recipientId" value="<%= user.id %>" required>
+                            <input type="hidden" name="recipientId" value="<%= user._id %>" required>
 
                             <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
                     <label>Item Name:
