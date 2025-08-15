@@ -21,7 +21,10 @@ const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
 
 
+
 const Order = require("./models/Order");
+
+const QRCode = require('qrcode');
 
 
 const Business = require("./models/business");
