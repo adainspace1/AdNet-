@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy From</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/order-view.css">
+</head>
+<body>
+
+
+
+
+         
+
+          <div class="all">
+ <%- include ("_sidebar1") %>
+
+ <div class="main-content">
+    <%- include ("_topnav") %>
+
+
+
+
+
+<div class="container mt-4">
+  <h2>Order Details</h2>
+  <hr>
+
+  <div class="card p-3">
+    <h5>Order ID: <%= order._id %></h5>
+    <p><strong>Buyer Name:</strong> <%= order.buyername %></p>
+ 
+    <p><strong>Expected Delivery:</strong> 
+      <%= order.expectedDelivery ? new Date(order.expectedDelivery).toLocaleString() : "Not set" %>
+    </p>
+    <p><strong>Order Type</strong> <%= order.delivery?.type %></p>
+
+
+<% if (order.delivery?.vehicleNumber) { %>
+  <p><strong>Vehicle Number:</strong> <%= order.delivery.vehicleNumber %></p>
+<% } %>
+
+<% if (order.delivery?.logisticsCompany) { %>
+  <p><strong>Logistics Company:</strong> <%= order.delivery.logisticsCompany %></p>
+<% } %>
+
+<% if (order.delivery?.collectionPoint) { %>
+  <p><strong>Collection Point:</strong> <%= order.delivery.collectionPoint %></p>
+<% } %>
+
+<% if (order.delivery?.location) { %>
+  <p><strong>Pickup location:</strong> <%= order.delivery.location %></p>
+<% } %>
+
+    <p><strong>Notes:</strong> <%= order.notes || "None" %></p>
+
+    <h3>Items</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.items.forEach(item => { %>
+          <tr>
+            <td><%= item.productName %></td>
+            <td><%= item.quantity %></td>
+            <td>$<%= item.unitPrice.toFixed(2) %></td>
+            <td>$<%= (item.quantity * item.unitPrice).toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <h3>Summary</h6>
+    <p><strong>Items Cost:</strong> $<%= order.itemsCost.toFixed(2) %></p>
+    <p><strong>Subtotal:</strong> $<%= order.subtotal.toFixed(2) %></p>
+    <p><strong>Fees:</strong> $<%= order.delivery?.price.toFixed(2) %></p>
+
+    <p><strong>Grand Total:</strong> $<%= order.grandTotal.toFixed(2) %></p>
+
+    <h6>QR Code</h6>
+    <div>
+      <img src="<%= order.qrCode %>" alt="QR Code">
+    </div>
+
+    <a href="/OrderManagement" class="btn btn-secondary mt-3">Back</a>
+  </div>
+</div>
+
+
+
+
+
+
+
+ </div>
+
+
+    <script>
+      sessionStorage.setItem('redirect', window.location.pathname);
+    </script>
+</div>
+
+
+    
+</body>
+</html>

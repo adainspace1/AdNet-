@@ -32,7 +32,8 @@ const {
     createPayroll,
      editpayroll,
      forcastsales,
-     createdeal
+     createdeal,
+     createBudget
   } = require("../controllers/usercontroller")
  
     console.log(" two", payReceivable);
@@ -48,6 +49,8 @@ const {
                 router.post('/PayAreceivable',     payReceivable);
 router.post('/payroll', createPayroll);
 router.post('/editpayroll/:id', editpayroll);
+
+router.post('/Budgets/create', createBudget);
 
 router.post('/forcastsales', forcastsales);
 

@@ -107,13 +107,13 @@
   
       <label style="display: block; margin-bottom: 0.5rem;">
         Category:
-        <select name="category" id="expenseCategory" style="border: 1px solid #d1d5db; border-radius: 0.25rem; padding: 0.25rem; width: 100%;">
-          <option value="">Select a category</option>
-          <option value="Utilities">Utilities</option>
-          <option value="Supplies">Supplies</option>
-          <option value="Transport">Transport</option>
-          <option value="Miscellaneous">Miscellaneous</option>
+        <select name="category" id="expenseCategory" required>
+          <option value="">Select a category</option>]
+          <% budgets.forEach(b => { %>
+            <option value="<%= b.title %>"><%= b.categoryName %> - ₦<%= b.currentamount.toLocaleString() %></option>
+          <% }); %>
         </select>
+
       </label>
 
 

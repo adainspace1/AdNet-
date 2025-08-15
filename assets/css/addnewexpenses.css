@@ -99,11 +99,11 @@ body {
 /* Main Content */
 .container {
   padding: 1.5rem;
-  width: 100%;
+  width: 95%;
   overflow: hidden;
   overflow-y: scroll;
   height: 100vh;
-  margin: 0 auto;
+  margin-left: auto;
   background: #031224;
 }
 

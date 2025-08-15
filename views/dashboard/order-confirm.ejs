@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Order Delivery</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/confirm-delivery.css">
+</head>
+<body>
+
+
+
+
+         
+
+          <div class="all">
+ <%- include ("_sidebar1") %>
+
+ <div class="main-content">
+    <%- include ("_topnav") %>
+
+<div class="container">
+
+
+     <h1>
+  Confirm Delivery for Order <%= order.buyername %>'s 
+  <%= order.items.map(item => item.productName).join(', ') %>
+</h1>
+
+  <p><strong>Buyer:</strong> <%= order.buyername %></p>
+  <p><strong>Status:</strong> <%= order.status %></p>
+
+  <% if (error) { %>
+    <p style="color: red;"><%= error %></p>
+  <% } %>
+
+  <% if (success) { %>
+    <p style="color: green;"><%= success %></p>
+  <% } %>
+
+  <% if (!success) { %>
+    <form action="/order-placed/<%= order.buyername %>/<%= order._id %>" method="POST">
+      <div>
+        <label>Email:</label>
+        <input type="email" name="email" required />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input type="password" name="password" required />
+      </div>
+      <div>
+        <label>Name:</label>
+        <input type="text" name="name" required />
+      </div>
+      <button type="submit">Confirm</button>
+    </form>
+  <% } %>
+
+</div>
+
+
+ </div>
+
+
+    <script>
+      sessionStorage.setItem('redirect', window.location.pathname);
+    </script>
+</div>
+
+
+    
+</body>
+</html>

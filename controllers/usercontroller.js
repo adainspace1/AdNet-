@@ -9,6 +9,7 @@ const AccountsPayable = require('../models/AccountsPayable');
 const AccountReceivable = require("../models/AccountReceivable");
     const APPayment = require('../models/APPayment');
     const ARInvoice = require('../models/ARInvoice');
+const Budget = require('../models/budget');
 const Payroll = require('../models/Payroll');
 const Asset = require('../models/Asset');
 
@@ -189,6 +190,12 @@ const createSale = async (req, res) => {
       amount,
       paymentMethod,
       custormername,
+
+
+
+
+
+      
       discription
     } = req.body;
 
@@ -262,8 +269,9 @@ await inventoryItem.save();
 
 
 
+// ✅ Updated Expense Save Controller - Deduct from budget and hide if depleted
 const saveExpense = async (req, res) => {
-  console.log("body field", req.body); // Fixed!
+  console.log("body field", req.body);
 
   try {
     const { recipientId, username, category, amount, description } = req.body;
@@ -272,14 +280,40 @@ const saveExpense = async (req, res) => {
       return res.status(400).send('Category and amount are required.');
     }
 
+  // Find the matching budget by title
+    const budget = await Budget.findOne({ recipientId, title: category });
+
+    console.log("the budget", budget);
+
+    if (!budget) {
+      return res.status(404).send("No valid budget title found to deduct from.");
+    }
+
+    // Convert amount to number
+    const expenseAmount = Number(amount);
+
+    // Check if enough money is available
+    if (budget.currentamount < expenseAmount) {
+      return res.send(`<script>alert("Amount is more than what's available in '${category}' budget."); window.history.back();</script>`);
+    }
+
+    // Deduct the amount from currentamount
+    budget.currentamount -= expenseAmount;
+    await budget.save();
+ 
+
+    console.log("Updated budget after expense:", budget);
+
+    // Save the expense
     const newExpense = new Expense({
       recipientId,
       username,
       category,
-      amount,
+      amount: expenseAmount,
       description
     });
 
+    console.log("New expense to save:", newExpense);
     await newExpense.save();
 
     const returnUrl = req.headers.referer || "/";
@@ -290,6 +324,7 @@ const saveExpense = async (req, res) => {
     res.status(500).send('Server error while saving expense.');
   }
 };
+
 
 
 // Show all expenses
@@ -643,6 +678,45 @@ const createdeal = async (req, res) => {
 
 
 
+const createBudget = async (req, res) => {
+  try {
+    const {
+      recipientId,
+      title,
+      amount,
+      startDate,
+      currentamount,
+      categoryName,
+      endDate,
+      recurrence,
+      notes
+    } = req.body;
+
+
+
+
+    const newBudget = await Budget.create({
+      title,
+      amount,
+      startDate,
+      endDate: endDate || null,
+      recurrence,
+      notes,
+      currentamount,
+      categoryName,
+      recipientId
+    });
+
+    await newBudget.save();
+    res.redirect('/budget');
+  } catch (err) {
+    console.error('Error creating budget:', err);
+    res.status(500).send('Error creating budget.');
+  }
+};
+
+
+
 
 
 
@@ -669,5 +743,6 @@ const createdeal = async (req, res) => {
     getAllExpenses,
     editpayroll,
     forcastsales,
-    createdeal
+    createdeal,
+    createBudget
 };

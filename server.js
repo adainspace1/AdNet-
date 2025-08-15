@@ -25,8 +25,9 @@ const Business = require("./models/business");
 const Company = require("./models/company");
 const BankInfo = require("./models/bank");
 const Asset = require('./models/Asset');
+const Budget = require('./models/budget');
 
-const port=4000
+const port=3900
 const MongoStore = require("connect-mongo");
 const ejs = require("ejs");
 const session = require("express-session")
@@ -311,27 +312,26 @@ app.get('/email-exists', (req, res) => {
 
 const requireLogin = async (req, res, next) => {
   if (!req.session.userId) {
-    console.log('No session userId found, redirecting to login');
-    const redirectTo = encodeURIComponent(req.originalUrl); // e.g., /Dashboard
-    return res.redirect(`/login?redirect=${redirectTo}`);
+    const returnTo = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/login?redirect=${returnTo}`);
   }
 
   try {
     const user = await Personal.findById(req.session.userId);
     if (!user) {
-      console.warn('User not found for session ID:', req.session.userId);
-      const redirectTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?redirect=${redirectTo}`);
+      return res.redirect('/login');
     }
 
-    req.user = user; // Attach user to req
-    console.log('User found for session ID:', req.session.userId);
+    req.user = user; // ✅ Attach full user object to request
     next();
   } catch (err) {
-    console.error('Auth middleware error:', err);
+    console.error('Error in requireLogin:', err);
     res.status(500).send('Server error');
   }
 };
+
+
+
 
 
 
@@ -551,14 +551,6 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
 
 
 
-
-
-
-
-app.get("/newsales", (req, res) => {
-  res.redirect("/Sales");
-});
-
 app.get('/Sales', requireLogin, async (req, res) => {
   try {
     const inventoryItems = await Inventory.find({ recipientId: req.user._id });
@@ -769,49 +761,40 @@ app.get("/api/sales-chart-data", requireLogin, async (req, res) => {
 
 
 
-
-
 app.get('/Expenses', requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
-    const categories = ['Utilities', 'Supplies', 'Transport', 'Miscellaneous'];
 
-    // Get all expenses
+    // All expenses by user
     const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
 
-    // Today's date range
+    // Today's expenses
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Filter expenses for today
     const todayExpenses = await Expense.find({
       recipientId: userId,
       createdAt: { $gte: todayStart, $lte: todayEnd }
     });
 
-    // Count & total amount today
+    // Get active budgets
+    const budgets = await Budget.find({ recipientId: userId }).sort({startDate: -1 });
+
+    // 🔹 Filter for budgets with remaining money
+    const availableBudgets = budgets.filter(b => b.currentamount > 0);
+
     const totalExpensesToday = todayExpenses.length;
     const totalAmountToday = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString();
-
-    // Breakdown by category
-    const categoryBreakdown = {};
-
-    categories.forEach(category => {
-      const filtered = todayExpenses.filter(exp => exp.category === category);
-      const total = filtered.reduce((sum, exp) => sum + exp.amount, 0);
-      categoryBreakdown[category] = total;
-    });
 
     res.render('dashboard/expenses', {
       user: req.user,
       expenses,
-      categories,
       todayExpenses,
       totalExpensesToday,
       totalAmountToday,
-      categoryBreakdown
+      budgets: availableBudgets // send only usable budgets
     });
 
   } catch (err) {
@@ -819,6 +802,8 @@ app.get('/Expenses', requireLogin, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
 
 
 app.get("/viewallexpenses", requireLogin, async (req, res) => {
@@ -1869,6 +1854,8 @@ app.post("/ledgerliquidity", requireLogin, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
 app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
   try {
     await Liquidity.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
@@ -1881,6 +1868,26 @@ app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
 
 
 
+app.get("/budget", requireLogin, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const budgets = await Budget.find({ recipientId: userId }).sort({ createdAt: -1 });
+
+    // Prepare chart labels and usage (spent = initial - current)
+    const chartLabels = budgets.map(b => b.title);
+    const chartData = budgets.map(b => b.amount - b.currentamount);
+
+    res.render("dashboard/budget", {
+      user: req.user,
+      budgets,
+      chartLabels: JSON.stringify(chartLabels),
+      chartData: JSON.stringify(chartData),
+    });
+  } catch (err) {
+    console.error("Error loading budget page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
@@ -2138,6 +2145,221 @@ app.get("/crm", requireLogin, async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Update all overdue orders in one go
+    await Order.updateMany(
+      {
+        expectedDelivery: { $lt: now },
+        status: { $nin: ['delivered', 'overdue'] }
+      },
+      { $set: { status: 'overdue' } }
+    );
+
+    const orders = await Order.find().populate("recipientId").lean();
+
+    res.render("dashboard/order", {
+      user: req.session.user,
+      orders
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post('/api/auth/createOrder', async (req, res) => {
+  console.log('Creating order with data:', req.body);
+  try {
+    const {
+        recipientId,
+        buyername,
+        buyeremail,
+        expectedDelivery,
+        productpassword,
+        items,
+        itemsCost,
+        subtotal,
+        grandTotal,
+        notes,
+        delivery // <--- new
+      } = req.body;
+
+
+    if (!recipientId) {
+      return res.status(400).json({ message: 'Recipient is required' });
+    }
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'At least one item is required' });
+    }
+
+  
+
+    // Create a temporary ObjectId so we can embed the correct link
+    const tempOrderId = new mongoose.Types.ObjectId();
+    const qrFinalUrl = `/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
+
+    // Generate QR code base64 string
+    const qrCodeDataUrl = await QRCode.toDataURL(qrFinalUrl);
+
+    // Create the order with QR code in DB
+    const newOrder = new Order({
+      _id: tempOrderId,
+      recipientId,
+      buyername,
+      buyeremail,
+      productpassword,
+      expectedDelivery,
+      items,
+      itemsCost,
+      subtotal,
+      grandTotal,
+      notes,
+      delivery, // save delivery object
+      qrCode: qrCodeDataUrl
+    });
+
+
+    await newOrder.save();
+    console.log('New order created:', newOrder);  
+
+      // Build QR link
+    const qrUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${newOrder?._id || 'temp'}/`;
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      order: newOrder
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error creating order' });
+  }
+});
+
+
+
+
+// View single order
+app.get("/order/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("recipientId", "name email") // show recipient details
+      .lean();
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+    
+
+    res.render("dashboard/order-view", {
+      user: req.session.user,
+      order
+    });
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+// GET confirmation page
+app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, res) => {
+  try {
+    const { buyername, orderId } = req.params;
+    const order = await Order.findById(orderId).lean();
+
+    if (!order || order.buyername !== buyername) {
+      return res.status(404).send("Order not found");
+    }
+
+    res.render("dashboard/order-confirm", {
+      order,
+      error: null,
+      success: null
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+// POST confirmation
+app.post("/order-placed/:buyername/:orderId", async (req, res) => {
+  try {
+    const { buyername, orderId } = req.params;
+    const { email, password, name } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order || order.buyername !== buyername) {
+      return res.status(404).send("Order not found");
+    }
+
+    // Verify credentials
+    if (
+      order.buyeremail === email &&
+      order.productpassword === password &&
+      order.buyername === name
+    ) {
+      order.status = "delivered";
+      await order.save();
+
+      return res.render("dashboard/order-confirm", {
+        order: order.toObject(),
+        error: null,
+        success: "Goods successfully confirmed and marked as delivered!"
+      });
+    } else {
+      return res.render("dashboard/order-confirm", {
+        order: order.toObject(),
+        error: "Details do not match. Please try again.",
+        success: null
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 

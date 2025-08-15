@@ -10,10 +10,11 @@ const expenseSchema = new mongoose.Schema({
         type: String,
         required: true
       },
+        department: { type: String, required: true },
+          dateOfExpense: { type: Date, required: true },
   category: {
     type: String,
     required: true,
-    enum: ['Utilities', 'Supplies', 'Transport', 'Miscellaneous']
   },
   amount: {
     type: Number,
@@ -35,3 +36,5 @@ const expenseSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Expense', expenseSchema);
+
+
