@@ -30,6 +30,8 @@
 
   <div class="card p-3">
     <h5>Order ID: <%= order._id %></h5>
+
+
     <p><strong>Buyer Name:</strong> <%= order.buyername %></p>
  
     <p><strong>Expected Delivery:</strong> 
@@ -56,8 +58,11 @@
 
     <p><strong>Notes:</strong> <%= order.notes || "None" %></p>
 
+    <p><strong>Status:</strong> <%= order.status || "pending" %></p>
+
     <h3>Items</h3>
-    <table class="table table-bordered">
+    <div class="tab">
+        <table class="table table-bordered">
       <thead>
         <tr>
           <th>Product</th>
@@ -77,6 +82,8 @@
         <% }) %>
       </tbody>
     </table>
+    </div>
+    
 
     <h3>Summary</h6>
     <p><strong>Items Cost:</strong> $<%= order.itemsCost.toFixed(2) %></p>
@@ -91,9 +98,6 @@
   <i class="fa fa-cloud-download"></i>
 </div>
 
-
-
-
     <a href="/OrderManagement" class="btn btn-secondary mt-3">Back</a>
   </div>
 </div>
@@ -106,7 +110,9 @@
 
  </div>
 
-<script>
+
+
+ <script>
   document.querySelector('.qr-container').addEventListener('click', function () {
     const qrImage = document.getElementById('qrImage');
     const link = document.createElement('a');

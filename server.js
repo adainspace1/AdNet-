@@ -2325,63 +2325,107 @@ app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, re
 });
 
 // POST confirmation
-// POST confirmation
 app.post("/order-placed/:buyername/:orderId", async (req, res) => {
   try {
     const { buyername, orderId } = req.params;
     const { email, password, name } = req.body;
 
-    const order = await Order.findById(orderId);
+    console.log("=== [POST] /sharp/order-placed ===");
+    console.log("Params:", { buyername, orderId });
+    console.log("Body:", { email, password: password ? "***" : "", name });
 
-    if (!order || order.buyername !== buyername) {
+    // Fetch order
+    const order = await Order.findById(orderId);
+    if (!order) {
+      console.error("❌ Order not found:", orderId);
+      return res.status(404).send("Order not found");
+    }
+    console.log("✅ Order found:", order._id);
+    console.log("Buyer name on order:", order.buyername, " | Param buyername:", buyername);
+    console.log("Current order status:", order.status);
+    console.log("Order items:", order.items);
+
+    if (order.buyername !== buyername) {
+      console.error("❌ Buyer name mismatch");
       return res.status(404).send("Order not found");
     }
 
     // Verify credentials
-    if (
+    console.log("🔐 Verifying credentials...");
+    const credsOk =
       order.buyeremail === email &&
       order.productpassword === password &&
-      order.buyername === name
-    ) {
-      // Mark as delivered
-      order.status = "delivered";
-      await order.save();
+      order.buyername === name;
 
-      // 🔹 Reduce inventory quantities for each item in the order
-      await Promise.all(
-        order.items.map(async (item) => {
-          const product = await Inventory.findOne({
-            itemName: item.productName, // match on productName from order
-          });
-
-          if (product) {
-            // Subtract ordered quantity from both quantity and currentquantity
-            product.quantity = Math.max(product.quantity - item.quantity, 0);
-            product.currentquantity = Math.max(product.currentquantity - item.quantity, 0);
-            await product.save();
-          } else {
-            console.warn(`No inventory record found for ${item.productName}`);
-          }
-        })
-      );
-
-      return res.render("dashboard/order-confirm", {
-        order: order.toObject(),
-        error: null,
-        success: "Goods confirmed, marked as delivered, and inventory updated!"
-      });
-    } else {
+    if (!credsOk) {
+      console.warn("❌ Credentials do not match");
       return res.render("dashboard/order-confirm", {
         order: order.toObject(),
         error: "Details do not match. Please try again.",
         success: null
       });
     }
+    console.log("✅ Credentials match!");
+
+    // Prevent double-deduction
+    const alreadyDelivered = order.status === "delivered";
+    if (alreadyDelivered) {
+      console.warn("⚠️ Order already marked as delivered. Skipping inventory deduction.");
+    }
+
+    // Update inventory (only once)
+    if (!alreadyDelivered) {
+      console.log("=== 🔧 Updating Inventory Quantities ===");
+
+      for (const item of order.items || []) {
+        const qty = Number(item.quantity) || 0;
+        console.log(`→ Item: ${item.productName} | productId=${item.productId} | qty=${qty}`);
+
+        if (!item.productId) {
+          console.warn("   ⚠️ Missing productId on item, skipping");
+          continue;
+        }
+
+        const product = await Inventory.findById(item.productId);
+        if (!product) {
+          console.warn(`   ⚠️ Inventory not found for productId=${item.productId}, skipping`);
+          continue;
+        }
+
+        const before = Number(product.currentquantity) || 0;
+        const after = Math.max(before - qty, 0);
+
+        console.log(
+          `   ${product.itemName}: currentquantity BEFORE=${before} | minus=${qty} | AFTER=${after}`
+        );
+
+        product.currentquantity = after;
+        await product.save();
+
+        console.log(`   ✅ Saved ${product.itemName} | currentquantity=${product.currentquantity}`);
+      }
+
+      console.log("=== ✅ Inventory Update Complete ===");
+
+      // Mark order delivered
+      order.status = "delivered";
+      await order.save();
+      console.log("✅ Order status updated to 'delivered'");
+    }
+
+    return res.render("dashboard/order-confirm", {
+      order: order.toObject(),
+      error: null,
+      success: alreadyDelivered
+        ? "Order was already delivered earlier. Inventory not changed."
+        : "Goods confirmed, marked as delivered, and inventory updated!"
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
+    console.error("💥 Server Error in /sharp/order-placed:", err);
+    return res.status(500).send("Server error");
   }
 });
+
 
 
 

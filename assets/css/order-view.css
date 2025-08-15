@@ -76,6 +76,20 @@ p {
   overflow: hidden; /* Ensure rounded corners for table */
 }
 
+
+.tab{
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    overflow-x: scroll;
+}
+
+@media (max-width: 768px) {
+  .tab {
+    background-color: #888;
+  }
+}
+
 .table th {
   background-color: #007bff; /* Bootstrap primary blue */
   color: #fff; /* White text for contrast */
@@ -83,11 +97,13 @@ p {
   text-align: center;
   max-width: 400px;
   width: 100%; /* Full width for header */
+  min-width: 200px;
 }
 
 .table td {
   vertical-align: middle; /* Center align content */
   font-size: 0.95rem;
+  min-width: 200px;
 }
 
 .table-bordered th,
@@ -101,14 +117,7 @@ h6 + p {
   font-weight: 500;
 }
 
-/* QR Code styling */
-img[alt="QR Code"] {
-  max-width: 150px; /* Limit QR code size */
-  height: auto;
-  border-radius: 5px;
-  padding: 5px;
-  background-color: #fff; /* White background for QR code */
-}
+
 
 /* Button styling */
 .btn-secondary {
@@ -142,9 +151,6 @@ img[alt="QR Code"] {
     font-size: 0.9rem; /* Slightly smaller text on mobile */
   }
 
-  img[alt="QR Code"] {
-    max-width: 120px; /* Smaller QR code on mobile */
-  }
 }
 
 
@@ -157,15 +163,18 @@ img[alt="QR Code"] {
   cursor: pointer;
 }
 
+
 /* QR code image styling */
 .qr-container img[alt="QR Code"] {
   max-width: 150px; /* Consistent QR code size */
-  height: auto;
+  min-height: auto;
   border-radius: 5px;
-  padding: 5px;
   background-color: #fff; /* White background for light theme */
   display: block; /* Ensure image behaves as a block for positioning */
+  border: 2px solid #000; /* Light border for definition */
 }
+
+
 
 /* Icon styling */
 .qr-container .fa-cloud-download {
@@ -173,8 +182,8 @@ img[alt="QR Code"] {
   top: 10px; /* Position near the top-left, adjustable */
   left: 10px; /* Adjust as needed for placement within frame */
   font-size: 24px; /* Icon size */
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-  color: #fff;
+  background-color: #ccc; /* Semi-transparent background */
+  color: #000;
   width: 40px;
   height: 40px; /* Size of the icon background */
   display: none;
@@ -189,41 +198,22 @@ img[alt="QR Code"] {
   display: flex;
 }
 
-/* Laptop screens (hover effect) */
-@media (min-width: 769px) {
-  .qr-container .fa-cloud {
-    opacity: 0; /* Hidden by default */
-  }
 
-  .qr-container:hover .fa-cloud-download {
-    opacity: 1; /* Visible on hover */
-  }
-}
-
-/* Phone screens (always visible) */
 @media (max-width: 768px) {
-  .qr-container .fa-cloud-download {
-    opacity: 1; /* Always visible */
+  .qr-container {
+    width: 100%; /* Full width on mobile */
+    height: 200px;
+    padding: 5px;
   }
 
   .qr-container img[alt="QR Code"] {
-    max-width: 120px; /* Smaller size for mobile */
-  }
+     max-height: 200px;
+   }
+   .qr-container .fa-cloud-download {
+    display: flex;
+    }
 
-  .qr-container .fa-cloud-download {
-    top: 5px; /* Adjust for smaller image */
-    left: 5px;
-    font-size: 20px; /* Slightly smaller icon */
-  }
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .qr-container img[alt="QR Code"] {
-    background-color: #2c2c2c; /* Dark background */
-  }
-
-  .qr-container .fa-cloud-download {
-    background-color: rgba(44, 44, 44, 0.8); /* Dark semi-transparent background */
-  }
+    .card .btn-secondary{
+        margin-top: 70px;
+    }
 }
