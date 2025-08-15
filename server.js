@@ -2235,7 +2235,7 @@ app.post('/api/auth/createOrder', async (req, res) => {
 
     // Create a temporary ObjectId so we can embed the correct link
     const tempOrderId = new mongoose.Types.ObjectId();
-    const qrFinalUrl = `/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
+const qrFinalUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
 
     // Generate QR code base64 string
     const qrCodeDataUrl = await QRCode.toDataURL(qrFinalUrl);
