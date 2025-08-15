@@ -14,19 +14,32 @@
 <body>
 
   <div class="login-container">
-    <form action="/api/auth/login" method="POST">
-      <h2>Login</h2>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="hidden" name="redirect" value="<%= redirect || '/Dashboard' %>">
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit">Log In</button>
+<form action="/api/auth/login" method="POST">
+  <h2>Login</h2>
+  <input type="email" name="email" placeholder="Email" required>
+  <input type="password" name="password" placeholder="Password" required>
 
-      <div class="extras">
-        <a href="/forgot-password">Forgot password?</a>
-        <a href="/Personal">Create account</a>
-      </div>
-    </form>
+  <!-- Hidden redirect input -->
+  <input type="text" name="redirectAfterLogin" id="redirectInput">
+
+  <button type="submit">Log In</button>
+
+  <div class="extras">
+    <a href="/forgot-password">Forgot password?</a>
+    <a href="/Personal">Create account</a>
+  </div>
+</form>
+
+
   </div>
 
+
+
+<script>
+  const storedRedirect = sessionStorage.getItem('redirect');
+  if (storedRedirect) {
+    document.getElementById('redirectInput').value = storedRedirect;
+  }
+</script>
 </body>
 </html>

@@ -352,7 +352,6 @@ const createBankInfo = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log('Login attempt with email:', req.body);
   try {
     const user = await Personal.findOne({ email });
     if (!user) {
@@ -364,14 +363,15 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    req.session.userId = user._id;
+    req.session.user = {
+      _id: user._id,
+      name: `${user.firstname} ${user.lastname}` // Optional enhancement
+    };
 
-    
+    const redirectPath = req.session.redirectAfterLogin || '/Dashboard';
+    delete req.session.redirectAfterLogin;
 
-    const redirect = req.body.redirect || '/Dashboard';
-    console.log('Redirecting to:', redirect);
-res.redirect(redirect);
-
+    res.redirect(redirectPath);
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Server error' });
