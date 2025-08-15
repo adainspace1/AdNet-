@@ -310,23 +310,31 @@ app.get('/email-exists', (req, res) => {
 
 
 
-
-
-
-
-
-function ensureAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-    return next();
+const requireLogin = async (req, res, next) => {
+  if (!req.session.userId) {
+    const returnTo = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/login?redirect=${returnTo}`);
   }
 
-  // Optionally attach the attempted URL so we can return after login
-  const attemptedUrl = req.originalUrl;
-  console.log("redirecting")
-  console.log("redirecting", attemptedUrl)
-  return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-  
-}
+  try {
+    const user = await Personal.findById(req.session.userId);
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    req.user = user; // ✅ Attach full user object to request
+    next();
+  } catch (err) {
+    console.error('Error in requireLogin:', err);
+    res.status(500).send('Server error');
+  }
+};
+
+
+
+
+
+
 
 
 
@@ -357,7 +365,7 @@ app.get('/login', (req, res) => {
 
 
 
-app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
+app.get("/Dashboard", requireLogin, async (req, res) => {
   try {
     const userId = req.query.id || req.user._id;
     console.log("Dashboard - Looking for company info using ID:", userId);
@@ -488,7 +496,7 @@ res.render('dashboard/dashboard', {
 
 
 
-app.get('/Inventory', ensureAuthenticated, async (req, res) => {
+app.get('/Inventory', requireLogin, async (req, res) => {
   try {
     const inventoryItems = await Inventory.find({ recipientId: req.user._id });
     const salesItems = await Sales.find({ recipientId: req.user._id });
@@ -545,7 +553,7 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
 
 
 
-app.get('/Sales', ensureAuthenticated, async (req, res) => {
+app.get('/Sales', requireLogin, async (req, res) => {
   try {
     const inventoryItems = await Inventory.find({ recipientId: req.user._id });
     const salesitem = await Sales.find({ recipientId: req.user._id });
@@ -584,7 +592,7 @@ app.get('/Sales', ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/salehistory", ensureAuthenticated, async (req, res) => {
+app.get("/salehistory", requireLogin, async (req, res) => {
   try {
     const {
       dateFrom,
@@ -644,7 +652,7 @@ app.get("/salehistory", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/api/sales-chart-data", ensureAuthenticated, async (req, res) => {
+app.get("/api/sales-chart-data", requireLogin, async (req, res) => {
   const { type } = req.query;
   const recipientId = req.user._id;
 
@@ -755,7 +763,7 @@ app.get("/api/sales-chart-data", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get('/Expenses', ensureAuthenticated, async (req, res) => {
+app.get('/Expenses', requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -800,7 +808,7 @@ app.get('/Expenses', ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
+app.get("/viewallexpenses", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -825,7 +833,7 @@ app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
+app.get("/api/expenses/summary", requireLogin, async (req, res) => {
   try {
     const expenses = await Expense.find({ recipientId: req.user._id });
 
@@ -845,7 +853,7 @@ app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
 });
 
 
-app.get("/api/expenses/all", ensureAuthenticated, async (req, res) => {
+app.get("/api/expenses/all", requireLogin, async (req, res) => {
   try {
     const expenses = await Expense.find({ recipientId: req.user._id }).sort({ createdAt: -1 });
     res.json({ expenses });
@@ -867,7 +875,7 @@ app.get("/api/expenses/all", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/Transaction", ensureAuthenticated, async (req, res) => {
+app.get("/Transaction", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     const { type } = req.query;
@@ -942,7 +950,7 @@ app.get("/Transaction", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get('/Production', ensureAuthenticated, async (req, res) => {
+app.get('/Production', requireLogin, async (req, res) => {
   try {
 
     const userId = req.user._id;
@@ -1028,7 +1036,7 @@ const summary = {
 
 
 
-app.get('/Profit', ensureAuthenticated, async (req, res) => {
+app.get('/Profit', requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1136,7 +1144,7 @@ res.render('dashboard/profit', {
 
 
 
-app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
+app.get("/accountpayable", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1204,7 +1212,7 @@ app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/accountreceivable", ensureAuthenticated, async (req, res) => {
+app.get("/accountreceivable", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1244,7 +1252,7 @@ const collectedAmount = receivables
 
 
 
-app.get("/pricedeterminant", ensureAuthenticated, async (req, res) => {
+app.get("/pricedeterminant", requireLogin, async (req, res) => {
   try{
     
      const userId = req.user._id;
@@ -1300,7 +1308,7 @@ const summary = {
 
 
 // GET endpoint to fetch product details
-app.get('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
+app.get('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
     try {
         const productId = req.params.id;
         const userId = req.user._id;
@@ -1328,7 +1336,7 @@ app.get('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) =
 });
 
 // PUT endpoint to update product details
-app.put('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
+app.put('/pricedeterminant/product/:id', requireLogin, async (req, res) => {
     try {
         const productId = req.params.id;
         const userId = req.user._id;
@@ -1375,7 +1383,7 @@ app.put('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) =
 
 
 
-app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
+app.get("/statementofaccount", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1505,7 +1513,7 @@ const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCre
 
 
 
-app.get("/Assests", ensureAuthenticated, async (req, res) => {
+app.get("/Assests", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1615,7 +1623,7 @@ app.post('/assets/add', async (req, res) => {
 
 
 
-app.get("/cashflow", ensureAuthenticated, async (req, res) => {
+app.get("/cashflow", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     let { start, end } = req.query;
@@ -1703,7 +1711,7 @@ app.get("/cashflow", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/balancesheet", ensureAuthenticated, async (req, res) => {
+app.get("/balancesheet", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -1790,7 +1798,7 @@ const totalEquity = totalAssets - totalLiabilities;
 
 
 // GET Liquidity Page
-app.get("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
+app.get("/ledgerliquidity", requireLogin, async (req, res) => {
   try {
     const entries = await Liquidity.find({ userId: req.user._id }).sort({ createdAt: -1 });
 
@@ -1824,7 +1832,7 @@ app.get("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
 
 
 // POST Liquidity Entry
-app.post("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
+app.post("/ledgerliquidity", requireLogin, async (req, res) => {
   try {
     const { cash, bank, liabilities } = req.body;
     const numCash = parseFloat(cash);
@@ -1850,7 +1858,7 @@ app.post("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
 });
 
 
-app.post("/ledgerliquidity/delete/:id", ensureAuthenticated, async (req, res) => {
+app.post("/ledgerliquidity/delete/:id", requireLogin, async (req, res) => {
   try {
     await Liquidity.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
     res.redirect("/ledgerliquidity");
@@ -1862,7 +1870,7 @@ app.post("/ledgerliquidity/delete/:id", ensureAuthenticated, async (req, res) =>
 
 
 
-app.get("/budget", ensureAuthenticated, async (req, res) => {
+app.get("/budget", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     const budgets = await Budget.find({ recipientId: userId }).sort({ createdAt: -1 });
@@ -1886,7 +1894,7 @@ app.get("/budget", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/payroll", ensureAuthenticated, async (req, res) => {
+app.get("/payroll", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
     const payrolls = await Payroll.find({ userId }).sort({ createdAt: -1 });
@@ -1931,7 +1939,7 @@ app.get("/payroll", ensureAuthenticated, async (req, res) => {
 // const Budget = require("../models/Budget"); // Add this if not already
 // const Lead = require("../models/Lead");
 
-app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
+app.get("/salesmetricoverview", requireLogin, async (req, res) => {
   try {
     const userId = req.query.id || req.user._id;
 
@@ -2036,7 +2044,7 @@ app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
+app.get("/salesforecast", requireLogin, async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -2118,7 +2126,7 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/crm", ensureAuthenticated, async (req, res) => {
+app.get("/crm", requireLogin, async (req, res) => {
   try{
     
   res.render("dashboard/CRM.ejs");
@@ -2155,7 +2163,7 @@ app.get("/crm", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
+app.get("/OrderManagement", requireLogin, async (req, res) => {
   try {
     const now = new Date();
 
@@ -2271,7 +2279,7 @@ app.post('/api/auth/createOrder', async (req, res) => {
 
 
 // View single order
-app.get("/order/:id", ensureAuthenticated, async (req, res) => {
+app.get("/order/:id", requireLogin, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate("recipientId", "name email") // show recipient details
@@ -2296,7 +2304,7 @@ app.get("/order/:id", ensureAuthenticated, async (req, res) => {
 
 
 // GET confirmation page
-app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, res) => {
+app.get("/order-placed/:buyername/:orderId", requireLogin, async (req, res) => {
   try {
     const { buyername, orderId } = req.params;
     const order = await Order.findById(orderId).lean();
