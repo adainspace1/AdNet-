@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Driver Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="/css/driverdash.css">
+    <link rel="stylesheet" href="/css/dashall.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Preloader -->
+  <div id="preloader" class="preloader">
+    <div>
+      <div class="spinner"></div>
+      <p class="text-white mt-4 text-lg">Loading Dashboard...</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-500 header">
+      <div class="px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" 
+               alt="Driver" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+          <div>
+            <h2 class="font-semibold text-gray-900">John Doe</h2>
+            <p class="text-sm text-gray-500">4.8 ⭐ | 2341 trips</p>
+          </div>
+        </div>
+        <button id="statusToggle" class="status-toggle offline px-6 py-3 rounded-full text-white font-medium flex items-center space-x-2">
+          <div class="w-3 h-3 bg-white rounded-full"></div>
+          <span id="statusText">Go Online</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Map -->
+<section class="p-4">
+  <div id="map" style="border-radius: 12px;">
+    <button class="demo-trigger" onclick="openPopup()">
+        <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
+  </div>
+</section>
+    
+    <!-- Requests -->
+    <section id="requests" class="px-4 py-2">
+      <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+        <i class="fas fa-car text-blue-500 mr-2"></i> Active Requests
+      </h3>
+      <div id="requestsContainer" class="space-y-3">
+        <!-- Requests dynamically added by JS -->
+      </div>
+    </section>
+  </div>
+
+
+            <!-- Preferred Locations -->
+<!-- Popup Overlay -->
+    <div class="popup-overlay" id="popupOverlay" style="display: none;">
+        <div class="popup-container">
+            <!-- Header -->
+            <div class="popup-header">
+                <h3 class="popup-title">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Preferred Locations
+                </h3>
+                <button class="close-btn" onclick="closePopup()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="popup-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="workDate">Work Date</label>
+                        <input type="date" id="workDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="preferredArea">Preferred Area</label>
+                        <input
+                            id="preferredArea"
+                            type="text"
+                            placeholder="Search location..."
+                            class="form-input"
+                        >
+                        
+                    </div>
+                    <div id="preferredArea-suggestions" class="bg-white border border-gray-300 rounded-lg mt-1 hidden"></div> 
+                </div>
+                <button id="setPreferred">
+                    <i class="fas fa-check"></i>
+                    Set Preferred Location
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+            <!-- Earnings Summary -->
+            <section id="earning" class="px-4 py-2 sum">
+                <div class="earnings-card rounded-xl p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-dollar-sign mr-2"></i>
+                        Today's Summary
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" id="todayEarnings">$247.50</div>
+                            <div class="text-sm opacity-80">Earnings</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" id="totalTrips">12</div>
+                            <div class="text-sm opacity-80">Trips</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" id="avgRating">4.8</div>
+                            <div class="text-sm opacity-80">Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button class="floating-button bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+            <div class="flex justify-around items-center">
+                <button class="nav-icon active flex flex-col items-center py-2 px-3 rounded-lg transition-all">
+                    <i class="fas fa-tachometer-alt text-xl mb-1"></i>
+                    <span class="text-xs">Dashboard</span>
+                </button>
+                <a href="/driver-dash#requests">
+                    <button class="nav-icon flex flex-col items-center py-2 px-3 rounded-lg transition-all text-gray-600">
+                    <i class="fas fa-list text-xl mb-1"></i>
+                    <span class="text-xs">Requests</span>
+                </button>
+                </a>
+                
+                <a href="/driver-dash#earning">
+                    <button class="nav-icon flex flex-col items-center py-2 px-3 rounded-lg transition-all text-gray-600">
+                                        <i class="fas fa-chart-line text-xl mb-1"></i>
+                                        <span class="text-xs">Earnings</span>
+                                    </button>
+
+                </a>
+                
+                <button class="nav-icon flex flex-col items-center py-2 px-3 rounded-lg transition-all text-gray-600">
+                    <i class="fas fa-user text-xl mb-1"></i>
+                    <span class="text-xs">Profile</span>
+                </button>
+                <button class="nav-icon flex flex-col items-center py-2 px-3 rounded-lg transition-all text-gray-600">
+                    <i class="fas fa-cog text-xl mb-1"></i>
+                    <span class="text-xs">Settings</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+
+
+
+
+
+  <!-- Profile Panel -->
+<div id="profilePanel" class="slideup-panel panel">
+  <div class="panel-header">
+    <h3>Driver Profile</h3>
+    <button onclick="closePanel('profilePanel')" class="close-btn">✕</button>
+  </div>
+  <div class="panel-content">
+    <div class="flex flex-col items-center space-y-3">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
+           alt="Driver" class="w-24 h-24 rounded-full border-4 border-blue-500">
+      <h2 class="font-bold text-lg">John Doe</h2>
+      <p class="text-sm text-gray-500">4.8 ⭐ | 2341 Trips</p>
+    </div>
+
+    <div class="mt-6 space-y-4">
+      <div class="info-card">
+        <i class="fas fa-envelope text-blue-500"></i>
+        <span>Email: johndoe@email.com</span>
+      </div>
+      <div class="info-card">
+        <i class="fas fa-phone text-blue-500"></i>
+        <span>Phone: +1 234 567 890</span>
+      </div>
+      <div class="info-card">
+        <i class="fas fa-id-card text-blue-500"></i>
+        <span>License: ABC12345</span>
+      </div>
+      <div class="info-card">
+        <i class="fas fa-car text-blue-500"></i>
+        <span>Vehicle: Toyota Prius 2021</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Panel -->
+<div id="settingsPanel" class="slideup-panel panel">
+  <div class="panel-header">
+    <h3>Settings</h3>
+    <button onclick="closePanel('settingsPanel')" class="close-btn">✕</button>
+  </div>
+  <div class="panel-content space-y-4">
+    <div class="info-card">
+      <i class="fas fa-bell text-green-500"></i>
+      <span>Notifications</span>
+      <input type="checkbox" class="ml-auto toggle">
+    </div>
+    <div class="info-card">
+      <i class="fas fa-shield-alt text-green-500"></i>
+      <span>Privacy</span>
+      <button class="ml-auto text-blue-600">Edit</button>
+    </div>
+    <div class="info-card">
+      <i class="fas fa-language text-green-500"></i>
+      <span>Language</span>
+      <select class="ml-auto border rounded px-2 py-1">
+        <option>English</option>
+        <option>French</option>
+        <option>Spanish</option>
+      </select>
+    </div>
+    <div class="info-card text-red-600 cursor-pointer">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    // Preloader
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('preloader').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('preloader').style.display = 'none';
+      document.getElementById('mainContent').classList.remove('hidden');
+    }, 500);
+  }, 2000);
+});
+</script>
+
+
+
+<script>
+function togglePanel(id) {
+  const panel = document.getElementById(id);
+  const isActive = panel.classList.contains('active');
+
+  // Close all panels first
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+  // If the clicked one wasn’t active, open it
+  if (!isActive) {
+    panel.classList.add('active');
+  }
+}
+
+document.querySelectorAll('.nav-icon').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const text = btn.querySelector('span').innerText;
+    if (text === "Profile") {
+      togglePanel('profilePanel');
+    }
+    if (text === "Settings") {
+      togglePanel('settingsPanel');
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+<!-- Leaflet Core -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet Locate Control -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
+<!-- Leaflet Compass -->
+<script src="https://unpkg.com/leaflet-compass/dist/leaflet-compass.min.js"></script>
+
+  <script src="/js/driverdash.js"></script>
+</body>
+</html>

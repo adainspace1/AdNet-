@@ -2430,6 +2430,37 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
 
 
 
+// Render registration form
+app.get('/driver-dash', (req, res) => {
+  res.render('dashboard/driverdash/dashboard', {
+    driver: {
+      name: "Alex Johnson",
+      rating: 4.8,
+      trips: 2341
+    },
+    mockRequests: [
+      {
+        id: 1,
+        pickup: "Lekki Phase 1, Lagos",
+        dropoff: "Victoria Island, Lagos",
+        fare: 3500,
+        distance: "5 km",
+        time: "12 min",
+        type: "ride"
+      },
+      {
+        id: 2,
+        pickup: "Ikeja City Mall, Lagos",
+        dropoff: "Maryland Mall, Lagos",
+        fare: 2500,
+        distance: "3 km",
+        time: "8 min",
+        type: "delivery"
+      }
+    ]
+  });
+});
+
 
 
 
