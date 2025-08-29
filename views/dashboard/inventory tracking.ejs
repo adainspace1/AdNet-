@@ -1,0 +1,242 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adnet IMS - Inventory Tracking</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/inventorytracking.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+                 <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+    </head>
+<body>
+
+
+
+
+         
+
+          <div class="all">
+ <%- include ("_sidebar1") %>
+
+ <div class="main-content">
+    <%- include ("_topnav") %>
+
+
+
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-boxes"></i> Inventory Tracking</h1>
+            <p>Manage and monitor all stock items in real-time</p>
+        </div>
+
+        <!-- KPI Section -->
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="value" id="total-items"><%= totalItems %></div>
+                <div class="label">Total Items</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="value" id="total-quantity"><%= totalQuantity %></div>
+                <div class="label">Total Quantity</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="value" id="low-stock-count"><%= lowStockCount %></div>
+                <div class="label">Low Stock Items</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="value" id="out-of-stock-count"><%= outOfStockCount %></div>
+                <div class="label">Out of Stock</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controls-row">
+                <div class="search-filter">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search by name, category, or supplier...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="In Stock">In Stock</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+                <button class="add-btn" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Add New Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="inventory-table-container">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Reorder Level</th>
+                        <th>Supplier</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <% inventory.forEach(item => { %>
+                        <tr class="<%= (item.status === 'Low Stock' || item.status === 'Out of Stock') ? 'pulse' : '' %>">
+                        <td><strong><%= item.id %></strong></td>
+                        <td><%= item.name %></td>
+                        <td><%= item.category %></td>
+                        <td><strong><%= item.quantity %></strong></td>
+                        <td>₦<%= item.unitPrice.toFixed(2) %></td>
+                        <td><%= item.reorderLevel %></td>
+                        <td><%= item.supplier %></td>
+                        <td><span class="status-badge status-<%= item.status.replace(' ', '-').toLowerCase() %>"><%= item.status %></span></td>
+                        <td><%= new Date(item.lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                        <td>
+                            <div class="action-buttons">
+                            <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+
+            </table>
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>No items found</h3>
+                <p>Try adjusting your search criteria or add a new item</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Item</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+           <form id="itemForm" method="POST" action="/user/createinventory">
+
+
+  <div class="form-group">
+    <input type="hidden" name="recipientId" value="<%= user.id %>" required>
+  </div>
+
+  <div class="form-group">
+    <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
+  </div>
+
+  <div class="form-group">
+    <label>Item Name:
+      <input type="text" name="itemName" required>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label>Item Type:
+      <input type="text" name="category" required>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label>Bought Cost:
+      <input type="text" name="bcost" required>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label>Selling Cost:
+      <input type="text" name="scost" required>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label>Quantity:
+      <input type="text" name="quantity" id="quantity" required>
+      <input type="hidden" name="currentquantity" id="currentquantity" required>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label>Supplier Name:
+      <input type="text" name="supplier" required>
+    </label>
+  </div>
+
+<div class="form-actions">
+                    <button type="button" class="btn btn-secondary close" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Item</button>
+                </div>
+</form>
+
+        </div>
+    </div>
+
+
+
+
+
+
+ </div>
+
+
+    <script>
+      sessionStorage.setItem('redirect', window.location.pathname);
+    </script>
+</div>
+
+
+
+<script>
+    document.querySelector(".add-btn").addEventListener("click", function() {
+        document.getElementById("itemModal").style.display = "flex";
+        document.getElementById("modalTitle").innerText = "Add New Item";
+        document.getElementById("itemForm").reset();
+        document.getElementById("submitBtn").innerText = "Add Item";
+    });
+    document.querySelector(".close").addEventListener("click", function() {
+        document.getElementById("itemModal").style.display = "none";
+    });
+</script>
+    
+</body>
+</html>

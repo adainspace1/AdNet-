@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Reports & Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="/css/dashall.css" />
+    <link rel="stylesheet" href="/css/report.css">
+
+               <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+
+  </head>
+  <body>
+    <div class="all">
+      <%- include ("_sidebar1") %>
+
+      <div class="main-content">
+        <%- include ("_topnav") %>
+<div class="container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+        <a href="#dashboard">Dashboard</a> &gt;
+        <a href="#inventory">Inventory Management</a> &gt;
+        <span>Reports & Analytics</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>📊 Inventory Reports & Analytics</h1>
+        <p>Data-driven insights for optimal inventory performance</p>
+    </div>
+
+    <!-- Controls -->
+    <form id="reportForm" class="controls">
+        <input type="date" name="startDate" id="startDate" value="2025-07-01" />
+        <input type="date" name="endDate" id="endDate" value="2025-07-31" />
+        <select name="category" id="categoryFilter">
+            <option value="">All Categories</option>
+        </select>
+        <select name="supplier" id="supplierFilter">
+            <option value="">All Suppliers</option>
+        </select>
+        <button type="submit">🔄 Refresh Data</button>
+        <button type="button" onclick="generateReport()">📋 Generate Report</button>
+    </form>
+
+<!-- KPIs -->
+<div class="kpi-grid">
+    <div class="kpi-card green">
+        <div class="kpi-header">
+            <span class="kpi-title">Inventory Turnover</span>
+        </div>
+        <div class="kpi-value"><%= kpis.turnover %></div>
+        <div class="kpi-change"><%= kpis.turnoverChange || "→ No change" %></div>
+    </div>
+    <div class="kpi-card yellow">
+        <div class="kpi-header">
+            <span class="kpi-title">Average Inventory</span>
+        </div>
+        <div class="kpi-value">$<%= kpis.avgInventoryValue %>K</div>
+        <div class="kpi-change"><%= kpis.avgInventoryChange || "→ No change" %></div>
+    </div>
+    <div class="kpi-card yellow">
+        <div class="kpi-header">
+            <span class="kpi-title">Stock-to-Sales Ratio</span>
+        </div>
+        <div class="kpi-value"><%= kpis.stockToSalesRatio %></div>
+        <div class="kpi-change">→ No change</div>
+    </div>
+    <div class="kpi-card green">
+        <div class="kpi-header">
+            <span class="kpi-title">Sell-Through Rate</span>
+        </div>
+        <div class="kpi-value"><%= kpis.sellThroughRate %>%</div>
+        <div class="kpi-change">→ No change</div>
+    </div>
+    <div class="kpi-card red">
+        <div class="kpi-header">
+            <span class="kpi-title">Fill Rate (LIFR)</span>
+        </div>
+        <div class="kpi-value"><%= kpis.fillRate %>%</div>
+        <div class="kpi-change">→ No change</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-container">
+        <h3>📈 Monthly Sales vs Inventory Trend</h3>
+        <canvas id="salesInventoryChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>📊 Turnover Ratio Trend</h3>
+        <canvas id="turnoverTrendChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>🥧 Fill Rate by Supplier</h3>
+        <canvas id="fillRateChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>📊 Stock Level Distribution</h3>
+        <canvas id="stockDistributionChart"></canvas>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="data-table-container">
+    <div class="table-header">
+        <h3>📋 Detailed Inventory Performance</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Sales</th>
+                <th>Avg Inventory</th>
+                <th>Turnover Ratio</th>
+                <th>STR (%)</th>
+                <th>LIFR (%)</th>
+                <th>Supplier</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% table.forEach(item => { %>
+                <tr>
+                    <td><%= item.status %></td>
+                    <td><%= item.name %></td>
+                    <td><%= item.category %></td>
+                    <td><%= item.sales %></td>
+                    <td><%= item.avgInventory %></td>
+                    <td><%= item.turnover %></td>
+                    <td><%= item.str %></td>
+                    <td><%= item.lifr %></td>
+                    <td><%= item.supplier %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Alerts -->
+<div class="alerts-section">
+    <h3>⚠️ Performance Alerts & Recommendations</h3>
+    <% alerts.forEach(alert => { %>
+        <div class="alert-item"><%= alert %></div>
+    <% }) %>
+</div>
+
+</div>
+
+<script>
+document.getElementById("reportForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const formData = new FormData(this);
+  const params = new URLSearchParams(formData);
+  params.append("ajax", "true");
+
+  fetch(`/reportandanalysis?${params.toString()}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("turnoverValue").textContent = data.turnover;
+      document.getElementById("avgInventoryValue").textContent = `$${data.avgInventoryValue}K`;
+      document.getElementById("stockToSalesValue").textContent = data.stockToSales;
+      document.getElementById("sellThroughValue").textContent = `${data.sellThrough}%`;
+      document.getElementById("fillRateValue").textContent = `${data.fillRate}%`;
+    })
+    .catch(err => console.error("Error fetching KPI data:", err));
+});
+</script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartsData = <%- JSON.stringify(charts) %>;
+
+    new Chart(document.getElementById('salesInventoryChart'), {
+        type: 'line',
+        data: {
+            labels: chartsData.salesInventoryTrend.labels,
+            datasets: [
+                { label: 'Sales', data: chartsData.salesInventoryTrend.sales, borderColor: 'blue', fill: false },
+                { label: 'Inventory', data: chartsData.salesInventoryTrend.inventory, borderColor: 'orange', fill: false }
+            ]
+        }
+    });
+
+    new Chart(document.getElementById('turnoverTrendChart'), {
+        type: 'line',
+        data: {
+            labels: chartsData.turnoverTrend.labels,
+            datasets: [
+                { label: 'Turnover', data: chartsData.turnoverTrend.turnover, borderColor: 'green', fill: false }
+            ]
+        }
+    });
+
+    new Chart(document.getElementById('fillRateChart'), {
+        type: 'pie',
+        data: {
+            labels: chartsData.fillRateBySupplier.labels,
+            datasets: [{
+                data: chartsData.fillRateBySupplier.rates,
+                backgroundColor: ['#4CAF50','#FFC107','#2196F3','#FF5722']
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('stockDistributionChart'), {
+        type: 'bar',
+        data: {
+            labels: chartsData.stockDistribution.labels,
+            datasets: [{
+                label: 'Stock Levels',
+                data: chartsData.stockDistribution.stockLevels,
+                backgroundColor: '#673AB7'
+            }]
+        }
+    });
+});
+</script>
+
+
+
+
+<script>
+        sessionStorage.setItem("redirect", window.location.pathname);
+      </script>
+    </div>
+  </body>
+</html>

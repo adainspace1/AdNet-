@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/inventoryfocasting.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>Inventory Forcasting</title>
+
+
+               <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+
+
+
+         
+
+          <div class="all">
+ <%- include ("_sidebar1") %>
+
+ <div class="main-content">
+    <%- include ("_topnav") %>
+
+  
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumb">
+                <a href="#" onclick="goBack()">Adnet</a> &gt; 
+                <a href="#" onclick="goToInventory()">Inventory Management</a> &gt; 
+                Inventory Forecasting
+            </div>
+            <h1>📊 Inventory Forecasting</h1>
+            <p class="subtitle">Intelligently predict future inventory needs using sales velocity, lead time, and historical data to prevent stockouts and optimize replenishment.</p>
+        </div>
+
+        <div class="alert alert-info">
+            Total Inventory Units: <strong><%= totalQuantity %></strong> |
+            Average Units per Item: <strong><%= averageQuantity.toFixed(2) %></strong>
+            </div>
+
+
+        <div class="main-content1">
+            <form class="forecast-form" id="forecastForm">
+  <div class="form-group">
+    <label for="productSelect">Select Product</label>
+    <select id="productSelect" required>
+      <option value="">Choose a product...</option>
+      <% products.forEach(product => { %>
+        <option 
+          value="<%= product._id %>" 
+          data-itemname="<%= product.itemName %>"
+          data-category="<%= product.category %>"
+          data-currentstock="<%= product.currentquantity %>"
+          data-bcost="<%= product.bcost %>"
+          data-scost="<%= product.scost %>"
+          data-supplier="<%= product.supplier %>"
+        >
+          <%= product.itemName %> (<%= product.category %>, Qty: <%= product.currentquantity %>)
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="forecastPeriod">Forecast Period (days)</label>
+    <input type="number" id="forecastPeriod" value="30" min="1" max="365" required>
+  </div>
+
+  <div class="form-group">
+    <label for="currentStock">Current Stock Level</label>
+    <input type="number" id="currentStock" min="0" required>
+  </div>
+
+  <div class="form-group">
+    <label for="leadTime">Lead Time (days)</label>
+    <input type="number" id="leadTime" value="7" min="1" required>
+  </div>
+
+  <div class="form-group">
+    <label for="safetyStock">Safety Stock (optional)</label>
+    <input type="number" id="safetyStock" value="20" min="0" placeholder="Auto-calculated if empty">
+  </div>
+
+  <div class="form-group">
+    <label for="historicalSales">Historical Sales Data (units sold per day, comma-separated)</label>
+    <textarea id="historicalSales" rows="3" placeholder="e.g., 12,15,8,20,18,10,25,14...">12,15,8,20,18,10,25,14</textarea>
+  </div>
+
+    <div class="form-group">
+    <label for="orderCost">Order Cost (₦)</label>
+    <input type="number" id="orderCost" step="0.01" placeholder="For EOQ calculation">
+    </div>
+
+
+  <div class="form-group">
+    <label for="holdingCost">Holding Cost (% per year)</label>
+    <input type="number" id="holdingCost" step="0.01" placeholder="For EOQ calculation">
+  </div>
+
+  <button type="submit" class="btn">🚀 Generate Forecast</button>
+</form>
+
+
+            <div class="results-section">
+                <h2>📈 Forecast Results</h2>
+                <div id="resultsContent" class="hidden">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="salesVelocity">--</div>
+                            <div class="metric-label">Daily Sales Velocity</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="daysCoverage">--</div>
+                            <div class="metric-label">Days of Coverage</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="reorderPoint">--</div>
+                            <div class="metric-label">Reorder Point (ROP)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="reorderQuantity">--</div>
+                            <div class="metric-label">Suggested Reorder Qty</div>
+                        </div>
+                    </div>
+
+                    <div class="recommendations">
+                        <h3>🎯 Smart Recommendations</h3>
+                        <div id="recommendationsList"></div>
+                    </div>
+
+                      <div class="recommendations">
+                            <h3>📅 7-Day Forecast Snapshot</h3>
+                                <ul>
+                                <% projectedUsage.forEach(day => { %>
+                                    <li><strong><%= day.day %></strong>: <%= day.forecast.toFixed(2) %> units projected</li>
+                                <% }) %>
+                                </ul>
+                    </div>
+
+
+                </div>
+
+                <div id="noResults" class="alert alert-warning">
+                    📝 Complete the form above to generate your inventory forecast and recommendations.
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2>📊 Visual Analytics</h2>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="stockDepletionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script>
+        let forecastChart = null;
+        let stockChart = null;
+
+        // Sample product data
+        const productData = {
+            'laptop-hp': { unitCost: 800, avgDailySales: 12 },
+            'mouse-wireless': { unitCost: 25, avgDailySales: 35 },
+            'keyboard-mech': { unitCost: 120, avgDailySales: 18 },
+            'monitor-4k': { unitCost: 400, avgDailySales: 8 },
+            'printer-laser': { unitCost: 300, avgDailySales: 6 }
+        };
+
+        document.getElementById('forecastForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateForecast();
+        });
+
+        function generateForecast() {
+            // Get form data
+            const productId = document.getElementById('productSelect').value;
+            const forecastPeriod = parseInt(document.getElementById('forecastPeriod').value);
+            const currentStock = parseInt(document.getElementById('currentStock').value);
+            const leadTime = parseInt(document.getElementById('leadTime').value);
+            const safetyStockInput = document.getElementById('safetyStock').value;
+            const historicalSalesInput = document.getElementById('historicalSales').value;
+            const orderCost = parseFloat(document.getElementById('orderCost').value) || 50;
+            const holdingCostPercent = parseFloat(document.getElementById('holdingCost').value) || 20;
+
+            if (!productId || !currentStock) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Parse historical sales data
+            let historicalSales = [];
+            if (historicalSalesInput.trim()) {
+                historicalSales = historicalSalesInput.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            } else {
+                // Generate sample data based on product
+                const avgSales = productData[productId]?.avgDailySales || 10;
+                for (let i = 0; i < 30; i++) {
+                    historicalSales.push(Math.max(0, Math.round(avgSales + (Math.random() - 0.5) * avgSales * 0.4)));
+                }
+            }
+
+            // Calculate sales velocity (excluding potential stockout days)
+            const totalSales = historicalSales.reduce((sum, sales) => sum + sales, 0);
+            const daysInStock = historicalSales.length;
+            const salesVelocity = totalSales / daysInStock;
+
+            // Calculate days of coverage
+            const daysCoverage = Math.floor(currentStock / salesVelocity);
+
+            // Calculate safety stock if not provided
+            const maxDailySales = Math.max(...historicalSales);
+            const avgDailySales = salesVelocity;
+            const maxLeadTime = leadTime + 2; // Adding buffer
+            const safetyStock = safetyStockInput ? parseInt(safetyStockInput) : 
+                Math.ceil((maxDailySales * maxLeadTime) - (avgDailySales * leadTime));
+
+            // Calculate Reorder Point (ROP)
+            const reorderPoint = Math.ceil((salesVelocity * leadTime) + safetyStock);
+
+            // Calculate when to reorder
+            const reorderDay = Math.max(0, daysCoverage - leadTime);
+            
+            // Calculate reorder quantity
+            const forecastedDemand = Math.ceil(salesVelocity * forecastPeriod);
+            const reorderQuantity = Math.max(0, forecastedDemand - currentStock + safetyStock);
+
+            // Calculate EOQ if costs are provided
+            const annualDemand = salesVelocity * 365;
+            const unitCost = productData[productId]?.unitCost || 100;
+            const holdingCost = (holdingCostPercent / 100) * unitCost;
+            const eoq = Math.ceil(Math.sqrt((2 * annualDemand * orderCost) / holdingCost));
+
+            // Update display
+            updateResults({
+                salesVelocity: salesVelocity.toFixed(1),
+                daysCoverage: daysCoverage,
+                reorderPoint: reorderPoint,
+                reorderQuantity: reorderQuantity,
+                reorderDay: reorderDay,
+                safetyStock: safetyStock,
+                eoq: eoq,
+                forecastedDemand: forecastedDemand
+            });
+
+            // Generate charts
+            generateCharts(historicalSales, salesVelocity, currentStock, forecastPeriod, reorderDay, reorderQuantity);
+
+            // Show results
+            document.getElementById('resultsContent').classList.remove('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+        }
+
+        function updateResults(data) {
+            document.getElementById('salesVelocity').textContent = data.salesVelocity;
+            document.getElementById('daysCoverage').textContent = data.daysCoverage + ' days';
+            document.getElementById('reorderPoint').textContent = data.reorderPoint + ' units';
+            document.getElementById('reorderQuantity').textContent = data.reorderQuantity + ' units';
+
+            // Generate recommendations
+            const recommendationsList = document.getElementById('recommendationsList');
+            let recommendations = [];
+
+            if (data.daysCoverage <= data.reorderDay) {
+                recommendations.push(`🚨 Critical: Reorder ${data.reorderQuantity} units immediately! Current stock will run out in ${data.daysCoverage} days.`);
+            } else if (data.reorderDay <= 3) {
+                recommendations.push(`⚠️ Reorder ${data.reorderQuantity} units within ${data.reorderDay} days to avoid stockout.`);
+            } else {
+                recommendations.push(`✅ Stock levels are healthy. Plan to reorder ${data.reorderQuantity} units in ${data.reorderDay} days.`);
+            }
+
+            recommendations.push(`📦 Economic Order Quantity (EOQ): ${data.eoq} units for optimal cost efficiency.`);
+            recommendations.push(`🛡️ Maintain safety stock of ${data.safetyStock} units to handle demand variability.`);
+            recommendations.push(`📈 Forecasted demand for the period: ${data.forecastedDemand} units.`);
+
+            recommendationsList.innerHTML = recommendations.map(rec => 
+                `<div class="recommendation-item">${rec}</div>`
+            ).join('');
+        }
+
+        function generateCharts(historicalSales, salesVelocity, currentStock, forecastPeriod, reorderDay, reorderQuantity) {
+            // Destroy existing charts
+            if (forecastChart) forecastChart.destroy();
+            if (stockChart) stockChart.destroy();
+
+            // Generate forecast data
+            const forecastDays = Array.from({length: forecastPeriod}, (_, i) => i + 1);
+            const forecastedSales = forecastDays.map(() => 
+                Math.max(0, Math.round(salesVelocity + (Math.random() - 0.5) * salesVelocity * 0.3))
+            );
+
+            // Historical vs Forecast Chart
+            const ctx1 = document.getElementById('forecastChart').getContext('2d');
+            forecastChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [...Array.from({length: historicalSales.length}, (_, i) => `Day -${historicalSales.length - i}`),
+                             ...forecastDays.map(d => `Day ${d}`)],
+                    datasets: [{
+                        label: 'Historical Sales',
+                        data: [...historicalSales, ...Array(forecastPeriod).fill(null)],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 3
+                    }, {
+                        label: 'Forecasted Sales',
+                        data: [...Array(historicalSales.length).fill(null), ...forecastedSales],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sales Forecast vs Historical Data'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Units Sold'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Stock Depletion Chart
+            let stockLevels = [currentStock];
+            let cumulativeSales = 0;
+            for (let i = 0; i < forecastPeriod; i++) {
+                cumulativeSales += forecastedSales[i];
+                let stockLevel = currentStock - cumulativeSales;
+                
+                // Add reorder quantity on reorder day
+                if (i + 1 === reorderDay && reorderQuantity > 0) {
+                    stockLevel += reorderQuantity;
+                }
+                
+                stockLevels.push(Math.max(0, stockLevel));
+            }
+
+            const ctx2 = document.getElementById('stockDepletionChart').getContext('2d');
+            stockChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Today', ...forecastDays.map(d => `Day ${d}`)],
+                    datasets: [{
+                        label: 'Stock Level',
+                        data: stockLevels,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Stock Depletion Forecast'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Stock Level (Units)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Navigation functions
+        function goBack() {
+            alert('Navigate back to Adnet main dashboard');
+        }
+
+        function goToInventory() {
+            alert('Navigate to Inventory Management section');
+        }
+
+        // Auto-populate sample data for demo
+        document.getElementById('productSelect').addEventListener('change', function() {
+            const productId = this.value;
+            if (productId && productData[productId]) {
+                // Auto-suggest current stock based on product type
+                const suggestedStock = Math.floor(Math.random() * 200) + 50;
+                document.getElementById('currentStock').value = suggestedStock;
+                
+                // Auto-populate with sample historical data
+                const avgSales = productData[productId].avgDailySales;
+                const sampleData = Array.from({length: 30}, () => 
+                    Math.max(0, Math.round(avgSales + (Math.random() - 0.5) * avgSales * 0.4))
+                ).join(',');
+                document.getElementById('historicalSales').value = sampleData;
+            }
+        });
+    </script> -->
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let forecastChartInstance = null;
+let stockDepletionChartInstance = null;
+
+document.getElementById("forecastForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const productSelect = document.getElementById("productSelect");
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+    const currentStock = parseInt(document.getElementById("currentStock").value);
+    const forecastPeriod = parseInt(document.getElementById("forecastPeriod").value);
+    const leadTime = parseInt(document.getElementById("leadTime").value);
+    const safetyStock = parseInt(document.getElementById("safetyStock").value) || 0;
+    const historicalSales = document.getElementById("historicalSales").value
+        .split(",")
+        .map(s => parseFloat(s.trim()))
+        .filter(s => !isNaN(s));
+    const orderCost = parseFloat(document.getElementById("orderCost").value);
+    const holdingCost = parseFloat(document.getElementById("holdingCost").value);
+
+    if (historicalSales.length === 0) {
+        alert("Please provide at least some historical sales data.");
+        return;
+    }
+
+    const salesVelocity = historicalSales.reduce((a, b) => a + b, 0) / historicalSales.length;
+    const daysCoverage = currentStock / salesVelocity;
+    const reorderPoint = Math.ceil(salesVelocity * leadTime + safetyStock);
+    const reorderQuantity = Math.max(
+        0,
+        Math.ceil(salesVelocity * forecastPeriod - currentStock + safetyStock)
+    );
+
+    // EOQ calculation
+    let eoq = null;
+    if (!isNaN(orderCost) && !isNaN(holdingCost) && holdingCost > 0) {
+        eoq = Math.ceil(Math.sqrt((2 * orderCost * salesVelocity * 365) / (holdingCost / 100)));
+    }
+
+    // Update forecast metrics
+    document.getElementById("salesVelocity").textContent = salesVelocity.toFixed(1);
+    document.getElementById("daysCoverage").textContent = daysCoverage.toFixed(0) + ' days';
+    document.getElementById("reorderPoint").textContent = reorderPoint + ' units';
+    document.getElementById("reorderQuantity").textContent = reorderQuantity + ' units';
+
+    const recList = document.getElementById("recommendationsList");
+    recList.innerHTML = [
+        `✔️ Maintain at least <strong>${reorderPoint}</strong> units on hand to avoid stockouts.`,
+        reorderQuantity === 0
+            ? "✅ You have sufficient stock for the forecast period."
+            : `📦 Reorder <strong>${reorderQuantity}</strong> units now to cover the next ${forecastPeriod} days.`,
+        eoq ? `📐 Economic Order Quantity (EOQ): <strong>${eoq}</strong>` : "",
+        `🔄 Review supplier lead time and historical sales regularly for accuracy.`
+    ]
+        .filter(item => item)
+        .map(item => `<div class="recommendation-item">${item}</div>`)
+        .join('');
+
+    document.getElementById("resultsContent").classList.remove("hidden");
+    document.getElementById("noResults").classList.add("hidden");
+
+    // 📊 CHARTS
+    drawForecastChart(historicalSales, salesVelocity, forecastPeriod);
+    drawStockDepletionChart(currentStock, salesVelocity, forecastPeriod);
+});
+
+// 👇 Auto-fill current stock, order cost, and estimated holding cost on product change
+document.getElementById("productSelect").addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+
+    const stock = selectedOption.getAttribute("data-currentstock");
+    const bcost = parseFloat(selectedOption.getAttribute("data-bcost"));
+    const scost = selectedOption.getAttribute("data-scost");
+
+    if (stock) document.getElementById("currentStock").value = stock;
+    if (!isNaN(bcost)) {
+        document.getElementById("orderCost").value = bcost;
+
+        // Auto-calculate holding cost as 25% of bcost annually
+        const estimatedHoldingCost = (bcost * 0.25).toFixed(2);
+        document.getElementById("holdingCost").value = estimatedHoldingCost;
+    }
+});
+
+// 🎯 Draw Forecast Chart
+function drawForecastChart(historicalSales, salesVelocity, forecastPeriod) {
+    const ctx = document.getElementById("forecastChart").getContext("2d");
+    const projected = Array.from({ length: forecastPeriod }, () => salesVelocity);
+
+    const labels = [
+        ...historicalSales.map((_, i) => `Day ${i + 1}`),
+        ...projected.map((_, i) => `+${i + 1}`)
+    ];
+
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: "Historical Sales",
+                data: historicalSales,
+                backgroundColor: "rgba(54, 162, 235, 0.5)"
+            },
+            {
+                label: "Projected Sales",
+                data: [...Array(historicalSales.length).fill(null), ...projected],
+                backgroundColor: "rgba(75, 192, 192, 0.5)"
+            }
+        ]
+    };
+
+    if (forecastChartInstance) forecastChartInstance.destroy();
+    forecastChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// 📉 Draw Stock Depletion Chart
+function drawStockDepletionChart(currentStock, salesVelocity, forecastPeriod) {
+    const ctx = document.getElementById("stockDepletionChart").getContext("2d");
+
+    const labels = Array.from({ length: forecastPeriod }, (_, i) => `Day ${i + 1}`);
+    const depletionData = labels.map((_, i) => Math.max(currentStock - salesVelocity * i, 0));
+
+    if (stockDepletionChartInstance) stockDepletionChartInstance.destroy();
+    stockDepletionChartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Stock Level",
+                data: depletionData,
+                fill: false,
+                borderColor: "rgba(255, 99, 132, 1)",
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+</script>
+
+
+
+
+
+<script>
+  const forecastData = <%- JSON.stringify(projectedUsage) %>;
+  console.log("📈 Forecast from server:", forecastData);
+
+  // You could draw this on a Chart.js chart, etc.
+</script>
+
+ </div>
+
+
+    <script>
+      sessionStorage.setItem('redirect', window.location.pathname);
+    </script>
+</div>
+
+
+    
+</body>
+</html>

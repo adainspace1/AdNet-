@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Metrics Calculator</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/pricecall.css">
+
+               <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+
+    
+
+
+
+              <div class="all">
+ <%- include ("_sidebar1") %>
+
+ <div class="main-content">
+    <%- include ("_topnav") %>
+
+
+
+  <div class="container">
+        <header>
+            <h1>📊 Profit Metrics Calculator</h1>
+            <p>Smart backend-powered financial analysis</p>
+        </header>
+
+        <div class="calculator-section">
+            <form id="profitForm" class="calculation-form">
+                <div class="form-group">
+                    <label for="productSelect">Select Product:</label>
+                    <select id="productSelect" class="form-control">
+  <option value="">Select a product</option>
+  <% products.forEach(product => { %>
+    <option 
+      value="<%= product._id %>" 
+      data-price="<%= product.scost %>" 
+      data-currentquantity="<%= product.currentquantity %>" 
+      data-initialquantity="<%= product.quantity %>">
+      <%= product.itemName %> - ₦<%= product.scost %>
+    </option>
+  <% }); %>
+</select>
+                </div>
+
+                <div class="form-group">
+  <label>Quantity Sold:</label>
+  <input type="number" id="quantitySold" class="form-control" readonly>
+</div>
+
+
+
+                <button type="submit" class="calculate-btn">Calculate Profit Metrics</button>
+            </form>
+
+            <div id="loadingSpinner" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Calculating metrics...</p>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2>📈 Financial Analysis Results</h2>
+            
+            <div class="results-grid">
+                <div class="metric-card revenue">
+                    <h3>Total Revenue</h3>
+                    <div class="metric-value" id="totalRevenue">₦0.00</div>
+                </div>
+
+                <div class="metric-card profit">
+                    <h3>Gross Profit</h3>
+                    <div class="metric-value" id="grossProfit">₦0.00</div>
+                </div>
+
+                <div class="metric-card profit-net">
+                    <h3>Net Profit</h3>
+                    <div class="metric-value" id="netProfit">₦0.00</div>
+                </div>
+
+                <div class="metric-card cost">
+                    <h3>Avg. Variable Cost</h3>
+                    <div class="metric-value" id="avgVariableCost">₦0.00</div>
+                </div>
+
+                <div class="metric-card margin">
+                    <h3>Contribution Margin</h3>
+                    <div class="metric-value" id="contributionMargin">0.00%</div>
+                </div>
+
+                <div class="metric-card breakdown">
+                    <h3>Cost Breakdown</h3>
+                    <div class="breakdown-details">
+                        <div>Variable: ₦<span id="totalVariable">0.00</span></div>
+                        <div>Fixed: ₦<span id="totalFixed">0.00</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-summary">
+                <h3>Product Details</h3>
+                <div id="productDetails"></div>
+            </div>
+        </div>
+
+        <div class="init-section">
+            <button id="initDataBtn" class="init-btn">Initialize Sample Data</button>
+            <p class="init-text">Click to load sample products and costs for testing</p>
+        </div>
+    </div>
+
+
+
+ </div>
+</div>
+
+
+  
+
+    <script src="/script.js"></script>
+ <script>
+  // Save the current path to sessionStorage (only if not already set)
+  if (!sessionStorage.getItem('redirect')) {
+    sessionStorage.setItem('redirect', window.location.pathname);
+  }
+</script>
+
+
+
+
+
+<script>
+  const productSelect = document.getElementById("productSelect");
+  const quantitySoldInput = document.getElementById("quantitySold");
+
+  productSelect.addEventListener("change", () => {
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+    const initialQuantity = parseInt(selectedOption.getAttribute("data-initialquantity"));
+    const currentQuantity = parseInt(selectedOption.getAttribute("data-currentquantity"));
+
+    if (!isNaN(initialQuantity) && !isNaN(currentQuantity)) {
+      const sold = initialQuantity - currentQuantity;
+      quantitySoldInput.value = sold;
+    } else {
+      quantitySoldInput.value = '';
+    }
+  });
+</script>
+
+
+
+
+    <script>
+
+        
+const frontendJS = 
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('profitForm');
+  const resultsSection = document.getElementById('resultsSection');
+  const spinner = document.getElementById('loadingSpinner');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    spinner.style.display = 'block';
+    resultsSection.style.display = 'none';
+
+    const productId = document.getElementById('productSelect').value;
+
+    if (!productId) {
+      alert('Please select a product');
+      spinner.style.display = 'none';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+
+      const data = await res.json();
+      spinner.style.display = 'none';
+
+      if (!data.success) {
+        alert(data.error || 'Error occurred');
+        return;
+      }
+
+      // Fill result boxes
+      document.getElementById('totalRevenue').textContent = `₦${data.calculations.totalRevenue}`;
+document.getElementById('grossProfit').textContent = `₦${data.calculations.grossProfit}`;
+document.getElementById('netProfit').textContent = `₦${data.calculations.netProfit}`;
+document.getElementById('avgVariableCost').textContent = `₦${data.calculations.avgVariableCost}`;
+document.getElementById('contributionMargin').textContent = `${data.calculations.contributionMarginPercent.toFixed(2)}%`;
+document.getElementById('totalVariable').textContent = data.calculations.totalVariableCost;
+document.getElementById('totalFixed').textContent = data.calculations.totalFixedCost;
+
+
+      document.getElementById('productDetails').innerHTML = `
+        <p><strong>Name:</strong> ${data.product.name}</p>
+        <p><strong>Selling Price:</strong> ₦${data.product.scost}</p>
+        <p><strong>Buying Price:</strong> ₦${data.product.bcost}</p>
+        <p><strong>Quantity Remaining:</strong> ${data.product.quantityRemaining}</p>
+        <p><strong>Quantity Sold:</strong> ${data.product.quantitySold}</p>
+      `;
+
+      resultsSection.style.display = 'block';
+    } catch (err) {
+      console.error('Fetch error:', err);
+      spinner.style.display = 'none';
+      alert('Something went wrong. Check console.');
+    }
+  });
+});
+
+
+    </script>
+
+
+
+
+</body>
+</html>
+
+

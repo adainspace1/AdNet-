@@ -6,7 +6,7 @@
     <title>Determine Your Selling Price</title>
 
     <link rel="stylesheet" href="/css/pricedeterminant.css">
-
+    <link rel="stylesheet" href="/css/dashall.css">
          <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
@@ -20,333 +20,331 @@
 </head>
 <body>
 
+
+
+    <div class="all">
+
+
      <%- include ("_sidebar1") %>
 
 
-           <div class="main-contentt" >
+ <div class="main-content" >
             <!-- headerr -->
        
-                 <header class="header">
-                <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="page-title">Accounts Payable</h1>
-                </div>
-                <div class="header-right">
-                    <button onclick="toggleTheme()" class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
-                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
+                  <%- include ("_topnav") %>
+
+
+                <div class="container">
+                    <div class="headerr">
+                        <h1>Determine Your Selling Price</h1>
+                        <p>Enter your cost price and profit goal to calculate how much to sell your goods for. Get accurate pricing with fees and taxes included.</p>
                     </div>
-                </div>
-            </header>
 
 
-    <div class="container">
-        <div class="headerr">
-            <h1>Determine Your Selling Price</h1>
-            <p>Enter your cost price and profit goal to calculate how much to sell your goods for. Get accurate pricing with fees and taxes included.</p>
-        </div>
-
-        <div class="main-content">
-            <div class="card1">
-    <h2>Select Mode</h2>
-    <p>Would you like to calculate automatically or manually?</p>
-    <div class="action-buttons">
-        <button class="btn btn-primary" onclick="chooseMode('automatic')">Automatic</button>
-        <button class="btn btn-primary" onclick="chooseMode('manual')">Manual</button>
-    </div>
-</div>
-
-            <div class="card" id="manualForm" style="display: none;">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                        <path d="M3 3v18h18"/>
-                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                    </svg>
-                    Price Calculator
-                </h2>
-
-                <div >
-                
-                <div class="form-group">
-                    <label>
-                        Cost Price 
-                        <span class="tooltip" data-tooltip="The amount you paid for the item">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                <point x="12" y="17"/>
-                            </svg>
-                        </span>
-                    </label>
-                    <div class="input-wrapper">
-                        <span class="input-prefix">₦</span>
-                        <input type="number" id="costPrice" placeholder="0" oninput="calculatePrice()">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Profit Type</label>
-                    <div class="profit-toggle">
-                        <button type="button" class="active" onclick="setProfitType('percentage')">Percentage (%)</button>
-                        <button type="button" onclick="setProfitType('fixed')">Fixed Amount (₦)</button>
-                    </div>
-                    
-                    <div class="input-wrapper">
-                        <span class="input-prefix" id="profitPrefix">%</span>
-                        <input type="number" id="profitValue" placeholder="0" oninput="calculatePrice()">
-                    </div>
-                </div>
-
-                <div class="optional-section">
-                    <div class="optional-headerr" onclick="toggleOptional()">
-                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"/>
-                        </svg>
-                        <span>Optional Fees & Charges</span>
-                    </div>
-                    
-                    <div class="optional-fields" id="optionalFields">
-                        <div class="form-group">
-                            <label>
-                                Delivery/Shipping Fee
-                                <span class="tooltip" data-tooltip="Cost of shipping or delivery">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                        <point x="12" y="17"/>
-                                    </svg>
-                                </span>
-                            </label>
-                            <div class="input-wrapper">
-                                <span class="input-prefix">₦</span>
-                                <input type="number" id="deliveryFee" placeholder="0" oninput="calculatePrice()">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                Platform/Transaction Fee
-                                <span class="tooltip" data-tooltip="Fees charged by payment platforms">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                        <point x="12" y="17"/>
-                                    </svg>
-                                </span>
-                            </label>
-                            <div class="input-wrapper">
-                                <span class="input-prefix">₦</span>
-                                <input type="number" id="platformFee" placeholder="0" oninput="calculatePrice()">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                Tax
-                                <span class="tooltip" data-tooltip="Government tax or VAT">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                        <point x="12" y="17"/>
-                                    </svg>
-                                </span>
-                            </label>
-                            <select id="taxType" onchange="calculatePrice()">
-                                <option value="none">No Tax</option>
-                                <option value="percentage">Percentage (%)</option>
-                                <option value="fixed">Fixed Amount (₦)</option>
-                            </select>
-                            <div class="input-wrapper" style="margin-top: 8px;">
-                                <span class="input-prefix" id="taxPrefix">₦</span>
-                                <input type="number" id="taxValue" placeholder="0" oninput="calculatePrice()" disabled>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-              
-
-
-            </div>
-
-        </div>
-
-        
- <div class="card" id="automaticForm" style="display: none;">
-    <h2>Automatic Price Calculator</h2>
-    <div class="form-group">
-        <label>Select a Product</label>
-        <select id="productSelect" onchange="fillAutoPrice()">
-            <option value="">-- Select Product --</option>
-            <% if (productions && productions.length > 0) { %>
-                <% productions.forEach(function(product) { %>
-                    <option value="<%= product._id %>"><%= product.itemName %></option>
-                <% }); %>
-            <% } else { %>
-                <option value="">No products available</option>
-            <% } %>
-        </select>
-    </div>
-    <div class="auto-price-fields" style="margin-top: 10px; display: none;">
-        <div class="form-group">
-            <label>Cost Price</label>
-            <div class="input-wrapper">
-                <span class="input-prefix">₦</span>
-                <input type="number" id="autoCostPrice" placeholder="0" oninput="calculatePrice()">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Profit</label>
-            <div class="input-wrapper">
-                <span class="input-prefix">₦</span>
-                <input type="number" id="autoProfit" placeholder="0" oninput="calculatePrice()">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Extra Fees</label>
-            <div class="input-wrapper">
-                <span class="input-prefix">₦</span>
-                <input type="number" id="autoFees" placeholder="0" oninput="calculatePrice()">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Suggested Selling Price</label>
-            <div class="input-wrapper">
-                <span class="input-prefix">₦</span>
-                <input type="number" id="autoTotal" placeholder="0" readonly>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-            <div class="card results-card">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    Price Breakdown
-                </h2>
-                
-                <div class="breakdown-item">
-                    <span>Cost Price:</span>
-                    <span id="displayCost">₦0</span>
-                </div>
-                
-                <div class="breakdown-item">
-                    <span>Profit:</span>
-                    <span id="displayProfit">₦0</span>
-                </div>
-                
-                <div class="breakdown-item">
-                    <span>Extra Fees:</span>
-                    <span id="displayFees">₦0</span>
-                </div>
-                
-                <div class="breakdown-item">
-                    <span>Suggested Selling Price:</span>
-                    <span id="displayTotal">₦0</span>
-                </div>
-
+                        <div class="card1">
+                <h2 class="toph2">Select Mode</h2>
+                <p class="topp">Would you like to calculate automatically or manually?</p>
                 <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="saveAutoPrice()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                            <polyline points="17,21 17,13 7,13 7,21"/>
-                            <polyline points="7,3 7,8 15,8"/>
-                        </svg>
-                        Save Price
-                    </button>
-                    <button class="btn btn-secondary" onclick="downloadEstimate()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7,10 12,15 17,10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
-                        </svg>
-                        Download
-                    </button>
+                    <button class="btn btn-primary" onclick="chooseMode('automatic')">Automatic</button>
+                    <button class="btn btn-primary" onclick="chooseMode('manual')">Manual</button>
                 </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" onclick="addToInventory()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                        </svg>
-                        Add to Inventory
-                    </button>
-                    <button class="btn btn-secondary" onclick="resetCalculator()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                            <polyline points="23,4 23,10 17,10"/>
-                            <polyline points="1,20 1,14 7,14"/>
-                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
-                        </svg>
-                        Reset
-                    </button>
+            </div>
+
+            
+                    <div class="d-cards">
+
+                        <div class="card" id="manualForm" style="display: none;">
+                            <h2>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                                    <path d="M3 3v18h18"/>
+                                    <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                                </svg>
+                                Price Calculator
+                            </h2>
+
+                            <div >
+                            
+                            <div class="form-group">
+                                <label>
+                                    Cost Price 
+                                    <span class="tooltip" data-tooltip="The amount you paid for the item">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                            <point x="12" y="17"/>
+                                        </svg>
+                                    </span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">₦</span>
+                                    <input type="number" id="costPrice" placeholder="0" oninput="calculatePrice()">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Profit Type</label>
+                                <div class="profit-toggle">
+                                    <button type="button" class="active" onclick="setProfitType('percentage')">Percentage (%)</button>
+                                    <button type="button" onclick="setProfitType('fixed')">Fixed Amount (₦)</button>
+                                </div>
+                                
+                                <div class="input-wrapper">
+                                    <span class="input-prefix" id="profitPrefix">%</span>
+                                    <input type="number" id="profitValue" placeholder="0" oninput="calculatePrice()">
+                                </div>
+                            </div>
+
+                            <div class="optional-section">
+                                <div class="optional-headerr" onclick="toggleOptional()">
+                                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9,18 15,12 9,6"/>
+                                    </svg>
+                                    <span>Optional Fees & Charges</span>
+                                </div>
+                                
+                                <div class="optional-fields" id="optionalFields">
+                                    <div class="form-group">
+                                        <label>
+                                            Delivery/Shipping Fee
+                                            <span class="tooltip" data-tooltip="Cost of shipping or delivery">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                                    <point x="12" y="17"/>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <div class="input-wrapper">
+                                            <span class="input-prefix">₦</span>
+                                            <input type="number" id="deliveryFee" placeholder="0" oninput="calculatePrice()">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            Platform/Transaction Fee
+                                            <span class="tooltip" data-tooltip="Fees charged by payment platforms">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                                    <point x="12" y="17"/>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <div class="input-wrapper">
+                                            <span class="input-prefix">₦</span>
+                                            <input type="number" id="platformFee" placeholder="0" oninput="calculatePrice()">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            Tax
+                                            <span class="tooltip" data-tooltip="Government tax or VAT">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                                    <point x="12" y="17"/>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <select id="taxType" onchange="calculatePrice()">
+                                            <option value="none">No Tax</option>
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="fixed">Fixed Amount (₦)</option>
+                                        </select>
+                                        <div class="input-wrapper" style="margin-top: 8px;">
+                                            <span class="input-prefix" id="taxPrefix">₦</span>
+                                            <input type="number" id="taxValue" placeholder="0" oninput="calculatePrice()" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        
+
+
+                        </div>
+
+                    </div>
+
+                    
+
+                         <div class="card" id="automaticForm" >
+                <h2>Automatic Price Calculator</h2>
+                <div class="form-group">
+                    <label>Select a Product</label>
+                    <select id="productSelect" onchange="fillAutoPrice()">
+                        <option value="">-- Select Product --</option>
+                        <% if (productions && productions.length > 0) { %>
+                            <% productions.forEach(function(product) { %>
+                                <option value="<%= product._id %>"><%= product.itemName %></option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="">No products available</option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="auto-price-fields" style="margin-top: 10px; display: none;">
+                    <div class="form-group">
+                        <label>Cost Price</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">₦</span>
+                            <input type="number" id="autoCostPrice" placeholder="0" oninput="calculatePrice()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Profit</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">₦</span>
+                            <input type="number" id="autoProfit" placeholder="0" oninput="calculatePrice()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Extra Fees</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">₦</span>
+                            <input type="number" id="autoFees" placeholder="0" oninput="calculatePrice()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Suggested Selling Price</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">₦</span>
+                            <input type="number" id="autoTotal" placeholder="0" readonly>
+                        </div>
+                    </div>
                 </div>
             </div>
 
 
-     
+
+                        <div class="card results-card">
+                            <h2>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                                    <line x1="12" y1="1" x2="12" y2="23"/>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                                Price Breakdown
+                            </h2>
+                            
+                            <div class="breakdown-item">
+                                <span>Cost Price:</span>
+                                <span id="displayCost">₦0</span>
+                            </div>
+                            
+                            <div class="breakdown-item">
+                                <span>Profit:</span>
+                                <span id="displayProfit">₦0</span>
+                            </div>
+                            
+                            <div class="breakdown-item">
+                                <span>Extra Fees:</span>
+                                <span id="displayFees">₦0</span>
+                            </div>
+                            
+                            <div class="breakdown-item">
+                                <span>Suggested Selling Price:</span>
+                                <span id="displayTotal">₦0</span>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="saveAutoPrice()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                        <polyline points="17,21 17,13 7,13 7,21"/>
+                                        <polyline points="7,3 7,8 15,8"/>
+                                    </svg>
+                                    Save Price
+                                </button>
+                                <button class="btn btn-secondary" onclick="downloadEstimate()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7,10 12,15 17,10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Download
+                                </button>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button class="btn btn-secondary" onclick="addToInventory()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                        <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                    </svg>
+                                    Add to Inventory
+                                </button>
+                                <button class="btn btn-secondary" onclick="resetCalculator()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                                        <polyline points="23,4 23,10 17,10"/>
+                                        <polyline points="1,20 1,14 7,14"/>
+                                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                                    </svg>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+           
+
+
+                
+                </div>
+                
+                <div class="faq-section">
+                        <div class="card">
+                            <h2>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <point x="12" y="17"/>
+                                </svg>
+                                Frequently Asked Questions
+                            </h2>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(0)">
+                                    <span>How do I determine the right profit margin?</span>
+                                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9,18 15,12 9,6"/>
+                                    </svg>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Profit margins vary by industry. Retail typically ranges from 2-10%, while services can be 15-50%. Research your competitors and consider your business costs when setting margins.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(1)">
+                                    <span>Should I include all fees in my selling price?</span>
+                                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9,18 15,12 9,6"/>
+                                    </svg>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Yes, include all costs (shipping, platform fees, taxes) to ensure profitability. Customers often prefer transparent, all-inclusive pricing over surprise charges at checkout.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(2)">
+                                    <span>What's the difference between markup and margin?</span>
+                                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9,18 15,12 9,6"/>
+                                    </svg>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Markup is profit added to cost price. Margin is profit as a percentage of selling price. A 50% markup equals a 33% margin. This calculator uses markup for percentage profits.</p>
+                                </div>
+                            </div>
+                        </div>
+                   
+            </div>
+
+</div>
     </div>
-    
-    <div class="faq-section">
-            <div class="card">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <point x="12" y="17"/>
-                    </svg>
-                    Frequently Asked Questions
-                </h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(0)">
-                        <span>How do I determine the right profit margin?</span>
-                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"/>
-                        </svg>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Profit margins vary by industry. Retail typically ranges from 2-10%, while services can be 15-50%. Research your competitors and consider your business costs when setting margins.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(1)">
-                        <span>Should I include all fees in my selling price?</span>
-                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"/>
-                        </svg>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes, include all costs (shipping, platform fees, taxes) to ensure profitability. Customers often prefer transparent, all-inclusive pricing over surprise charges at checkout.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(2)">
-                        <span>What's the difference between markup and margin?</span>
-                        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"/>
-                        </svg>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Markup is profit added to cost price. Margin is profit as a percentage of selling price. A 50% markup equals a 33% margin. This calculator uses markup for percentage profits.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-           </div>
 
 <script>
       let profitType = 'percentage';

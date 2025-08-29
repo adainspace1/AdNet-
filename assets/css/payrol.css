@@ -8,15 +8,19 @@
             font-family: 'Poppins', sans-serif;
             background-color: #031224;
             height: 100vh;
+            overflow: hidden;
             color: #333;
         }
 
+        .main-content{
+            height: 100vh;
+            overflow: hidden;
+            overflow-y: scroll;
+        }
         .container {
             width: 100%;
             margin: 0 auto;
             padding: 20px;
-            overflow: hidden;
-            overflow-y: scroll;
         }
 
         /* Navigation Bar */

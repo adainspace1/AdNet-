@@ -12,16 +12,20 @@
       href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
     />
       <link rel="stylesheet" href="/css/profit.css" />
+      <link rel="stylesheet" href="/css/dashall.css">
 
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
 
-     <div class="app-container">
+     <div class="all">
     <!-- Sidebar -->
     <%- include ("_sidebar1") %>
 
-    <div class="container">
+    <div class="main-content">
+        <%- include ("_topnav") %>
+
+          <div class="container">
         <div class="header">
             <h1>Profits Dashboard</h1>
             <p>Comprehensive profit analysis and performance metrics for <%= date %></p>
@@ -197,6 +201,9 @@
             </table>
         </div>
     </div>
+    </div>
+
+  
 
     </div>
     <script>

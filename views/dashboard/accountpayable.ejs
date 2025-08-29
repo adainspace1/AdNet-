@@ -15,21 +15,32 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="/css/accountpayable.css">
+    <link rel="stylesheet" href="/css/dashall.css">
 </head>
 <body data-theme="light">
 
-    <div class="container" >
+
+
+  <div class="all">
+        <%- include ("_sidebar1") %>
+
+
+    <div class="main-content">
+        <%- include ("_topnav") %>
+
+        <div class="container" >
          <!-- Sidebar -->
-    <%- include ("_sidebar1") %>
+
         <!-- Main Content -->
-        <div class="main-contentt" >
+         
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
                     <button class="menu-toggle" id="menuToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="page-title">Accounts Payable</h1>
+                     <h1 class="page-title">Accounts Payable</h1>
+                   
                 </div>
                 <div class="header-right">
                     <button class="theme-toggle" id="themeToggle">
@@ -307,8 +318,15 @@
 
 
             </div>
-        </div>
+  
     </div>
+    </div>
+
+  
+
+
+  </div>
+  
     
 
     <script>

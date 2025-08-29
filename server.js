@@ -22,6 +22,12 @@ const Payroll = require('./models/Payroll');
 
 
 
+
+
+  const Analysis = require('./models/Analysis');
+  const PDFDocument = require('pdfkit');
+  const fs = require('fs');
+
 const Order = require("./models/Order");
 
 const QRCode = require('qrcode');
@@ -323,20 +329,15 @@ app.get('/email-exists', (req, res) => {
 
 function ensureAuthenticated(req, res, next) {
   if (req.session && req.session.user) {
-    return next();
+    return next(); // ✅ User is logged in
   }
 
-  // Optionally attach the attempted URL so we can return after login
+  // ❌ User not logged in → save attempted URL
   const attemptedUrl = req.originalUrl;
-  console.log("redirecting")
-  console.log("redirecting", attemptedUrl)
+  console.log("redirecting", attemptedUrl);
+
   return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-  
 }
-
-
-
-
 
 app.get('/login', (req, res) => {
   try {
@@ -363,124 +364,92 @@ app.get('/login', (req, res) => {
 
 
 
+
+
+
+
+
+
 app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id;
     console.log("Dashboard - Looking for company info using ID:", userId);
 
-    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
-    const companyinfo = await Company.findOne({ reciepientId: userId });
+    const inventoryItems = await Inventory.find({ recipientId: userId });
+    const companyinfo = await Company.findOne({ recipientId: userId });
+    const salesItems = await Sales.find({ recipientId: userId });
+    const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
 
+    // Totals
+    const totalInventory = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalSales = salesItems.reduce((sum, sale) => sum + sale.quantity, 0);
 
-    const salesItems = await Sales.find({ recipientId: req.session.user._id });
+    const salesPercentage = totalInventory > 0
+      ? Math.round((totalSales / totalInventory) * 100)
+      : 0;
 
-     const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
-
-// Sum total inventory quantity
-const totalInventory = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
-
-// Sum total sales quantity
-const totalSales = salesItems.reduce((sum, sale) => sum + sale.quantity, 0);
-
-// Calculate sales percent
-const salesPercentage = totalInventory > 0
-  ? Math.round((totalSales / totalInventory) * 100)
-  : 0;
-
-       // Get today's date range
+    // Today’s date range
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Get today's sales
-  const todaySales = await Sales.find({
-  recipientId: req.session.user._id,
-  date: { $gte: todayStart, $lte: todayEnd }
-})
-.sort({ date: -1 })       // sort by latest first
-.limit(3);                // only get top 3
+    const todaySales = await Sales.find({
+      recipientId: userId,
+      date: { $gte: todayStart, $lte: todayEnd }
+    }).sort({ date: -1 }).limit(3);
 
-
-
-    // Filter expenses for today
     const todayExpenses = await Expense.find({
       recipientId: userId,
       createdAt: { $gte: todayStart, $lte: todayEnd }
-    })
-    .sort({ date: -1 })       // sort by latest first
-.limit(3);   
+    }).sort({ date: -1 }).limit(3);
 
+    const totalSalesAmountToday = todaySales.reduce((sum, sale) => sum + sale.amount, 0);
+    const totalExpenseAmountToday = todayExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
+    const grossProfitToday = totalSalesAmountToday - totalExpenseAmountToday;
+    const grossProfitPercentage = totalSalesAmountToday > 0
+      ? Math.round((grossProfitToday / totalSalesAmountToday) * 100)
+      : 0;
 
+    const lossPercentage = totalSalesAmountToday > 0
+      ? Math.round((totalExpenseAmountToday / totalSalesAmountToday) * 100)
+      : 0;
 
-// Calculate today's total sales amount
-const totalSalesAmountToday = todaySales.reduce((sum, sale) => sum + sale.amount, 0);
+    // Weekly Sales
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
 
-// Calculate today's total expenses amount
-const totalExpenseAmountToday = todayExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const weeklySales = await Sales.find({
+      recipientId: userId,
+      date: { $gte: oneWeekAgo, $lte: new Date() }
+    });
 
-// Gross Profit = sales - expenses
-const grossProfitToday = totalSalesAmountToday - totalExpenseAmountToday;
+    const weeklyData = [0, 0, 0, 0, 0, 0, 0];
+    weeklySales.forEach(sale => {
+      const day = new Date(sale.date).getDay();
+      weeklyData[day] += sale.amount;
+    });
 
-// Gross Profit Percentage
-const grossProfitPercentage = totalSalesAmountToday > 0
-  ? Math.round((grossProfitToday / totalSalesAmountToday) * 100)
-  : 0;
+    const weeklySalesData = [
+      weeklyData[1], weeklyData[2], weeklyData[3], weeklyData[4],
+      weeklyData[5], weeklyData[6], weeklyData[0],
+    ];
 
-// Loss Percentage = (expenses / sales) * 100
-const lossPercentage = totalSalesAmountToday > 0
-  ? Math.round((totalExpenseAmountToday / totalSalesAmountToday) * 100)
-  : 0;
-
-  
-console.log("Today's Expenses:", lossPercentage);
-
-
-
-  // Step 1: Get sales from this week
-const oneWeekAgo = new Date();
-oneWeekAgo.setDate(oneWeekAgo.getDate() - 6); // 7 days total including today
-
-const weeklySales = await Sales.find({
-  recipientId: req.session.user._id,
-  date: { $gte: oneWeekAgo, $lte: new Date() }
-});
-
-// Step 2: Group sales by day of week (0=Sun, 1=Mon...)
-const weeklyData = [0, 0, 0, 0, 0, 0, 0]; // Sunday to Saturday
-
-weeklySales.forEach(sale => {
-  const day = new Date(sale.date).getDay(); // getDay: 0 (Sun) to 6 (Sat)
-  weeklyData[day] += sale.amount; // accumulate sales amount
-});
-
-// Step 3: Rearrange from Mon to Sun
-const weeklySalesData = [
-  weeklyData[1], // Mon
-  weeklyData[2], // Tue
-  weeklyData[3], // Wed
-  weeklyData[4], // Thu
-  weeklyData[5], // Fri
-  weeklyData[6], // Sat
-  weeklyData[0], // Sun
-];
-
-
-res.render('dashboard/dashboard', {
-  user: req.session.user._id,
-  inventory: inventoryItems,
-  companyinfo,
-  todayExpenses,
-  todaySales,
-  salesPercentage,
-  grossProfitToday,
-  totalSalesAmountToday,
-  totalExpenseAmountToday,
-  grossProfitPercentage,
-  lossPercentage,
-  weeklySalesData, 
-});
+    res.render('dashboard/dashboard', {
+      user: req.session.user,  // full user object
+      inventory: inventoryItems,
+      companyinfo,
+      todayExpenses,
+      todaySales,
+      salesPercentage,
+      grossProfitToday,
+      totalSalesAmountToday,
+      totalExpenseAmountToday,
+      grossProfitPercentage,
+      lossPercentage,
+      weeklySalesData,
+    });
 
   } catch (err) {
     console.error('Error loading dashboard page:', err);
@@ -547,6 +516,215 @@ for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
     res.status(500).send('Server error');
   }
 });
+
+
+
+// ✅ Inventory Tracking Page
+app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
+  try {
+    const recipientId = req.session.user._id; // 🔐 Adjust according to your session setup
+    const items = await Inventory.find({ recipientId });
+
+    // Format items for frontend
+    const formatted = items.map((item, index) => {
+      const status =
+        item.currentquantity === 0
+          ? "Out of Stock"
+          : item.currentquantity <= 10
+          ? "Low Stock"
+          : "In Stock";
+
+      return {
+        id: `ITM${(index + 1).toString().padStart(3, "0")}`,
+        name: item.itemName,
+        category: item.category,
+        quantity: item.currentquantity,
+        unitPrice: item.scost,
+        reorderLevel: 10, // 📌 Use dynamic value if available in DB
+        supplier: item.supplier,
+        status,
+        lastUpdated: item.addedDate,
+      };
+    });
+
+    // Calculate KPIs
+    const totalItems = formatted.length;
+    const totalQuantity = formatted.reduce((sum, i) => sum + i.quantity, 0);
+    const lowStockCount = formatted.filter((i) => i.status === "Low Stock").length;
+    const outOfStockCount = formatted.filter((i) => i.status === "Out of Stock").length;
+
+    res.render("dashboard/inventory tracking", {
+      user: req.session.user,
+      inventory: formatted,
+      totalItems,
+      totalQuantity,
+      lowStockCount,
+      outOfStockCount,
+    });
+  } catch (err) {
+    console.error("Error loading inventory tracking page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get('/inventoryforecast', ensureAuthenticated, async (req, res) => {
+  try {
+    const products = await Inventory.find({});
+
+    // Summary quantities
+    const categoryMap = {};
+    products.forEach(item => {
+      const name = item.itemName.trim();
+      categoryMap[name] = (categoryMap[name] || 0) + item.currentquantity;
+    });
+
+    const inventoryNames = Object.keys(categoryMap);
+    const inventoryQuantities = Object.values(categoryMap);
+    const totalQuantity = inventoryQuantities.reduce((acc, qty) => acc + qty, 0);
+    const averageQuantity = inventoryQuantities.length > 0 ? totalQuantity / inventoryQuantities.length : 0;
+
+    const forecastDays = 7;
+    const projectedUsage = Array.from({ length: forecastDays }, (_, i) => ({
+      day: `Day ${i + 1}`,
+      forecast: averageQuantity - (i * averageQuantity * 0.05)
+    }));
+
+    res.render('dashboard/inventory forecast', {
+      user: req.session.user,
+      products,
+      inventoryNames,
+      inventoryQuantities,
+      totalQuantity,
+      averageQuantity,
+      projectedUsage,
+      forecastResults: null // no results yet on GET
+    });
+  } catch (err) {
+    console.error('Error loading inventory forecast page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
+  try {
+    const {
+      productId,
+      forecastPeriod,
+      currentStock,
+      leadTime,
+      safetyStock,
+      historicalSales,
+      orderCost,
+      holdingCost
+    } = req.body;
+
+    const product = await Inventory.findById(productId);
+    if (!product) return res.status(404).send('Product not found');
+
+    const salesArray = historicalSales?.trim()
+      ? historicalSales.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x))
+      : Array.from({ length: 30 }, () => Math.max(0, Math.round(10 + (Math.random() - 0.5) * 10 * 0.4)));
+
+    const totalSales = salesArray.reduce((sum, sales) => sum + sales, 0);
+    const salesVelocity = totalSales / salesArray.length;
+    const daysCoverage = Math.floor(currentStock / salesVelocity);
+
+    const maxDailySales = Math.max(...salesArray);
+    const avgDailySales = salesVelocity;
+    const maxLeadTime = parseInt(leadTime) + 2;
+    const calculatedSafetyStock = Math.ceil((maxDailySales * maxLeadTime) - (avgDailySales * leadTime));
+
+    const finalSafetyStock = safetyStock ? parseInt(safetyStock) : calculatedSafetyStock;
+    const reorderPoint = Math.ceil((salesVelocity * leadTime) + finalSafetyStock);
+    const reorderDay = Math.max(0, daysCoverage - leadTime);
+    const forecastedDemand = Math.ceil(salesVelocity * forecastPeriod);
+    const reorderQuantity = Math.max(0, forecastedDemand - currentStock + finalSafetyStock);
+
+    const annualDemand = salesVelocity * 365;
+    const unitCost = product.bcost || 100;
+    const hCost = (holdingCost / 100) * unitCost;
+    const eoq = Math.ceil(Math.sqrt((2 * annualDemand * orderCost) / hCost));
+
+    // Get all inventory for display again
+    const products = await Inventory.find({});
+    const categoryMap = {};
+    products.forEach(item => {
+      const name = item.itemName.trim();
+      categoryMap[name] = (categoryMap[name] || 0) + item.currentquantity;
+    });
+    const inventoryNames = Object.keys(categoryMap);
+    const inventoryQuantities = Object.values(categoryMap);
+    const totalQuantity = inventoryQuantities.reduce((acc, qty) => acc + qty, 0);
+    const averageQuantity = inventoryQuantities.length > 0 ? totalQuantity / inventoryQuantities.length : 0;
+    const forecastDays = 7;
+    const projectedUsage = Array.from({ length: forecastDays }, (_, i) => ({
+      day: `Day ${i + 1}`,
+      forecast: averageQuantity - (i * averageQuantity * 0.05)
+    }));
+
+    res.render('dashboard/inventory forecast', {
+      user: req.session.user,
+      products,
+      inventoryNames,
+      inventoryQuantities,
+      totalQuantity,
+      averageQuantity,
+      projectedUsage,
+      forecastResults: {
+        salesVelocity: salesVelocity.toFixed(1),
+        daysCoverage,
+        reorderPoint,
+        reorderQuantity,
+        reorderDay,
+        safetyStock: finalSafetyStock,
+        eoq,
+        forecastedDemand
+      }
+    });
+  } catch (err) {
+    console.error('Forecast error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -802,6 +980,147 @@ app.get('/Expenses', ensureAuthenticated, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+
+// Expense submission route
+app.post('/Expenses/submit', ensureAuthenticated, async (req, res) => {
+  const { fullName, department, dateOfExpense, category, amount, description } = req.body;
+  const userId = req.session.user._id;
+
+  try {
+    // Validate input
+    if (!fullName || !department || !dateOfExpense || !category || !amount || !description) {
+      return res.status(400).render('dashboard/expense', {
+        user: req.session.user,
+        error: 'All fields except receipt are required',
+        recentExpenses: await getRecentExpenses(userId)
+      });
+    }
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).render('dashboard/expense', {
+        user: req.session.user,
+        error: 'Amount must be a positive number',
+        recentExpenses: await getRecentExpenses(userId)
+      });
+    }
+
+    // Check category limit
+    const limit = await CategoryLimit.findOne({ category });
+    if (!limit) {
+      return res.status(400).render('dashboard/expense', {
+        user: req.session.user,
+        error: `Invalid category: ${category}`,
+        recentExpenses: await getRecentExpenses(userId)
+      });
+    }
+
+    // Reimbursement rule: Auto-reject if over limit
+    const status = parsedAmount <= limit.maxAmount ? 'Pending' : 'Rejected';
+    const receiptPath = req.file ? req.file.path : null;
+
+    // Save expense
+    const expense = new Expense({
+      userId,
+      fullName,
+      department,
+      dateOfExpense: new Date(dateOfExpense),
+      category,
+      amount: parsedAmount,
+      description,
+      receipt: receiptPath,
+      status
+    });
+    await expense.save();
+
+    // Notify user via Socket.io
+    req.io.to(userId.toString()).emit('expense_status', {
+      message: `Expense submitted: ${status}`,
+      status
+    });
+
+    res.render('dashboard/expense', {
+      user: req.session.user,
+      success: 'Expense submitted successfully!',
+      recentExpenses: await getRecentExpenses(userId)
+    });
+  } catch (err) {
+    console.error('Error submitting expense:', err);
+    res.status(500).render('dashboard/expense', {
+      user: req.session.user,
+      error: 'Failed to submit expense',
+      recentExpenses: await getRecentExpenses(userId)
+    });
+  }
+});
+
+
+// Admin view for approving/rejecting expenses
+app.get('/Expenses/admin', ensureAuthenticated, async (req, res) => {
+  if (!req.session.user.isAdmin) {
+    return res.status(403).render('dashboard/expense', {
+      user: req.session.user,
+      error: 'Unauthorized access',
+      recentExpenses: await getRecentExpenses(req.session.user._id)
+    });
+  }
+
+  try {
+    const expenses = await Expense.find({ status: 'Pending' })
+      .populate('userId', 'firstname lastname')
+      .lean();
+    res.render('dashboard/admin_expenses', { user: req.session.user, expenses });
+  } catch (err) {
+    console.error('Error loading admin expenses:', err);
+    res.status(500).render('dashboard/admin_expenses', {
+      user: req.session.user,
+      error: 'Failed to load expenses',
+      expenses: []
+    });
+  }
+});
+
+// Admin action to approve/reject
+app.post('/Expenses/admin/:id', ensureAuthenticated, async (req, res) => {
+  if (!req.session.user.isAdmin) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+  const { action } = req.body; // 'approve' or 'reject'
+
+  try {
+    const expense = await Expense.findById(id);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    expense.status = action === 'approve' ? 'Approved' : 'Rejected';
+    await expense.save();
+
+    // Notify user
+    req.io.to(expense.userId.toString()).emit('expense_status', {
+      message: `Your expense for ${expense.category} has been ${expense.status.toLowerCase()}`,
+      status: expense.status
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error processing expense:', err);
+    res.status(500).json({ error: 'Failed to process expense' });
+  }
+});
+
+// Helper function to get recent expenses
+async function getRecentExpenses(userId) {
+  return await Expense.find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select('category amount status createdAt')
+    .lean();
+}
 
 
 
@@ -1511,7 +1830,7 @@ const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCre
 
 
 
-app.get("/Assests", ensureAuthenticated, async (req, res) => {
+app.get("/Assets", ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id;
 
@@ -2124,15 +2443,637 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/crm", ensureAuthenticated, async (req, res) => {
-  try{
-    
-  res.render("dashboard/CRM.ejs");
-  } catch (err){
-    console.error("Error loading CRM page:", err);
-    res.status(500).send("Server error");
+
+
+
+
+
+
+app.get('/pricecall', ensureAuthenticated, async (req, res) => {
+  const products = await Inventory.find();
+  res.render('dashboard/pricecall', { products });
+});
+
+app.get('/api/products', async (req, res) => {
+  const products = await Inventory.find();
+  res.json(products);
+});
+
+
+function formatNumber(n) {
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(2) + 'K';
+  return n.toFixed(2);
+}
+
+app.post('/api/metrics', async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    const product = await Inventory.findById(productId);
+    if (!product) return res.status(404).json({ error: 'Item not found' });
+
+    const quantitySold = product.quantity - product.currentquantity;
+    const quantity = quantitySold;
+
+    const totalRevenue = product.scost * quantity;
+    const totalVariableCost = product.bcost * quantity;
+    const totalFixedCost = 0;
+
+    const grossProfit = totalRevenue - totalVariableCost;
+    const netProfit = grossProfit - totalFixedCost;
+    const contributionMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
+    const avgVariableCost = quantity ? totalVariableCost / quantity : 0;
+
+    res.json({
+      success: true,
+      product: {
+        name: product.itemName,
+        scost: product.scost,
+        bcost: product.bcost,
+        quantitySold,
+        quantityRemaining: product.quantity
+      },
+      calculations: {
+        totalRevenue: formatNumber(totalRevenue),
+        totalVariableCost: formatNumber(totalVariableCost),
+        totalFixedCost: formatNumber(totalFixedCost),
+        grossProfit: formatNumber(grossProfit),
+        netProfit: formatNumber(netProfit),
+        avgVariableCost: formatNumber(avgVariableCost),
+        contributionMargin: contributionMargin,
+        contributionMarginPercent: contributionMargin * 100
+      }
+    });
+
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Failed to compute metrics' });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Debt Management Page
+app.get('/Debtmanagement', ensureAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const company = await Company.findOne({ userId }).lean();
+    const latestAnalysis = await Analysis.findOne({ userId }).sort({ createdAt: -1 }).lean();
+
+    res.render('dashboard/debtmanagement', {
+      user: req.session.user,
+      company: company || {},
+      analysis: latestAnalysis || {},
+      error: null,
+      success: null
+    });
+  } catch (err) {
+    console.error('Error loading debt management page:', err);
+    res.status(500).render('dashboard/debtmanagement', {
+      user: req.session.user,
+      company: {},
+      analysis: {},
+      error: 'Failed to load data',
+      success: null
+    });
+  }
+});
+
+// Save Company Info
+app.post('/Debtmanagement/company', ensureAuthenticated, async (req, res) => {
+  const { companyName, marketCap, totalDebt, taxRate, sharesOutstanding } = req.body;
+  const userId = req.session.user._id;
+
+  try {
+    // Validate inputs
+    if (!companyName || !marketCap || !totalDebt || !taxRate || !sharesOutstanding) {
+      throw new Error('All fields are required');
+    }
+    const parsedInputs = {
+      marketCap: parseFloat(marketCap),
+      totalDebt: parseFloat(totalDebt),
+      taxRate: parseFloat(taxRate),
+      sharesOutstanding: parseFloat(sharesOutstanding)
+    };
+    for (const [key, value] of Object.entries(parsedInputs)) {
+      if (isNaN(value) || value < 0) {
+        throw new Error(`Invalid ${key}`);
+      }
+    }
+
+    // Save or update company
+    await Company.findOneAndUpdate(
+      { userId },
+      { userId, companyName, ...parsedInputs },
+      { upsert: true, new: true }
+    );
+
+    req.io.to(userId.toString()).emit('company_updated', { message: 'Company info saved' });
+    res.redirect('/Debtmanagement?success=Company%20info%20saved');
+  } catch (err) {
+    console.error('Error saving company:', err);
+    res.redirect(`/Debtmanagement?error=${encodeURIComponent(err.message)}`);
+  }
+});
+
+// Save Analysis
+app.post('/Debtmanagement/save', ensureAuthenticated, async (req, res) => {
+  const {
+    analysisName,
+    riskFreeRate,
+    creditSpread,
+    afterTax,
+    equityMethod,
+    capmRiskFree,
+    beta,
+    marketReturn,
+    dividendPerShare,
+    currentPrice,
+    growthRate
+  } = req.body;
+  const userId = req.session.user._id;
+
+  try {
+    // Validate inputs
+    const company = await Company.findOne({ userId });
+    if (!company) {
+      throw new Error('Company info required');
+    }
+
+    const parsedInputs = {
+      riskFreeRate: parseFloat(riskFreeRate),
+      creditSpread: parseFloat(creditSpread),
+      capmRiskFree: parseFloat(capmRiskFree),
+      beta: parseFloat(beta),
+      marketReturn: parseFloat(marketReturn),
+      dividendPerShare: parseFloat(dividendPerShare),
+      currentPrice: parseFloat(currentPrice),
+      growthRate: parseFloat(growthRate)
+    };
+    for (const [key, value] of Object.entries(parsedInputs)) {
+      if (isNaN(value) || value < 0) {
+        throw new Error(`Invalid ${key}`);
+      }
+    }
+
+    // Calculate cost of debt
+    const beforeTaxCost = parsedInputs.riskFreeRate + parsedInputs.creditSpread;
+    const taxShield = beforeTaxCost * (company.taxRate / 100);
+    const costOfDebt = afterTax === 'true' ? beforeTaxCost * (1 - company.taxRate / 100) : beforeTaxCost;
+
+    // Calculate cost of equity
+    let costOfEquity = 0;
+    if (equityMethod === 'CAPM') {
+      costOfEquity = parsedInputs.capmRiskFree + parsedInputs.beta * (parsedInputs.marketReturn - parsedInputs.capmRiskFree);
+    } else if (equityMethod === 'DDM') {
+      costOfEquity = (parsedInputs.dividendPerShare / parsedInputs.currentPrice) * 100 + parsedInputs.growthRate;
+    }
+
+    // Calculate WACC
+    const totalCapital = company.marketCap + company.totalDebt;
+    if (totalCapital === 0) {
+      throw new Error('Total capital cannot be zero');
+    }
+    const equityRatio = company.marketCap / totalCapital;
+    const debtRatio = company.totalDebt / totalCapital;
+    const wacc = equityRatio * costOfEquity + debtRatio * costOfDebt;
+
+    // Generate recommendations
+    let recommendations = '';
+    if (debtRatio < 0.3) {
+      recommendations = 'Consider increasing debt to leverage tax benefits and reduce WACC.';
+    } else if (debtRatio > 0.6) {
+      recommendations = 'Reduce debt levels to lower financial risk and optimize WACC.';
+    } else {
+      recommendations = 'Current capital structure is balanced; monitor for optimization opportunities.';
+    }
+
+    // Save analysis
+    const analysis = new Analysis({
+      userId,
+      companyId: company._id,
+      analysisName: analysisName || 'Unnamed Analysis',
+      costOfDebtInputs: {
+        riskFreeRate: parsedInputs.riskFreeRate,
+        creditSpread: parsedInputs.creditSpread,
+        afterTax: afterTax === 'true'
+      },
+      costOfEquityInputs: {
+        method: equityMethod,
+        capm: equityMethod === 'CAPM' ? {
+          riskFreeRate: parsedInputs.capmRiskFree,
+          beta: parsedInputs.beta,
+          marketReturn: parsedInputs.marketReturn
+        } : undefined,
+        ddm: equityMethod === 'DDM' ? {
+          dividendPerShare: parsedInputs.dividendPerShare,
+          currentPrice: parsedInputs.currentPrice,
+          growthRate: parsedInputs.growthRate
+        } : undefined
+      },
+      results: {
+        wacc,
+        debtRatio: debtRatio * 100,
+        taxShield: company.totalDebt * (company.taxRate / 100),
+        costOfEquity,
+        costOfDebt
+      }
+    });
+    await analysis.save();
+
+    req.io.to(userId.toString()).emit('analysis_saved', { message: 'Analysis saved' });
+    res.redirect('/Debtmanagement?success=Analysis%20saved');
+  } catch (err) {
+    console.error('Error saving analysis:', err);
+    res.redirect(`/Debtmanagement?error=${encodeURIComponent(err.message)}`);
+  }
+});
+
+// Scenario Analysis
+app.post('/Debtmanagement/scenario', ensureAuthenticated, async (req, res) => {
+  const { debtRangeMin, debtRangeMax } = req.body;
+  const userId = req.session.user._id;
+
+  try {
+    const company = await Company.findOne({ userId });
+    const latestAnalysis = await Analysis.findOne({ userId }).sort({ createdAt: -1 });
+    if (!company || !latestAnalysis) {
+      throw new Error('Company info and analysis required');
+    }
+
+    const min = parseFloat(debtRangeMin);
+    const max = parseFloat(debtRangeMax);
+    if (isNaN(min) || isNaN(max) || min < 0 || max > 100 || min >= max) {
+      throw new Error('Invalid debt range');
+    }
+
+    // Simulate scenario analysis
+    const results = [];
+    let optimalDebtRatio = min;
+    let minWACC = Infinity;
+    const steps = 10;
+    const stepSize = (max - min) / steps;
+
+    for (let debtRatio = min; debtRatio <= max; debtRatio += stepSize) {
+      const debt = (debtRatio / 100) * (company.marketCap + company.totalDebt);
+      const equity = (company.marketCap + company.totalDebt) - debt;
+      const equityRatio = equity / (equity + debt);
+      const newDebtRatio = debt / (equity + debt);
+      const wacc = equityRatio * latestAnalysis.results.costOfEquity + newDebtRatio * latestAnalysis.results.costOfDebt;
+      results.push({ debtRatio: debtRatio.toFixed(1), wacc: wacc.toFixed(2) });
+      if (wacc < minWACC) {
+        minWACC = wacc;
+        optimalDebtRatio = debtRatio;
+      }
+    }
+
+    // Update latest analysis with scenario results
+    await Analysis.findByIdAndUpdate(latestAnalysis._id, {
+      $set: {
+        'results.scenarioResults': results,
+        'results.optimalDebtRatio': optimalDebtRatio,
+        'results.optimalWACC': minWACC
+      }
+    });
+
+    req.io.to(userId.toString()).emit('scenario_updated', { message: 'Scenario analysis completed' });
+    res.redirect('/Debtmanagement?success=Scenario%20analysis%20completed');
+  } catch (err) {
+    console.error('Error running scenario:', err);
+    res.redirect(`/Debtmanagement?error=${encodeURIComponent(err.message)}`);
+  }
+});
+
+// Export Report
+app.get('/Debtmanagement/export', ensureAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const company = await Company.findOne({ userId }).lean();
+    const latestAnalysis = await Analysis.findOne({ userId }).sort({ createdAt: -1 }).lean();
+    if (!company || !latestAnalysis) {
+      throw new Error('No data to export');
+    }
+
+    // Generate PDF
+    const doc = new PDFDocument();
+    const filePath = path.join(__dirname, `reports/debtmanagement-${userId}-${Date.now()}.pdf`);
+    doc.pipe(fs.createWriteStream(filePath));
+
+    doc.fontSize(20).text('Debt Management Report', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(14).text(`Company: ${company.companyName}`);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`);
+    doc.moveDown();
+    doc.fontSize(12).text('Company Information:');
+    doc.text(`Market Cap: $${company.marketCap}M`);
+    doc.text(`Total Debt: $${company.totalDebt}M`);
+    doc.text(`Tax Rate: ${company.taxRate}%`);
+    doc.text(`Shares Outstanding: ${company.sharesOutstanding}M`);
+    doc.moveDown();
+    doc.text('Analysis Results:');
+    doc.text(`WACC: ${latestAnalysis.results.wacc.toFixed(2)}%`);
+    doc.text(`Debt Ratio: ${latestAnalysis.results.debtRatio.toFixed(1)}%`);
+    doc.text(`Tax Shield: $${latestAnalysis.results.taxShield.toFixed(1)}M`);
+    doc.text(`Cost of Equity: ${latestAnalysis.results.costOfEquity.toFixed(2)}%`);
+    doc.text(`Cost of Debt: ${latestAnalysis.results.costOfDebt.toFixed(2)}%`);
+    doc.end();
+
+    res.download(filePath, `DebtManagementReport-${company.companyName}.pdf`, (err) => {
+      if (err) console.error('Error downloading PDF:', err);
+      fs.unlinkSync(filePath); // Clean up
+    });
+  } catch (err) {
+    console.error('Error exporting report:', err);
+    res.redirect(`/Debtmanagement?error=${encodeURIComponent(err.message)}`);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+app.get("/reportandanalysis", ensureAuthenticated, async (req, res) => {
+  try {
+    const { startDate, endDate, category, supplier, ajax } = req.query;
+
+    const inventoryQuery = {};
+    const salesQuery = {};
+
+    if (startDate || endDate) {
+      const dateFilter = {};
+      if (startDate) dateFilter.$gte = new Date(startDate);
+      if (endDate) dateFilter.$lte = new Date(endDate);
+      inventoryQuery.addedDate = dateFilter;
+      salesQuery.date = dateFilter;
+    }
+
+    if (category) {
+      inventoryQuery.category = category;
+      salesQuery.category = category;
+    }
+    if (supplier) {
+      inventoryQuery.supplier = supplier;
+      salesQuery.supplier = supplier;
+    }
+
+    // Get current period data
+    const inventory = await Inventory.find(inventoryQuery);
+    const sales = await Sales.find(salesQuery);
+
+    // Get previous period data (for trend comparison)
+    let prevStart, prevEnd;
+    if (startDate && endDate) {
+      const diffDays =
+        (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+      prevEnd = new Date(startDate);
+      prevEnd.setDate(prevEnd.getDate() - 1);
+      prevStart = new Date(prevEnd);
+      prevStart.setDate(prevStart.getDate() - diffDays);
+    }
+
+    const prevInventoryQuery = { ...inventoryQuery };
+    const prevSalesQuery = { ...salesQuery };
+    if (prevStart && prevEnd) {
+      prevInventoryQuery.addedDate = { $gte: prevStart, $lte: prevEnd };
+      prevSalesQuery.date = { $gte: prevStart, $lte: prevEnd };
+    }
+
+    const prevInventory = await Inventory.find(prevInventoryQuery);
+    const prevSales = await Sales.find(prevSalesQuery);
+
+    // Helper: calculate KPIs
+    function calcKPIs(inv, sales) {
+      const totalSalesValue = sales.reduce((sum, s) => {
+  const qty = Number(s.quantity) || 0;
+  const unitPrice = Number(s.unitPrice) || 0;
+  return sum + qty * unitPrice;
+}, 0);
+
+
+      const totalStartInventory = inv.reduce((sum, i) => {
+        const qty = Number(i.quantity) || 0;
+        const cost = Number(i.bcost) || 0;
+        return sum + qty * cost;
+      }, 0);
+
+      const totalEndInventory = inv.reduce((sum, i) => {
+        const qty = Number(i.currentquantity) || 0;
+        const cost = Number(i.bcost) || 0;
+        return sum + qty * cost;
+      }, 0);
+
+      const avgInventoryValue = (totalStartInventory + totalEndInventory) / 2;
+
+      const turnover =
+        avgInventoryValue > 0 ? totalSalesValue / avgInventoryValue : 0;
+
+      const stockToSales =
+        totalSalesValue > 0 ? totalStartInventory / totalSalesValue : 0;
+
+      const sellThrough =
+        totalStartInventory > 0
+          ? (totalSalesValue / totalStartInventory) * 100
+          : 0;
+
+      const totalPurchased = sales.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+      const totalOrdered = sales.reduce((sum, s) => sum + (Number(s.itemsOrdered) || Number(s.quantity) || 0), 0);
+      const fillRate = totalOrdered > 0 ? (totalPurchased / totalOrdered) * 100 : 0;
+
+      return {
+        turnover: turnover.toFixed(2),
+        avgInventoryValue: (avgInventoryValue / 1000).toFixed(1),
+        stockToSales: stockToSales.toFixed(2),
+        sellThrough: sellThrough.toFixed(1),
+        fillRate: fillRate.toFixed(1)
+      };
+    }
+
+    const currentKPIs = calcKPIs(inventory, sales);
+    const prevKPIs = calcKPIs(prevInventory, prevSales);
+
+    // Determine trends
+    function trendDirection(curr, prev) {
+      if (prev === 0) return "neutral";
+      return curr > prev ? "positive" : curr < prev ? "negative" : "neutral";
+    }
+
+    const kpiTrends = {
+      turnover: trendDirection(parseFloat(currentKPIs.turnover), parseFloat(prevKPIs.turnover)),
+      avgInventoryValue: trendDirection(parseFloat(currentKPIs.avgInventoryValue), parseFloat(prevKPIs.avgInventoryValue)),
+      stockToSales: trendDirection(parseFloat(currentKPIs.stockToSales), parseFloat(prevKPIs.stockToSales)),
+      sellThrough: trendDirection(parseFloat(currentKPIs.sellThrough), parseFloat(prevKPIs.sellThrough)),
+      fillRate: trendDirection(parseFloat(currentKPIs.fillRate), parseFloat(prevKPIs.fillRate)),
+    };
+
+    // Chart Data
+    const monthlyData = await Sales.aggregate([
+      {
+        $group: {
+          _id: { month: { $month: "$date" }, year: { $year: "$date" } },
+          totalSales: { $sum: { $multiply: ["$quantity", "$cost"] } }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]);
+
+    const turnoverTrend = monthlyData.map(m => ({
+      label: `${m._id.month}/${m._id.year}`,
+      turnover: currentKPIs.turnover
+    }));
+
+    const fillRateBySupplier = await Sales.aggregate([
+      {
+        $group: {
+          _id: "$supplier",
+          totalPurchased: { $sum: "$quantity" },
+          totalOrdered: { $sum: { $ifNull: ["$itemsOrdered", "$quantity"] } }
+        }
+      },
+      {
+        $project: {
+          supplier: "$_id",
+          fillRate: {
+            $cond: [
+              { $gt: ["$totalOrdered", 0] },
+              { $multiply: [{ $divide: ["$totalPurchased", "$totalOrdered"] }, 100] },
+              0
+            ]
+          }
+        }
+      }
+    ]);
+
+    const stockDistribution = await Inventory.aggregate([
+      { $group: { _id: "$category", totalStock: { $sum: "$currentquantity" } } }
+    ]);
+
+    // Table Data
+  // Build table data from inventory and sales
+const tableData = inventory.map(inv => {
+const productSales = sales.filter(s => s.item === inv.itemName);
+  console.log("productSales", productSales)
+  const totalSales = productSales.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+  console.log("totalSales", totalSales)
+
+  return {
+    status: inv.currentquantity > 0 ? "In Stock" : "Out of Stock",
+    name: inv.itemName || "Unnamed",
+    category: inv.category || "N/A",
+    sales: totalSales,
+    avgInventory: ((Number(inv.quantity) + Number(inv.currentquantity)) / 2) || 0,
+    turnoverRatio: currentKPIs.turnover,
+    str: currentKPIs.sellThrough,
+    lifr: currentKPIs.fillRate,
+    supplier: inv.supplier || "N/A"
+  };
+});
+
+
+
+
+    if (ajax === "true") {
+      return res.json({
+        kpis: currentKPIs,
+        trends: kpiTrends,
+        charts: {
+          monthlyData,
+          turnoverTrend,
+          fillRateBySupplier,
+          stockDistribution
+        },
+        table: tableData
+      });
+    }
+
+
+
+    // Generate alerts
+const alerts = [];
+
+if (parseFloat(currentKPIs.fillRate) < 80) {
+  alerts.push(`Fill rate is low (${currentKPIs.fillRate}%) — consider improving supplier performance.`);
+}
+
+if (parseFloat(currentKPIs.turnover) < 2) {
+  alerts.push(`Inventory turnover (${currentKPIs.turnover}) is below target — review stock movement.`);
+}
+
+if (parseFloat(currentKPIs.sellThrough) < 50) {
+  alerts.push(`Sell-through rate is low (${currentKPIs.sellThrough}%) — consider promotions or discounts.`);
+}
+
+if (alerts.length === 0) {
+  alerts.push("✅ All KPIs are within acceptable ranges.");
+}
+
+
+    res.render("dashboard/report and analytics", {
+      user: req.session.user,
+      kpis: currentKPIs,
+      trends: kpiTrends,
+      charts: {
+        monthlyData,
+        turnoverTrend,
+        fillRateBySupplier,
+        stockDistribution
+      },
+      table: tableData,
+      filters: { startDate, endDate, category, supplier },
+      alerts, // ✅ Prevents "alerts is not defined"
+    });
+
+  } catch (err) {
+    console.error("Error fetching report data:", err);
+    res.status(500).send("Server Error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2431,11 +3372,91 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
 
 
 // Render registration form
-app.get('/driver-dash', (req, res) => {
+app.get('/register-driver', (req, res) => {
+  res.render('dashboard/driver-register');
+});
+
+// Handle form submission
+const bcrypt = require("bcrypt");
+
+app.post('/register-driver', async (req, res) => {
+  try {
+    console.log("📥 Incoming Driver Data:", req.body);
+
+    const newDriver = new Driver({
+      ...req.body,
+      profilePhoto: req.files?.profilePhoto?.[0]?.path || '',
+      vehicleRegistration: req.files?.vehicleRegistration?.[0]?.path || '',
+      vehicleInsurance: req.files?.vehicleInsurance?.[0]?.path || ''
+    });
+
+    console.log("📝 Before Save (raw password still here):", newDriver.password);
+
+    await newDriver.save();
+
+    console.log("✅ Driver saved to DB:", newDriver);
+
+    res.redirect("/login-driver");
+  } catch (err) {
+    console.error("❌ Error registering driver:", err);
+    res.status(500).send("❌ Error registering driver");
+  }
+});
+
+
+
+
+app.get('/login-driver', (req, res) => {
+  res.render("dashboard/driverdash/driverlogin"); // create a simple login form
+});
+
+
+app.post('/login-driver', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const driver = await Driver.findOne({ email });
+
+    if (!driver) {
+      return res.status(400).send("❌ Driver not found");
+    }
+
+    const isMatch = await bcrypt.compare(password, driver.password);
+    if (!isMatch) {
+      console.error("Invalid credentials for driver:", email, "Password mismatch", password);
+      return res.status(400).send("❌ Invalid credentials");
+    }
+
+    // Save session
+    req.session.driverId = driver._id;
+    req.session.driverName = driver.fullName; // ✅ your model uses fullName, not name
+
+    res.redirect('/driver-dash'); // ✅ use route, not file path
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Error logging in driver");
+  }
+});
+
+
+
+
+
+
+// Render registration form
+function driverAuth(req, res, next) {
+  if (!req.session.driverId) {
+    return res.redirect('/login-driver');
+  }
+  next();
+}
+
+app.get('/driver-dash', driverAuth, async (req, res) => {
+  const driver = await Driver.findById(req.session.driverId);
+
   res.render('dashboard/driverdash/dashboard', {
     driver: {
-      name: "Alex Johnson",
-      rating: 4.8,
+      name: driver.name,
+      rating: 4.8, // you can later make this dynamic
       trips: 2341
     },
     mockRequests: [
@@ -2460,6 +3481,10 @@ app.get('/driver-dash', (req, res) => {
     ]
   });
 });
+
+
+
+
 
 
 

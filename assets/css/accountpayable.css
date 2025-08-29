@@ -38,30 +38,22 @@
             width: 100%;
         }
 
-        .container {
+        .main-content{
             
-            background: #fff;
-            padding: 0%;
+            height: 100vh;
+            overflow-y: scroll;
+        }
+
+        .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            height: 100vh;
-           width: 100vw;
-            
         }
  
    
-        /* Main Content */
-        .main-contentt {
-             justify-content: center;
-      background: var(--bg-color);
-            overflow-x: auto;
-            width: 95%;
-            margin: 0;
-            
-        }
-
+ 
         .header {
+            width: 100%;
             background: var(--card-bg);
             padding: 1rem 2rem;
             border-bottom: 1px solid var(--border-color);
@@ -114,9 +106,6 @@
         }
 
         .content {
-            overflow: hidden;
-            overflow-y: scroll;
-            height: 90vh;
             padding: 2rem;
         }
 

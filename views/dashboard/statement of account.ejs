@@ -17,40 +17,29 @@
     />
 
     <link rel="stylesheet" href="/css/SOA.css">
+        <link rel="stylesheet" href="/css/dashall.css">
     <title>Statement of Account</title>
 
 </head>
 <body>
-           
+       
+    
+                  <div class="all">
    <!-- Sidebar -->
     <%- include ("_sidebar1") %>
       
+     <div class="main-content">
+        <%- include ("_topnav") %>
+
+        <!-- Page Container -->
     <div class="container">
 
 
 
-            <header class="header">
-                <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="page-title">Accounts Payable</h1>
-                </div>
-                <div class="header-right">
-                    <button class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
-                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
-                    </div>
-                </div>
-            </header>
+         
 
 
 
-        <!-- Main Content -->
-        <main class="main-content">
             <h1 class="statement-title">STATEMENT OF ACCOUNT</h1>
 
             <!-- Customer Information Block -->
@@ -191,7 +180,7 @@
                     </table>
                 </div>
             </div>
-        </main>
+    
 
         <!-- Footer Section -->
         <footer class="footer">
@@ -214,7 +203,9 @@
             </div>
         </footer>
     </div>
+        </div>
 
+    </div>
     <script>
         // Sample transaction data
      

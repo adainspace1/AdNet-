@@ -351,32 +351,46 @@ const createBankInfo = async (req, res) => {
 
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
+
+    // 🔎 Check if user exists
     const user = await Personal.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      console.log("Login failed: email not found", email);
+      return res.redirect(`/login?error=${encodeURIComponent("Invalid email or password")}`);
     }
 
+    // 🔐 Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      console.log("Login failed: password mismatch for", email);
+      return res.redirect(`/login?error=${encodeURIComponent("Invalid email or password")}`);
     }
 
+    // ✅ Login successful
+    console.log("Login successful for user:", user._id);
+
+    // Put user in session (or JWT if you prefer API style)
     req.session.user = {
       _id: user._id,
-      name: `${user.firstname} ${user.lastname}` // Optional enhancement
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
 
-    const redirectPath = req.session.redirectAfterLogin || '/Dashboard';
-    delete req.session.redirectAfterLogin;
+    // Redirect to dashboard or business info (your choice)
+    const redirectPath = req.query.redirect || `/Dashboard`;
+    return res.redirect(redirectPath);
 
-    res.redirect(redirectPath);
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Login error:", err);
+    return res.status(500).send("Server error during login");
   }
 };
+
+
+
 
 
 

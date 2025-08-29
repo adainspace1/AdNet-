@@ -8,19 +8,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>Budget Manager</title>
   <link rel="stylesheet" href="/css/budget.css">
+  <link rel="stylesheet" href="/css/dashall.css">
 </head>
 <body>
 
 
 
 
-        <!-- Sidebar -->
+  <div class="all">
+            <!-- Sidebar -->
     <%- include ("_sidebar1") %>
     
     <!-- Main Content -->
+<div class="main-content">
+    <%- include ("_topnav") %>
 
 
-<div class="budget-container">
+
+    <div class="container">
   <h1>💰 Budget Manager</h1>
 
   <!-- Dashboard UI Sections -->
@@ -145,6 +150,10 @@
       </div>
     </div>
 </div>
+</div>
+  </div>
+
+
 
 
 

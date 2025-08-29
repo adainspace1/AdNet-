@@ -8,10 +8,37 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/cashflow.css">
+  <link rel="stylesheet" href="/css/dashall.css">
+
+
+               <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+    
 </head>
 
 <body>
-  <header>
+
+
+
+
+    <div class="all">
+    <%- include ("_sidebar1") %>
+
+    <div class="main-content">
+      <%- include ("_topnav") %>
+
+
+  <div class="container">
+      <header>
     <h1>Cash Flow Statement</h1>
     <button class="btn-print" onclick="window.print()">
       <i class="fas fa-print"></i> Print
@@ -74,7 +101,10 @@
   <footer>
     <p>© 2025 FinEdge Tools. All rights reserved.</p>
   </footer>
+  </div>
 
+    </div>
+    </div>
 
 
 

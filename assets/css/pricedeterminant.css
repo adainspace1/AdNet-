@@ -35,24 +35,24 @@
         body {
       
             background: var(--background);
-            color: var(--text-primary);
             line-height: 1.6;
             transition: all 0.3s ease;
         }
 
         .container {
             width: 100%;
-            height: 88vh;
             margin: 0 auto;
             display: flex;
             flex-wrap: wrap;
-            overflow: hidden;
-            overflow-y: scroll;
         }
 
 
         .headerr{
-            margin-left: 30px;
+            background-color: #fff;
+            padding: 20px;
+            width: 100%;
+            color: #000;
+            height: auto;
         }
 
         
@@ -62,14 +62,21 @@
             justify-content: space-evenly;
             margin-bottom: 40px;
             margin: 0px;
-            width: 100%;
         }
 
+        .d-cards{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            flex-wrap: wrap;
+        }
  
 
         .card1{
             width: 100%;
             margin-bottom: 20px;
+            margin-top: 30px;
         }
         .card1 button{
             width: 10%;
@@ -83,14 +90,24 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        .card1 .toph2,
+        .card1 .topp{
+            color: #fff;
+            text-align: center;
+        }
         .card {
             background: var(--card-background);
             border-radius: 16px;
             padding: 32px;
             box-shadow: var(--shadow-lg);
             width: 45%;
+            min-height: 200px;
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+        }
+
+        #automaticForm{
+            min-height: 500px;
         }
 
         .card:hover {
@@ -308,7 +325,7 @@
         }
 
         .faq-section {
-            width: 90%;
+            width: 1000%;
             margin: auto;
             margin-top: 40px;
         }
