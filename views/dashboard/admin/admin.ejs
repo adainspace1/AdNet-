@@ -8,20 +8,25 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/dashall.css">
 
-    <title>Super Admin</title>
+    <title>Super Amin</title>
   </head>
 
   <body>
-    <!-- Sidebar -->
-    <%- include ("_sidebar3") %>
-    <!-- End of Sidebar -->
 
-    <!-- Main Content -->
+
+    
+          <div class="all">
+<%- include("../_sidebar1") %>
+
+
+
+
+      <!-- Main Content -->
     <div class="content">
       <!-- Navbar -->
       <nav>
-        <i class="bx bx-menu"></i>
         <form action="#">
           <div class="form-input">
             <input type="search" placeholder="Search..." />
@@ -30,11 +35,11 @@
             </button>
           </div>
         </form>
-        <input type="checkbox" id="theme-toggle" hidden />
+        <!-- <input type="checkbox" style="display: none;" id="theme-toggle" hidden /> -->
         <label for="theme-toggle" class="theme-toggle"></label>
         <a href="#" class="notif">
-          <i class="bx bx-bell"></i>
-          <span class="count">12</span>
+          <i class="bx bx-bell" style="color: #ffffff; margin-top: 10px"></i>
+          <span class="count" style="margin-top: 5px">12</span>
         </a>
         <a href="#" class="profile">
           <img src="images/profile-1.jpg" />
@@ -203,6 +208,10 @@
         </div>
       </main>
     </div>
+    <!-- Sidebar -->
+    <!-- End of Sidebar -->
+
+  </div>
 
     <script src="/js/admin.js"></script>
     <script src="/js/roles.js"></script>

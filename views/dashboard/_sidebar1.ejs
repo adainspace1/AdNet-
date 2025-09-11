@@ -1,5 +1,6 @@
 <head>
   <link rel="stylesheet" href="/css/sidebar1.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
@@ -29,7 +30,7 @@
       <!-- POS Dropdown -->
       <div class="dropdown" id="pos-dropdown">
         <button class="dropdown-btn">
-          <i class="bx bx-cog" id="cog"></i>
+          <i class="bx bx-cog" id="icons"></i>
           <span>POS</span>
           <i class="bx bx-chevron-down chevron"></i>
         </button>
@@ -106,7 +107,7 @@
       <!-- Bookkeeping Dropdown (new top-level under main, grouping financial/bookkeeping items) -->
       <div class="dropdown" id="bookkeeping-dropdown">
         <button class="dropdown-btn">
-          <i class="bx bx-book"></i>
+          <i class="bx bx-book" id="icons" ></i>
           <span>Bookkeeping</span>
           <i class="bx bx-chevron-down chevron"></i>
         </button>
@@ -257,6 +258,28 @@
       </a>
     </div>
   </div>
+
+
+
+
+
+   <div class="thelrealloader">
+    <div class="loader">
+      <div class="d-loader">
+      </div>
+      <p> Adnet </p>
+    </div>
+
+  </div>
+  
+
+  <script>
+    setTimeout( () => {
+      document.querySelector(".thelrealloader").style.display = "none"
+    }, 5000);
+    
+    </script>
+
 
 
   <!-- Main Content Area -->

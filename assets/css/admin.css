@@ -34,6 +34,12 @@ body {
   background-color: #031224;
 }
 
+
+/* .all{
+  width: 100%;
+  background-color: red;
+} */
+
 a {
   text-decoration: none;
 }
@@ -161,7 +167,7 @@ li {
 /* CONTENT */
 .content {
   position: relative;
-  width:95%;
+  width: 95%;
   left: 72px;
   /* transition: var(--transition); */
 }

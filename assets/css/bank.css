@@ -1,0 +1,36 @@
+
+
+
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.error-message {
+  font-size: 12px;
+  color: red;
+  display: none;
+}
+
+.accError {
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: red;
+}

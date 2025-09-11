@@ -4,7 +4,21 @@
     font-family: "poppins", sans-serif;
 }
 
+
 .all{
-    background-color: #1e293b;
-    width: 100%;
+  width: 100%;
 }
+
+
+
+.myDiv {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.6s ease-out;
+}
+
+.myDiv.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+

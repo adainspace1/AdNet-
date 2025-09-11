@@ -300,9 +300,7 @@ app.get("/Finished", async (req, res) => {
 });
 
 
-app.get("/admin", (req, res) => {
-  res.render("admin");
-});
+
 
 
 
@@ -375,10 +373,14 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
     const userId = req.session.user._id;
     console.log("Dashboard - Looking for company info using ID:", userId);
 
-    const inventoryItems = await Inventory.find({ recipientId: userId });
-    const companyinfo = await Company.findOne({ recipientId: userId });
-    const salesItems = await Sales.find({ recipientId: userId });
-    const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
+    const inventoryItems = await Inventory.find({ reciepientId: userId }).sort({ date: -1 });
+    const companyinfo = await Company.findOne({ reciepientId: userId });
+
+    console.log(userId)
+    console.log(companyinfo)
+    const salesItems = await Sales.find({ reciepientId: userId });
+    
+    const expenses = await Expense.find({ reciepientId: userId }).sort({ createdAt: -1 });
 
     // Totals
     const totalInventory = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -465,7 +467,7 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
 
 app.get('/Inventory', ensureAuthenticated, async (req, res) => {
   try {
-    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
+    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id }).sort({ addedDate: -1 });
     const salesItems = await Sales.find({ recipientId: req.session.user._id });
 
     // 1. Total Inventory Value (scost * currentquantity)
@@ -478,43 +480,43 @@ app.get('/Inventory', ensureAuthenticated, async (req, res) => {
       return sum + item.currentquantity;
     }, 0);
 
-// 3. Top Selling ItemName (from Sales)
-const itemSalesMap = {};
+    // 3. Top Selling ItemName (from Sales)
+    const itemSalesMap = {};
 
-salesItems.forEach(sale => {
-  const name = sale.item;
-  if (typeof name === 'string' && name.trim() !== '') {
-    if (!itemSalesMap[name]) {
-      itemSalesMap[name] = 0;
-    }
-    itemSalesMap[name] += sale.quantity;
-  } else {
-    console.warn("Missing or invalid itemName in sale:", sale);
-  }
-});
-
-let topSellingItem = "N/A";
-let maxSales = 0;
-for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
-  if (totalQty > maxSales) {
-    maxSales = totalQty;
-    topSellingItem = itemName;
-  }
-}
-
-
-    res.render('dashboard/inventory', {
-      user: req.session.user._id,
-      inventory: inventoryItems,
-      totalInventoryValue,
-      totalItemsCount,
-      topSellingItem
+    salesItems.forEach(sale => {
+      const name = sale.item;
+      if (typeof name === 'string' && name.trim() !== '') {
+        if (!itemSalesMap[name]) {
+          itemSalesMap[name] = 0;
+        }
+        itemSalesMap[name] += sale.quantity;
+      } else {
+        console.warn("Missing or invalid itemName in sale:", sale);
+      }
     });
 
-  } catch (err) {
-    console.error('Error loading inventory page:', err);
-    res.status(500).send('Server error');
-  }
+    let topSellingItem = "N/A";
+    let maxSales = 0;
+    for (const [itemName, totalQty] of Object.entries(itemSalesMap)) {
+      if (totalQty > maxSales) {
+        maxSales = totalQty;
+        topSellingItem = itemName;
+      }
+    }
+
+
+        res.render('dashboard/inventory', {
+          user: req.session.user,
+          inventory: inventoryItems,
+          totalInventoryValue,
+          totalItemsCount,
+          topSellingItem
+        });
+
+      } catch (err) {
+        console.error('Error loading inventory page:', err);
+        res.status(500).send('Server error');
+      }
 });
 
 
@@ -566,15 +568,6 @@ app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
-
-
-
-
-
-
-
-
 
 
 
@@ -729,6 +722,15 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
 app.get('/Sales', ensureAuthenticated, async (req, res) => {
   try {
     const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
@@ -753,7 +755,7 @@ app.get('/Sales', ensureAuthenticated, async (req, res) => {
     const totalAmountToday = todaySales.reduce((sum, sale) => sum + sale.amount, 0);
 
     res.render('dashboard/sales', {
-      user: req.session.user._id,
+      user: req.session.user,
       inventory: inventoryItems,
       salesitem,
       totalSalesToday,
@@ -3486,6 +3488,78 @@ app.get('/driver-dash', driverAuth, async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/admin", (req, res) => {
+  res.render("dashboard/admin/admin");
+});
+
+
+app.get("/ap", (req, res) => {
+  res.render("dashboard/ap");
+});
+
+
+app.get("/automationsettings", (req, res) => {
+  res.render("dashboard/automationsettings");
+});
+
+
+
+
+
+
+
+
+
+
+
+app.get("/auditplanning", (req, res) => {
+  res.render("dashboard/auditing/auditplanning");
+});
+
+app.get("/auditautomatic", (req, res) => {
+  res.render("dashboard/auditing/auditautomatic");
+});
+
+app.get("/auditmanual", (req, res) => {
+  res.render("dashboard/auditing/auditmanual");
+});
 
 
 

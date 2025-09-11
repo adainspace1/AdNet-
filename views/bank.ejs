@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Adnet - Bank Info</title>
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/bank.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
       rel="stylesheet"
@@ -36,39 +37,31 @@
         </div>
 
         <!-- Bank Info Form -->
-      <form action="/api/auth/bank-info" method="post" id="stepperForm" class="form-content">
+<form action="/api/auth/bank-info" method="post" id="bankForm" class="form-content">
   <h2>Enter Your Bank Information</h2>
   <p>Please provide your bank details to complete the process.</p>
 
-     <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+  <input type="hidden" name="reciepientId" value="<%= userId %>" id="reciepientId">
 
-  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+  <div class="form-group">
     <label for="bankName">Bank Name</label>
     <select id="bankName" name="bankName" required>
       <option value="">Select your Bank</option>
-      <option value="Access Bank">Access Bank</option>
-      <option value="UBA">UBA</option>
-      <option value="GTBank">GTBank</option>
-      <option value="First Bank">First Bank</option>
-      <option value="Zenith Bank">Zenith Bank</option>
-      <option value="Kuda Bank">Kuda Bank</option>
-      <option value="Opay">Opay</option>
-      <option value="Moniepoint">Moniepoint</option>
-      <option value="PalmPay">PalmPay</option>
-      <option value="Wema Bank">Wema Bank</option>
+      
     </select>
+    <small class="error-message"></small>
   </div>
 
-  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+  <div class="form-group">
     <label for="accountNumber">Account Number</label>
     <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your account number" required />
+    <small class="error-message"></small>
   </div>
 
-  <div class="form-group" style="width: 100%; margin-bottom: 15px">
+  <div class="form-group">
     <label for="accountName">Account Name</label>
-    <input type="text" value="you" id="accountName" name="accountName" placeholder="Account name will appear here" readonly />
-
-    <p style="opacity: 0; margin: 0px; padding: 0px; margin-left: auto; font-size: 12px; color: red;" class="accError">Error: Account Not Fount</p>
+    <input type="text" value="" id="accountName" name="accountName" placeholder="Account name will appear here" readonly />
+    <p class="accError">Error: Account Not Found</p>
   </div>
 
   <div class="form-group">
@@ -81,25 +74,39 @@
       <option value="domiciliary">Domiciliary</option>
       <option value="joint">Joint Account</option>
     </select>
+    <small class="error-message"></small>
   </div>
 
   <div class="form-group">
     <label for="accountHolder">Account Holder Name</label>
     <input type="text" id="accountHolder" name="accountHolder" placeholder="Enter account holder's name" required />
+    <small class="error-message"></small>
   </div>
 
   <div class="form-group">
     <label for="routingNumber">Routing Number</label>
     <input type="text" id="routingNumber" name="routingNumber" placeholder="Enter your routing number" required />
+    <small class="error-message"></small>
   </div>
 
-  <button id="nextBtn"
-              class="btn next-btn" type="submit">Submit</button>
+  <button id="submitBtn" class="btn next-btn" type="submit">Submit</button>
 </form>
+
 
 
       </main>
     </div>
+
+
+
+
+
+
+    
+
+         <script>
+      document.querySelector("#Bank").classList.add("active")
+    </script>
     <script src="/js/bank.js"></script>
   </body>
 </html>

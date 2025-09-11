@@ -82,12 +82,12 @@
 
 
 .stepper #ss1 {
-    background-color: #2d9cdb;
-    color: white;
+background-color: #fff;
+    color: grey;
 }
 .stepper #ss1.active {
-    background-color: #fff;
-    color: grey;
+        background-color: #2d9cdb;
+    color: white;
 }
 
 .stepper #ss2.active {
@@ -129,3 +129,55 @@
     margin-top: 20px;
     margin-left: 87%;
 }
+
+
+
+.stepper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.step-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10px;
+  font-weight: bold;
+  color: #777;
+}
+.step-indicator.active {
+  border-color: #007bff;
+  background: #007bff;
+  color: #fff;
+}
+
+.hidden { display: none; }
+
+.error {
+  color: red;
+  font-size: 0.85em;
+  margin-top: 5px;
+}
+
+.preview-subtitle {
+  margin-bottom: 10px;
+  color: #555;
+}
+.preview-box {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+.preview-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 6px 0;
+}
+.preview-label { font-weight: bold; color: #333; }
+.preview-value { color: #555; }

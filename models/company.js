@@ -13,8 +13,13 @@ const companySchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: String, required: true },
   countryCode: { type: String, required: true },
+
+  // separate document fields
+  CACDocs: { type: String },
+  MOADocs: { type: String },
+  FOCDocs: { type: String },
   shareholderAgreement: { type: String },
-  documents: [{ type: String }] // All uploaded files
+  AddRegistrationDocs: { type: String }
 });
 
 module.exports = mongoose.model("Company", companySchema);

@@ -9,7 +9,7 @@
 
 
 .step1 {
-    display: block;
+    display: none;
 }
 .step2 {
     display: none;
@@ -22,7 +22,7 @@
 }
 
 .step1.active {
-    display: none;
+    display: block;
 }
 .step2.active {
     display: block;
@@ -58,12 +58,12 @@
 }
 
 .stepper #ss1 {
-    background-color: #2d9cdb;
-    color: white;
-}
-.stepper #ss1.active {
     background-color: #fff;
     color: grey;
+}
+.stepper #ss1.active {
+    background-color: #2d9cdb;
+    color: white;
 }
 
 .stepper #ss2.active {
@@ -104,4 +104,135 @@
 .buttons #nextBtn4{
     margin-top: 20px;
     margin-left: 87%;
+}
+
+.error-msg {
+  color: red;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+
+
+
+.step4 {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+.step4 h2 {
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.preview-subtitle {
+  color: #555;
+  font-size: 0.95em;
+  margin-bottom: 15px;
+}
+
+.preview-box {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.preview-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.preview-box li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1em;
+}
+
+.preview-box li:last-child {
+  border-bottom: none;
+}
+
+.preview-box li strong {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  text-transform: capitalize;
+}
+
+.preview-box li span {
+  color: #555;
+  flex: 2;
+  text-align: right;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-btn {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+}
+
+.next-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.next-btn:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+  .step4 {
+    padding: 15px;
+  }
+
+  .preview-box li {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .preview-box li strong,
+  .preview-box li span {
+    text-align: left;
+    flex: none;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

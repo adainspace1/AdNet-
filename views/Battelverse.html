@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BattleVerse - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .search-bar {
+            width: 33%;
+            display: none;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-secondary {
+            color: #3b82f6;
+        }
+        .btn-disabled {
+            background-color: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+        .notification {
+            position: relative;
+        }
+        .notification span {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-content {
+            display: flex;
+            margin-top: 80px;
+            gap: 16px;
+            padding: 24px 16px;
+        }
+        .sidebar {
+            width: 256px;
+            background-color: white;
+            padding: 16px;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        .sidebar nav a {
+            display: block;
+            padding: 8px;
+            text-decoration: none;
+            color: black;
+            border-radius: 4px;
+        }
+        .sidebar nav a:hover {
+            background-color: #f3f4f6;
+        }
+        .sidebar .widget {
+            margin-top: 24px;
+        }
+        .sidebar .widget h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .sidebar .widget ul a {
+            color: #3b82f6;
+            text-decoration: none;
+            display: block;
+            padding: 4px 0;
+        }
+        .cta-box {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #dbeafe;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .main-feed {
+            flex: 1;
+            max-width: 640px;
+        }
+        .battle-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .battle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .battle-entities {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-weight: bold;
+        }
+        .battle-entities img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        .countdown {
+            background-color: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .progress-bar {
+            height: 16px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+        .blurred {
+            filter: blur(4px);
+        }
+        .battle-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .share-icons {
+            display: flex;
+            gap: 8px;
+        }
+        .results-strip {
+            margin: 24px 0;
+        }
+        .results-strip h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .results-carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+        }
+        .result-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            width: 256px;
+            flex-shrink: 0;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-winner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        .result-winner img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .suggest-teaser {
+            background-color: #dbeafe;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .right-sidebar .ad {
+            margin-bottom: 24px;
+        }
+        .right-sidebar .ad img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        footer {
+            background-color: #1f2937;
+            color: white;
+            padding: 24px 16px;
+        }
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+        }
+        .footer-section h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .footer-section ul a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 4px 0;
+        }
+        .footer-section ul a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        @media (min-width: 768px) {
+            .search-bar {
+                display: block;
+            }
+            .mobile-menu {
+                display: none;
+            }
+            .sidebar {
+                display: block;
+            }
+        }
+        @media (max-width: 767px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .right-sidebar {
+                display: none;
+            }
+            .mobile-menu {
+                background-color: white;
+                padding: 16px;
+                position: fixed;
+                top: 64px;
+                width: 100%;
+                z-index: 999;
+            }
+            .mobile-menu a {
+                display: block;
+                padding: 8px;
+                text-decoration: none;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div className="container header-content">
+            <div className="logo">
+                <img src="https://via.placeholder.com/40" alt="Logo">
+                <span>BattleVerse</span>
+            </div>
+            <div className="search-bar">
+                <input type="text" placeholder="Search battles, people, categories...">
+            </div>
+            <div className="header-actions">
+                <a href="#" className="btn btn-secondary">Login</a>
+                <a href="#" className="btn btn-primary">Sign Up</a>
+                <button className="mobile-menu-toggle"><i className="fas fa-bars"></i></button>
+            </div>
+        </div>
+        <div className="mobile-menu" style="display: none;">
+            <input type="text" placeholder="Search battles, people, categories..." style="width: 100%; padding: 8px; margin-bottom: 16px; border: 1px solid #d1d5db; border-radius: 4px;">
+            <nav>
+                <a href="#"><i className="fas fa-home"></i> Home</a>
+                <a href="#"><i className="fas fa-search"></i> Explore Battles</a>
+                <a href="#"><i className="fas fa-trophy"></i> Results</a>
+                <a href="#"><i className="fas fa-folder"></i> Categories</a>
+                <a href="#"><i className="fas fa-book"></i> Guidelines</a>
+                <a href="#"><i className="fas fa-question-circle"></i> FAQ</a>
+            </nav>
+        </div>
+    </header>
+
+    <div className="container main-content">
+        <aside className="sidebar">
+            <nav>
+                <a href="#"><i className="fas fa-home"></i> Home</a>
+                <a href="#"><i className="fas fa-search"></i> Explore Battles</a>
+                <a href="#"><i className="fas fa-trophy"></i> Results</a>
+                <a href="#"><i className="fas fa-folder"></i> Categories</a>
+                <a href="#"><i className="fas fa-book"></i> Guidelines</a>
+                <a href="#"><i className="fas fa-question-circle"></i> FAQ</a>
+            </nav>
+            <div className="widget">
+                <h3>Top Categories Today</h3>
+                <ul>
+                    <li><a href="#"><i className="fas fa-gamepad"></i> Gaming</a></li>
+                    <li><a href="#"><i className="fas fa-music"></i> Music</a></li>
+                    <li><a href="#"><i className="fas fa-futbol"></i> Sports</a></li>
+                </ul>
+            </div>
+            <div className="cta-box">
+                <p className="font-bold">Join the Battle!</p>
+                <a href="#" className="btn btn-primary" style="margin-top: 8px;">Sign Up</a>
+            </div>
+        </aside>
+
+        <main className="main-feed">
+            <div className="battle-card">
+                <div className="battle-header">
+                    <div className="battle-entities">
+                        <img src="https://via.placeholder.com/80" alt="Entity A">
+                        <span>Trending: Entity A vs Entity B</span>
+                        <img src="https://via.placeholder.com/80" alt="Entity B">
+                    </div>
+                    <span className="countdown">36h 12m left</span>
+                </div>
+                <div className="progress-bar blurred"></div>
+                <a href="#" className="btn btn-disabled">Sign Up to Vote</a>
+            </div>
+
+            <div>
+                <h2>Live Battles</h2>
+                <div className="battle-card">
+                    <div className="battle-header">
+                        <div className="battle-entities">
+                            <img src="https://via.placeholder.com/60" alt="Entity A">
+                            <span>Entity A vs Entity B</span>
+                            <img src="https://via.placeholder.com/60" alt="Entity B">
+                        </div>
+                        <span className="countdown">12h 30m left</span>
+                    </div>
+                    <div className="progress-bar blurred"></div>
+                    <div className="battle-actions">
+                        <a href="#" className="btn btn-disabled">Login to Vote</a>
+                        <div className="share-icons">
+                            <a href="#"><i className="fab fa-facebook-f"></i></a>
+                            <a href="#"><i className="fab fa-twitter"></i></a>
+                            <a href="#"><i className="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div className="battle-card">
+                    <div className="battle-header">
+                        <div className="battle-entities">
+                            <img src="https://via.placeholder.com/60" alt="Entity A">
+                            <span>Entity A vs Entity B</span>
+                            <img src="https://via.placeholder.com/60" alt="Entity B">
+                        </div>
+                        <span className="countdown">8h 15m left</span>
+                    </div>
+                    <div className="progress-bar blurred"></div>
+                    <div className="battle-actions">
+                        <a href="#" className="btn btn-disabled">Login to Vote</a>
+                        <div className="share-icons">
+                            <a href="#"><i className="fab fa-facebook-f"></i></a>
+                            <a href="#"><i className="fab fa-twitter"></i></a>
+                            <a href="#"><i className="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" className="btn" style="width: 100%; background-color: #e5e7eb; text-align: center;">Load More</a>
+            </div>
+
+            <div className="results-strip">
+                <h2>Recently Ended</h2>
+                <div className="results-carousel">
+                    <div className="result-card">
+                        <div className="result-header">
+                            <div className="result-winner">
+                                <img src="https://via.placeholder.com/40" alt="Winner">
+                                <span>Entity A</span>
+                                <i className="fas fa-crown" style="color: #eab308;"></i>
+                            </div>
+                            <span style="color: #22c55e; font-weight: bold;">60%</span>
+                        </div>
+                        <div style="margin-top: 8px;">vs Entity B (40%)</div>
+                    </div>
+                    <div className="result-card">
+                        <div className="result-header">
+                            <div className="result-winner">
+                                <img src="https://via.placeholder.com/40" alt="Winner">
+                                <span>Entity A</span>
+                                <i className="fas fa-crown" style="color: #eab308;"></i>
+                            </div>
+                            <span style="color: #22c55e; font-weight: bold;">55%</span>
+                        </div>
+                        <div style="margin-top: 8px;">vs Entity B (45%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="suggest-teaser">
+                <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Got an epic matchup idea?</h2>
+                <p>Sign up to submit it!</p>
+                <a href="#" className="btn btn-primary" style="margin-top: 16px;">Suggest a Matchup</a>
+            </div>
+        </main>
+
+        <aside className="sidebar right-sidebar">
+            <div className="ad">
+                <img src="https://via.placeholder.com/300x100" alt="Ad">
+            </div>
+            <div className="widget">
+                <h3>Trending Battles</h3>
+                <ul>
+                    <li><a href="#">Battle 1</a></li>
+                    <li><a href="#">Battle 2</a></li>
+                    <li><a href="#">Battle 3</a></li>
+                    <li><a href="#">Battle 4</a></li>
+                    <li><a href="#">Battle 5</a></li>
+                </ul>
+            </div>
+            <div className="widget">
+                <h3>Suggested Categories</h3>
+                <ul>
+                    <li><a href="#">🔥 Hot in Gaming</a></li>
+                    <li><a href="#">🎤 Trending Music</a></li>
+                </ul>
+            </div>
+            <div className="ad">
+                <img src="https://via.placeholder.com/300x100" alt="Promo">
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <div className="container footer-content">
+            <div className="footer-section">
+                <img src="https://via.placeholder.com/40" alt="Logo">
+                <p style="margin-top: 8px;">Vote. Debate. Decide.</p>
+            </div>
+            <div className="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Guidelines</a></li>
+                </ul>
+            </div>
+            <div className="footer-section">
+                <h3>Legal & Social</h3>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+                <div className="social-icons">
+                    <a href="#"><i className="fab fa-facebook-f"></i></a>
+                    <a href="#"><i className="fab fa-tiktok"></i></a>
+                    <a href="#"><i className="fab fa-twitter"></i></a>
+                    <a href="#"><i className="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div className="footer-bottom">
+            © 2025 BattleVerse. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', () => {
+            const menu = document.querySelector('.mobile-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

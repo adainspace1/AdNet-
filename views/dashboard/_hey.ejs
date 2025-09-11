@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/css/topnav.css">
-</head>
-<body>
-    <!-- Navbar -->
-        <div class="nav">
-          <div class="logo" style="margin-left: 20px;">
+
+
+
+<div class="nav">
+          <div class="logo">
             <i class="bx bxl-codepen"></i>
             <a href="#">Adnet</a>
           </div>
@@ -153,23 +146,17 @@
                   style="width: 35px; height: 35px; border-radius: 50%"
                 />
                 <div>
-                  <a
-                    href="#"
-                    style="
-                      display: block;
-                      font-weight: bold;
-                      text-decoration: none;
-                    "
-                    >
-                    <%= user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase() %>
+                <a href="#" style="display: block; font-weight: bold; text-decoration: none;">
+              <%= user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase() %>
               <%= user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1).toLowerCase() %>
-                    </a
-                  >
-                         <% if (companyinfo) { %>
-            <p style="margin: 0; font-size: 12px"><%= companyinfo.businessStructure %> </p>
+            </a>
+
+                  <% if (companyinfo) { %>
+            <p style="margin: 0; font-size: 12px"><%= companyinfo.businessStructure %></p>
           <% } else { %>
             <p style="margin: 0; font-size: 12px; color: gray">No company info</p>
           <% } %>
+
                 </div>
               </div>
               <i
@@ -228,9 +215,3 @@
             </div>
           </div>
         </div>
-
-
-            <script src="/js/dashbord.js"></script>
-
-</body>
-</html>

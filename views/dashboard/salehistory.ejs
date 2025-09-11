@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sales History Viewer</title>
-    <link
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales History & Invoice Generator</title>
+    
+    <link rel="stylesheet" href="/css/salehistory.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
+              <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
@@ -12,257 +17,679 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
     />
-    <link rel="stylesheet" href="/css/salehistory.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-  </head>
-  <body>
-    <!-- Sidebar (this is a placeholder - your actual sidebar content will be included here) -->
-    <!-- Sidebar -->
+
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Sales History & Invoice Generator</h1>
+            <p>Manage your sales transactions and generate professional invoices</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                <h3 id="todayTotal">$0</h3>
+                <p>Total Sales Today</p>
+            </div>
+            <div class="summary-card">
+                <div class="icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                <h3 id="monthRevenue">$0</h3>
+                <p>Revenue This Month</p>
+            </div>
+            <div class="summary-card">
+                <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
+                <h3 id="invoicesGenerated">0</h3>
+                <p>Invoices Generated</p>
+            </div>
+            <div class="summary-card">
+                <div class="icon"><i class="	fa-solid fa-hourglass-half"></i></div>
+                <h3 id="outstandingPayments">$0</h3>
+                <p>Outstanding Payments</p>
+            </div>
+        </div>
+
+        <!-- Search and Filter Controls -->
+        <div class="controls">
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name or product...">
+                <button class="filter-toggle" onclick="toggleFilters()">
+                    <i data-lucide="filter"></i>
+                    Filters
+                </button>
+            </div>
+            
+            <div class="filters hidden" id="filtersPanel">
+                <div class="filter-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-group">
+                    <label for="paymentFilter">Payment Method</label>
+                    <select id="paymentFilter">
+                        <option value="all">All Methods</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">Invoice Status</label>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="Generated">Generated</option>
+                        <option value="Not Generated">Not Generated</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Sales Transactions</h2>
+                <div class="table-actions">
+                    <button class="btn btn-primary" onclick="generateBulkInvoices()">
+                        <i data-lucide="file-text"></i>
+                        Generate Selected
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData('csv')">
+                        <i data-lucide="download"></i>
+                        Export CSV
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData('pdf')">
+                        <i data-lucide="file-pdf"></i>
+                        Export PDF
+                    </button>
+                </div>
+            </div>
+
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" id="selectAll" onchange="selectAllSales()">
+                        </th>
+                        <th onclick="sortTable('date')">Date</th>
+                        <th onclick="sortTable('customer')">Customer</th>
+                        <th onclick="sortTable('products')">Products</th>
+                        <th onclick="sortTable('total')">Total</th>
+                        <th onclick="sortTable('paymentMethod')">Payment</th>
+                        <th onclick="sortTable('invoiceStatus')">Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    <!-- Sales data will be populated here -->
+                </tbody>
+            </table>
+
+            <div class="pagination" id="pagination">
+                <!-- Pagination will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Invoice</h2>
+                <span class="close" onclick="closeInvoiceModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form class="invoice-form" id="invoiceForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoiceNumber">Invoice Number</label>
+                            <input type="text" id="invoiceNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueDate">Issue Date</label>
+                            <input type="date" id="issueDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name</label>
+                            <input type="text" id="customerName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Due Date</label>
+                            <input type="date" id="dueDate">
+                        </div>
+                    </div>
+
+                    <div class="invoice-items">
+                        <h3>Items</h3>
+                        <div class="item-row">
+                            <div><strong>Product</strong></div>
+                            <div><strong>Quantity</strong></div>
+                            <div><strong>Price</strong></div>
+                            <div><strong>Total</strong></div>
+                        </div>
+                        <div id="invoiceItems">
+                            <!-- Items will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentTerms">Payment Terms</label>
+                        <input type="text" id="paymentTerms" value="Net 30">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="invoiceNotes">Notes</label>
+                        <textarea id="invoiceNotes" placeholder="Additional notes or instructions..."></textarea>
+                    </div>
+
+                    <div class="total-section">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotalAmount">$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax (0%):</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Total:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeInvoiceModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="printInvoice()">
+                    <i data-lucide="printer"></i>
+                    Print
+                </button>
+                <button class="btn btn-success" onclick="downloadInvoice()">
+                    <i data-lucide="download"></i>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+   <!-- Sidebar -->
     <%- include ("_sidebar1") %>
 
-    <main>
-      <div class="dashboard">
-     <form id="filter-form">
-  <aside class="filters">
-    <div class="filter-section">
-      <h3>Date Range</h3>
-      <label for="date-from">From</label>
-      <input type="date" id="date-from" name="dateFrom" />
-      <label for="date-to">To</label>
-      <input type="date" id="date-to" name="dateTo" />
-    </div>
-
-    <div class="filter-section">
-      <h3>Product Category</h3>
-        <select id="category-filter" name="category">
-      <option value="">All Categories</option>
-      <% categories.forEach(cat => { %>
-        <option value="<%= cat %>"><%= cat %></option>
-      <% }) %>
-    </select>
-
-    </div>
-
-    <div class="filter-section">
-      <h3>Customer</h3>
-      <input type="text" name="customer" placeholder="Search customers..." />
-    </div>
-
-    <div class="filter-section">
-      <h3>Sale Amount</h3>
-      <label for="min-amount">Minimum</label>
-      <input type="number" id="min-amount" name="minAmount" min="0" step="0.01" />
-      <label for="max-amount">Maximum</label>
-      <input type="number" id="max-amount" name="maxAmount" min="0" step="0.01" />
-    </div>
-
-    <button type="submit">Apply Filters</button>
-    <a href="/salehistory" class="btn-secondary" style="margin-top: 0.5rem;">Reset</a>
-  </aside>
-        </form>
-
-
-        <div class="content">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">Sales Overview</h2>
-              <div class="card-actions">
-                <select id="chart-type">
-                  <option value="daily">Daily</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </div>
-            </div>
-            <div class="summary">
-              <div class="summary-item">
-                <div class="summary-label">Total Sales</div>
-                <div class="summary-value" id="total-sales">₦0</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Number of Orders</div>
-                <div class="summary-value" id="order-count">0</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Average Order Value</div>
-                <div class="summary-value" id="avg-value">₦0</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Top Category</div>
-                <div class="summary-value" id="top-cate"></div>
-              </div>
-            </div>
-            <div class="chart-container">
-              <canvas id="sales-chart"></canvas>
-            </div>
-          </div>
-
-          <div class="card tablecard">
-            <div class="card-header">
-              <h2 class="card-title">Sales History</h2>
-              <div class="card-actions">
-                <button id="export-csv" class="btn-secondary">
-                  Export CSV
-                </button>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="sales-table-body">
-                    <% if (salesitem && salesitem.length > 0) { %>
-                      <% salesitem.forEach(sale => { %>
-                        <tr>
-                          <td id="tdid"><%= sale._id %></td>
-                          <td><%= sale.date.toDateString() %></td>
-                          <td><%= sale.custormername || 'N/A' %></td>
-                          <td><%= sale.item || 'N/A' %></td>
-                          <td>₦<%= sale.amount.toLocaleString() %></td>
-                          <td><%= sale.status || 'Completed' %></td>
-                        </tr>
-                      <% }) %>
-                    <% } else { %>
-                      <tr>
-                        <td colspan="8">No sales found.</td>
-                      </tr>
-                    <% } %>
-                  </tbody>
-
-              </table>
-            </div>
-            <div class="pagination" id="pagination"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-
-
-
-
-
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
     <script>
-document.getElementById("filter-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
+        // Sample sales data
+        let salesData = [
+            {
+                id: 'S001',
+                date: '2025-01-15',
+                customer: 'John Smith',
+                products: [{ name: 'Laptop', quantity: 1, price: 1200 }],
+                total: 1200,
+                paymentMethod: 'Credit Card',
+                invoiceStatus: 'Generated',
+                notes: 'Express shipping requested'
+            },
+            {
+                id: 'S002',
+                date: '2025-01-14',
+                customer: 'Sarah Johnson',
+                products: [{ name: 'Wireless Mouse', quantity: 2, price: 25 }, { name: 'Keyboard', quantity: 1, price: 80 }],
+                total: 130,
+                paymentMethod: 'PayPal',
+                invoiceStatus: 'Not Generated',
+                notes: ''
+            },
+            {
+                id: 'S003',
+                date: '2025-01-13',
+                customer: 'Mike Davis',
+                products: [{ name: 'Monitor', quantity: 1, price: 350 }],
+                total: 350,
+                paymentMethod: 'Bank Transfer',
+                invoiceStatus: 'Generated',
+                notes: 'Customer pickup'
+            },
+            {
+                id: 'S004',
+                date: '2025-01-12',
+                customer: 'Emma Wilson',
+                products: [{ name: 'Tablet', quantity: 1, price: 400 }, { name: 'Case', quantity: 1, price: 30 }],
+                total: 430,
+                paymentMethod: 'Cash',
+                invoiceStatus: 'Not Generated',
+                notes: ''
+            },
+            {
+                id: 'S005',
+                date: '2025-01-11',
+                customer: 'David Brown',
+                products: [{ name: 'Phone', quantity: 1, price: 800 }],
+                total: 800,
+                paymentMethod: 'Credit Card',
+                invoiceStatus: 'Generated',
+                notes: 'Extended warranty included'
+            },
+            {
+                id: 'S006',
+                date: '2025-01-10',
+                customer: 'Lisa Anderson',
+                products: [{ name: 'Headphones', quantity: 1, price: 150 }],
+                total: 150,
+                paymentMethod: 'PayPal',
+                invoiceStatus: 'Not Generated',
+                notes: ''
+            },
+            {
+                id: 'S007',
+                date: '2025-01-09',
+                customer: 'Robert Taylor',
+                products: [{ name: 'Printer', quantity: 1, price: 250 }, { name: 'Ink Cartridge', quantity: 3, price: 40 }],
+                total: 370,
+                paymentMethod: 'Bank Transfer',
+                invoiceStatus: 'Generated',
+                notes: 'Bulk discount applied'
+            }
+        ];
 
-  const form = e.target;
-  const params = new URLSearchParams(new FormData(form)).toString();
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let selectedSales = [];
+        let sortField = 'date';
+        let sortOrder = 'desc';
 
-  const res = await fetch(`/salehistory?${params}`, {
-    headers: {
-      Accept: "application/json"
-    }
-  });
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            updateSummaryCards();
+            renderSalesTable();
+            setupEventListeners();
+        });
 
-  const data = await res.json();
-
-  const tbody = document.getElementById("sales-table-body");
-  tbody.innerHTML = ""; // Clear old rows
-
-  if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8">No sales found.</td></tr>`;
-  } else {
-    data.forEach(sale => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${sale._id}</td>
-        <td>${new Date(sale.date).toDateString()}</td>
-        <td>${sale.custormername || "N/A"}</td>
-        <td>${sale.item || "N/A"}</td>
-        <td>₦${parseFloat(sale.amount).toLocaleString()}</td>
-        <td>${sale.status || "Completed"}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
-});
-</script>
-
-
-
-<script>
-let salesChart;
-
-function formatNumberShort(n) {
-  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
-  return n.toString();
-}
-
-
-function updateOverviewSummary({ total, count, avg, topSellingItem }) {
-  document.getElementById("total-sales").textContent = `₦${formatNumberShort(total)}`;
-  document.getElementById("order-count").textContent = formatNumberShort(count);
-  document.getElementById("avg-value").textContent = `₦${formatNumberShort(avg)}`;
-  document.getElementById("top-cate").textContent = topSellingItem || "-";
-  
-
-}
-
-
-
-
-async function renderChart(type) {
-  const res = await fetch(`/api/sales-chart-data?type=${type}`);
-  const data = await res.json();
-
-  updateOverviewSummary(data);
-
-  const ctx = document.getElementById("sales-chart").getContext("2d");
-
-  if (salesChart) salesChart.destroy();
-
-  salesChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.labels,
-      datasets: [{
-        label: 'Sales (₦)',
-        data: data.values,
-        backgroundColor: '#007bff',
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', renderSalesTable);
+            document.getElementById('startDate').addEventListener('change', renderSalesTable);
+            document.getElementById('endDate').addEventListener('change', renderSalesTable);
+            document.getElementById('paymentFilter').addEventListener('change', renderSalesTable);
+            document.getElementById('statusFilter').addEventListener('change', renderSalesTable);
         }
-      }
-    }
-  });
-}
 
-// Initial chart
-renderChart('daily');
+        function updateSummaryCards() {
+            const today = new Date().toISOString().split('T')[0];
+            const thisMonth = new Date().toISOString().slice(0, 7);
+            
+            const todaySales = salesData.filter(sale => sale.date === today);
+            const monthSales = salesData.filter(sale => sale.date.startsWith(thisMonth));
+            const generatedInvoices = salesData.filter(sale => sale.invoiceStatus === 'Generated');
+            const outstanding = salesData.filter(sale => sale.invoiceStatus === 'Not Generated');
 
-// Dropdown to change chart type
-document.getElementById("chart-type").addEventListener("change", (e) => {
-  renderChart(e.target.value);
-});
-</script>
+            document.getElementById('todayTotal').textContent = $${todaySales.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
+            document.getElementById('monthRevenue').textContent = $${monthSales.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
+            document.getElementById('invoicesGenerated').textContent = generatedInvoices.length;
+            document.getElementById('outstandingPayments').textContent = $${outstanding.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
+        }
 
+        function getFilteredSales() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const paymentFilter = document.getElementById('paymentFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
 
-    <!-- <script src="/js/saleshistory.js"></script> -->
-  </body>
+            let filtered = salesData.filter(sale => {
+                const matchesSearch = sale.customer.toLowerCase().includes(searchTerm) ||
+                                   sale.products.some(product => product.name.toLowerCase().includes(searchTerm));
+                
+                const matchesPayment = paymentFilter === 'all' || sale.paymentMethod === paymentFilter;
+                const matchesStatus = statusFilter === 'all' || sale.invoiceStatus === statusFilter;
+                
+                const matchesDateRange = (!startDate || sale.date >= startDate) &&
+                                        (!endDate || sale.date <= endDate);
+                
+                return matchesSearch && matchesPayment && matchesStatus && matchesDateRange;
+            });
+
+            // Sort data
+            filtered.sort((a, b) => {
+                let aValue = a[sortField];
+                let bValue = b[sortField];
+                
+                if (sortField === 'date') {
+                    aValue = new Date(aValue);
+                    bValue = new Date(bValue);
+                } else if (sortField === 'total') {
+                    aValue = Number(aValue);
+                    bValue = Number(bValue);
+                } else if (sortField === 'products') {
+                    aValue = a.products.map(p => p.name).join(', ');
+                    bValue = b.products.map(p => p.name).join(', ');
+                }
+                
+                if (sortOrder === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+
+            return filtered;
+        }
+
+        function renderSalesTable() {
+            const filteredSales = getFilteredSales();
+            const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentSales = filteredSales.slice(startIndex, endIndex);
+
+            const tableBody = document.getElementById('salesTableBody');
+            tableBody.innerHTML = '';
+
+            currentSales.forEach(sale => {
+                const row = document.createElement('tr');
+                
+                const productsText = sale.products.map(p => ${p.name} (${p.quantity})).join(', ');
+                const statusClass = sale.invoiceStatus === 'Generated' ? 'status-generated' : 'status-not-generated';
+                
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" value="${sale.id}" onchange="toggleSaleSelection('${sale.id}')">
+                    </td>
+                    <td>${formatDate(sale.date)}</td>
+                    <td>${sale.customer}</td>
+                    <td>${productsText}</td>
+                    <td>${sale.total.toLocaleString()}</td>
+                    <td><span class="payment-method">${sale.paymentMethod}</span></td>
+                    <td><span class="status-badge ${statusClass}">${sale.invoiceStatus}</span></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="generateInvoice('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
+                            <i data-lucide="file-text"></i>
+                            Invoice
+                        </button>
+                        <button class="btn btn-secondary" onclick="editSale('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
+                            <i data-lucide="edit"></i>
+                            Edit
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Re-create icons for new elements
+            lucide.createIcons();
+            
+            // Update pagination
+            renderPagination(totalPages);
+            
+            // Update select all checkbox
+            updateSelectAllCheckbox();
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = 'Previous';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderSalesTable();
+                }
+            };
+            pagination.appendChild(prevBtn);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = i === currentPage ? 'active' : '';
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    renderSalesTable();
+                };
+                pagination.appendChild(pageBtn);
+            }
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = 'Next';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderSalesTable();
+                }
+            };
+            pagination.appendChild(nextBtn);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function toggleFilters() {
+            const filtersPanel = document.getElementById('filtersPanel');
+            filtersPanel.classList.toggle('hidden');
+        }
+
+        function toggleSaleSelection(saleId) {
+            const checkbox = document.querySelector(input[value="${saleId}"]);
+            if (checkbox.checked) {
+                selectedSales.push(saleId);
+            } else {
+                selectedSales = selectedSales.filter(id => id !== saleId);
+            }
+            updateSelectAllCheckbox();
+        }
+
+        function selectAllSales() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                const saleId = checkbox.value;
+                if (selectAllCheckbox.checked) {
+                    if (!selectedSales.includes(saleId)) {
+                        selectedSales.push(saleId);
+                    }
+                } else {
+                    selectedSales = selectedSales.filter(id => id !== saleId);
+                }
+            });
+        }
+
+        function updateSelectAllCheckbox() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
+            const checkedCheckboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCheckboxes.length === checkboxes.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCheckboxes.length > 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        }
+
+        function sortTable(field) {
+            if (sortField === field) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortOrder = 'asc';
+            }
+            renderSalesTable();
+        }
+
+        function generateInvoice(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (!sale) return;
+
+            // Populate modal with sale data
+            document.getElementById('invoiceNumber').value = INV-${Date.now()};
+            document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('customerName').value = sale.customer;
+            document.getElementById('dueDate').value = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.getElementById('paymentTerms').value = 'Net 30';
+            document.getElementById('invoiceNotes').value = sale.notes || '';
+
+            // Populate items
+            const itemsContainer = document.getElementById('invoiceItems');
+            itemsContainer.innerHTML = '';
+            
+            sale.products.forEach(product => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div>${product.name}</div>
+                    <div>${product.quantity}</div>
+                    <div>${product.price.toLocaleString()}</div>
+                    <div>${(product.quantity * product.price).toLocaleString()}</div>
+                `;
+                itemsContainer.appendChild(itemRow);
+            });
+
+            // Update totals
+            document.getElementById('subtotalAmount').textContent = ${sale.total.toLocaleString()};
+            document.getElementById('taxAmount').textContent = '$0.00';
+            document.getElementById('totalAmount').textContent = ${sale.total.toLocaleString()};
+
+            // Store current sale ID for later use
+            document.getElementById('invoiceModal').dataset.saleId = saleId;
+
+            // Show modal
+            document.getElementById('invoiceModal').style.display = 'block';
+        }
+
+        function generateBulkInvoices() {
+            if (selectedSales.length === 0) {
+                alert('Please select at least one sale to generate invoices.');
+                return;
+            }
+            
+            const confirmMessage = Generate invoices for ${selectedSales.length} selected sales?;
+            if (confirm(confirmMessage)) {
+                selectedSales.forEach(saleId => {
+                    const saleIndex = salesData.findIndex(sale => sale.id === saleId);
+                    if (saleIndex !== -1) {
+                        salesData[saleIndex].invoiceStatus = 'Generated';
+                    }
+                });
+                
+                selectedSales = [];
+                updateSummaryCards();
+                renderSalesTable();
+                alert(Successfully generated ${selectedSales.length} invoices!);
+            }
+        }
+
+        function editSale(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (!sale) return;
+            
+            // For demo purposes, just show an alert
+            alert(Edit functionality would open a form to edit sale ${saleId} for customer ${sale.customer});
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').style.display = 'none';
+        }
+
+        function printInvoice() {
+            // For demo purposes
+            alert('Invoice sent to printer!');
+            closeInvoiceModal();
+        }
+
+        function downloadInvoice() {
+            const saleId = document.getElementById('invoiceModal').dataset.saleId;
+            
+            // Update invoice status
+            const saleIndex = salesData.findIndex(sale => sale.id === saleId);
+            if (saleIndex !== -1) {
+                salesData[saleIndex].invoiceStatus = 'Generated';
+            }
+            
+            // For demo purposes
+            alert('Invoice downloaded as PDF!');
+            
+            // Update UI
+            updateSummaryCards();
+            renderSalesTable();
+            closeInvoiceModal();
+        }
+
+        function exportData(format) {
+            const filteredSales = getFilteredSales();
+            
+            if (format === 'csv') {
+                // Create CSV content
+                const headers = ['Date', 'Customer', 'Products', 'Total', 'Payment Method', 'Invoice Status'];
+                const csvContent = [
+                    headers.join(','),
+                    ...filteredSales.map(sale => [
+                        sale.date,
+                        "${sale.customer}",
+                        `"${sale.products.map(p => ${p.name} (${p.quantity})).join(', ')}"`,
+                        sale.total,
+                        "${sale.paymentMethod}",
+                        "${sale.invoiceStatus}"
+                    ].join(','))
+                ].join('\n');
+                
+                // Download CSV
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = sales-history-${new Date().toISOString().split('T')[0]}.csv;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } else if (format === 'pdf') {
+                // For demo purposes
+                alert('PDF export functionality would generate a detailed sales report here!');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('invoiceModal');
+            if (event.target === modal) {
+                closeInvoiceModal();
+            }
+        }
+
+        // Handle escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeInvoiceModal();
+            }
+        });
+    </script>
+</body>
 </html>

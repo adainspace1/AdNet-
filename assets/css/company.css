@@ -87,3 +87,40 @@
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
+.error-message{
+    color: red;
+    font-size: 12px;
+}
+
+
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.preview-row {
+  display: contents;
+}
+
+.preview-row span {
+  font-weight: 600;
+  color: #555;
+  padding: 6px 10px;
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.preview-row strong {
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  color: #333;
+}

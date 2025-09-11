@@ -1,23 +1,36 @@
+// Fetch banks from supermx1 Nigerian Banks API
+fetch("https://supermx1.github.io/nigerian-banks-api/data.json")
+  .then(res => res.json())
+  .then(data => {
+    const select = document.getElementById("bankName");
+
+    data.forEach(bank => {
+      const opt = document.createElement("option");
+      opt.value = bank.code;   // ✅ use bank code instead of name
+      opt.textContent = bank.name;
+
+      // Optional: style with logo
+      opt.style.backgroundImage = `url(${bank.logo})`;
+      opt.style.backgroundSize = "20px 20px";
+      opt.style.backgroundRepeat = "no-repeat";
+      opt.style.paddingLeft = "25px";
+
+      select.appendChild(opt);
+    });
+  })
+  .catch(err => console.error("Error loading bank list:", err));
+
+
+
+
 const bankSelect = document.getElementById("bankName");
 const accountInput = document.getElementById("accountNumber");
 const accountNameField = document.getElementById("accountName");
 const accError = document.querySelector(".accError");
 
-const bankCodes = {
-  "Access Bank": "044",
-  "UBA": "033",
-  "GTBank": "058",
-  "First Bank": "011",
-  "Zenith Bank": "057",
-  "Kuda Bank": "50211",
-  "Opay": "999991",
-  "Moniepoint": "50515",
-  "PalmPay": "999992",
-  "Wema Bank": "035"
-};
 
 async function fetchAccountName() {
-  const bankCode = bankCodes[bankSelect.value];
+  const bankCode = bankSelect.value; // ✅ now comes from option.value
   const accountNumber = accountInput.value;
 
   if (bankCode && accountNumber.length === 10) {
@@ -58,4 +71,31 @@ document.getElementById("stepperForm").addEventListener("submit", function (e) {
     e.preventDefault();
     alert("Please provide a valid bank account.");
   }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("bankForm");
+
+  form.addEventListener("submit", function (e) {
+    let isValid = true;
+    const inputs = form.querySelectorAll("input[required], select[required]");
+    
+    inputs.forEach((input) => {
+      const error = input.nextElementSibling;
+      if (input.value.trim() === "") {
+        error.textContent = "This field is required.";
+        error.style.display = "block";
+        isValid = false;
+      } else {
+        error.textContent = "";
+        error.style.display = "none";
+      }
+    });
+
+    if (!isValid) {
+      e.preventDefault(); // stop form from submitting
+    }
+  });
 });

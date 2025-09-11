@@ -24,14 +24,17 @@ const Personal = require('../models/personal');
 
 const handleImageUpload = (file) => {
   return new Promise((resolve, reject) => {
+    // Detect file type
+    const isPDF = file.mimetype === "application/pdf";
+
     const stream = cloudinary.uploader.upload_stream(
       {
-        resource_type: 'auto', // accepts image/pdf/video
-        folder: 'Adnet',
+        resource_type: isPDF ? "raw" : "auto", // 👈 force PDFs as raw
+        folder: "Adnet",
       },
       (error, result) => {
         if (error) {
-          reject(new Error('Error uploading to Cloudinary: ' + error.message));
+          reject(new Error("Error uploading to Cloudinary: " + error.message));
         } else {
           resolve(result.secure_url); // return only URL
         }
@@ -51,6 +54,7 @@ const handleImageUpload = (file) => {
 
 
 const submitForm = async (req, res) => {
+  console.log("Received personal data:", req.body);
   try {
     const {
       firstName, lastName, bio, portfolioUrl,
@@ -172,21 +176,23 @@ const submitBusiness = async (req, res) => {
       contactPhone,
       directorName,
       directorPhone,
-      directorDocs: image1Url?.secure_url || null,
+      directorDocs: image1Url || null,
       investorName,
       investorPhone,
-      investorDocs: image2Url?.secure_url || null,
+      investorDocs: image2Url || null,
       adminName,
       adminPhone,
-      adminDocs: image3Url?.secure_url || null,
+      adminDocs: image3Url || null,
       ownerName,
       ownerPhone,
-      ownerDocs: image4Url?.secure_url || null,
+      ownerDocs: image4Url || null,
       regNumber,
       foundingDate
     });
 
     const savedBusiness = await newBusiness.save();
+
+    console.log("what saved", savedBusiness)
 
     res.redirect(`/Company?id=${reciepientId}`); // or wherever you want to go next
 
@@ -246,25 +252,27 @@ const submitCompany = async (req, res) => {
     const additionalUrl = await handleImageUpload(additionalDoc);
 
     const newCompany = new Company({
-      reciepientId,
-      companyName,
-      industry,
-      businessStructure,
-      Address,
-      cacNumber,
-      incorporationDate,
-      taxId,
-      email,
-      phone,
-      countryCode,
-      CACDocs: cacDocUrl?.secure_url || null,
-      MOADocs: moaDocUrl?.secure_url || null,
-      FOCDocs: focDocUrl?.secure_url || null,
-      shareholderAgreement: shareholderUrl?.secure_url || null,
-      AddRegistrationDocs: additionalUrl?.secure_url || null
-    });
+  reciepientId,
+  companyName,
+  industry,
+  address: Address,  // lowercase fix to match schema
+  businessStructure,
+  cacNumber,
+  incorporationDate,
+  taxId,
+  email,
+  phone,
+  countryCode,
+  CACDocs: cacDocUrl || null,
+  MOADocs: moaDocUrl || null,
+  FOCDocs: focDocUrl || null,
+  shareholderAgreement: shareholderUrl || null,
+  AddRegistrationDocs: additionalUrl || null
+});
+
 
     await newCompany.save();
+    console.log("what saved", newCompany)
 
     // res.status(201).json({
     //   message: "Company information submitted successfully",

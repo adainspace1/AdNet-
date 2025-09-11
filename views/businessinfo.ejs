@@ -47,7 +47,7 @@
               business.
             </p>
 
-            <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+            <input type="hidden" name="reciepientId" value="<%= userId %>" id="reciepientId">
 
             <div class="form-group">
               <label for="businessName">Business Name</label>
@@ -111,51 +111,55 @@
 
           <!-- contact -->
           <div class="step2">
-            <h2>Contact Information</h2>
-            <p>Please provide your contact details.</p>
+              <h2>Contact Information</h2>
+              <p>Please provide your contact details.</p>
 
-            <div class="form-group">
-              <label for="contactName">Name</label>
-              <input
-                type="text"
-                id="contactName"
-                name="contactName"
-                placeholder="Your Name"
-                required
-              />
-            </div>
+              <div class="form-group">
+                <label for="contactName">Name</label>
+                <input
+                  type="text"
+                  id="contactName"
+                  name="contactName"
+                  placeholder="Your Name"
+                  value="<%= user.firstName %> <%= user.lastName %>"
+                  required readonly 
+                />
+              </div>
 
-            <div class="form-group">
-              <label for="contactEmail">Email</label>
-              <input
-                type="email"
-                id="contactEmail"
-                name="contactEmail"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
+              <div class="form-group">
+                <label for="contactEmail">Email</label>
+                <input
+                  type="email"
+                  id="contactEmail"
+                  name="contactEmail"
+                  placeholder="you@example.com"
+                  value="<%= user.email %>"
+                  required readonly 
+                />
+              </div>
 
-            <div class="form-group">
-              <label for="contactPhone">Phone</label>
-              <input
-                type="tel"
-                id="contactPhone"
-                name="contactPhone"
-                placeholder="Your Phone Number"
-                required
-              />
-            </div>
+              <div class="form-group">
+                <label for="contactPhone">Phone</label>
+                <input
+                  type="tel"
+                  id="contactPhone"
+                  name="contactPhone"
+                  placeholder="Your Phone Number"
+                  value="<%= user.phone %>"
+                  required readonly 
+                />
+              </div>
 
-            <div class="buttons">
-              <button id="prevBtn1" class="btn back-btn" type="button">
-                <i class="bx bx-left-arrow-alt"></i> Previous
-              </button>
-              <button id="nextBtn2" class="btn next-btn" type="button">
-                <i class="bx bx-right-arrow-alt"></i> Next
-              </button>
-            </div>
-          </div>
+              <div class="buttons">
+                <button id="prevBtn1" class="btn back-btn" type="button">
+                  <i class="bx bx-left-arrow-alt"></i> Previous
+                </button>
+                <button id="nextBtn2" class="btn next-btn" type="button">
+                  <i class="bx bx-right-arrow-alt"></i> Next
+                </button>
+              </div>
+        </div>
+
 
           <!-- Section 2: Business Structure -->
           <div class="step3">
@@ -321,19 +325,31 @@
           <!-- Step 4: Confirmation -->
           <div class="step4">
             <h2>Step 4: Confirmation</h2>
-            <div class="form-content">
+            <section class="form-content">
               <p>Please review your details and click "Submit".</p>
-            </div>
+            </section>
 
             <div class="buttons">
+              <button id="prevBtn3" class="btn back-btn" type="button">
+                <i class="bx bx-left-arrow-alt"></i> Previous
+              </button>
               <button id="nextBtn4" class="btn next-btn" type="submit">
-                <i class="bx bx-right-arrow-alt"></i> Submitt
+                <i class="bx bx-right-arrow-alt"></i> Submit
               </button>
             </div>
           </div>
+
         </form>
       </main>
     </div>
+
+
+
+
+
+     <script>
+      document.querySelector("#Business").classList.add("active")
+    </script>
 
     <!-- Include the external JavaScript file -->
     <script src="/js/businessinfo.js"></script>

@@ -46,7 +46,7 @@
         >
 
 
-         <input type="text" name="reciepientId" value="<%= userId %>" id="reciepientId">
+         <input type="hidden" name="reciepientId" value="<%= userId %>" id="reciepientId">
 
           <div class="step active">
             <!-- Section 1: Basic Info -->
@@ -85,6 +85,7 @@
                   id="Address"
                   name="Address"
                   placeholder="No: 40, Sulule Cresent"
+                  required
                 />
               </div>
             </section>
@@ -124,6 +125,7 @@
                 name="CACDocs"
                 accept="application/pdf,image/*"
                 multiple
+                required
               />
               <small>Upload CAC Certificate.</small>
             </div>
@@ -136,6 +138,7 @@
                 name="MOADocs"
                 accept="application/pdf,image/*"
                 multiple
+                required
               />
               <small>Upload MOA documents.</small>
             </div>
@@ -148,6 +151,7 @@
                 name="FOCDocs"
                 accept="application/pdf,image/*"
                 multiple
+                required
               />
               <small>Upload FOC documents.</small>
             </div>
@@ -195,6 +199,7 @@
                 name="AddRegistrationDocs"
                 accept="application/pdf,image/*"
                 multiple
+                required
               />
               <small
                 >Upload other Certificate, tax documents, or any other
@@ -242,6 +247,15 @@
             </div>
           </div>
 
+
+
+          <div class="step" id="preview-step">
+  <h2>Preview</h2>
+  <div id="preview-container" class="preview-box"></div>
+
+</div>
+
+
           <div class="button-group">
             <div class="buttons">
               <button
@@ -265,6 +279,15 @@
         </form>
       </main>
     </div>
+
+
+
+
+
+
+     <script>
+      document.querySelector("#Company").classList.add("active")
+    </script>
 
     <script src="/js/company.js"></script>
   </body>
