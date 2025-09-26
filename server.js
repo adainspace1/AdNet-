@@ -16,7 +16,6 @@ const AccountsPayable = require('./models/AccountsPayable');
 const AccountReceivable = require("./models/AccountReceivable");
 const CashFlow = require('./models/CashFlow');
 const Liquidity = require("./models/Liquidity");
-const Wallet = require('./models/Wallet');
 
 const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
@@ -40,6 +39,20 @@ const BankInfo = require("./models/bank");
 const Asset = require('./models/Asset');
 const Budget = require('./models/budget');
 const Worker = require("./models/Worker"); // adjust path
+
+
+
+
+
+const Wallet = require('./models/Wallet');
+const WalletTransaction = require("./models/WalletTransaction");
+const Reconciliation = require("./models/Reconciliation"); // if you track mismatches
+const Invoice = require("./models/Invoice"); // if you track mismatches
+// services/paystackService.js
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
+// Get from your env
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
 const port=3900
 const MongoStore = require("connect-mongo");
@@ -4383,6 +4396,57 @@ app.post("/user/api/resolve-account", async (req, res) => {
 
 
 
+
+/**
+ * Verify an account number with Paystack
+ * @param {String} bankCode - Paystack bank code (e.g., '044' for Access Bank)
+ * @param {String} accountNumber - 10-digit account number
+ * @returns {Promise<String|null>} - account name if resolved, null otherwise
+ */
+async function verifyAccount(bankCode, accountNumber) {
+  const url = `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const json = await res.json();
+    if (json.status && json.data && json.data.account_name) {
+      return json.data.account_name;
+    }
+    console.error("Paystack resolve error:", json);
+    return null;
+  } catch (err) {
+    console.error("verifyAccount error", err);
+    return null;
+  }
+}
+
+
+// POST /api/resolveAccount
+app.post('/resolveAccount', async (req, res) => {
+  const { bankCode, accountNumber } = req.body;
+  if (!bankCode || !accountNumber) {
+    return res.json({ success: false, message: 'Missing details' });
+  }
+  try {
+    const accountName = await verifyAccount(bankCode, accountNumber);
+    if (accountName) {
+      res.json({ success: true, accountName });
+    } else {
+      res.json({ success: false, message: 'Unable to resolve account' });
+    }
+  } catch (err) {
+    console.error('resolve error', err);
+    res.json({ success: false, message: 'Error resolving account' });
+  }
+});
+
+
+
 // Check wallet existence
 app.get('/user/api/wallet/check', ensureAuthenticated, async (req, res) => {
   const wallet = await Wallet.findOne({ userId: req.session.user._id });
@@ -4398,6 +4462,283 @@ app.post('/user/api/wallet/create', ensureAuthenticated, async (req, res) => {
   res.json({ success: true, wallet });
 });
 
+
+
+
+
+
+
+app.get("/dashboard-stats", ensureAuthenticated, async (req, res) => {
+  try {
+    let recipientId = null;
+
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+    } else {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // ============= Accounts Payable ============
+    const payables = await AccountsPayable.find({ recipientId });
+    const totalAP = payables.reduce((sum, p) => sum + (p.ramount || 0), 0);
+
+    // ============= Accounts Receivable =========
+    const receivables = await AccountReceivable.find({ recipientId });
+    const totalAR = receivables.reduce((sum, r) => sum + (r.ramount || 0), 0);
+
+    // ============= Wallet Transactions =========
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const autoMatchedToday = await WalletTransaction.countDocuments({
+      userId: recipientId,
+      status: "success",
+      createdAt: { $gte: today }
+    });
+
+    // ============= Discrepancies (placeholder) =========
+    // You might use a Reconciliation collection, or detect wallet txns not linked to AR/AP
+    const discrepancies = await Reconciliation.countDocuments({
+      userId: recipientId,
+      matched: false
+    }).catch(() => 0); // fallback if not implemented
+
+    res.json({
+      totalAP,
+      totalAR,
+      autoMatchedToday,
+      discrepancies
+    });
+  } catch (err) {
+    console.error("Error fetching dashboard stats:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// Run invoice auto-matching
+app.post("/invoice/auto-match", ensureAuthenticated, async (req, res) => {
+  try {
+    const recipientId = req.session.user._id;
+
+    // 1. Fetch invoices + payments
+    const invoices = await Invoice.find({ recipientId });
+    const payments = await WalletTransaction.find({ userId: recipientId, status: "success" });
+
+    let matchedCount = 0;
+    let reviewList = [];
+
+    // 2. Apply rules (simplified example)
+    invoices.forEach(inv => {
+      const match = payments.find(p =>
+        Math.abs(p.amount - inv.amount) <= 500 && // tolerance rule
+        p.vendorId?.toString() === inv.vendorId?.toString() && // same vendor
+        Math.abs(new Date(p.date) - new Date(inv.date)) / (1000 * 60 * 60 * 24) <= 5 // within 5 days
+      );
+
+      if (match) {
+        matchedCount++;
+        inv.matched = true;
+        inv.matchedAt = new Date();
+        inv.save();
+      } else {
+        reviewList.push(inv);
+      }
+    });
+
+    // 3. Calculate summary
+    const autoMatchRate = invoices.length > 0 ? (matchedCount / invoices.length) * 100 : 0;
+
+    res.json({
+      autoMatchRate,
+      needsReview: reviewList.length,
+      reviewList, // optional: send back suggestions
+    });
+
+  } catch (err) {
+    console.error("Error in auto-match:", err);
+    res.status(500).json({ error: "Failed to run auto-match" });
+  }
+});
+
+// Fetch review suggestions
+app.get("/invoice/review", ensureAuthenticated, async (req, res) => {
+  try {
+    let recipientId = null;
+
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+    } else {
+      console.error("❌ No valid session found");
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.log("📌 /invoice/review called with recipientId:", recipientId);
+
+    const reviewList = await Invoice.find({ recipientId, matched: false });
+    console.log("✅ Review list found:", reviewList.length, "items");
+
+    res.json(reviewList);
+  } catch (err) {
+    console.error("🔥 Error in /invoice/review:", err); // log full error
+    res.status(500).json({ error: "Failed to fetch review list" });
+  }
+});
+
+
+
+
+// GET Cash Flow Insights
+app.get("/cashflow-insights/:recipientId", ensureAuthenticated, async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    const recipientObjectId = new mongoose.Types.ObjectId(recipientId);
+
+    // 🔹 Overdue Payments
+    const today = new Date();
+    const overdue = await AccountsPayable.aggregate([
+      {
+        $match: {
+          recipientId, // your schema for AP uses string, so keep as string
+          status: { $ne: "paid" },
+          dueDate: { $lt: today }
+        }
+      },
+      { $group: { _id: null, total: { $sum: "$ramount" } } }
+    ]);
+    const overduePayments = overdue.length > 0 ? overdue[0].total : 0;
+
+    // 🔹 Due This Week
+    const startOfWeek = new Date();
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date();
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+    const dueThisWeek = await AccountsPayable.aggregate([
+      {
+        $match: {
+          recipientId,
+          status: { $ne: "paid" },
+          dueDate: { $gte: startOfWeek, $lte: endOfWeek }
+        }
+      },
+      { $group: { _id: null, total: { $sum: "$ramount" } } }
+    ]);
+    const dueThisWeekTotal = dueThisWeek.length > 0 ? dueThisWeek[0].total : 0;
+
+    // 🔹 Sales Total
+    const sales = await Sales.aggregate([
+      { $match: { recipientId: recipientObjectId } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const salesTotal = sales.length > 0 ? sales[0].total : 0;
+
+    // 🔹 Expense Total
+    const expenses = await Expense.aggregate([
+      { $match: { recipientId: recipientObjectId } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const expensesTotal = expenses.length > 0 ? expenses[0].total : 0;
+
+    // 🔹 Wallet
+    const wallet = await Wallet.findOne({ userId: recipientObjectId });
+    const walletBalance = wallet ? wallet.balance : 0;
+
+    // 🔹 Net Available Balance
+    const availableBalance = salesTotal - expensesTotal + walletBalance;
+
+    // ✅ Respond as JSON
+    res.json({
+      overduePayments,
+      dueThisWeek: dueThisWeekTotal,
+      salesTotal,
+      expensesTotal,
+      walletBalance,
+      availableBalance
+    });
+  } catch (err) {
+    console.error("Cashflow insights error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+
+
+// 🔹 Aging Analysis
+app.get("/api/aging-analysis/:recipientId", async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    const today = new Date();
+
+    // Buckets
+    const buckets = {
+      "0-30": { label: "0-30 Days", total: 0 },
+      "31-60": { label: "31-60 Days", total: 0 },
+      "61-90": { label: "61-90 Days", total: 0 },
+      "90+": { label: "90+ Days", total: 0 }
+    };
+
+    // Get unpaid invoices
+    const invoices = await AccountsPayable.find({
+      recipientId,
+      status: { $ne: "paid" }
+    });
+
+    invoices.forEach(inv => {
+      const days = Math.floor((today - inv.dueDate) / (1000 * 60 * 60 * 24));
+
+      if (days <= 30) buckets["0-30"].total += inv.ramount;
+      else if (days <= 60) buckets["31-60"].total += inv.ramount;
+      else if (days <= 90) buckets["61-90"].total += inv.ramount;
+      else buckets["90+"].total += inv.ramount;
+    });
+
+    res.json(buckets);
+  } catch (err) {
+    console.error("Aging Analysis error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// 🔹 Workflow Status
+app.get("/api/workflow-status/:recipientId", async (req, res) => {
+  try {
+    // Later we can tie this to actual reconciliation runs
+    const workflow = [
+      {
+        step: "Data Import",
+        status: "completed",
+        subtitle: "Completed at 9:30 AM"
+      },
+      {
+        step: "Auto-Matching",
+        status: "completed",
+        subtitle: "847 transactions matched"
+      },
+      {
+        step: "Exception Review",
+        status: "active",
+        subtitle: "23 items pending"
+      },
+      {
+        step: "Journal Entries",
+        status: "pending",
+        subtitle: "3 entries pending approval"
+      }
+    ];
+
+    res.json(workflow);
+  } catch (err) {
+    console.error("Workflow status error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 app.get("/accountreconciliation2",  ensureAuthenticated, async (req, res) => {
