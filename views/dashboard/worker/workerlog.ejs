@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+
+    <form id="workerLoginForm">
+  <input type="email" name="email" placeholder="Email" required />
+  <input type="password" name="password" placeholder="Password" required />
+  <button type="submit">Login</button>
+</form>
+
+<script>
+  document.getElementById("workerLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch("/user/workerlogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert(result.message);
+
+        // Redirect based on role
+        if (result.role === "inventory") {
+          window.location.href = "/inventory";
+        } else if (result.role === "finance") {
+          window.location.href = "/finance";
+        } else if (result.role === "sales") {
+          window.location.href = "/sales";
+        } else {
+          window.location.href = "/worker/dashboard";
+        }
+      } else {
+        alert(result.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+</script>
+
+    
+</body>
+</html>

@@ -1,236 +1,103 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Navigation Bar</title>
     <link rel="stylesheet" href="/css/topnav.css">
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <!-- Navbar -->
-        <div class="nav">
-          <div class="logo" style="margin-left: 20px;">
-            <i class="bx bxl-codepen"></i>
-            <a href="#">Adnet</a>
-          </div>
-
-          <div
-            class="right-section"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 20px;
-              position: relative;
-            "
-          >
-            <!-- Notification -->
-            <div
-              class="notification"
-              style="position: relative; display: flex; align-items: center"
-            >
-              <i
-                class="bx bx-bell"
-                id="notificationToggle"
-                style="cursor: pointer; position: relative"
-              >
-                <span
-                  class="badge"
-                  style="
-                    background-color: red;
-                    color: white;
-                    font-size: 10px;
-                    padding: 2px 6px;
-                    border-radius: 50%;
-                    position: absolute;
-                    top: -5px;
-                    right: -5px;
-                  "
-                  >5</span
-                >
-              </i>
-
-              <div
-                id="notificationDropdown"
-                style="
-                  display: none;
-                  position: absolute;
-                  top: 120%;
-                  right: 0;
-                  background: white;
-                  border: 1px solid #ccc;
-                  width: 220px;
-                  flex-direction: column;
-                  z-index: 100;
-                  border-radius: 10px;
-                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <p
-                  style="
-                    padding: 10px;
-                    font-weight: bold;
-                    border-bottom: 1px solid #eee;
-                  "
-                >
-                  Notifications
-                </p>
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                  "
-                  ><i class="bx bx-comment-detail" style="margin-right: 8px"></i
-                  >New comment on product</a
-                >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                  "
-                  ><i class="bx bx-user-plus" style="margin-right: 8px"></i>You
-                  have a new buyer</a
-                >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                  "
-                  ><i class="bx bx-message" style="margin-right: 8px"></i>New
-                  message from Sarah</a
-                >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    text-align: center;
-                    display: block;
-                    border-top: 1px solid #eee;
-                  "
-                  >View All</a
-                >
-              </div>
-            </div>
-
-            <!-- Search -->
-            <!-- <div class="search-bar" style="display: flex; align-items: center; border: 1px solid #363636; border-radius: 8px; padding: 5px 10px;">
-                    <input type="text" placeholder="Search..." style="border: none; outline: none; font-size: 14px; background-color: none;">
-                    <i class='bx bx-search' style="margin-left: 8px; cursor: pointer;"></i>
-                </div> -->
-
-            <!-- Profile -->
-            <div
-              class="profile"
-              style="
-                position: relative;
-                display: flex;
-                align-items: center;
-                cursor: pointer;
-              "
-            >
-              <div
-                class="info"
-                style="display: flex; align-items: center; gap: 10px"
-              >
-                <img
-                  src="/images/profile.png"
-                  alt="Profile Picture"
-                  style="width: 35px; height: 35px; border-radius: 50%"
-                />
-                <div>
-                  <a
-                    href="#"
-                    style="
-                      display: block;
-                      font-weight: bold;
-                      text-decoration: none;
-                    "
-                    >
-                    <%= user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase() %>
-              <%= user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1).toLowerCase() %>
-                    </a
-                  >
-                         <% if (companyinfo) { %>
-            <p style="margin: 0; font-size: 12px"><%= companyinfo.businessStructure %> </p>
-          <% } else { %>
-            <p style="margin: 0; font-size: 12px; color: gray">No company info</p>
-          <% } %>
-                </div>
-              </div>
-              <i
-                class="bx bx-chevron-down"
-                id="profileToggle"
-                style="margin-left: 8px"
-              ></i>
-
-              <div
-                id="profileDropdown"
-                style="
-                  display: none;
-                  position: absolute;
-                  top: 120%;
-                  right: 0;
-                  background: white;
-                  border: 1px solid #ccc;
-                  width: 150px;
-                  flex-direction: column;
-                  z-index: 100;
-                  border-radius: 10px;
-                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    display: block;
-                  "
-                  >Profile</a
-                >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    display: block;
-                  "
-                  >Settings</a
-                >
-                <a
-                  href="#"
-                  style="
-                    padding: 10px;
-                    text-decoration: none;
-                    color: #333;
-                    display: block;
-                  "
-                  >Logout</a
-                >
-              </div>
-            </div>
-          </div>
+    <div class="nav">
+        <!-- Logo -->
+        <div class="logo" style="margin-left: 20px; display: flex; align-items: center;">
+            <i class="bx bxl-codepen" style="font-size: 24px;"></i>
+            <a href="#" style="font-size: 20px; font-weight: 600; text-decoration: none; margin-left: 8px;">Adnet</a>
         </div>
 
+        <!-- Right Section -->
+        <div class="right-section" style="display: flex; align-items: center; gap: 20px; position: relative;">
+            <!-- Notification -->
+            <div class="notification" style="position: relative; display: flex; align-items: center;">
+                <i class="bx bx-bell" id="notificationToggle" style="cursor: pointer; font-size: 24px; color: #fff; position: relative;"></i>
+                <span class="badge" style="background-color: red; color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; position: absolute; top: -5px; right: -5px;">5</span>
+                <div id="notificationDropdown" style="display: none; position: absolute; top: 120%; right: 0; background: white; border: 1px solid #ccc; width: 250px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 1000;">
+                    <p style="padding: 12px; font-weight: 600; border-bottom: 1px solid #eee; ">Notifications</p>
+                    <a href="#" style="display: flex; align-items: center; padding: 10px; text-decoration: none;  font-size: 14px;">
+                        <i class="bx bx-comment-detail" style="margin-right: 8px;"></i> New comment on product
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; padding: 10px; text-decoration: none;  font-size: 14px;">
+                        <i class="bx bx-user-plus" style="margin-right: 8px;"></i> You have a new buyer
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; padding: 10px; text-decoration: none;  font-size: 14px;">
+                        <i class="bx bx-message" style="margin-right: 8px;"></i> New message from Sarah
+                    </a>
+                    <a href="#" style="display: block; text-align: center; padding: 10px; text-decoration: none;  border-top: 1px solid #eee;">View All</a>
+                </div>
+            </div>
 
-            <script src="/js/dashbord.js"></script>
+            <!-- Profile -->
+            <div class="profile" style="position: relative; display: flex; align-items: center; cursor: pointer;">
+                <div class="info" style="display: flex; align-items: center; gap: 10px;">
+                    <img src="/images/profile.png" alt="Profile Picture" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <a href="/admin" style="text-decoration: none; color: #fff; font-size: 16px; font-weight: 500;">
+                            <% if (user && user.firstName && user.lastName) { %>
+                                <%= user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase() %> 
+                                <%= user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1).toLowerCase() %>
+                            <% } else if (worker && worker.name) { %>
+                                <%= worker.name %>
+                            <% } else { %>
+                                Guest User
+                            <% } %>
+                        </a>
+                        <% if (companyinfo && companyinfo.businessStructure) { %>
+                            <p style="margin: 0; font-size: 12px; color: #666;"><%= companyinfo.businessStructure %></p>
+                        <% } else if (worker) { %>
+                            <p style="margin: 0; font-size: 12px; color: #666;">Staff Account</p>
+                        <% } else { %>
+                            <p style="margin: 0; font-size: 12px; color: #666;">No Company Info</p>
+                        <% } %>
+                    </div>
+                </div>
+                <i class="bx bx-chevron-down" id="profileToggle" style="margin-left: 8px; font-size: 16px; color: #fff;"></i>
+                <div id="profileDropdown" style="display: none; position: absolute; top: 120%; right: 0; background: white; border: 1px solid #ccc; width: 150px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 1000;">
+                    <a href="/admin" style="display: block; padding: 10px; text-decoration: none; color: #000; font-size: 14px;">Profile</a>
+                    <a href="/admin" style="display: block; padding: 10px; text-decoration: none; color: #000; font-size: 14px;">Settings</a>
+                    <a href="/logout" style="display: block; padding: 10px; text-decoration: none; color: #000; font-size: 14px;">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const profileToggle = document.getElementById('profileToggle');
+            const profileDropdown = document.getElementById('profileDropdown');
+
+            notificationToggle.addEventListener('click', () => {
+                notificationDropdown.style.display = notificationDropdown.style.display === 'none' ? 'block' : 'none';
+                profileDropdown.style.display = 'none'; // Close profile dropdown if open
+            });
+
+            profileToggle.addEventListener('click', () => {
+                profileDropdown.style.display = profileDropdown.style.display === 'none' ? 'block' : 'none';
+                notificationDropdown.style.display = 'none'; // Close notification dropdown if open
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!notificationToggle.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    notificationDropdown.style.display = 'none';
+                }
+                if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

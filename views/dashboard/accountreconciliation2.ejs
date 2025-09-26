@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank & Wallet Dashboard - Adnet</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/accountreconciliation.css">
+
+
+
+</head>
+<body>
+
+    <div class="all">
+    <%- include("_sidebar1") %>
+
+
+    
+      <div class="main-content">
+    <%- include('_topnav') %>
+   
+    <div class="dashboard-container">
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Wallet Section -->
+            <div class="section-card">
+                <h2 class="section-title">💳 My Wallet</h2>
+                
+                <div class="wallet-balance">
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-amount" id="walletBalance">₦0.00</div>
+                </div>
+
+                <div class="wallet-actions">
+                    <button class="btn btn-success" onclick="fundWallet()">
+                        💰 Fund Wallet
+                    </button>
+                    <button class="btn btn-outline" onclick="withdrawFunds()">
+                        📤 Withdraw
+                    </button>
+                </div>
+
+                <button class="btn btn-secondary" onclick="createWallet()" style="width: 100%; margin-top: 10px;">
+                    🏦 Create Wallet 
+                </button>
+            </div>
+
+            <!-- Bank Linking Form -->
+            <div class="section-card">
+                <h2 class="section-title">🏦 Link Bank Account</h2>
+                
+                <form id="bankLinkingForm">
+                    <div class="form-group">
+                        <label for="bankSelect">Select Bank</label>
+                        <select id="bankSelect" name="bank" class="form-control" required>
+                            <option value="">Choose your bank...</option>
+                            <!-- Banks will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number</label>
+                        <input type="text" id="accountNumber" name="accountNumber" class="form-control" 
+                               placeholder="Enter 10-digit account number" maxlength="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bvn">BVN (Optional)</label>
+                        <input type="text" id="bvn" name="bvn" class="form-control" 
+                               placeholder="Enter 11-digit BVN" maxlength="11">
+                    </div>
+
+                    <!-- Consent Checkbox -->
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="consent" name="consent" required>
+                        <label for="consent" class="consent-text">
+                            I authorize Adnet to securely access my account information in compliance with applicable data protection laws.
+                        </label>
+                    </div>
+
+                    <!-- Additional Fields (Dynamic) -->
+                    <div id="additionalFields" class="additional-fields">
+                        <div class="alert alert-warning">
+                            <strong>Additional verification required</strong><br>
+                            Your selected bank requires additional authentication.
+                        </div>
+                        <!-- Dynamic fields will be inserted here -->
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        🔗 Link Bank Account
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Linked Banks Section -->
+        <div class="section-card linked-banks-section">
+            <h2 class="section-title">🏛️ Linked Bank Accounts</h2>
+            
+            <div id="linkedBanksContainer">
+                <div class="banks-grid" id="banksGrid">
+                    <!-- Bank cards will be populated here -->
+                </div>
+                
+                <div class="no-banks" id="noBanks">
+                    <p>No bank accounts linked yet. Use the form above to link your first account.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+    </div>
+   <script>
+/* ---------- CONFIG ---------- */
+const API = { 
+  walletStatus: '/api/wallet/status',
+  walletCreate: '/api/wallet/create',
+  banksList: '/api/banks/list',
+  banksLink: '/api/banks/link',
+  linkedBanks: '/api/linked-banks'
+};
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded', async () => {
+  populateBankDropdown();
+  await initWalletState();
+  await loadLinkedBanks();
+  initializeFormHandlers();
+});
+
+/* ---------- WALLET: status & create ---------- */
+async function initWalletState() {
+  try {
+    const res = await fetch(API.walletStatus);
+    const json = await res.json();
+
+    const balEl = document.getElementById('walletBalance');
+    balEl.textContent = json.balance != null ? formatCurrency(json.balance) : '₦0.00';
+
+    if (!json.hasWallet) showNoWalletAlert();
+    else hideNoWalletAlert();
+
+    const createBtn = document.querySelector('button[onclick="createWallet()"]');
+    createBtn.textContent = json.hasWallet ? `Wallet: ${json.provider || 'n/a'}` : '🏦 Create Wallet';
+  } catch (err) {
+    console.error('Wallet init error', err);
+  }
+}
+
+
+function showNoWalletAlert() {
+  if (document.getElementById('walletAlert')) return;
+  const main = document.querySelector('.dashboard-container .dashboard-header');
+  const alert = document.createElement('div');
+  alert.id = 'walletAlert';
+  alert.className = 'wallet-alert';
+  alert.innerHTML = `
+    <strong>Notice:</strong> You don't have a wallet created yet. Some features require a wallet.
+    <button id="dismissWalletAlert" class="small-link">Dismiss</button>
+    <button id="quickCreateWallet" class="btn btn-sm">Create Wallet</button>
+  `;
+  main.appendChild(alert);
+
+  document.getElementById('dismissWalletAlert').addEventListener('click', () => alert.remove());
+  document.getElementById('quickCreateWallet').addEventListener('click', () => showCreateWalletModal());
+}
+
+function hideNoWalletAlert() {
+  const el = document.getElementById('walletAlert');
+  if (el) el.remove();
+}
+
+// Modal-like prompt (simple, uses native prompt for provider choice)
+async function showCreateWalletModal() {
+  // Simple choice UI — you can replace with a modal component later
+  const provider = prompt('Choose wallet provider: "paystack" or "onepipe" (type exact):', 'paystack');
+  if (!provider) return;
+  if (!['paystack','onepipe'].includes(provider.toLowerCase())) {
+    alert('Invalid provider. Type "paystack" or "onepipe".');
+    return;
+  }
+  await createWallet(provider.toLowerCase());
+}
+
+async function createWallet() {
+  try {
+    const res = await fetch(API.walletCreate, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider: 'paystack' })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert('Wallet created successfully.');
+      await initWalletState();
+    } else {
+      alert('Failed to create wallet: ' + (json.message || 'unknown'));
+    }
+  } catch (err) {
+    console.error('createWallet error', err);
+    alert('An error occurred creating wallet.');
+  }
+}
+
+/* ---------- BANKS: list, link, display ---------- */
+async function populateBankDropdown() {
+  const bankSelect = document.getElementById('bankSelect');
+  try {
+    const res = await fetch(API.banksList);
+    const data = await res.json(); // expected: [{code, name}, ...]
+    // clear existing except placeholder
+    bankSelect.innerHTML = '<option value="">Choose your bank...</option>';
+    data.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b.code;
+      opt.textContent = b.name;
+      bankSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Error loading banks', err);
+  }
+}
+
+async function loadLinkedBanks() {
+  const container = document.getElementById('banksGrid');
+  const noBanks = document.getElementById('noBanks');
+  try {
+    const res = await fetch(API.linkedBanks);
+    const data = await res.json(); // expected: array of linked banks
+    if (!Array.isArray(data) || data.length === 0) {
+      noBanks.style.display = 'block';
+      container.style.display = 'none';
+      return;
+    }
+    noBanks.style.display = 'none';
+    container.style.display = 'grid';
+    container.innerHTML = '';
+    data.forEach(bank => container.appendChild(createBankCard(bank)));
+  } catch (err) {
+    console.error('loadLinkedBanks', err);
+  }
+}
+
+function createBankCard(bank) {
+  const card = document.createElement('div');
+  card.className = 'bank-card';
+  const transactionsHtml = createTransactionsTable(bank.transactions || []);
+  card.innerHTML = `
+    <div class="bank-header">
+      <div class="bank-info">
+        <h3>${bank.bankName}</h3>
+        <div class="bank-details">${bank.accountName || ''}<br>${bank.accountNumber || ''}</div>
+      </div>
+      <div class="bank-balance">
+        <div class="balance-text">Balance</div>
+        <div class="balance-value">${formatCurrency(bank.balance || 0)}</div>
+      </div>
+    </div>
+    <div class="transactions-section">
+      <h4>📊 Recent Transactions</h4>
+      ${transactionsHtml}
+    </div>
+  `;
+  return card;
+}
+
+function createTransactionsTable(transactions) {
+  if (!transactions || transactions.length === 0) {
+    return '<div class="no-transactions">No recent transactions</div>';
+  }
+  let rows = '<table class="transactions-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr></thead><tbody>';
+  transactions.slice(0, 10).forEach(tx => {
+    const amt = tx.amount >= 0 ? '+' + formatCurrency(tx.amount) : formatCurrency(tx.amount);
+    const cls = tx.amount >= 0 ? 'amount-credit' : 'amount-debit';
+    rows += `<tr><td>${formatDate(tx.date)}</td><td>${tx.description}</td><td class="${cls}">${amt}</td><td>${tx.type || ''}</td></tr>`;
+  });
+  rows += '</tbody></table>';
+  return rows;
+}
+
+/* ---------- FORM HANDLERS ---------- */
+function initializeFormHandlers() {
+  const form = document.getElementById('bankLinkingForm');
+  const bankSelect = document.getElementById('bankSelect');
+  const accountNumber = document.getElementById('accountNumber');
+
+  bankSelect.addEventListener('change', () => {
+    // banks requiring auth could be flagged by server; keep simple
+    if (['044','058'].includes(bankSelect.value)) {
+      showAdditionalFields();
+    } else hideAdditionalFields();
+  });
+
+  accountNumber.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+    if (this.value.length !== 10) this.classList.add('error');
+    else this.classList.remove('error');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      bank: fd.get('bank'),
+      accountNumber: fd.get('accountNumber'),
+      bvn: fd.get('bvn'),
+      pin: fd.get('pin') || null,
+      consent: fd.get('consent') === 'on'
+    };
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Linking...';
+
+    try {
+      const res = await fetch(API.banksLink, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('Bank linked successfully.');
+        form.reset();
+        hideAdditionalFields();
+        await loadLinkedBanks();
+      } else {
+        alert('Failed to link: ' + (json.message || 'unknown'));
+      }
+    } catch (err) {
+      console.error('link error', err);
+      alert('Error linking bank. Check console.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  });
+}
+
+/* ---------- ADDITIONAL FIELDS ---------- */
+function showAdditionalFields() {
+  const container = document.getElementById('additionalFields');
+  container.innerHTML = `
+    <div class="alert alert-warning">
+      <strong>Additional verification required</strong><br>
+      Your selected bank requires additional authentication.
+    </div>
+    <div class="form-group">
+      <label for="pin">Transaction PIN</label>
+      <input type="password" id="pin" name="pin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" required>
+    </div>
+  `;
+  container.classList.add('show');
+}
+function hideAdditionalFields() {
+  const container = document.getElementById('additionalFields');
+  container.classList.remove('show');
+  setTimeout(()=> container.innerHTML = '', 200);
+}
+
+/* ---------- UTILS ---------- */
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-NG', { style:'currency', currency:'NGN', minimumFractionDigits:2 }).format(Math.abs(amount));
+}
+function formatDate(dateString) {
+  const d = new Date(dateString);
+  return d.toLocaleDateString('en-NG', { month:'short', day:'numeric' });
+}
+</script>
+
+</body>
+</html>

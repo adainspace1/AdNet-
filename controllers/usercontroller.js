@@ -20,6 +20,9 @@ const cloudinary = require("../cloudinary");
 const streamifier  = require("streamifier");
 
 
+const Worker = require("../models/Worker");
+
+
 
 
 const nodemailer = require("nodemailer");
@@ -714,6 +717,152 @@ const createBudget = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const createWorker = async (req, res) => {
+  try {
+    const { adminId, name, email, phone, username, password, roles, notes } = req.body;
+
+    // ✅ Check if email already exists
+    const existingWorker = await Worker.findOne({ email });
+    if (existingWorker) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // ✅ Check if username already exists (optional but recommended)
+    const existingUsername = await Worker.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const worker = new Worker({
+      adminId,
+      name,
+      email,
+      phone,
+      username,
+      password: hashedPassword,
+      roles,
+      notes
+    });
+
+    await worker.save();
+
+    res.status(201).json({ message: "Worker account created successfully", worker });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create worker", error: err.message });
+  }
+};
+
+
+// Worker login
+const workerlogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const worker = await Worker.findOne({ email });
+    if (!worker) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, worker.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // Store worker in session
+    req.session.worker = {
+      id: worker._id,
+      name: worker.name,
+      role: worker.role,
+      accessLevel: worker.accessLevel, // ✅ match DB field
+      adminId: worker.adminId
+    };
+
+    res.json({ message: "Login successful", role: worker.role, accessLevel: worker.accessLevel });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+
+
   
   
 
@@ -738,5 +887,7 @@ const createBudget = async (req, res) => {
     editpayroll,
     forcastsales,
     createdeal,
-    createBudget
+    createBudget,
+    createWorker,
+    workerlogin
 };

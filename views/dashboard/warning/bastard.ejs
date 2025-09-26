@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No Access</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #1f2937, #111827);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 0.5s ease-out;
+    }
+    .emoji {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      margin-top: 1.5rem;
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      transition: background 0.2s;
+        cursor: pointer;
+    }
+    .btn:hover {
+      background: #1e40af;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">🚫</div>
+    <h1 class="text-2xl font-bold mb-2">Access Denied</h1>
+    <p class="text-gray-300 mb-4">
+      Sorry, you don’t have permission to view this page.<br>
+      Maybe you’re trying to sneak in where you don’t belong? 😅
+    </p>
+
+    <a onclick="window.history.back()" class="btn">Back to Dashboard</a>
+  </div>
+</body>
+</html>

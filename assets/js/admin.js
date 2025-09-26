@@ -28,9 +28,12 @@ sideLinks.forEach((item) => {
 const menuBar = document.querySelector(".content nav .bx.bx-menu");
 const sideBar = document.querySelector(".sidebar");
 
-menuBar.addEventListener("click", () => {
-  sideBar.classList.toggle("close");
-});
+if (menuBar && sideBar) {
+  menuBar.addEventListener("click", () => {
+    sideBar.classList.toggle("close");
+  });
+}
+
 
 const searchBtn = document.querySelector(
   ".content nav form .form-input button"

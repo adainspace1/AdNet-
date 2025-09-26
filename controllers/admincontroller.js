@@ -387,9 +387,13 @@ const login = async (req, res) => {
       lastName: user.lastName,
     };
 
-    // Redirect to dashboard or business info (your choice)
-    const redirectPath = req.query.redirect || `/Dashboard`;
-    return res.redirect(redirectPath);
+   // Redirect to dashboard or requested page
+const redirectPath =
+  req.body.redirect || // from hidden input in the form
+  req.query.redirect || // from query string if it survived
+  "/Dashboard";         // default
+
+return res.redirect(redirectPath);
 
   } catch (err) {
     console.error("Login error:", err);

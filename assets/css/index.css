@@ -10,9 +10,9 @@
 
         body {
             line-height: 1.6;
-            color: #1a1a1a;
+            color: #1e3c72;
             overflow-x: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3754d8 0%, #142198 100%);
         }
 
         .container {
@@ -26,7 +26,7 @@
             position: fixed;
             top: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgb(255, 255, 255);
             backdrop-filter: blur(10px);
             z-index: 1000;
             padding: 1rem 0;
@@ -43,12 +43,15 @@
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+
+        font-family: "poppins", sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #4505f3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-left: -190px;
         }
 
         .nav-links {
@@ -56,6 +59,7 @@
             gap: 2rem;
             list-style: none;
             align-items: center;
+             margin-left: 550px;
         }
 
         .nav-links .all-nav{
@@ -72,6 +76,7 @@
             color: #333;
             font-weight: 500;
             transition: color 0.3s ease;
+            
         }
 
         .nav-links a:hover {
@@ -83,13 +88,14 @@
             }
 
          .nav-links .bt{
-                width: 100%;
-                height: 40px;
+                width: 80%;
+                height: 45px;
                 border-radius: 5px;
                 border: none;
                 font-weight: 600;
-                background-color: #667eea;
+                background-color: #2c4cd9;
                 cursor: pointer;
+                margin-left: 80px;
             }
 
         /* Hero Section */
@@ -97,7 +103,7 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4865e6ac 0%, #1e3c72 100%);
             color: white;
             position: relative;
             overflow: hidden;
@@ -175,7 +181,7 @@
 
         .btn-primary {
             background: white;
-            color: #667eea;
+            color: #1e3c72;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
@@ -218,8 +224,8 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
+           background: linear-gradient(135deg, #2193b0, #1e3c72);
+         -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
@@ -253,10 +259,17 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
+
+
+
+
+
+
+
         .feature-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #667eea, #1e3c72);
             border-radius: 15px;
             display: flex;
             align-items: center;

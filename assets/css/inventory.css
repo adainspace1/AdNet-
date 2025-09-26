@@ -1,6 +1,5 @@
-
-body{
-  background: var(--background);
+html body{
+  background-color: #1e293b; /* Dark background */
 }
 
 
@@ -8,14 +7,14 @@ body{
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: #f0f0f0;
+  background-color: #1e293b;
 }
 
 .main-content {
   width: 100%;
   margin: auto;
   padding: 20px;
-  background-color: #fff;
+  background-color: #1e293b;
 }
 
 .top-bar {
@@ -108,6 +107,7 @@ body{
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  background-color: #fff;
 }
 
 .search-box {
@@ -140,6 +140,8 @@ body{
 
 .data-table {
   overflow-x: auto;
+  background: #fff;
+  border-radius: 8px;
 }
 
 table {
@@ -206,50 +208,7 @@ th {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- /* Popup Styles */
+/* Popup Styles */
     .popup {
       display: none;
       position: fixed;

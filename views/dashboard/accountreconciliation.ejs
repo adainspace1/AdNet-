@@ -1,0 +1,1272 @@
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Reconciliation & Management</title>
+    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/accountreconcilation.css">
+    <link rel="stylesheet" href="/css/accountreconciliation.css">
+
+
+
+</head>
+<body>
+     <!-- Sidebar -->
+      <%- include ("_sidebar1") %>
+    <div class="main-content">
+      <%- include ("_topnav") %>
+        <!-- [1] Your Original Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1>Account Reconciliation & Management</h1>
+                <p>Centralized platform for AP & AR reconciliation with automated workflows</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary">
+                    <i class="bx bx-plus"></i> New Reconciliation
+                </button>
+                <button class="btn-secondary">
+                    <i class="bx bx-download"></i> Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- [2] Your Original Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon ap"><i class="bx bx-money-withdraw"></i></div>
+                <div class="stat-content">
+                    <h3>₦2,450,000</h3>
+                    <p>Total AP Outstanding</p>
+                    <span class="stat-change negative">-12.3%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon ar"><i class="bx bx-money"></i></div>
+                <div class="stat-content">
+                    <h3>₦3,680,500</h3>
+                    <p>Total AR Outstanding</p>
+                    <span class="stat-change positive">+8.7%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon matched"><i class="bx bx-check-double"></i></div>
+                <div class="stat-content">
+                    <h3>847</h3>
+                    <p>Auto-Matched Today</p>
+                    <span class="stat-change positive">+15.2%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon discrepancy"><i class="bx bx-error"></i></div>
+                <div class="stat-content">
+                    <h3>23</h3>
+                    <p>Discrepancies Found</p>
+                    <span class="stat-change neutral">0%</span>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+            <div class="dashboard-container">
+
+              <div class="dashboard-header"></div>
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Wallet Section -->
+            <div class="section-card">
+                <h2 class="section-title">💳 My Wallet</h2>
+                
+                <div class="wallet-balance">
+  <div class="balance-label">Available Balance</div>
+  <div class="balance-amount" id="walletBalance">₦0.00</div>
+</div>
+
+<div class="wallet-actions">
+  <button class="btn btn-success" onclick="openFundPopup()">
+    💰 Fund Wallet
+  </button>
+  <button class="btn btn-outline" onclick="openWithdrawPopup()">
+    📤 Withdraw
+  </button>
+</div>
+
+                <button class="btn btn-secondary" onclick="createWallet()" style="width: 100%; margin-top: 10px;">
+                    🏦 Create Wallet 
+                </button>
+            </div>
+
+
+            
+<!-- Fund Wallet Popup -->
+<div id="fundPopup" class="popup hidden">
+  <div class="popup-content">
+    <h3>Fund Wallet</h3>
+    <label>Amount (₦)</label>
+    <input type="number" id="fundAmount" min="100" />
+    <div class="popup-actions">
+      <button onclick="startFund()">Proceed</button>
+      <button onclick="closeFundPopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Withdraw Popup -->
+<div id="withdrawPopup" class="popup hidden">
+  <div class="popup-content">
+    <h3>Withdraw Funds</h3>
+    <label>Amount (₦)</label>
+    <input type="number" id="withdrawAmount" min="100" />
+
+    <label>Bank</label>
+    <select id="withdrawBank"></select> <!-- Will be populated dynamically -->
+
+    <label>Account Number</label>
+    <input type="text" id="withdrawAccount" maxlength="10" />
+    <p id="accountName" style="font-weight: bold; margin-top:5px;"></p>
+
+    <div class="popup-actions">
+      <button onclick="startWithdraw()">Proceed</button>
+      <button onclick="closeWithdrawPopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- No Wallet Popup -->
+<div id="noWalletPopup" class="popup hidden">
+  <div class="popup-content">
+    <h3>No Wallet Found</h3>
+    <p>You don’t have a wallet yet. Please create one to continue.</p>
+    <div class="popup-actions">
+      <button onclick="createWallet()">Create Wallet</button>
+      <button onclick="closeNoWalletPopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+            <!-- Bank Linking Form -->
+            <div class="section-card">
+                <h2 class="section-title">🏦 Link Bank Account</h2>
+                
+                <form id="bankLinkingForm">
+                    <div class="form-group">
+                        <label for="bankSelect">Select Bank</label>
+                        <select id="bankSelect" name="bank" class="form-control" required>
+                            <option value="">Choose your bank...</option>
+                            <!-- Banks will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number</label>
+                        <input type="text" id="accountNumber" name="accountNumber" class="form-control" 
+                               placeholder="Enter 10-digit account number" maxlength="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bvn">BVN (Optional)</label>
+                        <input type="text" id="bvn" name="bvn" class="form-control" 
+                               placeholder="Enter 11-digit BVN" maxlength="11">
+                    </div>
+
+                    <!-- Consent Checkbox -->
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="consent" name="consent" required>
+                        <label for="consent" class="consent-text">
+                            I authorize Adnet to securely access my account information in compliance with applicable data protection laws.
+                        </label>
+                    </div>
+
+                    <!-- Additional Fields (Dynamic) -->
+                    <div id="additionalFields" class="additional-fields">
+                        <div class="alert alert-warning">
+                            <strong>Additional verification required</strong><br>
+                            Your selected bank requires additional authentication.
+                        </div>
+                        <!-- Dynamic fields will be inserted here -->
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        🔗 Link Bank Account
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Linked Banks Section -->
+        <div class="section-card linked-banks-section">
+            <h2 class="section-title">🏛️ Linked Bank Accounts</h2>
+            
+            <div id="linkedBanksContainer">
+                <div class="banks-grid" id="banksGrid">
+                    <!-- Bank cards will be populated here -->
+                </div>
+                
+                <div class="no-banks" id="noBanks">
+                    <p>No bank accounts linked yet. Use the form above to link your first account.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- [3] Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- [4] Your Original Reconciliation Overview -->
+            <div class="dashboard-card large">
+                <div class="card-header">
+                    <h3>Reconciliation Overview</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon"><i class="bx bx-refresh"></i></button>
+                        <button class="btn-icon"><i class="bx bx-dots-horizontal-rounded"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="reconciliation-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Accounts Payable</div>
+                            <div class="summary-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 78%"></div>
+                                </div>
+                                <span>78% Reconciled</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Accounts Receivable</div>
+                            <div class="summary-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill ar-progress" style="width: 85%"></div>
+                                </div>
+                                <span>85% Reconciled</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Invoice Matching</div>
+                            <div class="summary-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill matched-progress" style="width: 92%"></div>
+                                </div>
+                                <span>92% Auto-Matched</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [5] NEW: Invoice Matching Panel -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Invoice Matching</h3>
+                    <button class="btn-small">Configure Rules</button>
+                </div>
+                <div class="card-content">
+                    <div class="matching-rules">
+                        <div class="rule-item">
+                            <i class="bx bx-check-circle"></i>
+                            <span>Amount within ±₦500 tolerance</span>
+                        </div>
+                        <div class="rule-item">
+                            <i class="bx bx-check-circle"></i>
+                            <span>Same vendor + invoice #</span>
+                        </div>
+                        <div class="rule-item">
+                            <i class="bx bx-check-circle"></i>
+                            <span>Date within 5 days</span>
+                        </div>
+                    </div>
+                    <div class="match-actions">
+                        <button class="btn-primary">Run Auto-Match</button>
+                        <button class="btn-secondary">Review Suggestions</button>
+                    </div>
+                    <div class="match-summary">
+                        <div class="match-stat">
+                            <span class="stat-value">92%</span>
+                            <span class="stat-label">Auto-match rate</span>
+                        </div>
+                        <div class="match-stat">
+                            <span class="stat-value">8</span>
+                            <span class="stat-label">Needs review</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [6] Your Original Cash Flow Insights -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Cash Flow Insights</h3>
+                    <span class="badge live">Live</span>
+                </div>
+                <div class="card-content">
+                    <div class="cash-flow-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Overdue Payments</div>
+                            <div class="metric-value overdue">₦485,200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Due This Week</div>
+                            <div class="metric-value due-week">₦1,250,000</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Available Balance</div>
+                            <div class="metric-value available">₦2,890,750</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [7] NEW: Supplier Analysis -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Supplier Spend</h3>
+                    <select class="period-select">
+                        <option>Last 30 Days</option>
+                        <option>Last Quarter</option>
+                        <option>Last Year</option>
+                    </select>
+                </div>
+                <div class="card-content">
+                    <div class="supplier-chart">
+                        <div class="chart-placeholder">
+                            <i class="bx bx-pie-chart-alt"></i>
+                            <p>Supplier spend visualization</p>
+                        </div>
+                    </div>
+                    <div class="supplier-list">
+                        <div class="supplier-item">
+                            <div class="supplier-info">
+                                <span class="supplier-name">ABC Suppliers Ltd</span>
+                                <span class="supplier-category">Office Supplies</span>
+                            </div>
+                            <span class="supplier-amount">₦1,240,000</span>
+                        </div>
+                        <div class="supplier-item">
+                            <div class="supplier-info">
+                                <span class="supplier-name">XYZ Logistics</span>
+                                <span class="supplier-category">Shipping</span>
+                            </div>
+                            <span class="supplier-amount">₦985,500</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [8] Your Original Aging Analysis -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Aging Analysis</h3>
+                    <div class="period-selector">
+                        <button class="period-btn active">30d</button>
+                        <button class="period-btn">60d</button>
+                        <button class="period-btn">90d</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="aging-chart">
+                        <div class="aging-item">
+                            <div class="aging-label">0-30 Days</div>
+                            <div class="aging-bar">
+                                <div class="aging-fill current" style="width: 65%"></div>
+                            </div>
+                            <div class="aging-amount">₦1,850,000</div>
+                        </div>
+                        <div class="aging-item">
+                            <div class="aging-label">31-60 Days</div>
+                            <div class="aging-bar">
+                                <div class="aging-fill moderate" style="width: 25%"></div>
+                            </div>
+                            <div class="aging-amount">₦690,000</div>
+                        </div>
+                        <div class="aging-item">
+                            <div class="aging-label">61-90 Days</div>
+                            <div class="aging-bar">
+                                <div class="aging-fill old" style="width: 8%"></div>
+                            </div>
+                            <div class="aging-amount">₦230,000</div>
+                        </div>
+                        <div class="aging-item">
+                            <div class="aging-label">90+ Days</div>
+                            <div class="aging-bar">
+                                <div class="aging-fill overdue" style="width: 2%"></div>
+                            </div>
+                            <div class="aging-amount">₦58,500</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [9] Your Original Exception Management -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Exception Management</h3>
+                    <span class="badge urgent">23 Urgent</span>
+                </div>
+                <div class="card-content">
+                    <div class="exception-list">
+                        <div class="exception-item high">
+                            <div class="exception-severity"></div>
+                            <div class="exception-details">
+                                <div class="exception-title">Amount Mismatch</div>
+                                <div class="exception-subtitle">Invoice #INV-2024-089</div>
+                            </div>
+                            <div class="exception-action">
+                                <button class="btn-small">Resolve</button>
+                            </div>
+                        </div>
+                        <div class="exception-item medium">
+                            <div class="exception-severity"></div>
+                            <div class="exception-details">
+                                <div class="exception-title">Missing Payment</div>
+                                <div class="exception-subtitle">Expected payment overdue</div>
+                            </div>
+                            <div class="exception-action">
+                                <button class="btn-small">Investigate</button>
+                            </div>
+                        </div>
+                        <div class="exception-item low">
+                            <div class="exception-severity"></div>
+                            <div class="exception-details">
+                                <div class="exception-title">Duplicate Entry</div>
+                                <div class="exception-subtitle">Potential duplicate detected</div>
+                            </div>
+                            <div class="exception-action">
+                                <button class="btn-small">Review</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [10] Enhanced Workflow Status -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Workflow Status</h3>
+                    <div class="workflow-toggle">
+                        <button class="toggle-btn active">Auto</button>
+                        <button class="toggle-btn">Manual</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="workflow-steps">
+                        <div class="workflow-step completed">
+                            <div class="step-icon">
+                                <i class="bx bx-check"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Data Import</div>
+                                <div class="step-subtitle">Completed at 9:30 AM</div>
+                            </div>
+                        </div>
+                        <div class="workflow-step completed">
+                            <div class="step-icon">
+                                <i class="bx bx-check"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Auto-Matching</div>
+                                <div class="step-subtitle">847 transactions matched</div>
+                            </div>
+                        </div>
+                        <div class="workflow-step active">
+                            <div class="step-icon">
+                                <i class="bx bx-time"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Exception Review</div>
+                                <div class="step-subtitle">23 items pending</div>
+                            </div>
+                        </div>
+                        <div class="workflow-step pending">
+                            <div class="step-icon">
+                                <i class="bx bx-edit"></i>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-title">Journal Entries</div>
+                                <div class="step-subtitle">3 entries pending approval</div>
+                                <div class="je-actions">
+                                    <button class="btn-small">Review</button>
+                                    <button class="btn-small">Approve</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         
+
+            <!-- [12] NEW: Access Control -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Access Control</h3>
+                    <i class="bx bx-cog"></i>
+                </div>
+                <div class="card-content">
+                    <div class="role-selection">
+                        <label>Current Role:</label>
+                        <select id="user-role">
+                            <option value="admin">Administrator</option>
+                            <option value="approver">Approver</option>
+                            <option value="reconciler">Reconciler</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                    <div class="permissions-list">
+                        <div class="permission-item">
+                            <input type="checkbox" id="can-approve" checked>
+                            <label for="can-approve">Can approve journal entries</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can-edit" checked>
+                            <label for="can-edit">Can edit reconciliations</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can-delete">
+                            <label for="can-delete">Can delete records</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="save-permissions">Save Permissions</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+  
+
+
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+
+       <script>
+/* ---------- CONFIG ---------- */
+const API = { 
+  walletStatus: '/user/api/wallet/status',
+  walletCreate: '/user/api/wallet/create',
+  banksList: '/user/api/banks/list',
+  banksLink: '/user/api/banks/link',
+  linkedBanks: '/user/api/linked-banks'
+};
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded', async () => {
+  populateBankDropdown();
+  await initWalletState();
+  await loadLinkedBanks();
+  initializeFormHandlers();
+});
+
+/* ---------- WALLET: status & create ---------- */
+async function initWalletState() {
+  try {
+    const res = await fetch(API.walletStatus);
+    const json = await res.json();
+
+    const balEl = document.getElementById('walletBalance');
+    balEl.textContent = json.balance != null ? formatCurrency(json.balance) : '₦0.00';
+
+    if (!json.hasWallet) showNoWalletAlert();
+    else hideNoWalletAlert();
+
+    const createBtn = document.querySelector('button[onclick="createWallet()"]');
+    createBtn.textContent = json.hasWallet ? `Wallet: ${json.provider || 'n/a'}` : '🏦 Create Wallet';
+  } catch (err) {
+    console.error('Wallet init error', err);
+  }
+}
+
+
+// Show banner alert if no wallet
+async function showNoWalletAlert() {
+  try {
+    const res = await fetch('/user/api/wallet/check');
+    const json = await res.json();
+
+    // Only show if the user has NO wallet
+    if (!json.success || json.hasWallet) {
+      hideNoWalletAlert();
+      return;
+    }
+
+    if (document.getElementById('walletAlert')) return; // prevent duplicates
+
+    const main = document.querySelector('.dashboard-container .dashboard-header');
+    const alert = document.createElement('div');
+    alert.id = 'walletAlert';
+    alert.className = 'wallet-alert';
+    alert.innerHTML = `
+      <strong>Notice:</strong> You don't have a wallet created yet. Some features require a wallet.
+      <button id="dismissWalletAlert" class="small-link">Dismiss</button>
+      <button id="quickCreateWallet" class="btn btn-sm">Create Wallet</button>
+    `;
+    main.appendChild(alert);
+
+    // Dismiss button
+    document.getElementById('dismissWalletAlert').addEventListener('click', () => alert.remove());
+
+    // Quick create wallet button
+    document.getElementById('quickCreateWallet').addEventListener('click', () => showCreateWalletModal());
+  } catch (err) {
+    console.error("Wallet check failed", err);
+  }
+}
+
+function hideNoWalletAlert() {
+  const el = document.getElementById('walletAlert');
+  if (el) el.remove();
+}
+
+// Modal-like prompt (for provider choice)
+async function showCreateWalletModal() {
+  const provider = prompt('Choose wallet provider: "paystack" or "onepipe" (type exact):', 'paystack');
+  if (!provider) return;
+  if (!['paystack','onepipe'].includes(provider.toLowerCase())) {
+    alert('Invalid provider. Type "paystack" or "onepipe".');
+    return;
+  }
+  await createWallet(provider.toLowerCase());
+  hideNoWalletAlert(); // ✅ remove banner once wallet is created
+}
+
+// Create wallet API call
+async function createWallet(provider) {
+  try {
+    const res = await fetch('/user/api/wallet/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert("Wallet created successfully!");
+      // update balance display if available
+      if (document.getElementById("walletBalance")) {
+        document.getElementById("walletBalance").textContent =
+          new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' })
+          .format(json.wallet.balance);
+      }
+    } else {
+      alert(json.message || "Failed to create wallet");
+    }
+  } catch (err) {
+    console.error("Create wallet error", err);
+    alert("Error creating wallet, please try again.");
+  }
+}
+
+
+async function createWallet() {
+  try {
+    const res = await fetch(API.walletCreate, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider: 'paystack' })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert('Wallet created successfully.');
+      await initWalletState();
+    } else {
+      alert('Failed to create wallet: ' + (json.message || 'unknown'));
+    }
+  } catch (err) {
+    console.error('createWallet error', err);
+    alert('An error occurred creating wallet.');
+  }
+}
+
+/* ---------- BANKS: list, link, display ---------- */
+async function populateBankDropdown() {
+  const bankSelect = document.getElementById('bankSelect');
+  try {
+    const res = await fetch(API.banksList);
+    const data = await res.json(); // expected: [{code, name}, ...]
+    // clear existing except placeholder
+    bankSelect.innerHTML = '<option value="">Choose your bank...</option>';
+    data.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b.code;
+      opt.textContent = b.name;
+      bankSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Error loading banks', err);
+  }
+}
+
+async function loadLinkedBanks() {
+  const container = document.getElementById('banksGrid');
+  const noBanks = document.getElementById('noBanks');
+  try {
+    const res = await fetch(API.linkedBanks);
+    const data = await res.json(); // expected: array of linked banks
+    if (!Array.isArray(data) || data.length === 0) {
+      noBanks.style.display = 'block';
+      container.style.display = 'none';
+      return;
+    }
+    noBanks.style.display = 'none';
+    container.style.display = 'grid';
+    container.innerHTML = '';
+    data.forEach(bank => container.appendChild(createBankCard(bank)));
+  } catch (err) {
+    console.error('loadLinkedBanks', err);
+  }
+}
+
+function createBankCard(bank) {
+  const card = document.createElement('div');
+  card.className = 'bank-card';
+  const transactionsHtml = createTransactionsTable(bank.transactions || []);
+  card.innerHTML = `
+    <div class="bank-header">
+      <div class="bank-info">
+        <h3>${bank.bankName}</h3>
+        <div class="bank-details">${bank.accountName || ''}<br>${bank.accountNumber || ''}</div>
+      </div>
+      <div class="bank-balance">
+        <div class="balance-text">Balance</div>
+        <div class="balance-value">${formatCurrency(bank.balance || 0)}</div>
+      </div>
+    </div>
+    <div class="transactions-section">
+      <h4>📊 Recent Transactions</h4>
+      ${transactionsHtml}
+    </div>
+  `;
+  return card;
+}
+
+function createTransactionsTable(transactions) {
+  if (!transactions || transactions.length === 0) {
+    return '<div class="no-transactions">No recent transactions</div>';
+  }
+  let rows = '<table class="transactions-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr></thead><tbody>';
+  transactions.slice(0, 10).forEach(tx => {
+    const amt = tx.amount >= 0 ? '+' + formatCurrency(tx.amount) : formatCurrency(tx.amount);
+    const cls = tx.amount >= 0 ? 'amount-credit' : 'amount-debit';
+    rows += `<tr><td>${formatDate(tx.date)}</td><td>${tx.description}</td><td class="${cls}">${amt}</td><td>${tx.type || ''}</td></tr>`;
+  });
+  rows += '</tbody></table>';
+  return rows;
+}
+
+/* ---------- FORM HANDLERS ---------- */
+function initializeFormHandlers() {
+  const form = document.getElementById('bankLinkingForm');
+  const bankSelect = document.getElementById('bankSelect');
+  const accountNumber = document.getElementById('accountNumber');
+
+  bankSelect.addEventListener('change', () => {
+    // banks requiring auth could be flagged by server; keep simple
+    if (['044','058'].includes(bankSelect.value)) {
+      showAdditionalFields();
+    } else hideAdditionalFields();
+  });
+
+  accountNumber.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+    if (this.value.length !== 10) this.classList.add('error');
+    else this.classList.remove('error');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      bank: fd.get('bank'),
+      accountNumber: fd.get('accountNumber'),
+      bvn: fd.get('bvn'),
+      pin: fd.get('pin') || null,
+      consent: fd.get('consent') === 'on'
+    };
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Linking...';
+
+    try {
+      const res = await fetch(API.banksLink, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('Bank linked successfully.');
+        form.reset();
+        hideAdditionalFields();
+        await loadLinkedBanks();
+      } else {
+        alert('Failed to link: ' + (json.message || 'unknown'));
+      }
+    } catch (err) {
+      console.error('link error', err);
+      alert('Error linking bank. Check console.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  });
+}
+
+/* ---------- ADDITIONAL FIELDS ---------- */
+function showAdditionalFields() {
+  const container = document.getElementById('additionalFields');
+  container.innerHTML = `
+    <div class="alert alert-warning">
+      <strong>Additional verification required</strong><br>
+      Your selected bank requires additional authentication.
+    </div>
+    <div class="form-group">
+      <label for="pin">Transaction PIN</label>
+      <input type="password" id="pin" name="pin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" required>
+    </div>
+  `;
+  container.classList.add('show');
+}
+function hideAdditionalFields() {
+  const container = document.getElementById('additionalFields');
+  container.classList.remove('show');
+  setTimeout(()=> container.innerHTML = '', 200);
+}
+
+/* ---------- UTILS ---------- */
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-NG', { style:'currency', currency:'NGN', minimumFractionDigits:2 }).format(Math.abs(amount));
+}
+function formatDate(dateString) {
+  const d = new Date(dateString);
+  return d.toLocaleDateString('en-NG', { month:'short', day:'numeric' });
+}
+
+
+
+
+
+
+
+// 🟢 Open Fund Popup with wallet check
+async function openFundPopup() {
+  try {
+    const res = await fetch('/user/api/wallet/check');
+    const json = await res.json();
+
+    if (json.success && json.hasWallet) {
+      // ✅ Wallet exists → show fund popup
+      document.getElementById("fundPopup").classList.remove("hidden");
+    } else {
+      // ❌ No wallet → show "no wallet" popup
+      document.getElementById("noWalletPopup").classList.remove("hidden");
+    }
+  } catch (err) {
+    console.error("Wallet check failed", err);
+    alert("Error checking wallet, please try again.");
+  }
+}
+
+function closeFundPopup() {
+  document.getElementById("fundPopup").classList.add("hidden");
+}
+
+function closeFundPopup() {
+  document.getElementById("fundPopup").classList.add("hidden");
+}
+
+// 🟢 Withdraw Popup with wallet check
+async function openWithdrawPopup() {
+  try {
+    const res = await fetch('/user/api/wallet/check');
+    const json = await res.json();
+
+    if (json.success && json.hasWallet) {
+      // User has wallet → open withdraw popup
+      document.getElementById("withdrawPopup").classList.remove("hidden");
+    } else {
+      // No wallet → show "no wallet" popup
+      document.getElementById("noWalletPopup").classList.remove("hidden");
+    }
+  } catch (err) {
+    console.error("Wallet check failed", err);
+    alert("Error checking wallet, please try again.");
+  }
+}
+
+function closeWithdrawPopup() {
+  document.getElementById("withdrawPopup").classList.add("hidden");
+}
+
+// 🟢 Close "No Wallet" Popup
+function closeNoWalletPopup() {
+  document.getElementById("noWalletPopup").classList.add("hidden");
+}
+
+// 🟢 Create Wallet action
+async function createWallet() {
+  try {
+    const res = await fetch('/user/api/wallet/create', { method: 'POST' });
+    const json = await res.json();
+
+    if (json.success) {
+      alert("Wallet created successfully!");
+      closeNoWalletPopup();
+      openWithdrawPopup(); // open popup now that wallet exists
+    } else {
+      alert(json.message || "Failed to create wallet.");
+    }
+  } catch (err) {
+    console.error("Create wallet error", err);
+    alert("Error creating wallet.");
+  }
+}
+
+
+function startFund() {
+  const amount = document.getElementById("fundAmount").value;
+  if (!amount || amount <= 0) return alert("Enter valid amount");
+
+  let handler = PaystackPop.setup({
+    key: "<%= process.env.PAYSTACK_PUBLIC_KEy %>", 
+    email: "<%= user.email %>", 
+    amount: amount * 100, // kobo
+    currency: "NGN",
+    ref: "fund_" + Date.now(),
+    callback: function(response) {
+      // Send reference to backend
+      fetch("/user/api/wallet/fund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: parseFloat(amount), reference: response.reference })
+      })
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          document.getElementById("walletBalance").textContent =
+            new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" })
+            .format(json.wallet.balance);
+          closeFundPopup();
+        } else {
+          alert(json.message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Funding failed");
+      });
+    },
+    onClose: function() {
+      alert("Payment window closed");
+    }
+  });
+  handler.openIframe();
+}
+
+// Helper async function for verification (keeps logic clean)
+async function verifyAndFundWallet(amount, reference) {
+  try {
+    const res = await fetch('/user/api/wallet/fund', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        amount: amount, 
+        reference: reference 
+      })
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Fetch error:', err);
+    throw err;
+  }
+}
+
+
+// WITHDRAW FUNDS
+async function startWithdraw() {
+  const amount = document.getElementById("withdrawAmount").value;
+  const bank = document.getElementById("withdrawBank").value;
+  const account = document.getElementById("withdrawAccount").value;
+
+  if (!amount || amount <= 0) return alert("Enter amount");
+  if (!account || account.length !== 10) return alert("Enter valid account number");
+
+  try {
+    const res = await fetch('/user/api/wallet/withdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, bank, account })
+    });
+    const json = await res.json();
+    if (json.success) {
+      document.getElementById("walletBalance").textContent =
+        new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' })
+        .format(json.wallet.balance);
+      closeWithdrawPopup();
+    } else {
+      alert(json.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Withdrawal failed");
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Load banks dynamically
+  const res = await fetch('/user/api/banks');
+  const json = await res.json();
+  const bankSelect = document.getElementById("withdrawBank");
+  bankSelect.innerHTML = json.data.map(b => 
+    `<option value="${b.code}">${b.name}</option>`
+  ).join("");
+});
+
+// Auto-fetch account name when account number is filled
+document.getElementById("withdrawAccount").addEventListener("blur", async () => {
+  const account = document.getElementById("withdrawAccount").value;
+  const bank = document.getElementById("withdrawBank").value;
+  if (account.length === 10) {
+    const res = await fetch('/user/api/resolve-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account, bank })
+    });
+    const json = await res.json();
+    if (json.success) {
+      document.getElementById("accountName").textContent = 
+        `Account Name: ${json.data.account_name}`;
+    } else {
+      document.getElementById("accountName").textContent = "❌ Invalid account";
+    }
+  }
+});
+
+
+
+</script>
+
+
+
+
+    <script>
+
+
+
+    // [1] Bank Account Management System (Original)
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const bankAccountModal = document.getElementById('bank-account-modal');
+    const transactionModal = document.getElementById('transaction-modal');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    const bankAccountForm = document.getElementById('bank-account-form');
+    const transactionForm = document.getElementById('transaction-form');
+    const accountsList = document.getElementById('accounts-list');
+    const transactionsList = document.getElementById('transactions-list');
+    const bankNameSelect = document.getElementById('bank-name');
+    const transactionAccountSelect = document.getElementById('transaction-account');
+    
+    // Sample data
+    let bankAccounts = JSON.parse(localStorage.getItem('bankAccounts')) || [];
+    let transactions = JSON.parse(localStorage.getItem('bankTransactions')) || [];
+    
+    
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', closeAllModals);
+    });
+
+    
+
+    
+    // Functions
+    function openBankAccountModal() {
+        bankAccountModal.classList.add('active');
+    }
+    
+    function openTransactionModal(accountId = null) {
+        // Populate account dropdown
+        transactionAccountSelect.innerHTML = '<option value="">Select Account</option>';
+        bankAccounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account.id;
+            option.textContent = `${account.bankName} - ${account.accountNumber} (${account.accountName})`;
+            transactionAccountSelect.appendChild(option);
+            
+            if (accountId && account.id === accountId) {
+                option.selected = true;
+            }
+        });
+        
+        document.getElementById('transaction-date').valueAsDate = new Date();
+        transactionModal.classList.add('active');
+    }
+    
+    function closeAllModals() {
+        bankAccountModal.classList.remove('active');
+        transactionModal.classList.remove('active');
+    }
+    
+    function handleBankAccountSubmit(e) {
+        e.preventDefault();
+        
+        const bankName = bankNameSelect.value === 'other' 
+            ? document.getElementById('other-bank-name').value 
+            : bankNameSelect.value;
+        const accountName = document.getElementById('account-name').value;
+        const accountNumber = document.getElementById('account-number').value;
+        const accountType = document.getElementById('account-type').value;
+        const initialBalance = parseFloat(document.getElementById('initial-balance').value) || 0;
+        
+        const newAccount = {
+            id: Date.now().toString(),
+            bankName,
+            accountName,
+            accountNumber,
+            accountType,
+            balance: initialBalance,
+            createdAt: new Date().toISOString()
+        };
+        
+        bankAccounts.push(newAccount);
+        localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+        
+        if (initialBalance > 0) {
+            const initialTransaction = {
+                id: Date.now().toString(),
+                accountId: newAccount.id,
+                type: 'credit',
+                amount: initialBalance,
+                date: new Date().toISOString(),
+                description: 'Initial balance',
+                reference: 'INITIAL',
+                createdAt: new Date().toISOString()
+            };
+            
+            transactions.push(initialTransaction);
+            localStorage.setItem('bankTransactions', JSON.stringify(transactions));
+        }
+        
+        bankAccountForm.reset();
+        closeAllModals();
+    }
+    
+    function handleTransactionSubmit(e) {
+        e.preventDefault();
+        
+        const accountId = document.getElementById('transaction-account').value;
+        const type = document.getElementById('transaction-type').value;
+        const amount = parseFloat(document.getElementById('transaction-amount').value);
+        const date = document.getElementById('transaction-date').value;
+        const description = document.getElementById('transaction-description').value;
+        const reference = document.getElementById('transaction-reference').value;
+        
+        const newTransaction = {
+            id: Date.now().toString(),
+            accountId,
+            type,
+            amount,
+            date,
+            description,
+            reference: reference || 'N/A',
+            createdAt: new Date().toISOString()
+        };
+        
+        transactions.push(newTransaction);
+        localStorage.setItem('bankTransactions', JSON.stringify(transactions));
+        
+        const accountIndex = bankAccounts.findIndex(acc => acc.id === accountId);
+        if (accountIndex !== -1) {
+            if (type === 'credit') {
+                bankAccounts[accountIndex].balance += amount;
+            } else {
+                bankAccounts[accountIndex].balance -= amount;
+            }
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+        }
+        
+
+        transactionForm.reset();
+        closeAllModals();
+    }
+    
+
+ 
+    function updateSummary() {
+        const totalBalance = bankAccounts.reduce((sum, account) => sum + account.balance, 0);
+        const totalCredits = transactions
+            .filter(t => t.type === 'credit')
+            .reduce((sum, t) => sum + t.amount, 0);
+        const totalDebits = transactions
+            .filter(t => t.type === 'debit')
+            .reduce((sum, t) => sum + t.amount, 0);
+        
+        document.querySelector('.balance-amount').textContent = `₦${totalBalance.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+        document.querySelector('.stat-value.positive').textContent = `₦${totalCredits.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+        document.querySelector('.stat-value.negative').textContent = `₦${totalDebits.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+    }
+    
+    function formatAccountNumber(number) {
+        return number.replace(/(\d{4})(?=\d)/g, '$1 ');
+    }
+    
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-NG', options);
+    }
+    
+    window.addEventListener('click', function(e) {
+        if (e.target === bankAccountModal || e.target === transactionModal) {
+            closeAllModals();
+        }
+    });
+
+    // [2] NEW: Invoice Matching
+    document.querySelector('.match-actions .btn-primary').addEventListener('click', function() {
+        alert('Running auto-matching process...');
+    });
+    
+    document.querySelector('.match-actions .btn-secondary').addEventListener('click', function() {
+        alert('Showing match suggestions');
+    });
+
+    // [3] NEW: Supplier Analysis
+    document.querySelector('.period-select').addEventListener('change', function() {
+        console.log('Supplier period changed to:', this.value);
+    });
+
+    // [4] NEW: Journal Entry Workflow
+    document.querySelectorAll('.je-actions .btn-small').forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert(this.textContent + ' journal entries');
+        });
+    });
+
+    // [5] NEW: Access Control
+    const roleSelect = document.getElementById('user-role');
+    const saveBtn = document.getElementById('save-permissions');
+    
+    roleSelect.addEventListener('change', function() {
+        console.log('Role changed to:', this.value);
+    });
+    
+    saveBtn.addEventListener('click', function() {
+        alert('Permissions saved successfully');
+    });
+});
+    </script>
+     
+    <script src="/js/accountreconcilation.js"></script>
+</body>
+</html>
+
+

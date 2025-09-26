@@ -34,8 +34,8 @@
  <%- include ("_sidebar1") %>
 
  <div class="main-content">
-    <%- include ("_topnav") %>
 
+  <%- include ("_topnav") %>
 
 
 
@@ -158,11 +158,11 @@
 
 
   <div class="form-group">
-    <input type="hidden" name="recipientId" value="<%= user.id %>" required>
+    <input type="text" name="recipientId" value="<%= user.id || worker._id %>" required>
   </div>
 
   <div class="form-group">
-    <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
+    <input type="hidden" name="username" value="<%= user.firstName || worker.name %> <%= user.lastName %>" required>
   </div>
 
   <div class="form-group">

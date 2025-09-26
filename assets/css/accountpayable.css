@@ -30,8 +30,6 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
             line-height: 1.6;
             transition: all 0.3s ease;
             overflow: hidden;
@@ -43,6 +41,8 @@
             height: 100vh;
             overflow-y: scroll;
         }
+
+   
 
         .container {
             display: flex;
@@ -61,6 +61,7 @@
             justify-content: between;
             align-items: center;
             box-shadow: var(--shadow);
+            margin-top: 20px;
         }
 
         .header-left {
@@ -429,3 +430,5 @@
 .status-overdue {
   background-color: #9c27b0; /* purple */
 }
+
+

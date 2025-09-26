@@ -16,6 +16,7 @@ const AccountsPayable = require('./models/AccountsPayable');
 const AccountReceivable = require("./models/AccountReceivable");
 const CashFlow = require('./models/CashFlow');
 const Liquidity = require("./models/Liquidity");
+const Wallet = require('./models/Wallet');
 
 const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
@@ -38,6 +39,7 @@ const Company = require("./models/company");
 const BankInfo = require("./models/bank");
 const Asset = require('./models/Asset');
 const Budget = require('./models/budget');
+const Worker = require("./models/Worker"); // adjust path
 
 const port=3900
 const MongoStore = require("connect-mongo");
@@ -134,7 +136,7 @@ app.get("/Personal", (req, res) => {
 
 app.get("/Businessinfo", async (req, res) => {
   try {
-    const userId = req.query.id;
+    const userId = req.query.id;io
     console.log('Received userId:', userId);
 
     if (!userId) {
@@ -324,23 +326,164 @@ app.get('/email-exists', (req, res) => {
 
 
 
+// middleware/ensureAuthenticated.js
+// Usage: const ensureAuthenticated = require('./middleware/ensureAuthenticated');
+// then use: app.get('/Inventory', ensureAuthenticated, handler)
 
+// middleware/auth.js
 function ensureAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-    return next(); // ✅ User is logged in
+  try {
+    const url = req.originalUrl || '';
+    const urlLower = url.toLowerCase();
+    const now = new Date().toISOString();
+
+    // Case 1: Superadmin/Admin (full access)
+    if (req.session && req.session.user) {
+      const userId = req.session.user._id;
+      console.log(
+        `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED | userId: ${userId} | email: ${req.session.user.email || ''}`
+      );
+
+      req.recipientId = userId;
+      req.isWorker = false;
+      return next();
+    }
+
+    // Case 2: Worker (role + accessLevel check)
+    if (req.session && req.session.worker) {
+      const worker = req.session.worker;
+      const { _id: workerId, adminId, role, accessLevel } = worker;
+
+      // role → allowed paths
+      const roleAccess = {
+        inventory: {
+          basic: ["/inventory"],
+          max: ["/inventory", "/production", "/inventory/tracking", "/inventory/history"],
+        },
+        sales: {
+          basic: ["/sales"],
+          max: ["/sales", "/sales/reports", "/salehistory"],
+        },
+        production: {
+          basic: ["/production"],
+          max: ["/production", "/production/logs", "/production/history"],
+        },
+        finance: {
+          basic: ["/expenses"],
+          max: ["/expenses", "/expenses/admin", "/viewallexpenses", "/api/expenses"],
+        },
+        hr: {
+          basic: ["/hr"],
+          max: ["/hr", "/hr/reports", "/hr/history"],
+        },
+        custom: {
+          basic: [],
+          max: [],
+        },
+      };
+
+      // role → base path scope (worker admin-level must stay within scope)
+      const roleBasePath = {
+        inventory: "/inventory",
+        sales: "/sales",
+        production: "/production",
+        finance: "/expenses",
+        hr: "/hr",
+        custom: "",
+      };
+
+      const config = roleAccess[role] || roleAccess["custom"];
+      const basePath = roleBasePath[role] || "";
+
+      // Attach for downstream
+      req.recipientId = adminId;
+      req.isWorker = true;
+
+      // Role missing
+      if (!config) {
+        console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (unknown role) | workerId: ${workerId} | role: ${role}`);
+        return res.redirect("/bastard");
+      }
+
+      // Worker with admin-level: allow only within their role's base path
+      if (accessLevel === "admin") {
+        if (basePath && urlLower.startsWith(basePath)) {
+          console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED (role-admin) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
+          return next();
+        } else {
+          console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (outside role scope) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
+          return res.redirect("/bastard");
+        }
+      }
+
+      // Basic/Max check
+      const allowedPaths = config[accessLevel];
+      if (allowedPaths && allowedPaths.some((path) => urlLower.startsWith(path))) {
+        console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
+        return next();
+      }
+
+      console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (no permission) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
+      return res.redirect("/bastard");
+    }
+
+    // Nobody logged in → redirect accordingly
+    const attemptedUrl = req.originalUrl;
+    console.log(`[AUTH] ${now} | PAGE: ${attemptedUrl} | TYPE: GUEST | REDIRECT`);
+
+    if (attemptedUrl && attemptedUrl.startsWith("/employee")) {
+      // Worker login redirect
+      return res.redirect(`/employee/repons/auth/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+    } else {
+      // Normal login redirect
+      return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+    }
+  } catch (err) {
+    console.error("Error in ensureAuthenticated middleware:", err);
+    res.status(500).send("Server error");
   }
-
-  // ❌ User not logged in → save attempted URL
-  const attemptedUrl = req.originalUrl;
-  console.log("redirecting", attemptedUrl);
-
-  return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
 }
+
+
+
+app.get('/bastard', (req, res) => {
+  try {
+    res.render('dashboard/warning/bastard', { user: req.session.user || null, worker: req.session.worker || null });
+  } catch (err) {
+    console.error('Error rendering login page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+
+
+function ensureWorker(req, res, next) {
+  if (req.session && req.session.worker) {
+    return next();
+  }
+  res.redirect("/worker/login"); // redirect to login if not logged in
+}
+
+
+
 
 app.get('/login', (req, res) => {
   try {
     const redirect = req.query.redirect || '/Dashboard';
     res.render('dashboard/login', { redirect });
+  } catch (err) {
+    console.error('Error rendering login page:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+app.get('/employee/repons/auth/login', (req, res) => {
+  try {
+    const redirect = req.query.redirect || '/Dashboard';
+    res.render('dashboard/worker/workerlog', { redirect });
   } catch (err) {
     console.error('Error rendering login page:', err);
     res.status(500).send('Server error');
@@ -366,21 +509,30 @@ app.get('/login', (req, res) => {
 
 
 
-
-
 app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
-    console.log("Dashboard - Looking for company info using ID:", userId);
+    let recipientId = null;
+    let companyinfo = null;
 
-    const inventoryItems = await Inventory.find({ reciepientId: userId }).sort({ date: -1 });
-    const companyinfo = await Company.findOne({ reciepientId: userId });
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+            companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
-    console.log(userId)
-    console.log(companyinfo)
-    const salesItems = await Sales.find({ reciepientId: userId });
-    
-    const expenses = await Expense.find({ reciepientId: userId }).sort({ createdAt: -1 });
+    console.log("Dashboard recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
+
+    // ✅ Fetch data
+    const inventoryItems = await Inventory.find({ recipientId }).sort({ date: -1 });
+    const salesItems = await Sales.find({ recipientId });
+    const expenses = await Expense.find({ recipientId }).sort({ createdAt: -1 });
 
     // Totals
     const totalInventory = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -397,12 +549,12 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
     todayEnd.setHours(23, 59, 59, 999);
 
     const todaySales = await Sales.find({
-      recipientId: userId,
+      recipientId,
       date: { $gte: todayStart, $lte: todayEnd }
     }).sort({ date: -1 }).limit(3);
 
     const todayExpenses = await Expense.find({
-      recipientId: userId,
+      recipientId,
       createdAt: { $gte: todayStart, $lte: todayEnd }
     }).sort({ date: -1 }).limit(3);
 
@@ -423,7 +575,7 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
 
     const weeklySales = await Sales.find({
-      recipientId: userId,
+      recipientId,
       date: { $gte: oneWeekAgo, $lte: new Date() }
     });
 
@@ -438,8 +590,9 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
       weeklyData[5], weeklyData[6], weeklyData[0],
     ];
 
-    res.render('dashboard/dashboard', {
-      user: req.session.user,  // full user object
+    res.render("dashboard/dashboard", {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
       inventory: inventoryItems,
       companyinfo,
       todayExpenses,
@@ -454,8 +607,8 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Error loading dashboard page:', err);
-    res.status(500).send('Server error');
+    console.error("Error loading dashboard page:", err);
+    res.status(500).send("Server error");
   }
 });
 
@@ -467,22 +620,47 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
 
 app.get('/Inventory', ensureAuthenticated, async (req, res) => {
   try {
-    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id }).sort({ addedDate: -1 });
-    const salesItems = await Sales.find({ recipientId: req.session.user._id });
+    let recipientId;
 
-    // 1. Total Inventory Value (scost * currentquantity)
+    if (req.session.user) {
+      // ✅ Superadmin / Owner
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      // ✅ Worker → use their admin's ID
+      recipientId = req.session.worker.adminId;
+    } else {
+      return res.redirect('/login'); // fallback if no session
+    }
+
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    }
+
+
+    // Fetch inventory & sales with recipientId
+    const inventoryItems = await Inventory.find({ recipientId }).sort({ addedDate: -1 });
+    const salesItems = await Sales.find({ recipientId });
+
+    // Total Inventory Value
     const totalInventoryValue = inventoryItems.reduce((sum, item) => {
       return sum + (item.scost * item.currentquantity);
     }, 0);
 
-    // 2. Total Items Count (sum of currentquantity)
+    // Total Items Count
     const totalItemsCount = inventoryItems.reduce((sum, item) => {
       return sum + item.currentquantity;
     }, 0);
 
-    // 3. Top Selling ItemName (from Sales)
+    // Top Selling Item
     const itemSalesMap = {};
-
     salesItems.forEach(sale => {
       const name = sale.item;
       if (typeof name === 'string' && name.trim() !== '') {
@@ -504,29 +682,53 @@ app.get('/Inventory', ensureAuthenticated, async (req, res) => {
       }
     }
 
+    res.render('dashboard/inventory', {
+      user: req.session.user || req.session.worker,
+      worker: req.session.worker || null, // the staff
+      inventory: inventoryItems,
+  
+      companyinfo, // ✅ now it's always defined
+      totalInventoryValue,
+      totalItemsCount,
+      topSellingItem
+    });
 
-        res.render('dashboard/inventory', {
-          user: req.session.user,
-          inventory: inventoryItems,
-          totalInventoryValue,
-          totalItemsCount,
-          topSellingItem
-        });
-
-      } catch (err) {
-        console.error('Error loading inventory page:', err);
-        res.status(500).send('Server error');
-      }
+  } catch (err) {
+    console.error('Error loading inventory page:', err);
+    res.status(500).send('Server error');
+  }
 });
+
 
 
 
 // ✅ Inventory Tracking Page
 app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
   try {
-    const recipientId = req.session.user._id; // 🔐 Adjust according to your session setup
+    // Check if session belongs to admin or worker
+    let recipientId = null;
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      console.log("session admin id", req.session.user._id)
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      console.log("session worker admin id", req.session.worker.adminId)
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    }
+
+    if (!recipientId) {
+      return res.status(403).send("Unauthorized: No valid session");
+    }
+
     const items = await Inventory.find({ recipientId });
 
+
+    
     // Format items for frontend
     const formatted = items.map((item, index) => {
       const status =
@@ -542,32 +744,36 @@ app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
         category: item.category,
         quantity: item.currentquantity,
         unitPrice: item.scost,
-        reorderLevel: 10, // 📌 Use dynamic value if available in DB
+        reorderLevel: 10,
         supplier: item.supplier,
         status,
         lastUpdated: item.addedDate,
       };
     });
 
-    // Calculate KPIs
+    // KPIs
     const totalItems = formatted.length;
     const totalQuantity = formatted.reduce((sum, i) => sum + i.quantity, 0);
     const lowStockCount = formatted.filter((i) => i.status === "Low Stock").length;
     const outOfStockCount = formatted.filter((i) => i.status === "Out of Stock").length;
 
     res.render("dashboard/inventory tracking", {
-      user: req.session.user,
+      user: req.session.user || req.session.worker,
+      worker: req.session.worker || null,
+      companyinfo, // ✅ now it's always defined
       inventory: formatted,
       totalItems,
       totalQuantity,
       lowStockCount,
       outOfStockCount,
     });
+
   } catch (err) {
     console.error("Error loading inventory tracking page:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 
@@ -584,6 +790,24 @@ app.get('/inventoryforecast', ensureAuthenticated, async (req, res) => {
       categoryMap[name] = (categoryMap[name] || 0) + item.currentquantity;
     });
 
+        let recipientId = null;
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    }
+
+    if (!recipientId) {
+      return res.status(403).send("Unauthorized: No valid session");
+    }
+
+
     const inventoryNames = Object.keys(categoryMap);
     const inventoryQuantities = Object.values(categoryMap);
     const totalQuantity = inventoryQuantities.reduce((acc, qty) => acc + qty, 0);
@@ -597,7 +821,9 @@ app.get('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
     res.render('dashboard/inventory forecast', {
       user: req.session.user,
+      worker: req.session.worker || null,
       products,
+      companyinfo,
       inventoryNames,
       inventoryQuantities,
       totalQuantity,
@@ -650,6 +876,8 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
     const unitCost = product.bcost || 100;
     const hCost = (holdingCost / 100) * unitCost;
     const eoq = Math.ceil(Math.sqrt((2 * annualDemand * orderCost) / hCost));
+
+    
 
     // Get all inventory for display again
     const products = await Inventory.find({});
@@ -731,47 +959,91 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 
 
+// --- Sales page (list + today's totals) ---
 app.get('/Sales', ensureAuthenticated, async (req, res) => {
   try {
-    const inventoryItems = await Inventory.find({ recipientId: req.session.user._id });
-    const salesitem = await Sales.find({ recipientId: req.session.user._id });
+    // Determine who we should query for (admin or worker)
+     let recipientId;
 
-    const oneinventoryItems = await Inventory.findOne({ recipientId: req.session.user._id });
+    if (req.session.user) {
+      // ✅ Superadmin / Owner
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      // ✅ Worker → use their admin's ID
+      recipientId = req.session.worker.adminId;
+    } else {
+      return res.redirect('/login'); // fallback if no session
+    }
 
-    // Get today's date range
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    }
+
+    // Fetch data for this recipient
+    const inventoryItems = await Inventory.find({ recipientId }).sort({ addedDate: -1 });
+    const salesItems = await Sales.find({ recipientId });
+
+    const oneinventoryItems = await Inventory.findOne({ recipientId });
+
+    // Today's date range
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Get today's sales
+    // Today's sales for recipient
     const todaySales = await Sales.find({
-      recipientId: req.session.user._id,
+      recipientId,
       date: { $gte: todayStart, $lte: todayEnd }
     });
 
     // Count and sum
     const totalSalesToday = todaySales.length;
-    const totalAmountToday = todaySales.reduce((sum, sale) => sum + sale.amount, 0);
+    const totalAmountToday = todaySales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
 
+    // Render with both possible session objects so EJS can pick user or worker
     res.render('dashboard/sales', {
-      user: req.session.user,
+      user: req.session.user || req.session.worker,
+      worker: req.session.worker || null,
+      companyinfo,
       inventory: inventoryItems,
-      salesitem,
+      salesitem: salesItems,
       totalSalesToday,
       totalAmountToday,
       oneinventoryItems
     });
   } catch (err) {
-    console.error('Error loading inventory page:', err);
+    console.error('Error loading sales page:', err);
     res.status(500).send('Server error');
   }
 });
 
 
-
-app.get("/salehistory", ensureAuthenticated, async (req, res) => {
+// --- Sale history (filters + optional JSON response) ---
+app.get('/salehistory', ensureAuthenticated, async (req, res) => {
   try {
+    // resolve recipientId same as above
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session && req.session.user) {
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ recipientId });
+    } else if (req.session && req.session.worker) {
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ recipientId });
+    } else {
+      return res.redirect('/login');
+    }
+
     const {
       dateFrom,
       dateTo,
@@ -782,8 +1054,9 @@ app.get("/salehistory", ensureAuthenticated, async (req, res) => {
       maxAmount
     } = req.query;
 
-    const filters = { recipientId: req.session.user._id };
+    const filters = { recipientId };
 
+    // date filtering
     if (dateFrom || dateTo) {
       filters.date = {};
       if (dateFrom) filters.date.$gte = new Date(dateFrom);
@@ -797,6 +1070,7 @@ app.get("/salehistory", ensureAuthenticated, async (req, res) => {
     if (category) filters.item = category;
     if (rep) filters.salesRep = rep;
     if (customer) filters.customer = new RegExp(customer, 'i');
+
     if (minAmount || maxAmount) {
       filters.amount = {};
       if (minAmount) filters.amount.$gte = parseFloat(minAmount);
@@ -805,27 +1079,28 @@ app.get("/salehistory", ensureAuthenticated, async (req, res) => {
 
     const salesitem = await Sales.find(filters).sort({ date: -1 });
 
-    // Get distinct categories for the dropdown
-      const categories = await Sales.distinct("item", { recipientId: req.session.user._id });
+    // distinct categories for dropdown using recipientId
+    const categories = await Sales.distinct('item', { recipientId });
 
-
-    // If AJAX, return JSON
-    if (req.headers.accept.includes("application/json")) {
+    // If client accepts JSON (AJAX), return JSON
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
       return res.json(salesitem);
     }
 
-    // Otherwise, render full page
-    res.render("dashboard/salehistory", {
-      user: req.session.user._id,
+    // Render page and pass context for templates
+    res.render('dashboard/salehistory', {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,
       salesitem,
-      categories,
+      categories
     });
-
   } catch (err) {
-    console.error("Error loading filtered sales:", err);
-    res.status(500).send("Server error");
+    console.error('Error loading filtered sales:', err);
+    res.status(500).send('Server error');
   }
 });
+
 
 
 
@@ -941,47 +1216,86 @@ app.get("/api/sales-chart-data", ensureAuthenticated, async (req, res) => {
 
 
 
-app.get('/Expenses', ensureAuthenticated, async (req, res) => {
+// ---------- Expenses page (staff/admin-aware) ----------
+// ---------- Expenses page (staff/admin-aware with companyInfo) ----------
+app.get("/Expenses", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
 
-    // All expenses by user
-    const expenses = await Expense.find({ recipientId: userId }).sort({ createdAt: -1 });
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
-    // Today's expenses
+    console.log("Expenses recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
+
+    // 🔹 Fetch all expenses for recipient
+    const expenses = await Expense.find({ recipientId })
+      .sort({ createdAt: -1 })
+
+    // 🔹 Today’s expenses
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
     const todayExpenses = await Expense.find({
-      recipientId: userId,
-      createdAt: { $gte: todayStart, $lte: todayEnd }
-    });
+      recipientId,
+      createdAt: { $gte: todayStart, $lte: todayEnd },
+    })
+      .sort({ createdAt: -1 })
+      .populate("companyInfo");
 
-    // Get active budgets
-    const budgets = await Budget.find({ recipientId: userId }).sort({startDate: -1 });
+    // 🔹 Budgets for this recipient
+    const budgets = await Budget.find({ recipientId }).sort({ startDate: -1 });
+    const availableBudgets = budgets.filter((b) => Number(b.currentamount) > 0);
 
-    // 🔹 Filter for budgets with remaining money
-    const availableBudgets = budgets.filter(b => b.currentamount > 0);
-
+    // 🔹 Totals
     const totalExpensesToday = todayExpenses.length;
-    const totalAmountToday = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString();
+    const totalAmountToday = todayExpenses.reduce(
+      (sum, e) => sum + Number(e.amount || 0),
+      0
+    );
 
-    res.render('dashboard/expenses', {
-      user: req.session.user._id,
+    // 🔹 Build category summary (for chart/analysis)
+    const category = expenses.map((exp) => ({
+      type: "expense",
+      amount: Number(exp.amount || 0),
+      date: exp.createdAt,
+      company: exp.companyInfo ? exp.companyInfo.name : "Unknown",
+    }));
+
+    // 🔹 Render page
+    res.render("dashboard/expenses", {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,              // ✅ same setup as Dashboard
       expenses,
       todayExpenses,
       totalExpensesToday,
-      totalAmountToday,
-      budgets: availableBudgets // send only usable budgets
+      totalAmountToday: totalAmountToday.toLocaleString(),
+      budgets: availableBudgets,
+      date: new Date().toDateString(),
+      category,
     });
-
   } catch (err) {
-    console.error('Error loading expenses page:', err);
-    res.status(500).send('Server error');
+    console.error("Error loading expenses page:", err);
+    res.status(500).send("Server error");
   }
 });
+
+
+
+
 
 
 
@@ -1127,18 +1441,24 @@ async function getRecentExpenses(userId) {
 
 
 
+// ---------- View all expenses (analytics view) ----------
 app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    // recipient determined from admin or worker
+    let recipientId;
+    if (req.session.user) recipientId = req.session.user._id;
+    else if (req.session.worker) recipientId = req.session.worker.adminId;
+    else return res.redirect('/login');
 
-    const expenses = await Expense.find({ recipientId: userId });
+    const expenses = await Expense.find({ recipientId }).sort({ createdAt: -1 }).lean();
 
-    const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalAmount = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
     const totalTransactions = expenses.length;
     const averageExpense = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
 
     res.render("dashboard/viewallexpenses", {
-      user: req.session.user._id,
+      user: req.session.user || null,
+      worker: req.session.worker || null,
       totalAmount,
       totalTransactions,
       averageExpense,
@@ -1152,11 +1472,18 @@ app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
 
 
 
+
+// ---------- API endpoints (JSON) ----------
 app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
   try {
-    const expenses = await Expense.find({ recipientId: req.session.user._id });
+    let recipientId;
+    if (req.session.user) recipientId = req.session.user._id;
+    else if (req.session.worker) recipientId = req.session.worker.adminId;
+    else return res.status(401).json({ error: 'Unauthorized' });
 
-    const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const expenses = await Expense.find({ recipientId });
+
+    const totalAmount = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
     const totalTransactions = expenses.length;
     const averageExpense = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
 
@@ -1171,10 +1498,14 @@ app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
   }
 });
 
-
 app.get("/api/expenses/all", ensureAuthenticated, async (req, res) => {
   try {
-    const expenses = await Expense.find({ recipientId: req.session.user._id }).sort({ createdAt: -1 });
+    let recipientId;
+    if (req.session.user) recipientId = req.session.user._id;
+    else if (req.session.worker) recipientId = req.session.worker.adminId;
+    else return res.status(401).json({ error: 'Unauthorized' });
+
+    const expenses = await Expense.find({ recipientId }).sort({ createdAt: -1 }).lean();
     res.json({ expenses });
   } catch (err) {
     console.error("Error loading expenses:", err);
@@ -1194,52 +1525,67 @@ app.get("/api/expenses/all", ensureAuthenticated, async (req, res) => {
 
 
 
+
+
+
+
+
+// Transaction Page Route
 app.get("/Transaction", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
     const { type } = req.query;
 
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
-      const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+    console.log("Transaction recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
 
-    // Static production for now
-    const todayProductions = await Production.find({ 
-      recipientId: userId,
-      createdAt: { $gte: start, $lte: end },
-    });
-    const today = new Date().toDateString();
-
+    // 🔹 Create reusable "today" date range
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    const todaySales = await Sales.find({
-      recipientId: userId,
-      date: { $gte: todayStart, $lte: todayEnd }
-    });
+    // 🔹 Fetch data with companyInfo populated
+    const [todayProductions, todaySales, todayExpenses] = await Promise.all([
+      Production.find({
+        recipientId,
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      }).populate("companyInfo"),
+      Sales.find({
+        recipientId,
+        date: { $gte: todayStart, $lte: todayEnd },
+      }).populate("companyInfo"),
+      Expense.find({
+        recipientId,
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      }).populate("companyInfo"),
+    ]);
 
-    const todayStartt = new Date();
-    todayStartt.setHours(0, 0, 0, 0);
-    const todayEndd = new Date();
-    todayEndd.setHours(23, 59, 59, 999);
+    // 🔹 Totals
+    const totalSales = todaySales.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const totalProduction = todayProductions.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const totalExpenses = todayExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const totalTransactions =
+      todaySales.length + todayExpenses.length + todayProductions.length;
 
-    const todayExpenses = await Expense.find({
-      recipientId: userId,
-      createdAt: { $gte: todayStartt, $lte: todayEndd }
-    });
-
-
-
-    const totalSales = todaySales.reduce((sum, s) => sum + s.amount, 0);
-    const totalProduction = todayProductions.reduce((sum, s) => sum + s.amount, 0);
-    const totalExpenses = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
-    const totalTransactions = todaySales.length + todayExpenses.length + todayProductions.length;
-
+    // 🔹 Render
     res.render("dashboard/transaction", {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,         // ✅ consistent with schema
       sales: todaySales,
       expenses: todayExpenses,
       production: todayProductions,
@@ -1247,14 +1593,107 @@ app.get("/Transaction", ensureAuthenticated, async (req, res) => {
       totalSales,
       totalProduction,
       totalExpenses,
-      totalTransactions
+      totalTransactions,
+    });
+  } catch (err) {
+    console.error("Error loading transaction page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+app.get('/Profit', ensureAuthenticated, async (req, res) => {
+  try {
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect('/login');
+    }
+
+    console.log("Profit recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
+
+    // 🔹 Get today's date range
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // 🔹 Fetch sales, expenses, production with companyInfo populated
+    const [sales, expenses, production] = await Promise.all([
+      Sales.find({ recipientId, date: { $gte: todayStart, $lte: todayEnd } })
+        .populate("companyInfo"),
+      Expense.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } })
+        .populate("companyInfo"),
+      Production.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } })
+        .populate("companyInfo")
+    ]);
+
+    // 🔹 Calculate totals
+    const salesTotal = sales.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const expenseTotal = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const productionTotal = production.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+    const profit = salesTotal; // ✅ currently treating profit as sales only
+    const loss = expenseTotal + productionTotal;
+
+    // 🔹 Category array (for charting/summary)
+    const category = [
+      ...sales.map(s => ({
+        type: 'sales',
+        amount: Number(s.amount || 0),
+        date: s.date,
+        company: s.companyInfo ? s.companyInfo.companyName : "Unknown"
+      })),
+      ...expenses.map(e => ({
+        type: 'expenses',
+        amount: Number(e.amount || 0),
+        date: e.createdAt,
+        company: e.companyInfo ? e.companyInfo.companyName : "Unknown"
+      })),
+      ...production.map(p => ({
+        type: 'production',
+        amount: Number(p.amount || 0),
+        date: p.createdAt,
+        company: p.companyInfo ? p.companyInfo.companyName : "Unknown"
+      }))
+    ];
+
+    // 🔹 Render page
+    res.render('dashboard/profit', {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,   // ✅ now included
+      salesTotal,
+      expenseTotal,
+      productionTotal,
+      date: new Date().toDateString(),
+      profit,
+      sales,
+      expenses,
+      production,
+      category,
+      loss
     });
 
   } catch (err) {
-    console.error('Error loading transaction page:', err);
-    res.status(500).send('Server error');
+    console.error('Error loading profit page:', err);
+    res.status(500).send('Server Error');
   }
 });
+
+
 
 
 // GET production page
@@ -1271,190 +1710,102 @@ app.get("/Transaction", ensureAuthenticated, async (req, res) => {
 
 app.get('/Production', ensureAuthenticated, async (req, res) => {
   try {
+    let recipientId = null;
+    let companyinfo = null;
 
-    const userId = req.session.user._id;
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect('/login');
+    }
 
+    console.log("Production recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
 
-      const allProductions = await Production.find();
-const uniqueCategories = [...new Set(allProductions.map(p => p.category.toLowerCase()))];
+    // 🔹 Fetch ALL productions for recipient (for categories/overview)
+    const allProductions = await Production.find({ recipientId });
 
+    const uniqueCategories = [...new Set(allProductions.map(p => p.category.toLowerCase()))];
 
-
-
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-
-    const productions = await Production.find({ 
-      recipientId: userId,
-      createdAt: { $gte: start, $lte: end },
-    });
-
-    console.log("Productions:", productions);
-
-    const totalProductionAmount = productions.reduce((sum, sale) => sum + sale.amount, 0);
-
-const sortedProductions = productions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-const summary = {
-  totalEntries: sortedProductions.length,
-  totalCost: sortedProductions.reduce((sum, p) => sum + p.amount, 0),
-  categories: [...new Set(sortedProductions.map(p => p.category))],
-  all: sortedProductions
-};
-
-
-
-
-   // Create breakdown by category
-    const categoryBreakdown = {};
-    productions.forEach(p => {
-      if (!categoryBreakdown[p.category]) {
-        categoryBreakdown[p.category] = 0;
-      }
-      categoryBreakdown[p.category] += p.amount;
-    });
-
-  res.render('dashboard/production', 
-    {
-      user: req.session.user._id,
-       summary,
-       categoryBreakdown,
-       sortedProductions,
-       totalProductionAmount,
-       allProductions,
-       uniqueCategories
-      });
-  }
-  catch (err) {
-    console.error('Error loading production page:', err);
-    res.status(500).send('Server error');
-  }
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-app.get('/Profit', ensureAuthenticated, async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-
+    // 🔹 Today's date range
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const end = new Date();
     end.setHours(23, 59, 59, 999);
 
-       // Get today's date range
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    // Get today's sales
-    const sales = await Sales.find({
-      recipientId: req.session.user._id,
-      date: { $gte: todayStart, $lte: todayEnd }
+    // 🔹 Fetch today’s productions only
+    const productions = await Production.find({ 
+      recipientId,
+      createdAt: { $gte: start, $lte: end },
     });
-    console.log("Sales:", sales);
 
-      
-    const profit = sales.reduce((sum, sale) => sum + sale.amount, 0);
+    console.log("Productions:", productions);
 
-    console.log("profits", profit)
+    // 🔹 Calculate totals
+    const totalProductionAmount = productions.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    const expenses = await Expense.find({ 
-       recipientId: userId,
-       createdAt: { $gte: start, $lte: end }
-       });
+    const sortedProductions = productions.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
 
-    console.log("Expenses:", expenses);
+    const summary = {
+      totalEntries: sortedProductions.length,
+      totalCost: sortedProductions.reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      categories: [...new Set(sortedProductions.map(p => p.category))],
+      all: sortedProductions
+    };
 
-        const expensesTotal = expenses.reduce((sum, sale) => sum + sale.amount, 0);
+    // 🔹 Breakdown by category
+    const categoryBreakdown = {};
+    productions.forEach(p => {
+      if (!categoryBreakdown[p.category]) {
+        categoryBreakdown[p.category] = 0;
+      }
+      categoryBreakdown[p.category] += Number(p.amount || 0);
+    });
 
-      
-
-    const production = await Production.find({  recipientId: userId,
-       createdAt: { $gte: start, $lte: end } 
-      });
-
-    const salesTotal = sales.reduce((sum, s) => sum + s.amount, 0);
-    const expenseTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
-    const productionTotal = production.reduce((sum, p) => sum + p.amount, 0);
-
-    const loss = expensesTotal + productionTotal;
-
-
-
-
-    const category = [];
-
-// Combine sales
-sales.forEach(s => {
-  category.push({
-    type: 'sales',
-    amount: s.amount,
-    date: s.date
-  });
-});
-
-// Combine expenses
-expenses.forEach(e => {
-  category.push({
-    type: 'expenses',
-    amount: e.amount,
-    date: e.createdAt
-  });
-});
-
-// Combine production
-production.forEach(p => {
-  category.push({
-    type: 'production',
-    amount: p.amount,
-    date: p.createdAt
-  });
-});
-
-
-res.render('dashboard/profit', {
-  user: req.session.user._id,
-  salesTotal,
-  expenseTotal,
-  productionTotal,
-  date: new Date().toDateString(),
-  profit,
-  sales,
-  expenses,
-  production,
-  category, // send it to EJS
-  loss
-});
+    // 🔹 Render page
+    res.render('dashboard/production', {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,             // ✅ already available
+      summary,
+      categoryBreakdown,
+      sortedProductions,
+      totalProductionAmount,
+      allProductions,
+      uniqueCategories
+    });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
+    console.error('Error loading production page:', err);
+    res.status(500).send('Server error');
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1465,9 +1816,22 @@ res.render('dashboard/profit', {
 
 app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
 
-    const accountPayables = await AccountsPayable.find({ recipientId: userId }).sort({ createdAt: -1 });
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+
+    const accountPayables = await AccountsPayable.find({ recipientId }).sort({ createdAt: -1 });
 
     const today = new Date();
     const nextWeek = new Date();
@@ -1504,7 +1868,9 @@ app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
     });
 
     res.render("dashboard/accountpayable", {
-      user: req.session.user._id,
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo, // ✅ now included
       accountPayables,
       summary: {
         totalOutstanding,
@@ -1531,27 +1897,55 @@ app.get("/accountpayable", ensureAuthenticated, async (req, res) => {
 
 
 
+
+
+
+
+
+
 app.get("/accountreceivable", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
 
-    const receivables = await AccountReceivable.find({ recipientId: userId }).sort({ createdAt: -1 });
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
-    // Calculate summary values
-    const totalReceivables = receivables.reduce((sum, r) => sum + r.ramount, 0);
-const collectedAmount = receivables
-  .filter(r => r.status === "paid" || r.status === "partially paid")
-  .reduce((sum, r) => {
-    const paid = r.amountPaid != null ? r.amountPaid : (r.status === "paid" ? r.ramount : 0);
-    return sum + paid;
-  }, 0);
+    const receivables = await AccountReceivable.find({ recipientId }).sort({ createdAt: -1 });
+
+    // 🔹 Calculate summary values
+    const totalReceivables = receivables.reduce((sum, r) => sum + (r.ramount || 0), 0);
+
+    const collectedAmount = receivables
+      .filter(r => r.status === "paid" || r.status === "partially paid")
+      .reduce((sum, r) => {
+        const paid =
+          r.amountPaid != null
+            ? r.amountPaid
+            : r.status === "paid"
+            ? r.ramount
+            : 0;
+        return sum + paid;
+      }, 0);
 
     const overdueAmount = receivables
       .filter(r => new Date(r.dueDate) < new Date() && r.status !== "paid")
-      .reduce((sum, r) => sum + (r.ramount - (r.amountPaid || 0)), 0);
+      .reduce((sum, r) => sum + ((r.ramount || 0) - (r.amountPaid || 0)), 0);
 
+    // 🔹 Render
     res.render("dashboard/accountrecievable", {
-      user: req.session.user._id,
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo, // ✅ included
       receivables,
       summary: {
         totalReceivables,
@@ -1571,51 +1965,72 @@ const collectedAmount = receivables
 
 
 
+
 app.get("/pricedeterminant", ensureAuthenticated, async (req, res) => {
-  try{
-    
-     const userId = req.session.user._id;
+  try {
+    let recipientId = null;
+    let companyinfo = null;
 
-          const allProductions = await Production.find();
-const uniqueCategories = [...new Set(allProductions.map(p => p.category.toLowerCase()))];
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
+    // 🔹 Fetch ALL productions (for categories/overview)
+    const allProductions = await Production.find({ recipientId });
+    const uniqueCategories = [...new Set(allProductions.map(p => p.category.toLowerCase()))];
 
+    // 🔹 Today’s range
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
 
-
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-
-    const productions = await Production.find({ 
-      recipientId: userId,
+    // 🔹 Today’s productions only
+    const productions = await Production.find({
+      recipientId,
       createdAt: { $gte: start, $lte: end },
     });
 
     console.log("Productions:", productions);
 
-    const totalProductionAmount = productions.reduce((sum, sale) => sum + sale.amount, 0);
+    // 🔹 Totals
+    const totalProductionAmount = productions.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-const sortedProductions = productions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sortedProductions = productions.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
 
-const summary = {
-  totalEntries: sortedProductions.length,
-  totalCost: sortedProductions.reduce((sum, p) => sum + p.amount, 0),
-  categories: [...new Set(sortedProductions.map(p => p.category))],
-  all: sortedProductions
-};
+    const summary = {
+      totalEntries: sortedProductions.length,
+      totalCost: sortedProductions.reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      categories: [...new Set(sortedProductions.map(p => p.category))],
+      all: sortedProductions,
+    };
 
-  res.render("dashboard/pricedetermination", {
-    user: req.session.user._id,
-    allProductions,
-    uniqueCategories,
-    summary,
-    sortedProductions,
-    totalProductionAmount,
-    productions
-  });
-  } catch (err){
-    res.render("cannot find lalalala")
+    // 🔹 Render
+    res.render("dashboard/pricedetermination", {
+      user: req.session.user || null,
+      worker: req.session.worker || null,
+      companyinfo,              // ✅ included now
+      allProductions,
+      uniqueCategories,
+      summary,
+      sortedProductions,
+      totalProductionAmount,
+      productions,
+    });
+
+  } catch (err) {
+    console.error("Error loading pricedeterminant page:", err);
+    res.status(500).send("Server error");
   }
 });
 
@@ -1626,33 +2041,51 @@ const summary = {
 
 
 
+
 // GET endpoint to fetch product details
 app.get('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
-    try {
-        const productId = req.params.id;
-        const userId = req.session.user._id;
+  try {
+    let recipientId = null;
+    let companyinfo = null;
 
-        const product = await Production.findOne({ _id: productId, recipientId: userId });
-        if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
-        }
-
-        // Prepare response data
-        const responseData = {
-            success: true,
-            product: {
-                unitPrice: product.unitPrice || 0, // Cost price
-                amount: product.amount || 0,       // Total price (could be selling price or total including profit)
-                // Add other fields if needed, e.g., fees if stored separately
-            }
-        };
-
-        res.json(responseData);
-    } catch (error) {
-        console.error('Error fetching product data:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
     }
+
+    const productId = req.params.id;
+
+    // 🔹 Fetch the product belonging to this recipient
+    const product = await Production.findOne({ _id: productId, recipientId });
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    // 🔹 Prepare response
+    const responseData = {
+      success: true,
+      product: {
+        unitPrice: product.unitPrice || 0, // Cost price
+        amount: product.amount || 0,       // Total amount
+      },
+      companyinfo, // ✅ included for context
+    };
+
+    res.json(responseData);
+
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
+
 
 // PUT endpoint to update product details
 app.put('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) => {
@@ -1700,11 +2133,12 @@ app.put('/pricedeterminant/product/:id', ensureAuthenticated, async (req, res) =
 
 
 
-
-
 app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id;
+
+    // Fetch company info
+    const companyInfo = await Company.findOne({ reciepientId: userId });
 
     const salesitem = await Sales.find({ recipientId: userId });
     const expenses = await Expense.find({ recipientId: userId });
@@ -1768,63 +2202,63 @@ app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
       return {
         ...tx,
         balance: runningBalance,
-        formattedDate: new Date(tx.date).toISOString().split('T')[0],
+        formattedDate: new Date(tx.date).toISOString().split("T")[0],
       };
-    }).reverse(); // Reverse again to restore descending order
+    }).reverse();
 
-    // Send to EJS
-    const businessinfo = await Business.findOne({ reciepientId: userId });
-
+        const businessinfo = await Business.findOne({ reciepientId: userId });
     // === Summary Calculations ===
-let openingBalance = 2450000; // or fetch from DB if saved
+    let openingBalance = 2450000; // or fetch from DB if saved
+    let totalInvoiced = 0;
+    let totalPayments = 0;
+    let totalCreditNotes = 0;
+    let totalExpenses = 0;
 
-let totalInvoiced = 0;
-let totalPayments = 0;
-let totalCreditNotes = 0;
-let totalExpenses = 0;
+    // Sales
+    salesitem.forEach((sale) => {
+      totalInvoiced += sale.amount;
+      totalPayments += sale.amount; // Assuming full payments
+    });
 
-// Sales
-salesitem.forEach(sale => {
-  totalInvoiced += sale.amount;
-  totalPayments += sale.amount; // Assuming full payments
-});
+    // Expenses
+    expenses.forEach((exp) => {
+      totalExpenses += exp.amount;
+    });
 
-// Expenses
-expenses.forEach(exp => {
-  totalExpenses += exp.amount;
-});
+    // Production
+    production.forEach((prod) => {
+      const net = prod.profit - prod.fees;
+      if (net >= 0) {
+        totalInvoiced += net;
+      } else {
+        totalCreditNotes += Math.abs(net);
+      }
+    });
 
-// Production
-production.forEach(prod => {
-  const net = prod.profit - prod.fees;
-  if (net >= 0) {
-    totalInvoiced += net;
-  } else {
-    totalCreditNotes += Math.abs(net);
-  }
-});
+    const closingBalance =
+      openingBalance + totalInvoiced - totalExpenses - totalCreditNotes;
 
-const closingBalance = openingBalance + totalInvoiced - totalExpenses - totalCreditNotes;
-
-
-    res.render('dashboard/statement of account.ejs', {
-      user: req.session.user._id,
-      transactions,
-      businessinfo,
-        summary: {
+    res.render("dashboard/statement of account.ejs", {
+  user: req.session.user,
+  worker: req.session.worker || null,
+  transactions,
+  companyinfo: companyInfo, // 👈 match the lowercase name used in EJS
+  businessinfo,
+  summary: {
     openingBalance,
     totalInvoiced,
     totalPayments,
     totalCreditNotes,
-    closingBalance
-  }
-    });
+    closingBalance,
+  },
+});
 
   } catch (err) {
-    console.error('Error loading statement of account page:', err);
-    res.status(500).send('Server error');
+    console.error("Error loading statement of account page:", err);
+    res.status(500).send("Server error");
   }
 });
+
 
 
 
@@ -1836,6 +2270,13 @@ app.get("/Assets", ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id;
 
+    // Fetch company info
+    const companyinfo = await Company.findOne({ reciepientId: userId });
+
+    // Optionally, include worker info if using worker sessions
+    const worker = req.session.worker || null;
+
+    // Fetch all assets
     const allAssets = await Asset.find({ userId }).sort({ createdAt: -1 });
 
     // Group assets by ledgerType
@@ -1844,16 +2285,20 @@ app.get("/Assets", ensureAuthenticated, async (req, res) => {
     const accountAssets = allAssets.filter(a => a.ledgerType === 'Fixed Asset Accounts');
 
     res.render("dashboard/Assetms.ejs", { 
-      user: req.session.user._id,
+      user: req.session.user,
+      worker,          // Pass worker info to EJS
+      companyinfo,     // Pass company info to EJS
       registerAssets,
       scheduleAssets,
       accountAssets
     });
 
   } catch (error) {
+    console.error("Error fetching assets:", error);
     res.status(500).send('Error fetching assets: ' + error.message);
   }
 });
+
 
 
 
@@ -1942,16 +2387,31 @@ app.post('/assets/add', async (req, res) => {
 
 
 
+// Helper to display value positive unless it's a true loss
+function displayValue(val, isLoss = false) {
+  // If it's a true loss, keep negative
+  if (isLoss) return val;
+  // Otherwise, always display as positive
+  return Math.abs(val);
+}
+
+// Cashflow Route
 app.get("/cashflow", ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id;
     let { start, end } = req.query;
 
+    // Set date range
     let startDate = start ? new Date(start) : new Date("2000-01-01");
     let endDate = end ? new Date(end) : new Date();
     endDate.setHours(23, 59, 59, 999);
     startDate.setHours(0, 0, 0, 0);
 
+    // Fetch company info and worker info
+    const companyinfo = await Company.findOne({ reciepientId: userId });
+    const worker = req.session.worker || null;
+
+    // Fetch sales, expenses, productions, asset purchases
     const [sales, expenses, productions, assetPurchases] = await Promise.all([
       Sales.find({ recipientId: userId, date: { $gte: startDate, $lte: endDate } }),
       Expense.find({ recipientId: userId, createdAt: { $gte: startDate, $lte: endDate } }),
@@ -1959,54 +2419,58 @@ app.get("/cashflow", ensureAuthenticated, async (req, res) => {
       Asset.find({ userId, purchaseDate: { $gte: startDate, $lte: endDate } })
     ]);
 
-    // Mock Calculation (Replace with your actual logic)
-    const netIncome = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0) -
-                      expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-    const depreciation = assetPurchases.reduce((sum, a) => sum + ((a.depreciation || 0)), 0);
-    const changeInWorkingCapital = 1000; // Placeholder
-    const investmentIncome = 800; // Placeholder
-    const loanReceived = 3000; // Placeholder
-    const dividendsPaid = 1200; // Placeholder
-    const leasingValue = 2500; // Placeholder
+    // --- Calculations ---
+    const netIncomeRaw = sales.reduce((sum, sale) => sum + (sale.amount || 0), 0) -
+                         expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    const depreciationRaw = assetPurchases.reduce((sum, a) => sum + (a.depreciation || 0), 0);
+    const changeInWorkingCapitalRaw = 1000; // placeholder
+    const investmentIncomeRaw = 800; // placeholder
+    const loanReceivedRaw = 3000; // placeholder
+    const dividendsPaidRaw = 1200; // placeholder
+    const leasingValueRaw = 2500; // placeholder
     const notes = "Generated based on available data.";
 
-    const netCashFromOperating = netIncome + depreciation + changeInWorkingCapital;
-    const purchaseOfEquipment = assetPurchases.reduce((sum, a) => sum + (a.amount || 0), 0);
-    const netCashFromInvesting = investmentIncome - purchaseOfEquipment;
-    const netCashFromFinancing = loanReceived - dividendsPaid;
-    const netIncreaseInCash = netCashFromOperating + netCashFromInvesting + netCashFromFinancing;
+    const netCashFromOperatingRaw = netIncomeRaw + depreciationRaw + changeInWorkingCapitalRaw;
+    const purchaseOfEquipmentRaw = assetPurchases.reduce((sum, a) => sum + (a.amount || 0), 0);
+    const netCashFromInvestingRaw = investmentIncomeRaw - purchaseOfEquipmentRaw;
+    const netCashFromFinancingRaw = loanReceivedRaw - dividendsPaidRaw;
+    const netIncreaseInCashRaw = netCashFromOperatingRaw + netCashFromInvestingRaw + netCashFromFinancingRaw;
 
-    const cashAtBeginning = 10000; // placeholder
-    const cashAtEnd = cashAtBeginning + netIncreaseInCash;
+    const cashAtBeginningRaw = 10000; // placeholder
+    const cashAtEndRaw = cashAtBeginningRaw + netIncreaseInCashRaw;
 
+    // --- Apply displayValue to ensure positives unless true loss ---
     const cashFlow = {
       operatingActivities: {
-        netIncome,
-        depreciation,
-        changeInWorkingCapital,
-        netCashFromOperating
+        netIncome: displayValue(netIncomeRaw, netIncomeRaw < 0),
+        depreciation: displayValue(depreciationRaw),
+        changeInWorkingCapital: displayValue(changeInWorkingCapitalRaw),
+        netCashFromOperating: displayValue(netCashFromOperatingRaw)
       },
       investingActivities: {
-        purchaseOfEquipment,
-        investmentIncome,
-        netCashFromInvesting
+        purchaseOfEquipment: displayValue(purchaseOfEquipmentRaw),
+        investmentIncome: displayValue(investmentIncomeRaw),
+        netCashFromInvesting: displayValue(netCashFromInvestingRaw)
       },
       financingActivities: {
-        loanReceived,
-        dividendsPaid,
-        netCashFromFinancing
+        loanReceived: displayValue(loanReceivedRaw),
+        dividendsPaid: displayValue(dividendsPaidRaw),
+        netCashFromFinancing: displayValue(netCashFromFinancingRaw)
       },
-      netIncreaseInCash,
+      netIncreaseInCash: displayValue(netIncreaseInCashRaw),
       cashBalanceSummary: {
-        cashAtBeginning,
-        cashAtEnd
+        cashAtBeginning: displayValue(cashAtBeginningRaw),
+        cashAtEnd: displayValue(cashAtEndRaw)
       },
-      nonCashTransactions: leasingValue,
+      nonCashTransactions: displayValue(leasingValueRaw),
       notes
     };
 
+    // Render View
     res.render("dashboard/cashflow", {
-      user: req.session.user._id,
+      user: req.session.user,
+      worker,
+      companyinfo,
       sales,
       expenses,
       productions,
@@ -2014,9 +2478,11 @@ app.get("/cashflow", ensureAuthenticated, async (req, res) => {
       startDate,
       endDate,
       date: endDate.toLocaleDateString("en-US", {
-        year: "numeric", month: "long", day: "numeric"
+        year: "numeric",
+        month: "long",
+        day: "numeric"
       }),
-      cashFlow // ✅ Send this to EJS
+      cashFlow
     });
 
   } catch (err) {
@@ -2029,6 +2495,11 @@ app.get("/cashflow", ensureAuthenticated, async (req, res) => {
 
 
 
+// Helper to display value positive unless it's a true loss
+function displayValue(val, isLoss = false) {
+  if (isLoss) return val; // keep negative for true loss
+  return Math.abs(val);   // otherwise show positive
+}
 
 app.get("/balancesheet", ensureAuthenticated, async (req, res) => {
   try {
@@ -2038,58 +2509,57 @@ app.get("/balancesheet", ensureAuthenticated, async (req, res) => {
     const inventoryItems = await Inventory.find({ recipientId: userId });
     const salesItems = await Sales.find({ recipientId: userId });
     const productionItems = await Production.find({ recipientId: userId });
-
     const accountPayables = await AccountsPayable.find({ recipientId: userId });
-
-     const receivables = await AccountReceivable.find({ recipientId: userId }).sort({ createdAt: -1 });
+    const receivables = await AccountReceivable.find({ recipientId: userId }).sort({ createdAt: -1 });
 
     // --- Assets ---
-    const cash = salesItems.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
-    const inventoryValue = inventoryItems.reduce((sum, item) => sum + (item.scost * item.currentquantity), 0);
-
-    const accountpayables = accountPayables.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
-
-        const accountreceivables = receivables.reduce((sum, sale) => sum + (sale.amount || 0), 0); // Assuming sales generate cash
+    const cashRaw = salesItems.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+    const inventoryValueRaw = inventoryItems.reduce((sum, item) => sum + (item.scost * item.currentquantity), 0);
+    const accountpayablesRaw = accountPayables.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+    const accountreceivablesRaw = receivables.reduce((sum, sale) => sum + (sale.amount || 0), 0);
 
     const assets = {
-      cash,
-      inventory: inventoryValue,
-      equipment: 0, // Add logic if you track equipment
-      accountreceivables, // Add logic if needed
-      investments: 0 // Optional
+      cash: displayValue(cashRaw),
+      inventory: displayValue(inventoryValueRaw),
+      equipment: displayValue(0), // Add logic if you track equipment
+      accountreceivables: displayValue(accountreceivablesRaw),
+      investments: displayValue(0) // Optional
     };
 
     // --- Liabilities ---
-    const productionCost = productionItems.reduce((sum, prod) => sum + (prod.cost || 0), 0);
+    const productionCostRaw = productionItems.reduce((sum, prod) => sum + (prod.cost || 0), 0);
     const liabilities = {
-      productionCosts: productionCost,
-      loans: 0, // Add logic if loans are stored
-      taxesOwed: 0,
-      creditCards: 0,
-      accountpayables
+      productionCosts: displayValue(productionCostRaw),
+      loans: displayValue(0), // Add logic if loans are stored
+      taxesOwed: displayValue(0),
+      creditCards: displayValue(0),
+      accountpayables: displayValue(accountpayablesRaw)
     };
 
     // --- Equity ---
-    const capital = 20000; // Replace with DB value if available
-    const retainedEarnings = cash - productionCost; // A simple assumption
+    const capitalRaw = 20000; // Replace with DB value if available
+    const retainedEarningsRaw = cashRaw - productionCostRaw; // Simple assumption
 
     const equity = {
-      capital,
-      retainedEarnings
+      capital: displayValue(capitalRaw),
+      retainedEarnings: displayValue(retainedEarningsRaw, retainedEarningsRaw < 0) // keep negative if actual loss
     };
 
-const totalAssets = Object.values(assets).reduce((a, b) => a + b, 0);
-const totalLiabilities = Object.values(liabilities).reduce((a, b) => a + b, 0);
-
-// Calculate equity from assets and liabilities
-const totalEquity = totalAssets - totalLiabilities;
-
+    const totalAssets = Object.values(assets).reduce((a, b) => a + b, 0);
+    const totalLiabilities = Object.values(liabilities).reduce((a, b) => a + b, 0);
+    const totalEquity = totalAssets - totalLiabilities;
 
     const debtRatio = totalAssets ? ((totalLiabilities / totalAssets) * 100).toFixed(1) : 0;
     const equityRatio = totalAssets ? ((totalEquity / totalAssets) * 100).toFixed(1) : 0;
 
+    // --- Fetch company info and worker ---
+    const companyinfo = await Company.findOne({ reciepientId: userId });
+    const worker = req.session.worker || null;
+
     res.render("dashboard/balancesheet", {
-      user: req.session.user._id,
+      user: req.session.user,
+      worker,
+      companyinfo,
       assets,
       liabilities,
       equity,
@@ -2116,31 +2586,56 @@ const totalEquity = totalAssets - totalLiabilities;
 
 
 
-// GET Liquidity Page
+
+// Helper to display positive values unless true loss/negative
+function displayValue(val, isLoss = false) {
+  if (isLoss) return val; // keep negative if actual loss
+  return Math.abs(val);   // otherwise show positive
+}
+
 app.get("/ledgerliquidity", ensureAuthenticated, async (req, res) => {
   try {
+
+      let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
     const entries = await Liquidity.find({ userId: req.session.user._id }).sort({ createdAt: -1 });
 
     // Sum all entries
-    const totalCash = entries.reduce((sum, e) => sum + (e.cash || 0), 0);
-    const totalBank = entries.reduce((sum, e) => sum + (e.bank || 0), 0);
-    const totalLiabilities = entries.reduce((sum, e) => sum + (e.liabilities || 0), 0);
-    const netLiquidity = totalCash + totalBank - totalLiabilities;
+    const totalCashRaw = entries.reduce((sum, e) => sum + (e.cash || 0), 0);
+    const totalBankRaw = entries.reduce((sum, e) => sum + (e.bank || 0), 0);
+    const totalLiabilitiesRaw = entries.reduce((sum, e) => sum + (e.liabilities || 0), 0);
+    const netLiquidityRaw = totalCashRaw + totalBankRaw - totalLiabilitiesRaw;
 
+    // Apply displayValue to ensure positives unless true negative liquidity
     const totalLiquidity = {
-      cash: totalCash,
-      bank: totalBank,
-      liabilities: totalLiabilities,
-      netLiquidity: netLiquidity
+      cash: displayValue(totalCashRaw),
+      bank: displayValue(totalBankRaw),
+      liabilities: displayValue(totalLiabilitiesRaw),
+      netLiquidity: displayValue(netLiquidityRaw, netLiquidityRaw < 0) // keep negative if true loss
     };
 
     console.log("Total Liquidity Summary:", totalLiquidity);
 
     res.render("dashboard/ledgerliquidity.ejs", {
-      user: req.session.user._id,
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
       liquidity: totalLiquidity,
       liquidityEntries: entries
     });
+
   } catch (err) {
     console.error('Error loading ledger liquidity page:', err);
     res.status(500).send('Server error');
@@ -2191,7 +2686,24 @@ app.post("/ledgerliquidity/delete/:id", ensureAuthenticated, async (req, res) =>
 
 app.get("/budget", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    
+
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
     const budgets = await Budget.find({ recipientId: userId }).sort({ createdAt: -1 });
 
     // Prepare chart labels and usage (spent = initial - current)
@@ -2199,7 +2711,9 @@ app.get("/budget", ensureAuthenticated, async (req, res) => {
     const chartData = budgets.map(b => b.amount - b.currentamount);
 
     res.render("dashboard/budget", {
-      user: req.session.user._id,
+      user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,              
       budgets,
       chartLabels: JSON.stringify(chartLabels),
       chartData: JSON.stringify(chartData),
@@ -2215,7 +2729,23 @@ app.get("/budget", ensureAuthenticated, async (req, res) => {
 
 app.get("/payroll", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+   
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
     const payrolls = await Payroll.find({ userId }).sort({ createdAt: -1 });
 
     // Total Employees Paid
@@ -2230,7 +2760,9 @@ app.get("/payroll", ensureAuthenticated, async (req, res) => {
     const pendingPayrolls = payrolls.filter(p => p.status === "pending").length;
 
     res.render("dashboard/payrol.ejs", {
-      user: req.session.user._id,
+      user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
       payrolls,
       totalEmployeesPaid,
       totalPayroll,
@@ -2260,7 +2792,21 @@ app.get("/payroll", ensureAuthenticated, async (req, res) => {
 
 app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.query.id || req.session.user._id;
+        let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
 
     const salesItems = await Sales.find({ recipientId: userId });
     const expenseItems = await Expense.find({ recipientId: userId });
@@ -2337,7 +2883,9 @@ app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
     };
 
     res.render("dashboard/salesmetricoverview", {
-      user: req.session.user._id,
+      user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,  
       salesChartData,
       totalSalesAmount,
       totalSalesCount,
@@ -2365,13 +2913,28 @@ app.get("/salesmetricoverview", ensureAuthenticated, async (req, res) => {
 
 app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    // --- user context ---
+      let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
 
     const now = new Date();
     const oneYearAgo = new Date(now);
     oneYearAgo.setFullYear(now.getFullYear() - 1);
 
-    // Fetch all sales and expenses for the past 12 months
+    // --- fetch sales & expenses for the last 12 months ---
     const allSales = await Sales.find({
       recipientId: userId,
       date: { $gte: oneYearAgo, $lte: now }
@@ -2382,17 +2945,20 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
       createdAt: { $gte: oneYearAgo, $lte: now }
     });
 
-    // Group monthly sales
+    // --- build monthly sales array ---
     const monthlySales = Array(12).fill(0);
     allSales.forEach(sale => {
       const date = new Date(sale.date);
-      const index = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
+      const index =
+        (now.getFullYear() - date.getFullYear()) * 12 +
+        (now.getMonth() - date.getMonth());
+
       if (index >= 0 && index < 12) {
         monthlySales[11 - index] += sale.amount;
       }
     });
 
-    // Calculate month-over-month differences
+    // --- growth calculations ---
     const growthDiffs = [];
     for (let i = 0; i < monthlySales.length - 1; i++) {
       growthDiffs.push(monthlySales[i + 1] - monthlySales[i]);
@@ -2402,7 +2968,6 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
       ? growthDiffs.reduce((a, b) => a + b, 0) / growthDiffs.length
       : 0;
 
-    // Forecast next revenue
     const nextMonthRevenue = monthlySales[11] + avgGrowth;
     const nextQuarterRevenue = nextMonthRevenue + avgGrowth * 2;
 
@@ -2413,9 +2978,17 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
     const monthlyTotal = monthlySales[11];
     const quarterlyTotal = monthlySales.slice(9, 12).reduce((a, b) => a + b, 0);
 
-    const confidenceLevel = Math.min(95, Math.max(70, (Math.random() * 20 + 75).toFixed(0))); // mock confidence
+    // mock confidence calculation (can replace with ML model later)
+    const confidenceLevel = Math.min(
+      95,
+      Math.max(70, (Math.random() * 20 + 75).toFixed(0))
+    );
 
+    // --- render ---
     res.render("dashboard/salesforecasting", {
+      user: req.session.user || req.session.worker,
+       worker: req.session.worker || null,
+      companyinfo,   
       forecast: {
         nextMonth: nextMonthRevenue.toFixed(2),
         nextQuarter: nextQuarterRevenue.toFixed(2),
@@ -2428,7 +3001,7 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error loading sales forecast page:", err);
+    console.error("❌ Error loading sales forecast page:", err);
     res.status(500).send("Server error");
   }
 });
@@ -2451,9 +3024,38 @@ app.get("/salesforecast", ensureAuthenticated, async (req, res) => {
 
 
 
+
 app.get('/pricecall', ensureAuthenticated, async (req, res) => {
+  try{
+    
+    
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
   const products = await Inventory.find();
-  res.render('dashboard/pricecall', { products });
+  res.render('dashboard/pricecall', { 
+      user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,   
+    products
+   });
+  } catch (err){
+    console.error('Error loading price call page:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 app.get('/api/products', async (req, res) => {
@@ -2549,12 +3151,29 @@ app.post('/api/metrics', async (req, res) => {
 // Debt Management Page
 app.get('/Debtmanagement', ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
     const company = await Company.findOne({ userId }).lean();
     const latestAnalysis = await Analysis.findOne({ userId }).sort({ createdAt: -1 }).lean();
 
     res.render('dashboard/debtmanagement', {
-      user: req.session.user,
+       user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
       company: company || {},
       analysis: latestAnalysis || {},
       error: null,
@@ -2563,7 +3182,7 @@ app.get('/Debtmanagement', ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error loading debt management page:', err);
     res.status(500).render('dashboard/debtmanagement', {
-      user: req.session.user,
+     
       company: {},
       analysis: {},
       error: 'Failed to load data',
@@ -2780,7 +3399,21 @@ app.post('/Debtmanagement/scenario', ensureAuthenticated, async (req, res) => {
 // Export Report
 app.get('/Debtmanagement/export', ensureAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
     const company = await Company.findOne({ userId }).lean();
     const latestAnalysis = await Analysis.findOne({ userId }).sort({ createdAt: -1 }).lean();
     if (!company || !latestAnalysis) {
@@ -2834,6 +3467,23 @@ app.get('/Debtmanagement/export', ensureAuthenticated, async (req, res) => {
 app.get("/reportandanalysis", ensureAuthenticated, async (req, res) => {
   try {
     const { startDate, endDate, category, supplier, ajax } = req.query;
+
+
+      let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
 
     const inventoryQuery = {};
     const salesQuery = {};
@@ -3048,6 +3698,8 @@ if (alerts.length === 0) {
 
     res.render("dashboard/report and analytics", {
       user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
       kpis: currentKPIs,
       trends: kpiTrends,
       charts: {
@@ -3108,6 +3760,23 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
   try {
     const now = new Date();
 
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
+
     // Update all overdue orders in one go
     await Order.updateMany(
       {
@@ -3122,6 +3791,8 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
 
     res.render("dashboard/order", {
       user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,     
       orders,
       products
     });
@@ -3224,6 +3895,24 @@ const qrFinalUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(b
 // View single order
 app.get("/order/:id", ensureAuthenticated, async (req, res) => {
   try {
+
+        let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
+
     const order = await Order.findById(req.params.id)
       .populate("recipientId", "name email") // show recipient details
       .lean();
@@ -3235,6 +3924,8 @@ app.get("/order/:id", ensureAuthenticated, async (req, res) => {
 
     res.render("dashboard/order-view", {
       user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
       order
     });
   } catch (err) {
@@ -3249,6 +3940,23 @@ app.get("/order/:id", ensureAuthenticated, async (req, res) => {
 // GET confirmation page
 app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, res) => {
   try {
+
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
     const { buyername, orderId } = req.params;
     const order = await Order.findById(orderId).lean();
 
@@ -3257,6 +3965,9 @@ app.get("/order-placed/:buyername/:orderId", ensureAuthenticated, async (req, re
     }
 
     res.render("dashboard/order-confirm", {
+      user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,     
       order,
       error: null,
       success: null
@@ -3525,9 +4236,229 @@ app.get('/driver-dash', driverAuth, async (req, res) => {
 
 
 
-app.get("/admin", (req, res) => {
-  res.render("dashboard/admin/admin");
+app.get("/admin", ensureAuthenticated, async (req, res) => {
+  try{
+    
+  res.render("dashboard/admin/admin", {
+    user: req.session.user,
+  });
+  } catch(err){
+    console.error("Error loading admin page:", err);
+    res.status(500).send("Server error");
+  }
 });
+
+// Get all workers for admin
+app.get("/workers/:adminId", async (req, res) => {
+  try {
+    const workers = await Worker.find({ adminId: req.params.adminId });
+    res.json(workers);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch workers" });
+  }
+});
+
+// Get single worker
+app.get("/workers/:id", async (req, res) => {
+  try {
+    const worker = await Worker.findById(req.params.id);
+    if (!worker) return res.status(404).json({ message: "Worker not found" });
+    res.json(worker);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching worker" });
+  }
+});
+
+
+app.get("/api/workers/:adminId", ensureAuthenticated, async (req, res) => {
+  try {
+    const { adminId } = req.params;
+
+    // Only fetch workers belonging to this admin
+    const workers = await Worker.find({ adminId }).lean();
+
+    res.json(workers);
+  } catch (err) {
+    console.error("Error fetching workers:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/accountreconciliation",  ensureAuthenticated, async (req, res) => {
+  try{
+
+       let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
+
+      res.render("dashboard/accountreconciliation", {
+        user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
+      });
+  } catch(err){
+    console.error("Error loading account reconciliation page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+// Get bank list
+app.get("/user/api/banks", async (req, res) => {
+  try {
+    const r = await fetch("https://api.paystack.co/bank", {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+    });
+    const data = await r.json();
+    res.json(data);
+  } catch (err) {
+    res.json({ status: false, message: "Bank list fetch failed", data: [] });
+  }
+});
+
+// Resolve account number
+app.post("/user/api/resolve-account", async (req, res) => {
+  const { account, bank } = req.body;
+  try {
+    const r = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account}&bank_code=${bank}`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+    });
+    const data = await r.json();
+    if (data.status) {
+      res.json({ success: true, data: data.data });
+    } else {
+      res.json({ success: false, message: data.message });
+    }
+  } catch (err) {
+    res.json({ success: false, message: "Account verification failed" });
+  }
+});
+
+
+
+
+// Check wallet existence
+app.get('/user/api/wallet/check', ensureAuthenticated, async (req, res) => {
+  const wallet = await Wallet.findOne({ userId: req.session.user._id });
+  res.json({ success: true, hasWallet: !!wallet });
+});
+
+// Create wallet
+app.post('/user/api/wallet/create', ensureAuthenticated, async (req, res) => {
+  let wallet = await Wallet.findOne({ userId: req.session.user._id });
+  if (wallet) return res.json({ success: false, message: "Wallet already exists" });
+
+  wallet = await Wallet.create({ userId: req.session.user._id, balance: 0 });
+  res.json({ success: true, wallet });
+});
+
+
+
+app.get("/accountreconciliation2",  ensureAuthenticated, async (req, res) => {
+  try{
+
+       let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+const userId = recipientId;
+
+
+      res.render("dashboard/accountreconciliation2", {
+        user: req.session.user,
+       worker: req.session.worker || null,
+      companyinfo,    
+      });
+  } catch(err){
+    console.error("Error loading account reconciliation page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.get("/ap", (req, res) => {
