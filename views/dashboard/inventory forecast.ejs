@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
     <!-- <link rel="stylesheet" href="/css/dashall.css"> -->
     <link rel="stylesheet" href="/css/inventoryfocasting.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -40,10 +39,12 @@
   
     <div class="container">
         <div class="header">
-            <div class="breadcrumb">
-                <a href="#" onclick="goBack()">Adnet</a> &gt; 
-                <a href="#" onclick="goToInventory()">Inventory Management</a> &gt; 
-                Inventory Forecasting
+                <div class="breadcrumb">
+                <a href="#" onclick="goBack()"><i class="fas fa-home"></i> Adnet</a>
+                <span class="separator">></span>
+                <a href="#" onclick="goToInventory()"><i class="fas fa-boxes"></i> Inventory Management</a>
+                <span class="separator">></span>
+                <span><i class="fas fa-chart-line"></i> Inventory Forecasting</span>
             </div>
             <h1>📊 Inventory Forecasting</h1>
             <p class="subtitle">Intelligently predict future inventory needs using sales velocity, lead time, and historical data to prevent stockouts and optimize replenishment.</p>
@@ -166,9 +167,11 @@
             <h2>📊 Visual Analytics</h2>
             <div class="charts-grid">
                 <div class="chart-container">
+                    <h3>Sales Forecast vs Historical</h3>
                     <canvas id="forecastChart"></canvas>
                 </div>
                 <div class="chart-container">
+                    <h3>Stock Depletion Projection</h3>
                     <canvas id="stockDepletionChart"></canvas>
                 </div>
             </div>

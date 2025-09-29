@@ -29,10 +29,12 @@ body {
 .all {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   max-height: 100%;
   overflow: hidden;
-  background-color: blue;
+  background-color: #031224;
+  padding: 0;
+  margin: 0;
 }
 .all .bx-menu {
   display: none;
@@ -162,6 +164,20 @@ body {
   width: 48%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+/* Chart wrapper */
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;  /* optional */
+  height: 300px;     /* ✅ prevents infinite growth */
+  margin: 0 auto;
+}
+
+/* Make sure canvas fills container */
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 .chart-header {
   display: flex;
@@ -197,11 +213,14 @@ body {
 
 .table-container {
   overflow-x: auto;
+  width: 100%;
+  background: white;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* Minimum width to prevent cramping */
 }
 
 thead th {
@@ -210,6 +229,7 @@ thead th {
   border-bottom: 2px solid var(--border-color);
   font-size: 0.8rem;
   color: var(--secondary-color);
+  white-space: nowrap;
 }
 
 tbody td {
@@ -411,6 +431,8 @@ tbody td {
   opacity: 0.9;
   transform: translateY(-1px);
 }
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .summary-cards,
   .charts-row {
@@ -422,13 +444,99 @@ tbody td {
     width: 100%;
     margin-bottom: 1rem;
   }
+
+  .container {
+    padding: 1rem;
+  }
+
+  /* Enhanced Table Responsiveness */
+  .table-container {
+    margin: 0 -1rem; /* Extend to container edges */
+    border-radius: 0;
+  }
+
+  table {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+
+  thead th {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.65rem;
+  }
+
+  tbody td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.75rem;
+  }
+
+  /* Compact transactions header on mobile */
+  .transactions-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .transactions-header .chart-title {
+    font-size: 0.8rem;
+  }
+
+  .view-all {
+    font-size: 0.8rem;
+  }
+
+  /* Chart text responsiveness */
+  .chart-title {
+    font-size: 0.8rem;
+  }
+
+  .chart-options {
+    font-size: 0.7rem;
+  }
 }
 
+@media (max-width: 480px) {
+  /* Very small screens */
+  .table-container {
+    margin: 0 -1.5rem;
+  }
+  
+  table {
+    min-width: 450px;
+    font-size: 0.7rem;
+  }
 
+  thead th,
+  tbody td {
+    padding: 0.4rem 0.25rem;
+  }
 
+  thead th {
+    font-size: 0.6rem;
+  }
 
+  tbody td {
+    font-size: 0.7rem;
+  }
 
+  /* Table section title and view all link */
+  .transactions-header .chart-title {
+    font-size: 0.75rem;
+  }
 
+  .view-all {
+    font-size: 0.7rem;
+  }
+
+  /* Extra small chart text */
+  .chart-title {
+    font-size: 0.75rem;
+  }
+
+  .chart-options {
+    font-size: 0.65rem;
+  }
+}
 
 #expenseForm{
   display: none;

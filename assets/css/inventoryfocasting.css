@@ -284,3 +284,19 @@
         display: none; /* Hide separator on small screens */
     }
 }
+
+
+    .chart-container {
+            position: relative;
+            height: clamp(250px, 40vw, 350px);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: clamp(10px, 2vw, 20px);
+        }
+
+        .chart-container h3 {
+            color: #2c3e50;
+            font-size: clamp(1em, 2vw, 1.2em);
+            margin-bottom: 10px;
+            text-align: center;
+        }

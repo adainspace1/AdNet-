@@ -1,88 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
-    <title>Expenses History</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <title>Expenses History</title>
+
     <link rel="stylesheet" href="/css/viewallexpenses.css">
 </head>
 <body style="background-color: #031224;">
-       <!-- Sidebar -->
-   <%- include ("_sidebar1") %>
+  <!-- Sidebar -->
+  <%- include("_sidebar1") %>
 
-    <div class="container">
-        <h1>Expenses History</h1>
+  <div class="main-content">
+      <%- include("_topnav") %>
 
-   <div class="stat-cards">
-  <div class="stat-card">
-    <div class="stat-label">Total Expenses</div>
-    <div class="stat-value" id="total-amount">₦<%= totalAmount.toLocaleString() %></div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Number of Transactions</div>
-    <div class="stat-value" id="transaction-count"><%= totalTransactions %></div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Average Expense</div>
-    <div class="stat-value" id="average-expense">₦<%= averageExpense.toLocaleString() %></div>
-  </div>
-</div>
+  <div class="container">
+    <h1>Expenses History</h1>
 
-
-        <div class="filters">
-            <div class="filter-item">
-                <label for="search">Search</label>
-                <input type="text" id="search" placeholder="Search by description or category...">
-            </div>
-            <div class="filter-item">
-                <label for="category">Category</label>
-                <select id="category">
-                    <option value="">All Categories</option>
-                </select>
-            </div>
-            <div class="filter-item">
-                <label for="date-from">From Date</label>
-                <input type="date" id="date-from">
-            </div>
-            <div class="filter-item">
-                <label for="date-to">To Date</label>
-                <input type="date" id="date-to">
-            </div>
-            <div class="filter-item" style="display: flex; align-items: flex-end;">
-                <button id="reset-filters">Reset Filters</button>
-            </div>
-        </div>
-<div class="tablee">
-        <table id="expenses-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody id="expenses-data">
-                <!-- Expense data will be populated here -->
-            </tbody>
-        </table>
-        </div>
-        <div id="no-results" class="no-results" style="display: none;">
-            No expenses found matching your filters.
-        </div>
-
-        <div class="pagination" id="pagination">
-            <!-- Pagination will be added here -->
-        </div>
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <i class='bx bx-wallet stat-icon'></i>
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value" id="total-amount">₦<%= totalAmount.toLocaleString() %></div>
+      </div>
+      <div class="stat-card">
+        <i class='bx bx-transfer stat-icon'></i>
+        <div class="stat-label">Number of Transactions</div>
+        <div class="stat-value" id="transaction-count"><%= totalTransactions %></div>
+      </div>
+      <div class="stat-card">
+        <i class='bx bx-line-chart stat-icon'></i>
+        <div class="stat-label">Average Expense</div>
+        <div class="stat-value" id="average-expense">₦<%= averageExpense.toLocaleString() %></div>
+      </div>
     </div>
 
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-item">
+        <label for="search">Search</label>
+        <input type="text" id="search" placeholder="Search by description or category...">
+      </div>
+      <div class="filter-item">
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="">All Categories</option>
+          <option value="transport">Transport</option>
+          <option value="food">Food</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label for="date-from">From Date</label>
+        <input type="date" id="date-from">
+      </div>
+      <div class="filter-item">
+        <label for="date-to">To Date</label>
+        <input type="date" id="date-to">
+      </div>
+      <div class="filter-actions">
+        <button id="apply-filters">Apply</button>
+        <button id="reset-filters" class="secondary">Reset</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="tablee">
+      <table id="expenses-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th class="right">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="expenses-data">
+          <!-- Expense data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+    <div id="no-results" class="no-results" style="display: none;">
+      No expenses found matching your filters.
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+
+    <!-- Charts Section -->
+    <div class="charts">
+      <div class="chart-card">
+        <h3>Expenses by Category</h3>
+        <canvas id="categoryChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Spending Trend</h3>
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+  </div>
 
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function formatShort(n) {
+      if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+      if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+      return n.toFixed(2);
+    }
 
+    async function loadExpenseSummary() {
+      try {
+        const res = await fetch('/api/expenses/summary');
+        const data = await res.json();
 
+        document.getElementById("total-amount").textContent = "₦" + formatShort(data.totalAmount);
+        document.getElementById("transaction-count").textContent = formatShort(data.totalTransactions);
+        document.getElementById("average-expense").textContent = "₦" + formatShort(data.averageExpense);
+      } catch (err) {
+        console.error("Error loading expenses summary:", err);
+      }
+    }
 
-  <script src="/js/viewallexpense.js"></script>
+    loadExpenseSummary();
+
+    let allExpenses = [];
+    let filteredExpenses = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 10;
+
+    const searchInput = document.getElementById("search");
+    const categorySelect = document.getElementById("category");
+    const dateFromInput = document.getElementById("date-from");
+    const dateToInput = document.getElementById("date-to");
+    const resetBtn = document.getElementById("reset-filters");
+    const tbody = document.getElementById("expenses-data");
+    const noResults = document.getElementById("no-results");
+    const paginationDiv = document.getElementById("pagination");
+
+    function loadExpenses() {
+      fetch("/api/expenses/all")
+        .then(res => res.json())
+        .then(data => {
+          allExpenses = data.expenses;
+          populateCategoryOptions();
+          applyFilters();
+        })
+        .catch(err => console.error("Error loading expenses:", err));
+    }
+
+    function populateCategoryOptions() {
+      const categories = [...new Set(allExpenses.map(e => e.category))];
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+    }
+
+    function applyFilters() {
+      const search = searchInput.value.toLowerCase();
+      const selectedCategory = categorySelect.value;
+      const dateFrom = dateFromInput.value ? new Date(dateFromInput.value) : null;
+      const dateTo = dateToInput.value ? new Date(dateToInput.value) : null;
+
+      filteredExpenses = allExpenses.filter(exp => {
+        const descMatch = exp.description.toLowerCase().includes(search);
+        const catMatch = !selectedCategory || exp.category === selectedCategory;
+        const dateMatch =
+          (!dateFrom || new Date(exp.date) >= dateFrom) &&
+          (!dateTo || new Date(exp.date) <= dateTo);
+        return descMatch && catMatch && dateMatch;
+      });
+
+      currentPage = 1;
+      renderExpenses();
+      renderPagination();
+    }
+
+    function renderExpenses() {
+      tbody.innerHTML = "";
+
+      if (filteredExpenses.length === 0) {
+        noResults.style.display = "block";
+        return;
+      }
+
+      noResults.style.display = "none";
+
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const paginated = filteredExpenses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+      paginated.forEach(exp => {
+        const row = document.createElement("tr");
+        const createdAt = new Date(exp.createdAt);
+        const dateFormatted = createdAt.toLocaleDateString();
+
+        row.innerHTML = `
+          <td>${dateFormatted}</td>
+          <td>${exp.description}</td>
+          <td>${exp.category}</td>
+          <td>₦${Number(exp.amount).toLocaleString()}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderPagination() {
+      paginationDiv.innerHTML = "";
+
+      const totalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
+      if (totalPages <= 1) return;
+
+      const createButton = (label, disabled, page) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.disabled = disabled;
+        btn.addEventListener("click", () => {
+          currentPage = page;
+          renderExpenses();
+          renderPagination();
+        });
+        return btn;
+      };
+
+      paginationDiv.appendChild(createButton("←", currentPage === 1, currentPage - 1));
+
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+      for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active");
+        btn.addEventListener("click", () => {
+          currentPage = i;
+          renderExpenses();
+          renderPagination();
+        });
+        paginationDiv.appendChild(btn);
+      }
+
+      paginationDiv.appendChild(createButton("→", currentPage === totalPages, currentPage + 1));
+    }
+
+    resetBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      categorySelect.value = "";
+      dateFromInput.value = "";
+      dateToInput.value = "";
+      applyFilters();
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+    categorySelect.addEventListener("change", applyFilters);
+    dateFromInput.addEventListener("change", applyFilters);
+    dateToInput.addEventListener("change", applyFilters);
+
+    loadExpenses();
+
+    // Responsive chart options
+    const getChartOptions = (type) => {
+      const isMobile = window.innerWidth < 768;
+      const isTablet = window.innerWidth < 1024;
+      
+      const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                size: isMobile ? 10 : isTablet ? 12 : 14
+              }
+            }
+          }
+        }
+      };
+
+      if (type === 'pie') {
+        return {
+          ...baseOptions,
+          animation: {
+            animateScale: true,
+            animateRotate: true,
+            duration: 1200
+          }
+        };
+      } else {
+        return {
+          ...baseOptions,
+          animation: {
+            duration: 1500,
+            easing: "easeOutQuart"
+          },
+          scales: {
+            x: {
+              ticks: {
+                font: { size: isMobile ? 8 : isTablet ? 10 : 12 },
+                color: "#555"
+              }
+            },
+            y: {
+              ticks: {
+                font: { size: isMobile ? 8 : isTablet ? 10 : 12 },
+                color: "#555"
+              }
+            }
+          }
+        };
+      }
+    };
+
+    // Pie Chart
+    const ctx1 = document.getElementById("categoryChart").getContext("2d");
+    new Chart(ctx1, {
+      type: "pie",
+      data: {
+        labels: ["Transport", "Food", "Maintenance", "Other"],
+        datasets: [{
+          data: [120000, 80000, 50000, 20000],
+          backgroundColor: ["#3498db", "#27ae60", "#e67e22", "#9b59b6"]
+        }]
+      },
+      options: getChartOptions('pie')
+    });
+
+    // Line Chart
+    const ctx2 = document.getElementById("trendChart").getContext("2d");
+    new Chart(ctx2, {
+      type: "line",
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        datasets: [{
+          label: "Expenses",
+          data: [50000, 70000, 65000, 90000, 120000, 100000],
+          borderColor: "#3498db",
+          backgroundColor: "rgba(52, 152, 219, 0.2)",
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: getChartOptions('line')
+    });
+
+    // Redraw charts on window resize
+    window.addEventListener('resize', () => {
+      Chart.helpers.each(Chart.instances, (instance) => {
+        instance.resize();
+      });
+    });
+  </script>
 </body>
 </html>

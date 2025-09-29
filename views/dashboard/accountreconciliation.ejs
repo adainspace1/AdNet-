@@ -159,65 +159,62 @@
             <div class="section-card">
                 <h2 class="section-title">🏦 Link Bank Account</h2>
                 
-                <form id="bankLinkingForm">
-                    <div class="form-group">
-                        <label for="bankSelect">Select Bank</label>
-                        <select id="bankSelect" name="bank" class="form-control" required>
-                            <option value="">Choose your bank...</option>
-                            <!-- Banks will be populated dynamically -->
-                        </select>
-                    </div>
+              <form id="bankLinkingForm">
+                 <div class="form-group">
+    <label for="bankSelect">Bank</label>
+    <select id="bankSelect" name="bank" required></select>
+    <!-- Hidden input for bank name -->
+    <input type="hidden" id="bankNameInput" name="bankName" />
+  </div>
 
-                    <div class="form-group">
-                        <label for="accountNumber">Account Number</label>
-                        <input type="text" id="accountNumber" name="accountNumber" class="form-control" 
-                               placeholder="Enter 10-digit account number" maxlength="10" required>
-                    </div>
+  <div class="form-group">
+    <label for="accountNumber">Account Number</label>
+    <input type="text" id="accountNumber" name="accountNumber" maxlength="10" required />
+  </div>
 
-                    <div class="form-group">
-                        <label for="bvn">BVN (Optional)</label>
-                        <input type="text" id="bvn" name="bvn" class="form-control" 
-                               placeholder="Enter 11-digit BVN" maxlength="11">
-                    </div>
-
-                    <!-- Consent Checkbox -->
-                    <div class="consent-checkbox">
-                        <input type="checkbox" id="consent" name="consent" required>
-                        <label for="consent" class="consent-text">
-                            I authorize Adnet to securely access my account information in compliance with applicable data protection laws.
-                        </label>
-                    </div>
-
-                    <!-- Additional Fields (Dynamic) -->
-                    <div id="additionalFields" class="additional-fields">
-                        <div class="alert alert-warning">
-                            <strong>Additional verification required</strong><br>
-                            Your selected bank requires additional authentication.
-                        </div>
-                        <!-- Dynamic fields will be inserted here -->
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        🔗 Link Bank Account
-                    </button>
-                </form>
+  <!-- Hidden input for resolved account name -->
+  <input type="hidden" id="accountNameInput" name="accountName" />
+                <div class="form-group">
+                  <label for="bvn">BVN (Optional)</label>
+                  <input type="text" id="bvn" name="bvn" class="form-control" 
+                        placeholder="Enter 11-digit BVN" maxlength="11">
+                </div>
+                <div class="consent-checkbox">
+                  <input type="checkbox" id="consent" name="consent" required>
+                  <label for="consent" class="consent-text">
+                    I authorize Adnet to securely access my account information in compliance with applicable data protection laws.
+                  </label>
+                </div>
+                <div id="additionalFields" class="additional-fields">
+                  <div class="alert alert-warning">
+                    <strong>Additional verification required</strong><br>
+                    Your selected bank requires additional authentication.
+                  </div>
+                  <div class="form-group">
+                    <label for="pin">Transaction PIN</label>
+                    <input type="password" id="pin" name="pin" class="form-control" 
+                          placeholder="Enter your 4-digit PIN" maxlength="4" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                  🔗 Link Bank Account
+                </button>
+              </form>
             </div>
         </div>
 
         <!-- Linked Banks Section -->
-        <div class="section-card linked-banks-section">
-            <h2 class="section-title">🏛️ Linked Bank Accounts</h2>
-            
-            <div id="linkedBanksContainer">
-                <div class="banks-grid" id="banksGrid">
-                    <!-- Bank cards will be populated here -->
-                </div>
-                
-                <div class="no-banks" id="noBanks">
-                    <p>No bank accounts linked yet. Use the form above to link your first account.</p>
-                </div>
-            </div>
-        </div>
+     <div class="section-card linked-banks-section">
+    <h2 class="section-title">🏛️ Linked Bank Accounts</h2>
+    <div id="linkedBanksContainer">
+      <div class="banks-grid" id="banksGrid">
+        <!-- Bank cards will be populated here -->
+      </div>
+      <div class="no-banks" id="noBanks">
+        <p>No bank accounts linked yet. Use the form above to link your first account.</p>
+      </div>
+    </div>
+  </div>
     </div>
 
         <!-- [3] Main Dashboard Grid -->
@@ -801,573 +798,554 @@ try {
 
 
 
-       <script>
-/* ---------- CONFIG ---------- */
-const API = { 
-  walletStatus: '/user/api/wallet/status',
-  walletCreate: '/user/api/wallet/create',
-  banksList: '/user/api/banks/list',
-  banksLink: '/user/api/banks/link',
-  linkedBanks: '/user/api/linked-banks',
-  resolveAccount: '/resolveAccount',
-};
+  <script>
+    /* ---------- CONFIG ---------- */
+    const API = { 
+      walletStatus: '/user/api/wallet/status',
+      walletCreate: '/user/api/wallet/create',
+      banksList: '/user/api/banks/list',
+      banksLink: '/user/api/banks/link',
+      linkedBanks: '/user/api/linked-banks',
+      resolveAccount: '/resolveAccount',
+    };
 
-/* ---------- INIT ---------- */
-document.addEventListener('DOMContentLoaded', async () => {
-  populateBankDropdown();
-  await initWalletState();
-  await loadLinkedBanks();
-  initializeFormHandlers();
-});
-
-/* ---------- WALLET: status & create ---------- */
-async function initWalletState() {
-  try {
-    const res = await fetch(API.walletStatus);
-    const json = await res.json();
-
-    const balEl = document.getElementById('walletBalance');
-    balEl.textContent = json.balance != null ? formatCurrency(json.balance) : '₦0.00';
-
-    if (!json.hasWallet) showNoWalletAlert();
-    else hideNoWalletAlert();
-
-    const createBtn = document.querySelector('button[onclick="createWallet()"]');
-    createBtn.textContent = json.hasWallet ? `Wallet: ${json.provider || 'n/a'}` : '🏦 Create Wallet';
-  } catch (err) {
-    console.error('Wallet init error', err);
-  }
-}
-
-
-// Show banner alert if no wallet
-async function showNoWalletAlert() {
-  try {
-    const res = await fetch('/user/api/wallet/check');
-    const json = await res.json();
-
-    // Only show if the user has NO wallet
-    if (!json.success || json.hasWallet) {
-      hideNoWalletAlert();
-      return;
-    }
-
-    if (document.getElementById('walletAlert')) return; // prevent duplicates
-
-    const main = document.querySelector('.dashboard-container .dashboard-header');
-    const alert = document.createElement('div');
-    alert.id = 'walletAlert';
-    alert.className = 'wallet-alert';
-    alert.innerHTML = `
-      <strong>Notice:</strong> You don't have a wallet created yet. Some features require a wallet.
-      <button id="dismissWalletAlert" class="small-link">Dismiss</button>
-      <button id="quickCreateWallet" class="btn btn-sm">Create Wallet</button>
-    `;
-    main.appendChild(alert);
-
-    // Dismiss button
-    document.getElementById('dismissWalletAlert').addEventListener('click', () => alert.remove());
-
-    // Quick create wallet button
-    document.getElementById('quickCreateWallet').addEventListener('click', () => showCreateWalletModal());
-  } catch (err) {
-    console.error("Wallet check failed", err);
-  }
-}
-
-function hideNoWalletAlert() {
-  const el = document.getElementById('walletAlert');
-  if (el) el.remove();
-}
-
-// Modal-like prompt (for provider choice)
-async function showCreateWalletModal() {
-  const provider = prompt('Choose wallet provider: "paystack" or "onepipe" (type exact):', 'paystack');
-  if (!provider) return;
-  if (!['paystack','onepipe'].includes(provider.toLowerCase())) {
-    alert('Invalid provider. Type "paystack" or "onepipe".');
-    return;
-  }
-  await createWallet(provider.toLowerCase());
-  hideNoWalletAlert(); // ✅ remove banner once wallet is created
-}
-
-// Create wallet API call
-async function createWallet(provider) {
-  try {
-    const res = await fetch('/user/api/wallet/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider })
-    });
-    const json = await res.json();
-    if (json.success) {
-      alert("Wallet created successfully!");
-      // update balance display if available
-      if (document.getElementById("walletBalance")) {
-        document.getElementById("walletBalance").textContent =
-          new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' })
-          .format(json.wallet.balance);
+    /* ---------- INIT ---------- */
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await Promise.all([
+          populateBankDropdown(),
+          initWalletState(),
+          loadLinkedBanks(),
+          initializeFormHandlers()
+        ]);
+      } catch (err) {
+        showError("Failed to initialize dashboard. Please try again.");
       }
-    } else {
-      alert(json.message || "Failed to create wallet");
-    }
-  } catch (err) {
-    console.error("Create wallet error", err);
-    alert("Error creating wallet, please try again.");
-  }
-}
-
-
-async function createWallet() {
-  try {
-    const res = await fetch(API.walletCreate, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider: 'paystack' })
     });
-    const json = await res.json();
-    if (json.success) {
-      alert('Wallet created successfully.');
-      await initWalletState();
-    } else {
-      alert('Failed to create wallet: ' + (json.message || 'unknown'));
+
+    /* ---------- ERROR HANDLING ---------- */
+    const showError = (message, isSuccess = false) => {
+      const errorDiv = document.createElement("div");
+      errorDiv.className = `error-message ${isSuccess ? 'success' : ''}`;
+      errorDiv.innerHTML = `
+        <span><i class='bx ${isSuccess ? 'bx-check-circle' : 'bx-error-circle'}'></i> ${message}</span>
+        <button class="dismiss-btn"><i class='bx bx-x'></i></button>
+      `;
+      document.querySelector(".stats-grid").prepend(errorDiv);
+      errorDiv.querySelector(".dismiss-btn").addEventListener("click", () => {
+        errorDiv.style.opacity = "0";
+        setTimeout(() => errorDiv.remove(), 300);
+      });
+    };
+
+    /* ---------- WALLET: status & create ---------- */
+    async function initWalletState() {
+      try {
+        const res = await fetch(API.walletStatus);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        const balEl = document.getElementById('walletBalance');
+        if (balEl) balEl.textContent = json.balance != null ? formatCurrency(json.balance) : '₦0.00';
+        if (!json.hasWallet) showNoWalletAlert();
+        else hideNoWalletAlert();
+        const createBtn = document.querySelector('button[onclick="createWallet()"]');
+        if (createBtn) {
+          createBtn.textContent = json.hasWallet ? `Wallet: ${json.provider || 'n/a'}` : '🏦 Create Wallet';
+        }
+      } catch (err) {
+        console.error('Wallet init error', err);
+        showError("Failed to load wallet status.");
+      }
     }
-  } catch (err) {
-    console.error('createWallet error', err);
-    alert('An error occurred creating wallet.');
-  }
-}
 
-/* ---------- BANKS: list, link, display ---------- */
-async function populateBankDropdown() {
-  const bankSelect = document.getElementById('bankSelect');
-  try {
-    const res = await fetch(API.banksList);
-    const data = await res.json(); // expected: [{code, name}, ...]
-    // clear existing except placeholder
-    bankSelect.innerHTML = '<option value="">Choose your bank...</option>';
-    data.forEach(b => {
-      const opt = document.createElement('option');
-      opt.value = b.code;
-      opt.textContent = b.name;
-      bankSelect.appendChild(opt);
-    });
-  } catch (err) {
-    console.error('Error loading banks', err);
-  }
-}
-
-async function loadLinkedBanks() {
-  const container = document.getElementById('banksGrid');
-  const noBanks = document.getElementById('noBanks');
-  try {
-    const res = await fetch(API.linkedBanks);
-    const data = await res.json(); // expected: array of linked banks
-    if (!Array.isArray(data) || data.length === 0) {
-      noBanks.style.display = 'block';
-      container.style.display = 'none';
-      return;
+    async function showNoWalletAlert() {
+      try {
+        const res = await fetch('/user/api/wallet/check');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        if (!json.success || json.hasWallet) {
+          hideNoWalletAlert();
+          return;
+        }
+        if (document.getElementById('walletAlert')) return;
+        const main = document.querySelector('.dashboard-container .dashboard-header') || document.body;
+        const alert = document.createElement('div');
+        alert.id = 'walletAlert';
+        alert.className = 'wallet-alert';
+        alert.innerHTML = `
+          <strong>Notice:</strong> You don't have a wallet created yet. Some features require a wallet.
+          <button id="dismissWalletAlert" class="small-link">Dismiss</button>
+          <button id="quickCreateWallet" class="btn btn-sm">Create Wallet</button>
+        `;
+        main.appendChild(alert);
+        document.getElementById('dismissWalletAlert').addEventListener('click', () => alert.remove());
+        document.getElementById('quickCreateWallet').addEventListener('click', () => showCreateWalletModal());
+      } catch (err) {
+        console.error("Wallet check failed", err);
+        showError("Failed to check wallet status.");
+      }
     }
-    noBanks.style.display = 'none';
-    container.style.display = 'grid';
-    container.innerHTML = '';
-    data.forEach(bank => container.appendChild(createBankCard(bank)));
-  } catch (err) {
-    console.error('loadLinkedBanks', err);
-  }
-}
 
-function createBankCard(bank) {
-  const card = document.createElement('div');
-  card.className = 'bank-card';
-  const transactionsHtml = createTransactionsTable(bank.transactions || []);
-  card.innerHTML = `
-    <div class="bank-header">
-      <div class="bank-info">
-        <h3>${bank.bankName}</h3>
-        <div class="bank-details">${bank.accountName || ''}<br>${bank.accountNumber || ''}</div>
-      </div>
-      <div class="bank-balance">
-        <div class="balance-text">Balance</div>
-        <div class="balance-value">${formatCurrency(bank.balance || 0)}</div>
-      </div>
-    </div>
-    <div class="transactions-section">
-      <h4>📊 Recent Transactions</h4>
-      ${transactionsHtml}
-    </div>
-  `;
-  return card;
-}
+    function hideNoWalletAlert() {
+      const el = document.getElementById('walletAlert');
+      if (el) el.remove();
+    }
 
-function createTransactionsTable(transactions) {
-  if (!transactions || transactions.length === 0) {
-    return '<div class="no-transactions">No recent transactions</div>';
-  }
-  let rows = '<table class="transactions-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr></thead><tbody>';
-  transactions.slice(0, 10).forEach(tx => {
-    const amt = tx.amount >= 0 ? '+' + formatCurrency(tx.amount) : formatCurrency(tx.amount);
-    const cls = tx.amount >= 0 ? 'amount-credit' : 'amount-debit';
-    rows += `<tr><td>${formatDate(tx.date)}</td><td>${tx.description}</td><td class="${cls}">${amt}</td><td>${tx.type || ''}</td></tr>`;
-  });
-  rows += '</tbody></table>';
-  return rows;
-}
+    async function showCreateWalletModal() {
+      const provider = prompt('Choose wallet provider: "paystack" or "onepipe" (type exact):', 'paystack');
+      if (!provider) return;
+      if (!['paystack', 'onepipe'].includes(provider.toLowerCase())) {
+        alert('Invalid provider. Type "paystack" or "onepipe".');
+        return;
+      }
+      await createWallet(provider.toLowerCase());
+      hideNoWalletAlert();
+    }
 
-/* ---------- FORM HANDLERS ---------- */
-/* ---------- FORM HANDLERS ---------- */
-function initializeFormHandlers() {
-  const form = document.getElementById('bankLinkingForm');
+    async function createWallet(provider) {
+      try {
+        const res = await fetch(API.walletCreate, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider })
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        if (json.success) {
+          showError("Wallet created successfully.", true);
+          if (document.getElementById("walletBalance")) {
+            document.getElementById("walletBalance").textContent = formatCurrency(json.wallet.balance);
+          }
+          await initWalletState();
+        } else {
+          showError(json.message || "Failed to create wallet.");
+        }
+      } catch (err) {
+        console.error("Create wallet error", err);
+        showError("Error creating wallet.");
+      }
+    }
+
+    /* ---------- BANKS: list, link, display ---------- */
+    async function populateBankDropdown() {
+      const bankSelect = document.getElementById('bankSelect');
+      try {
+        const res = await fetch(API.banksList);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        bankSelect.innerHTML = '<option value="">Choose your bank...</option>';
+        data.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b.code;
+          opt.textContent = b.name;
+          opt.dataset.bankName = b.name; // Store bank name for submission
+          bankSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Error loading banks', err);
+        showError("Failed to load bank list.");
+      }
+    }
+
+    async function loadLinkedBanks() {
+      const container = document.getElementById('banksGrid');
+      const noBanks = document.getElementById('noBanks');
+      try {
+        const res = await fetch(API.linkedBanks);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          noBanks.style.display = 'block';
+          container.style.display = 'none';
+          return;
+        }
+        noBanks.style.display = 'none';
+        container.style.display = 'grid';
+        container.innerHTML = '';
+        data.forEach(bank => container.appendChild(createBankCard(bank)));
+      } catch (err) {
+        console.error('loadLinkedBanks', err);
+        showError("Failed to load linked banks.");
+      }
+    }
+
+    function createBankCard(bank) {
+      const card = document.createElement('div');
+      card.className = 'bank-card';
+      const transactionsHtml = createTransactionsTable(bank.transactions || []);
+      card.innerHTML = `
+        <div class="bank-header">
+          <div class="bank-info">
+            <h3>${bank.bankName || 'Unknown Bank'}</h3>
+            <div class="bank-details">${bank.accountName || 'N/A'}<br>${bank.accountNumber || 'N/A'}</div>
+          </div>
+          <div class="bank-balance">
+            <div class="balance-text">Balance</div>
+            <div class="balance-value">${formatCurrency(bank.balance || 0)}</div>
+          </div>
+        </div>
+        <div class="transactions-section">
+          <h4>📊 Recent Transactions</h4>
+          ${transactionsHtml}
+        </div>
+      `;
+      return card;
+    }
+
+    function createTransactionsTable(transactions) {
+      if (!transactions || transactions.length === 0) {
+        return '<div class="no-transactions">No recent transactions</div>';
+      }
+      let rows = '<table class="transactions-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr></thead><tbody>';
+      transactions.slice(0, 10).forEach(tx => {
+        const amt = tx.amount >= 0 ? '+' + formatCurrency(tx.amount) : formatCurrency(tx.amount);
+        const cls = tx.amount >= 0 ? 'amount-credit' : 'amount-debit';
+        rows += `<tr><td>${formatDate(tx.date)}</td><td>${tx.description}</td><td class="${cls}">${amt}</td><td>${tx.type || ''}</td></tr>`;
+      });
+      rows += '</tbody></table>';
+      return rows;
+    }
+
+    /* ---------- FORM HANDLERS ---------- */
+    function initializeFormHandlers() {
+     const form = document.getElementById('bankLinkingForm');
   const bankSelect = document.getElementById('bankSelect');
   const accountNumber = document.getElementById('accountNumber');
+  const bankNameInput = document.getElementById('bankNameInput');
+  const accountNameInput = document.getElementById('accountNameInput');
+      const additionalFields = document.getElementById('additionalFields');
 
   let resolvedAccountName = null;
 
-  bankSelect.addEventListener('change', tryResolveAccount);
-  accountNumber.addEventListener('input', function() {
-    this.value = this.value.replace(/\D/g, '');
-    if (this.value.length === 10) {
-      this.classList.remove('error');
-      tryResolveAccount();
-    } else {
-      this.classList.add('error');
-      resolvedAccountName = null;
-      updateAccountNameField('');
-      toggleSubmit(false);
-    }
-  });
-
-  async function tryResolveAccount() {
-    const bankCode = bankSelect.value;
-    const acct = accountNumber.value;
-    if (!bankCode || acct.length !== 10) return;
-
-    updateAccountNameField('Resolving...');
-    toggleSubmit(false);
-
-    try {
-      const res = await fetch(API.resolveAccount, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bankCode, accountNumber: acct })
+      bankSelect.addEventListener('change', () => {
+        tryResolveAccount();
+        showAdditionalFields();
       });
-      const json = await res.json();
-      if (json.success && json.accountName) {
-        resolvedAccountName = json.accountName;
-        updateAccountNameField(resolvedAccountName);
-        toggleSubmit(true);
-      } else {
-        resolvedAccountName = null;
-        updateAccountNameField('❌ Unable to resolve');
-        toggleSubmit(false);
-      }
-    } catch (err) {
-      console.error('resolve error', err);
-      resolvedAccountName = null;
-      updateAccountNameField('❌ Error resolving');
-      toggleSubmit(false);
-    }
-  }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!resolvedAccountName) {
-      alert('Please resolve account name before submitting.');
-      return;
-    }
-
-    const fd = new FormData(form);
-    const payload = {
-      bankCode: fd.get('bank'),
-      accountNumber: fd.get('accountNumber'),
-      accountName: resolvedAccountName,
-      bvn: fd.get('bvn'),
-      pin: fd.get('pin') || null,
-      consent: fd.get('consent') === 'on'
-    };
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = 'Linking...';
-
-    try {
-      const res = await fetch(API.banksLink, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const json = await res.json();
-      if (json.success) {
-        alert('Bank linked successfully.');
-        form.reset();
-        updateAccountNameField('');
-        hideAdditionalFields();
-        await loadLinkedBanks();
-      } else {
-        alert('Failed to link: ' + (json.message || 'unknown'));
-      }
-    } catch (err) {
-      console.error('link error', err);
-      alert('Error linking bank. Check console.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-    }
-  });
-
-  function updateAccountNameField(value) {
-    let el = document.getElementById('resolvedAccountName');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'resolvedAccountName';
-      el.className = 'form-group resolved-account';
-      accountNumber.closest('.form-group').after(el);
-    }
-    el.innerHTML = value ? `<strong>Account Name:</strong> ${value}` : '';
-  }
-
-  function toggleSubmit(enable) {
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = !enable;
-  }
-}
-
-/* ---------- ADDITIONAL FIELDS ---------- */
-function showAdditionalFields() {
-  const container = document.getElementById('additionalFields');
-  container.innerHTML = `
-    <div class="alert alert-warning">
-      <strong>Additional verification required</strong><br>
-      Your selected bank requires additional authentication.
-    </div>
-    <div class="form-group">
-      <label for="pin">Transaction PIN</label>
-      <input type="password" id="pin" name="pin" class="form-control" placeholder="Enter your 4-digit PIN" maxlength="4" required>
-    </div>
-  `;
-  container.classList.add('show');
-}
-function hideAdditionalFields() {
-  const container = document.getElementById('additionalFields');
-  container.classList.remove('show');
-  setTimeout(()=> container.innerHTML = '', 200);
-}
-
-/* ---------- UTILS ---------- */
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-NG', { style:'currency', currency:'NGN', minimumFractionDigits:2 }).format(Math.abs(amount));
-}
-function formatDate(dateString) {
-  const d = new Date(dateString);
-  return d.toLocaleDateString('en-NG', { month:'short', day:'numeric' });
-}
-
-
-
-
-
-
-
-// 🟢 Open Fund Popup with wallet check
-async function openFundPopup() {
-  try {
-    const res = await fetch('/user/api/wallet/check');
-    const json = await res.json();
-
-    if (json.success && json.hasWallet) {
-      // ✅ Wallet exists → show fund popup
-      document.getElementById("fundPopup").classList.remove("hidden");
-    } else {
-      // ❌ No wallet → show "no wallet" popup
-      document.getElementById("noWalletPopup").classList.remove("hidden");
-    }
-  } catch (err) {
-    console.error("Wallet check failed", err);
-    alert("Error checking wallet, please try again.");
-  }
-}
-
-function closeFundPopup() {
-  document.getElementById("fundPopup").classList.add("hidden");
-}
-
-function closeFundPopup() {
-  document.getElementById("fundPopup").classList.add("hidden");
-}
-
-// 🟢 Withdraw Popup with wallet check
-async function openWithdrawPopup() {
-  try {
-    const res = await fetch('/user/api/wallet/check');
-    const json = await res.json();
-
-    if (json.success && json.hasWallet) {
-      // User has wallet → open withdraw popup
-      document.getElementById("withdrawPopup").classList.remove("hidden");
-    } else {
-      // No wallet → show "no wallet" popup
-      document.getElementById("noWalletPopup").classList.remove("hidden");
-    }
-  } catch (err) {
-    console.error("Wallet check failed", err);
-    alert("Error checking wallet, please try again.");
-  }
-}
-
-function closeWithdrawPopup() {
-  document.getElementById("withdrawPopup").classList.add("hidden");
-}
-
-// 🟢 Close "No Wallet" Popup
-function closeNoWalletPopup() {
-  document.getElementById("noWalletPopup").classList.add("hidden");
-}
-
-// 🟢 Create Wallet action
-async function createWallet() {
-  try {
-    const res = await fetch('/user/api/wallet/create', { method: 'POST' });
-    const json = await res.json();
-
-    if (json.success) {
-      alert("Wallet created successfully!");
-      closeNoWalletPopup();
-      openWithdrawPopup(); // open popup now that wallet exists
-    } else {
-      alert(json.message || "Failed to create wallet.");
-    }
-  } catch (err) {
-    console.error("Create wallet error", err);
-    alert("Error creating wallet.");
-  }
-}
-
-
-function startFund() {
-  const amount = document.getElementById("fundAmount").value;
-  if (!amount || amount <= 0) return alert("Enter valid amount");
-
-  let handler = PaystackPop.setup({
-    key: "<%= process.env.PAYSTACK_PUBLIC_KEy %>", 
-    email: "<%= user.email %>", 
-    amount: amount * 100, // kobo
-    currency: "NGN",
-    ref: "fund_" + Date.now(),
-    callback: function(response) {
-      // Send reference to backend
-      fetch("/user/api/wallet/fund", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parseFloat(amount), reference: response.reference })
-      })
-      .then(res => res.json())
-      .then(json => {
-        if (json.success) {
-          document.getElementById("walletBalance").textContent =
-            new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" })
-            .format(json.wallet.balance);
-          closeFundPopup();
+      accountNumber.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        if (this.value.length === 10) {
+          this.classList.remove('error');
+          tryResolveAccount();
         } else {
-          alert(json.message);
+          this.classList.add('error');
+          resolvedAccountName = null;
+          updateAccountNameField('');
+          toggleSubmit(false);
         }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Funding failed");
       });
-    },
-    onClose: function() {
-      alert("Payment window closed");
+
+      async function tryResolveAccount() {
+        const bankCode = bankSelect.value;
+        const acct = accountNumber.value;
+        if (!bankCode || acct.length !== 10) return;
+
+        updateAccountNameField('Resolving...');
+        toggleSubmit(false);
+
+        try {
+          const res = await fetch(API.resolveAccount, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bankCode, accountNumber: acct })
+          });
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          const json = await res.json();
+          if (json.success && json.accountName) {
+            resolvedAccountName = json.accountName;
+            updateAccountNameField(resolvedAccountName);
+            toggleSubmit(true);
+          } else {
+            resolvedAccountName = null;
+            updateAccountNameField('❌ Unable to resolve');
+            toggleSubmit(false);
+          }
+        } catch (err) {
+          console.error('resolve error', err);
+          resolvedAccountName = null;
+          updateAccountNameField('❌ Error resolving');
+          toggleSubmit(false);
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!resolvedAccountName) {
+          showError('Please resolve account name before submitting.');
+          return;
+        }
+        const pin = form.querySelector('#pin').value;
+        if (!pin || pin.length !== 4) {
+          showError('Please enter a valid 4-digit PIN.');
+          return;
+        }
+
+        const fd = new FormData(form);
+        const selectedBank = Array.from(bankSelect.options).find(opt => opt.value === fd.get('bank'));
+        const payload = {
+          bankCode: fd.get('bank'),
+          bankName: selectedBank ? selectedBank.dataset.bankName : 'Unknown Bank',
+          accountNumber: fd.get('accountNumber'),
+          accountName: resolvedAccountName,
+          bvn: fd.get('bvn') || null,
+          pin: fd.get('pin'),
+          consent: fd.get('consent') === 'on'
+        };
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Linking...';
+
+        try {
+          const res = await fetch(API.banksLink, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          const json = await res.json();
+          if (json.success) {
+            showError('Bank linked successfully.', true);
+            form.reset();
+            updateAccountNameField('');
+            hideAdditionalFields();
+            await loadLinkedBanks();
+          } else {
+            showError(json.message || 'Failed to link bank.');
+          }
+        } catch (err) {
+          console.error('link error', err);
+          showError('Error linking bank.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      });
+
+      function updateAccountNameField(value) {
+        let el = document.getElementById('resolvedAccountName');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'resolvedAccountName';
+          el.className = 'form-group resolved-account';
+          accountNumber.closest('.form-group').after(el);
+        }
+        el.innerHTML = value ? `<strong>Account Name:</strong> ${value}` : '';
+      }
+
+      function toggleSubmit(enable) {
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = !enable;
+      }
     }
-  });
-  handler.openIframe();
-}
 
-// Helper async function for verification (keeps logic clean)
-async function verifyAndFundWallet(amount, reference) {
-  try {
-    const res = await fetch('/user/api/wallet/fund', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        amount: amount, 
-        reference: reference 
-      })
-    });
-    return await res.json();
-  } catch (err) {
-    console.error('Fetch error:', err);
-    throw err;
-  }
-}
-
-
-// WITHDRAW FUNDS
-async function startWithdraw() {
-  const amount = document.getElementById("withdrawAmount").value;
-  const bank = document.getElementById("withdrawBank").value;
-  const account = document.getElementById("withdrawAccount").value;
-
-  if (!amount || amount <= 0) return alert("Enter amount");
-  if (!account || account.length !== 10) return alert("Enter valid account number");
-
-  try {
-    const res = await fetch('/user/api/wallet/withdraw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, bank, account })
-    });
-    const json = await res.json();
-    if (json.success) {
-      document.getElementById("walletBalance").textContent =
-        new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' })
-        .format(json.wallet.balance);
-      closeWithdrawPopup();
-    } else {
-      alert(json.message);
+    /* ---------- ADDITIONAL FIELDS ---------- */
+    function showAdditionalFields() {
+      const container = document.getElementById('additionalFields');
+      container.innerHTML = `
+        <div class="alert alert-warning">
+          <strong>Additional verification required</strong><br>
+          Your selected bank requires additional authentication.
+        </div>
+        <div class="form-group">
+          <label for="pin">Transaction PIN</label>
+          <input type="password" id="pin" name="pin" class="form-control" 
+                 placeholder="Enter your 4-digit PIN" maxlength="4" required>
+        </div>
+      `;
+      container.classList.add('show');
     }
-  } catch (err) {
-    console.error(err);
-    alert("Withdrawal failed");
-  }
-}
 
-
-document.addEventListener("DOMContentLoaded", async () => {
-  // Load banks dynamically
-  const res = await fetch('/user/api/banks');
-  const json = await res.json();
-  const bankSelect = document.getElementById("withdrawBank");
-  bankSelect.innerHTML = json.data.map(b => 
-    `<option value="${b.code}">${b.name}</option>`
-  ).join("");
-});
-
-// Auto-fetch account name when account number is filled
-document.getElementById("withdrawAccount").addEventListener("blur", async () => {
-  const account = document.getElementById("withdrawAccount").value;
-  const bank = document.getElementById("withdrawBank").value;
-  if (account.length === 10) {
-    const res = await fetch('/user/api/resolve-account', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ account, bank })
-    });
-    const json = await res.json();
-    if (json.success) {
-      document.getElementById("accountName").textContent = 
-        `Account Name: ${json.data.account_name}`;
-    } else {
-      document.getElementById("accountName").textContent = "❌ Invalid account";
+    function hideAdditionalFields() {
+      const container = document.getElementById('additionalFields');
+      container.classList.remove('show');
+      setTimeout(() => container.innerHTML = `
+        <div class="alert alert-warning">
+          <strong>Additional verification required</strong><br>
+          Your selected bank requires additional authentication.
+        </div>
+      `, 200);
     }
-  }
-});
 
+    /* ---------- UTILS ---------- */
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 2 }).format(Math.abs(amount));
+    }
 
+    function formatDate(dateString) {
+      const d = new Date(dateString);
+      return d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' });
+    }
 
-</script>
+    /* ---------- PAYSTACK INTEGRATION ---------- */
+    async function openFundPopup() {
+      try {
+        const res = await fetch('/user/api/wallet/check');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        if (json.success && json.hasWallet) {
+          document.getElementById("fundPopup")?.classList.remove("hidden");
+        } else {
+          document.getElementById("noWalletPopup")?.classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("Wallet check failed", err);
+        showError("Error checking wallet.");
+      }
+    }
+
+    function closeFundPopup() {
+      document.getElementById("fundPopup")?.classList.add("hidden");
+    }
+
+    async function openWithdrawPopup() {
+      try {
+        const res = await fetch('/user/api/wallet/check');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        if (json.success && json.hasWallet) {
+          document.getElementById("withdrawPopup")?.classList.remove("hidden");
+        } else {
+          document.getElementById("noWalletPopup")?.classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("Wallet check failed", err);
+        showError("Error checking wallet.");
+      }
+    }
+
+    function closeWithdrawPopup() {
+      document.getElementById("withdrawPopup")?.classList.add("hidden");
+    }
+
+    function closeNoWalletPopup() {
+      document.getElementById("noWalletPopup")?.classList.add("hidden");
+    }
+
+    async function startFund() {
+      const amount = document.getElementById("fundAmount")?.value;
+      if (!amount || amount <= 0) {
+        showError("Enter a valid amount.");
+        return;
+      }
+      try {
+        let handler = PaystackPop.setup({
+          key: "<%= process.env.PAYSTACK_PUBLIC_KEY %>",
+          email: "<%= user.email %>",
+          amount: amount * 100,
+          currency: "NGN",
+          ref: "fund_" + Date.now(),
+          callback: async function(response) {
+            try {
+              const json = await verifyAndFundWallet(parseFloat(amount), response.reference);
+              if (json.success) {
+                document.getElementById("walletBalance").textContent = formatCurrency(json.wallet.balance);
+                closeFundPopup();
+              } else {
+                showError(json.message || "Funding failed.");
+              }
+            } catch (err) {
+              console.error(err);
+              showError("Funding failed.");
+            }
+          },
+          onClose: function() {
+            showError("Payment window closed.");
+          }
+        });
+        handler.openIframe();
+      } catch (err) {
+        console.error(err);
+        showError("Error initiating funding.");
+      }
+    }
+
+    async function verifyAndFundWallet(amount, reference) {
+      try {
+        const res = await fetch('/user/api/wallet/fund', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, reference })
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.error('Fetch error:', err);
+        throw err;
+      }
+    }
+
+    async function startWithdraw() {
+      const amount = document.getElementById("withdrawAmount")?.value;
+      const bank = document.getElementById("withdrawBank")?.value;
+      const account = document.getElementById("withdrawAccount")?.value;
+      if (!amount || amount <= 0) {
+        showError("Enter a valid amount.");
+        return;
+      }
+      if (!account || account.length !== 10) {
+        showError("Enter a valid 10-digit account number.");
+        return;
+      }
+      try {
+        const res = await fetch('/user/api/wallet/withdraw', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, bank, account })
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById("walletBalance").textContent = formatCurrency(json.wallet.balance);
+          closeWithdrawPopup();
+        } else {
+          showError(json.message || "Withdrawal failed.");
+        }
+      } catch (err) {
+        console.error(err);
+        showError("Withdrawal failed.");
+      }
+    }
+
+    async function loadWithdrawBanks() {
+      try {
+        const res = await fetch('/user/api/banks');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const json = await res.json();
+        const bankSelect = document.getElementById("withdrawBank");
+        if (bankSelect) {
+          bankSelect.innerHTML = json.data.map(b => `<option value="${b.code}">${b.name}</option>`).join("");
+        }
+      } catch (err) {
+        console.error('Error loading withdraw banks', err);
+        showError("Failed to load bank list for withdrawal.");
+      }
+    }
+
+    document.getElementById("withdrawAccount")?.addEventListener("blur", async () => {
+      const account = document.getElementById("withdrawAccount")?.value;
+      const bank = document.getElementById("withdrawBank")?.value;
+      if (account?.length === 10) {
+        try {
+          const res = await fetch('/user/api/resolve-account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ account, bank })
+          });
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          const json = await res.json();
+          const accountNameEl = document.getElementById("accountName");
+          if (accountNameEl) {
+            accountNameEl.textContent = json.success ? `Account Name: ${json.data.account_name}` : "❌ Invalid account";
+          }
+        } catch (err) {
+          console.error(err);
+          showError("Error resolving account.");
+        }
+      }
+    });
+  </script>
 
 
 

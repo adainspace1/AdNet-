@@ -7,11 +7,11 @@
 }
 body {
   height: 100%;
-  font-family: Arial, sans-serif;
+    font-family: poppins, sans-serif;
   line-height: 1.6;
   margin: 0;
   background-color: #031224;
-  color: #333;
+  color: #0c0c0c;
   overflow: hidden;
 }
 .main-content {
@@ -24,9 +24,8 @@ body {
   background: white;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 25px;
+  border-radius: 10px;
   overflow-y: auto;
-  height: 95vh;
   box-sizing: border-box;
 }
 .container::-webkit-scrollbar {
@@ -85,11 +84,17 @@ body {
   color: #555;
 }
 h1 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #eee;
+  color: #0c0c0c;
   padding-bottom: 10px;
+  font-weight: 550;
+  font-size: 30px;
 }
+h2{
+ color: #0c0c0c;
+   font-weight: 500;
+  font-size: 25px;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -146,12 +151,22 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 30px;
+  overflow-x: scroll;
 }
 th,
 td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+   color: #0c0c0c;
+   font-weight: 300;
+  font-size: 15px;
+  max-width: 200px;
+  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 th {
   background-color: #f8f9fa;

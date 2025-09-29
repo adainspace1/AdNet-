@@ -1458,10 +1458,20 @@ async function getRecentExpenses(userId) {
 app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
   try {
     // recipient determined from admin or worker
-    let recipientId;
-    if (req.session.user) recipientId = req.session.user._id;
-    else if (req.session.worker) recipientId = req.session.worker.adminId;
-    else return res.redirect('/login');
+       let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
 
     const expenses = await Expense.find({ recipientId }).sort({ createdAt: -1 }).lean();
 
@@ -1472,6 +1482,7 @@ app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
     res.render("dashboard/viewallexpenses", {
       user: req.session.user || null,
       worker: req.session.worker || null,
+      companyinfo,         // ✅ consistent with schema
       totalAmount,
       totalTransactions,
       averageExpense,
@@ -4588,6 +4599,67 @@ app.get("/invoice/review", ensureAuthenticated, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch review list" });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+app.post('/user/api/banks/link', async (req, res) => {
+  try {
+    const userId = req.session.user._id; // logged in user
+    const { bankCode, accountNumber, accountName, bvn, pin, consent } = req.body;
+
+    // (optional) fetch bank name from your banks list collection/api
+    const bankName = req.body.bankName || "Unknown Bank";
+
+    const linked = new LinkedBank({
+      userId,
+      bankCode,
+      bankName,
+      accountNumber,
+      accountName,
+      bvn,
+      pin,
+      consent
+    });
+
+    console.log("Linking bank for user:", userId, linked);
+    await linked.save();
+    res.json({ success: true, bank: linked });
+  } catch (err) {
+    console.error("Link bank error", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// 📌 GET: list linked banks for this user
+app.get('/user/api/linked-banks', async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const banks = await LinkedBank.find({ userId }).sort({ createdAt: -1 });
+    res.json(banks);
+  } catch (err) {
+    console.error("Get linked banks error", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
 
 
 
