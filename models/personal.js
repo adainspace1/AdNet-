@@ -19,6 +19,11 @@ const userFormSchema = new mongoose.Schema({
   country: { type: String, required: true },
   plan: { type: String, required: true },
   zipCode: { type: String, required: true },
+    tier: {
+    type: Number,
+    enum: [1, 2, 3], // 1=API Wallet, 2=Platform Wallet, 3=Bank & Third-Party
+    default: 1
+  }
 }, {
   timestamps: true
 });

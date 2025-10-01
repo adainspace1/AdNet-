@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Registration</title>
+    <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/driversign.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="/">AdNet</a>
+            </div>
+
+            <!-- Hamburger -->
+            <div class="ham" id="ham">
+                <i class="bx bx-menu"></i>
+            </div>
+
+            <!-- Nav Links -->
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#business">Business</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="nav-btn">
+                    <a href="/personal"><button class="bt">Sign Up</button></a>
+                </li>
+                <li class="nav-btn">
+                    <a href="/login"><button class="bt">Log In</button></a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="headerr">
+            <h1>Driver Registration</h1>
+            <p>Complete all steps to become a verified driver</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="stepper">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">👤</div>
+                    <div class="step-label">Personal Info</div>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">🚗</div>
+                    <div class="step-label">Vehicle Info</div>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">📄</div>
+                    <div class="step-label">Documents</div>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">💳</div>
+                    <div class="step-label">Banking</div>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-circle">✓</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="driverForm" enctype="multipart/form-data">
+                <!-- Step 1: Personal Info -->
+                <div class="form-step active" data-step="1">
+                    <h2 class="form-title">Personal Information</h2>
+                    <div class="form-group">
+                        <label class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="fullName" name="fullName" placeholder="John Doe">
+                        <div class="error-message" id="fullName-error">Full name is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-input" id="email" name="email" placeholder="john.doe@example.com">
+                        <div class="error-message" id="email-error">Valid email is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number <span class="required">*</span></label>
+                        <input type="tel" class="form-input" id="phone" name="phone" placeholder="+234 801 234 5678">
+                        <div class="error-message" id="phone-error">Valid phone number is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="password" name="password" placeholder="*************">
+                        <div class="error-message" id="password-error">Enter Password</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-input" id="dob" name="dob">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture <span class="required">*</span></label>
+                        <div class="upload-box" id="profilePicture-box" onclick="document.getElementById('profilePicture').click()">
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">Click to upload your profile picture</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="profilePicture" name="profilePicture" accept="image/*">
+                        <div class="preview-container" id="profilePicture-preview"></div>
+                        <div class="error-message" id="profilePicture-error">Profile picture is required</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Vehicle Info -->
+                <div class="form-step" data-step="2">
+                    <h2 class="form-title">Vehicle Information</h2>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Make <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="vehicleMake" name="vehicleMake" placeholder="Toyota">
+                        <div class="error-message" id="vehicleMake-error">Vehicle make is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Model <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="vehicleModel" name="vehicleModel" placeholder="Corolla 2018">
+                        <div class="error-message" id="vehicleModel-error">Vehicle model is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Color</label>
+                        <input type="text" class="form-input" id="vehicleColor" name="vehicleColor" placeholder="Black">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Plate Number <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="vehiclePlate" name="vehiclePlate" placeholder="ABC-123-XY">
+                        <div class="error-message" id="vehiclePlate-error">Plate number is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Car Images <span class="required">*</span></label>
+                        <div class="car-images-grid" id="carImagesGrid"></div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Documents -->
+                <div class="form-step" data-step="3">
+                    <h2 class="form-title">Driver Documents</h2>
+                    <div class="form-group">
+                        <label class="form-label">Driver's License (Front) <span class="required">*</span></label>
+                        <div class="upload-box" id="licenseFront-box" onclick="document.getElementById('licenseFront').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload license front</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="licenseFront" name="licenseFront" accept="image/*">
+                        <div class="preview-container" id="licenseFront-preview"></div>
+                        <div class="error-message" id="licenseFront-error">License front is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Driver's License (Back) <span class="required">*</span></label>
+                        <div class="upload-box" id="licenseBack-box" onclick="document.getElementById('licenseBack').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload license back</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="licenseBack" name="licenseBack" accept="image/*">
+                        <div class="preview-container" id="licenseBack-preview"></div>
+                        <div class="error-message" id="licenseBack-error">License back is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Registration Document <span class="required">*</span></label>
+                        <div class="upload-box" id="registration-box" onclick="document.getElementById('registration').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload registration document</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="registration" name="registration" accept="image/*,.pdf">
+                        <div class="preview-container" id="registration-preview"></div>
+                        <div class="error-message" id="registration-error">Registration document is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Insurance Certificate <span class="required">*</span></label>
+                        <div class="upload-box" id="insurance-box" onclick="document.getElementById('insurance').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload insurance certificate</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="insurance" name="insurance" accept="image/*,.pdf">
+                        <div class="preview-container" id="insurance-preview"></div>
+                        <div class="error-message" id="insurance-error">Insurance certificate is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Roadworthiness Certificate</label>
+                        <div class="upload-box" id="roadworthiness-box" onclick="document.getElementById('roadworthiness').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload roadworthiness certificate (optional)</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="roadworthiness" name="roadworthiness" accept="image/*,.pdf">
+                        <div class="preview-container" id="roadworthiness-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Banking -->
+                <div class="form-step" data-step="4">
+                    <h2 class="form-title">Banking & Payout</h2>
+                    <div class="form-group">
+                        <label class="form-label">Bank Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="bankName" name="bankName" placeholder="First Bank of Nigeria">
+                        <div class="error-message" id="bankName-error">Bank name is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Number <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="accountNumber" name="accountNumber" placeholder="0123456789">
+                        <div class="error-message" id="accountNumber-error">Account number is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Holder's Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="accountHolder" name="accountHolder" placeholder="John Doe">
+                        <div class="error-message" id="accountHolder-error">Account holder's name is required</div>
+                        <div style="color: #667eea; font-size: 0.85rem; margin-top: 5px;">✓ Auto-verification available</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">KYC Document (Passport or ID Card) <span class="required">*</span></label>
+                        <div class="upload-box" id="kycDocument-box" onclick="document.getElementById('kycDocument').click()">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text">Click to upload KYC document</div>
+                            <div class="upload-btn">Choose File</div>
+                        </div>
+                        <input type="file" class="file-input" id="kycDocument" name="kycDocument" accept="image/*,.pdf">
+                        <div class="preview-container" id="kycDocument-preview"></div>
+                        <div class="error-message" id="kycDocument-error">KYC document is required</div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Review -->
+                <div class="form-step" data-step="5">
+                    <h2 class="form-title">Review & Submit</h2>
+                    <div class="review-section">
+                        <div class="review-title">Personal Information</div>
+                        <div class="review-grid">
+                            <div class="review-item">
+                                <span class="review-label">Name:</span>
+                                <span class="review-value" id="review-fullName"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Email:</span>
+                                <span class="review-value" id="review-email"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Phone:</span>
+                                <span class="review-value" id="review-phone"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">DOB:</span>
+                                <span class="review-value" id="review-dob"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-title">Vehicle Information</div>
+                        <div class="review-grid">
+                            <div class="review-item">
+                                <span class="review-label">Make:</span>
+                                <span class="review-value" id="review-vehicleMake"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Model:</span>
+                                <span class="review-value" id="review-vehicleModel"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Color:</span>
+                                <span class="review-value" id="review-vehicleColor"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Plate:</span>
+                                <span class="review-value" id="review-vehiclePlate"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-title">Banking Information</div>
+                        <div class="review-grid">
+                            <div class="review-item">
+                                <span class="review-label">Bank:</span>
+                                <span class="review-value" id="review-bankName"></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-label">Account:</span>
+                                <span class="review-value" id="review-accountNumber"></span>
+                            </div>
+                            <div class="review-item" style="grid-column: 1 / -1;">
+                                <span class="review-label">Holder:</span>
+                                <span class="review-value" id="review-accountHolder"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-title">Uploaded Documents</div>
+                        <div class="documents-list" id="documentsList"></div>
+                    </div>
+                    <div class="alert">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <h4>Please Review Carefully</h4>
+                            <p>Make sure all information is correct before submitting. Your application will be marked as <strong>Pending Verification</strong> until approved by our team.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation">
+                    <button type="button" class="btn btn-back" id="backBtn" style="display: none;" onclick="previousStep()">← Back</button>
+                    <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()">Next →</button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">✓ Submit Application</button>
+                </div>
+            </form>
+
+            <div id="preloader" class="preloader hidden">
+                <div class="spinner"></div>
+                <p>Submitting your application... please wait</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        const formData = {};
+        const carImagePositions = ['front', 'back', 'left', 'right', 'dashboard'];
+
+        // Initialize car images grid
+        function initCarImagesGrid() {
+            const grid = document.getElementById('carImagesGrid');
+            carImagePositions.forEach(position => {
+                const item = document.createElement('div');
+                item.className = 'car-image-item';
+                item.innerHTML = `
+                    <label class="form-label" style="text-transform: capitalize;">${position} <span class="required">*</span></label>
+                    <div class="upload-box" id="carImage-${position}-box" onclick="document.getElementById('carImage-${position}').click()">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Upload ${position} view</div>
+                        <div class="upload-btn">Choose File</div>
+                    </div>
+                    <input type="file" class="file-input" id="carImage-${position}" name="carImage_${position}" accept="image/*">
+                    <div class="preview-container" id="carImage-${position}-preview"></div>
+                    <div class="error-message" id="carImage-${position}-error">${position} image is required</div>
+                `;
+                grid.appendChild(item);
+
+                document.getElementById(`carImage-${position}`).addEventListener('change', function(e) {
+                    handleFileUpload(e, `carImage-${position}`);
+                });
+            });
+        }
+
+        // File upload handler
+        function handleFileUpload(event, fieldId) {
+            const file = event.target.files[0];
+            if (file) {
+                formData[fieldId] = file;
+                const preview = document.getElementById(`${fieldId}-preview`);
+                const box = document.getElementById(`${fieldId}-box`);
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" class="preview-image">
+                            <div class="upload-success">✓ Uploaded</div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.innerHTML = `<div class="upload-success">✓ ${file.name} uploaded</div>`;
+                }
+
+                if (box) box.classList.remove('error');
+                hideError(fieldId);
+            }
+        }
+
+        // Validation helpers
+        function validateEmail(email) {
+            return /\S+@\S+\.\S+/.test(email);
+        }
+
+        function validatePhone(phone) {
+            return /^[+]?[\d\s\-()]+$/.test(phone);
+        }
+
+        function showError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            const error = document.getElementById(`${fieldId}-error`);
+            const box = document.getElementById(`${fieldId}-box`);
+
+            if (input) input.classList.add('error');
+            if (error) {
+                error.textContent = message || error.textContent;
+                error.classList.add('show');
+            }
+            if (box) box.classList.add('error');
+        }
+
+        function hideError(fieldId) {
+            const input = document.getElementById(fieldId);
+            const error = document.getElementById(`${fieldId}-error`);
+            const box = document.getElementById(`${fieldId}-box`);
+
+            if (input) input.classList.remove('error');
+            if (error) error.classList.remove('show');
+            if (box) box.classList.remove('error');
+        }
+
+        // Step validation
+        function validateStep(step) {
+            let isValid = true;
+
+            if (step === 1) {
+                const fullName = document.getElementById("fullName").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const phone = document.getElementById("phone").value.trim();
+                const password = document.getElementById("password").value.trim();
+                const profilePic = document.getElementById("profilePicture").files[0];
+
+                if (!fullName) { showError("fullName", "Full name is required"); isValid = false; } else hideError("fullName");
+                if (!password) { showError("password", "Password is required"); isValid = false; } else hideError("password");
+                if (!validateEmail(email)) { showError("email", "Valid email is required"); isValid = false; } else hideError("email");
+                if (!validatePhone(phone)) { showError("phone", "Valid phone number is required"); isValid = false; } else hideError("phone");
+                if (!profilePic) { showError("profilePicture", "Profile picture is required"); isValid = false; } else hideError("profilePicture");
+            }
+
+            if (step === 2) {
+                const make = document.getElementById("vehicleMake").value.trim();
+                const model = document.getElementById("vehicleModel").value.trim();
+                const plate = document.getElementById("vehiclePlate").value.trim();
+
+                if (!make) { showError("vehicleMake", "Vehicle make is required"); isValid = false; } else hideError("vehicleMake");
+                if (!model) { showError("vehicleModel", "Vehicle model is required"); isValid = false; } else hideError("vehicleModel");
+                if (!plate) { showError("vehiclePlate", "Plate number is required"); isValid = false; } else hideError("vehiclePlate");
+
+                carImagePositions.forEach(pos => {
+                    const file = document.getElementById(`carImage-${pos}`).files[0];
+                    if (!file) { showError(`carImage-${pos}`, `${pos} image is required`); isValid = false; } else hideError(`carImage-${pos}`);
+                });
+            }
+
+            if (step === 3) {
+                ["licenseFront", "licenseBack", "registration", "insurance"].forEach(field => {
+                    const file = document.getElementById(field).files[0];
+                    if (!file) { showError(field, `${field} is required`); isValid = false; } else hideError(field);
+                });
+            }
+
+            if (step === 4) {
+                const bankName = document.getElementById("bankName").value.trim();
+                const accountNumber = document.getElementById("accountNumber").value.trim();
+                const accountHolder = document.getElementById("accountHolder").value.trim();
+                const kycDoc = document.getElementById("kycDocument").files[0];
+
+                if (!bankName) { showError("bankName", "Bank name is required"); isValid = false; } else hideError("bankName");
+                if (!accountNumber) { showError("accountNumber", "Account number is required"); isValid = false; } else hideError("accountNumber");
+                if (!accountHolder) { showError("accountHolder", "Account holder's name is required"); isValid = false; } else hideError("accountHolder");
+                if (!kycDoc) { showError("kycDocument", "KYC document is required"); isValid = false; } else hideError("kycDocument");
+            }
+
+            return isValid;
+        }
+
+        // Navigation
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+
+            if (currentStep < totalSteps) {
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove("active");
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove("active");
+                currentStep++;
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add("active");
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add("active");
+                updateNavigation();
+                if (currentStep === totalSteps) populateReview();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove("active");
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove("active");
+                currentStep--;
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add("active");
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add("active");
+                updateNavigation();
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById("backBtn").style.display = currentStep > 1 ? "inline-block" : "none";
+            document.getElementById("nextBtn").style.display = currentStep < totalSteps ? "inline-block" : "none";
+            document.getElementById("submitBtn").style.display = currentStep === totalSteps ? "inline-block" : "none";
+        }
+
+        // Populate review step
+        function populateReview() {
+            document.getElementById("review-fullName").textContent = document.getElementById("fullName").value || 'N/A';
+            document.getElementById("review-email").textContent = document.getElementById("email").value || 'N/A';
+            document.getElementById("review-phone").textContent = document.getElementById("phone").value || 'N/A';
+            document.getElementById("review-dob").textContent = document.getElementById("dob").value || 'N/A';
+            document.getElementById("review-vehicleMake").textContent = document.getElementById("vehicleMake").value || 'N/A';
+            document.getElementById("review-vehicleModel").textContent = document.getElementById("vehicleModel").value || 'N/A';
+            document.getElementById("review-vehicleColor").textContent = document.getElementById("vehicleColor").value || 'N/A';
+            document.getElementById("review-vehiclePlate").textContent = document.getElementById("vehiclePlate").value || 'N/A';
+            document.getElementById("review-bankName").textContent = document.getElementById("bankName").value || 'N/A';
+            document.getElementById("review-accountNumber").textContent = document.getElementById("accountNumber").value || 'N/A';
+            document.getElementById("review-accountHolder").textContent = document.getElementById("accountHolder").value || 'N/A';
+
+            const docsList = document.getElementById("documentsList");
+            docsList.innerHTML = "";
+            ["profilePicture", "licenseFront", "licenseBack", "registration", "insurance", "kycDocument", ...carImagePositions.map(pos => `carImage-${pos}`)].forEach(field => {
+                const file = document.getElementById(field).files[0];
+                if (file) {
+                    const item = document.createElement("div");
+                    item.className = "document-item";
+                    item.textContent = `✓ ${field.replace('carImage-', 'Car Image: ')} uploaded`;
+                    docsList.appendChild(item);
+                }
+            });
+        }
+
+        // Submit
+        async function submitForm(e) {
+            e.preventDefault();
+            if (!validateStep(currentStep)) return;
+
+            const preloader = document.getElementById("preloader");
+            preloader.classList.remove("hidden");
+
+            const form = new FormData(document.getElementById("driverForm"));
+
+            try {
+                const res = await fetch("/api/driver/register-driver", {
+                    method: "POST",
+                    body: form
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("✅ Driver application submitted successfully!\nStatus: Pending Verification.");
+                    window.location.href = "/login-driver";
+                } else {
+                    alert(`❌ Failed: ${data.message || "Something went wrong"}`);
+                }
+            } catch (err) {
+                console.error('Submit error:', err);
+                alert("❌ Error submitting application.");
+            } finally {
+                preloader.classList.add("hidden");
+            }
+        }
+
+        // Initialize
+        initCarImagesGrid();
+        updateNavigation();
+        document.getElementById("driverForm").addEventListener("submit", submitForm);
+    </script>
+</body>
+</html>

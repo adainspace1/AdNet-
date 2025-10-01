@@ -42,6 +42,7 @@ const Worker = require("./models/Worker"); // adjust path
 
 
 
+const Driver = require("./models/Driver");
 
 
 const Wallet = require('./models/Wallet');
@@ -51,6 +52,8 @@ const Invoice = require("./models/Invoice"); // if you track mismatches
 // services/paystackService.js
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+
+const bcrypt = require('bcrypt');
 // Get from your env
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
@@ -65,6 +68,7 @@ const session = require("express-session")
 
 const authRoutes = require("./routes/adminroutes");
 const userRoutes = require("./routes/userroutes");
+const driverRoutes = require("./routes/driverRoutes");
 const production = require('./models/production');
 
 
@@ -101,6 +105,7 @@ app.use(bodyparser.json())
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/driver", driverRoutes);
 app.use("/user", userRoutes);
 
 
@@ -4108,35 +4113,43 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
 
 
 
-// Render registration form
-app.get('/register-driver', (req, res) => {
-  res.render('dashboard/driver-register');
+// GET signup page
+app.get("/signup-driver", (req, res) => {
+  res.render("dashboard/driverdash/driversignup", { error: null });
 });
 
-// Handle form submission
-const bcrypt = require("bcrypt");
-
-app.post('/register-driver', async (req, res) => {
+// POST signup form
+app.post("/signup-driver", async (req, res) => {
   try {
-    console.log("📥 Incoming Driver Data:", req.body);
+    const { fullName, email, password, phone, licenseNumber } = req.body;
+
+    // check if email already exists
+    const existing = await Driver.findOne({ email });
+    if (existing) {
+      return res.render("dashboard/driverdash/driversignup", { error: "❌ Email already registered" });
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newDriver = new Driver({
-      ...req.body,
-      profilePhoto: req.files?.profilePhoto?.[0]?.path || '',
-      vehicleRegistration: req.files?.vehicleRegistration?.[0]?.path || '',
-      vehicleInsurance: req.files?.vehicleInsurance?.[0]?.path || ''
+      fullName,
+      email,
+      password: hashedPassword,
+      phone,
+      licenseNumber,
     });
-
-    console.log("📝 Before Save (raw password still here):", newDriver.password);
 
     await newDriver.save();
 
-    console.log("✅ Driver saved to DB:", newDriver);
+    // auto-login after signup
+    req.session.driverId = newDriver._id;
+    req.session.driverName = newDriver.fullName;
 
-    res.redirect("/login-driver");
+    res.redirect("/driver-dash");
   } catch (err) {
-    console.error("❌ Error registering driver:", err);
-    res.status(500).send("❌ Error registering driver");
+    console.error(err);
+    res.render("dashboard/driverdash/driversignup", { error: "❌ Error creating driver account" });
   }
 });
 
@@ -4144,35 +4157,13 @@ app.post('/register-driver', async (req, res) => {
 
 
 app.get('/login-driver', (req, res) => {
-  res.render("dashboard/driverdash/driverlogin"); // create a simple login form
+  res.render("dashboard/driverdash/driverlogin", { error: null }); 
 });
 
 
-app.post('/login-driver', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const driver = await Driver.findOne({ email });
 
-    if (!driver) {
-      return res.status(400).send("❌ Driver not found");
-    }
 
-    const isMatch = await bcrypt.compare(password, driver.password);
-    if (!isMatch) {
-      console.error("Invalid credentials for driver:", email, "Password mismatch", password);
-      return res.status(400).send("❌ Invalid credentials");
-    }
 
-    // Save session
-    req.session.driverId = driver._id;
-    req.session.driverName = driver.fullName; // ✅ your model uses fullName, not name
-
-    res.redirect('/driver-dash'); // ✅ use route, not file path
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("❌ Error logging in driver");
-  }
-});
 
 
 
@@ -4338,39 +4329,70 @@ app.get("/api/workers/:adminId", ensureAuthenticated, async (req, res) => {
 
 
 
+// ✅ Middleware
+// ✅ Middleware: Just attach user tier, don’t block
+function checkTier(requiredTier) {
+  return async (req, res, next) => {
+    try {
+      const user = await Personal.findById(req.session.user._id)
+        .select("tier fullName email role");
+
+      if (!user) {
+        console.log("❌ No user found for session:", req.session.user?._id);
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      // Log everything useful
+      console.log("🔎 User info:", {
+        id: user._id,
+        name: user.fullName,
+        email: user.email,
+        role: user.role,
+        tier: user.tier,
+        requiredTier
+      });
+
+      req.userTier = user.tier; // always pass the tier
+      req.requiredTier = requiredTier;
+      next();
+
+    } catch (err) {
+      console.error("Tier check error:", err);
+      res.status(500).json({ success: false, message: "Server error during tier check" });
+    }
+  };
+}
 
 
 
-app.get("/accountreconciliation",  ensureAuthenticated, async (req, res) => {
-  try{
-
-       let recipientId = null;
+app.get("/accountreconciliation", ensureAuthenticated, checkTier(2), async (req, res) => {
+  try {
+    let recipientId = null;
     let companyinfo = null;
 
     if (req.session.user) {
-      // ✅ Admin logged in
       recipientId = req.session.user._id;
       companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
     } else if (req.session.worker) {
-      // ✅ Worker logged in → use admin’s ID
       recipientId = req.session.worker.adminId;
       companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
     } else {
       return res.redirect("/login");
     }
-const userId = recipientId;
 
-
-      res.render("dashboard/accountreconciliation", {
-        user: req.session.user,
-       worker: req.session.worker || null,
-      companyinfo,    
-      });
-  } catch(err){
+    res.render("dashboard/accountreconciliation", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+      userTier: req.userTier,   // 👈 pass to frontend
+      requiredTier: req.requiredTier
+    });
+  } catch (err) {
     console.error("Error loading account reconciliation page:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 // Get bank list
@@ -4858,6 +4880,42 @@ const userId = recipientId;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function ensureDriverAuth(req, res, next) {
+  if (req.session && req.session.driver) {
+    return next(); // ✅ Driver session exists
+  }
+  return res.redirect("/login-driver"); // ❌ Not logged in
+}
+
+
+
+
+
+
+app.get("/driver-dashboard", ensureDriverAuth, (req, res) => {
+  try {
+    res.render("dashboard/driverdash/dashboard", {
+      driver: req.session.driver, // pass driver details to template
+    });
+  } catch (err) {
+    console.error("Error rendering Driver dash page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 

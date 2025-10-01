@@ -24,8 +24,9 @@
                 <div class="main-content">
                       <%- include ("_topnav") %>
                             <div class="top-bar">
-                                <div class="action-buttons">
-                                    <button class="btn btn-outline" id="importBtn" style="background-color: white; color: #031224;">
+                                <h1 class="page-title" style="color: white; font-weight: 450px;">Physical Goods Inventory <%= user.firstName %> <%= worker && worker.name %></h1>
+                                <div class="action-buttons" style="margin-top: 20px; color: white;">
+                                    <button class="btn btn-outline" id="importBtn" style="color: white;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                             <polyline points="17 8 12 3 7 8"></polyline>
@@ -33,7 +34,7 @@
                                         </svg>
                                         Import
                                     </button>
-                                    <button class="btn btn-outline" id="exportBtn" style="background-color: white; color: #031224;">
+                                    <button class="btn btn-outline" id="exportBtn" style="color: white;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                             <polyline points="7 10 12 15 17 10"></polyline>
@@ -41,7 +42,7 @@
                                         </svg>
                                         Export
                                     </button>
-                                    <button class="btn btn-primary" id="addAssetBtn"  style="background-color: white; color: #031224;">
+                                    <button class="btn btn-primary" id="addAssetBtn" style="color: white;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <line x1="12" y1="5" x2="12" y2="19"></line>
                                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -52,236 +53,136 @@
                             </div>
                             
                             <!-- Summary Cards -->
-                            <div class="summary-cards">
-                                <div class="card">
-                                    <div class="card-title">Total Inventory Value</div>
-                                  <div class="card-value">₦<%= totalInventoryValue.toLocaleString() %></div>
-                                    <div class="card-trend">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="18 15 12 9 6 15"></polyline>
-                                        </svg>
-                                        5.8% from last month
-                                    </div>
-                                </div>
-                            
-                            <div class="card">
-                                <div class="card-title">Total Items Count</div>
-                                <div class="card-value"><%= totalItemsCount %></div>
-                                <div class="card-trend">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                  </svg>
-                                  124 new items
-                                </div>
-                              </div>
+                           <div class="summary-cards" style="display: flex; gap: 25px; flex-wrap: wrap; justify-content: space-around; padding: 25px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
 
-                              <div class="card">
-                                <div class="card-title">Top Selling Category</div>
-                                <div class="card-value"><%= topSellingItem %></div>
-                                <div class="card-trend">
-                                  +12.3% this quarter
-                                </div>
-                              </div>
-
-                          
-                            </div>
-                            
-                            <!-- Filters -->
-                            <div class="filters">
-                                <div class="search-box">
-                                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="11" cy="11" r="8"></circle>
-                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    </svg>
-                                    <input type="text" class="search-input" placeholder="Search assets...">
-                                </div>
-                                
-                              <%
-                  const itemNamesSet = new Set();
-                  inventory.forEach(inv => itemNamesSet.add(inv.itemName));
-                %>
-                <select class="filter-select" id="nameFilter">
-                  <option value="">All Products</option>
-                  <% itemNamesSet.forEach(name => { %>
-                    <option value="<%= name %>"><%= name %></option>
-                  <% }) %>
-                </select>
-
-                                
-                      
-                                
-                            <select class="filter-select" id="statusFilter">
-                  <option value="">All Status</option>
-                  <option value="In Stock">In Stock</option>
-                  <option value="Low Stock">Low Stock</option>
-                  <option value="Out of Stock">Out of Stock</option>
-                </select>
-                            </div>
-                            
-                            <!-- Data Table -->
-                        <!-- Enhanced Responsive Data Table -->
-<div class="data-table">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
-                    <th>Current Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Selling Price</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="product-info">
-                            <span class="product-name">iPhone 14 Pro</span>
-                        </div>
-                    </td>
-                    <td><span class="category-tag">Electronics</span></td>
-                    <td><strong>50</strong></td>
-                    <td><strong>45</strong></td>
-                    <td><span class="price">$899</span></td>
-                    <td><span class="price">$1099</span></td>
-                    <td><span class="status-pill status-active">In Stock</span></td>
-                    <td class="action-cell">
-                        <button class="action-btn" title="Edit item" aria-label="Edit iPhone 14 Pro">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn" title="More options" aria-label="More options for iPhone 14 Pro">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="product-info">
-                            <span class="product-name">MacBook Air M2</span>
-                        </div>
-                    </td>
-                    <td><span class="category-tag">Computers</span></td>
-                    <td><strong>25</strong></td>
-                    <td><strong>8</strong></td>
-                    <td><span class="price">$1199</span></td>
-                    <td><span class="price">$1499</span></td>
-                    <td><span class="status-pill status-maintenance">Low Stock</span></td>
-                    <td class="action-cell">
-                        <button class="action-btn" title="Edit item" aria-label="Edit MacBook Air M2">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn" title="More options" aria-label="More options for MacBook Air M2">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="product-info">
-                            <span class="product-name">Samsung 55" TV</span>
-                        </div>
-                    </td>
-                    <td><span class="category-tag">Electronics</span></td>
-                    <td><strong>15</strong></td>
-                    <td><strong>0</strong></td>
-                    <td><span class="price">$699</span></td>
-                    <td><span class="price">$899</span></td>
-                    <td><span class="status-pill status-depreciated">Out of Stock</span></td>
-                    <td class="action-cell">
-                        <button class="action-btn" title="Edit item" aria-label="Edit Samsung 55 TV">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn" title="More options" aria-label="More options for Samsung 55 TV">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="product-info">
-                            <span class="product-name">Dell XPS 13</span>
-                        </div>
-                    </td>
-                    <td><span class="category-tag">Computers</span></td>
-                    <td><strong>30</strong></td>
-                    <td><strong>22</strong></td>
-                    <td><span class="price">$999</span></td>
-                    <td><span class="price">$1299</span></td>
-                    <td><span class="status-pill status-active">In Stock</span></td>
-                    <td class="action-cell">
-                        <button class="action-btn" title="Edit item" aria-label="Edit Dell XPS 13">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn" title="More options" aria-label="More options for Dell XPS 13">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="product-info">
-                            <span class="product-name">AirPods Pro</span>
-                        </div>
-                    </td>
-                    <td><span class="category-tag">Audio</span></td>
-                    <td><strong>100</strong></td>
-                    <td><strong>5</strong></td>
-                    <td><span class="price">$199</span></td>
-                    <td><span class="price">$249</span></td>
-                    <td><span class="status-pill status-maintenance">Low Stock</span></td>
-                    <td class="action-cell">
-                        <button class="action-btn" title="Edit item" aria-label="Edit AirPods Pro">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn" title="More options" aria-label="More options for AirPods Pro">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="19" cy="12" r="1"></circle>
-                                <circle cx="5" cy="12" r="1"></circle>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Inventory Value</div>
+        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">₦<%= totalInventoryValue.toLocaleString() %></div>
+        <div class="card-trend" style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            5.8% from last month
+        </div>
     </div>
+
+    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Items Count</div>
+        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;"><%= totalItemsCount %></div>
+        <div class="card-trend" style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            124 new items
+        </div>
+    </div>
+
+    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Top Selling Category</div>
+        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;"><%= topSellingItem %></div>
+        <div class="card-trend" style="font-size: 14px; color: #16a34a;">+12.3% this quarter</div>
+    </div>
+
 </div>
 
-                </div>
+                            <!-- Filters -->
+      <div class="filters" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
+
+    <div class="search-box" style="flex: 1; min-width: 200px; display: flex; align-items: center; background: #ffffff; padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: box-shadow 0.3s;"
+         onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.05)';">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: #3b82f6;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" class="search-input" placeholder="Search assets..." style="flex: 1; border: none; outline: none; font-size: 14px; color: #1f2937;">
+    </div>
+
+    <% const itemNamesSet = new Set(); inventory.forEach(inv => itemNamesSet.add(inv.itemName)); %>
+    <select class="filter-select" id="nameFilter" style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
+            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
+            onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
+        <option value="">All Products</option>
+        <% itemNamesSet.forEach(name => { %>
+            <option value="<%= name %>"><%= name %></option>
+        <% }) %>
+    </select>
+
+    <select class="filter-select" id="statusFilter" style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
+            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
+            onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
+        <option value="">All Status</option>
+        <option value="In Stock">In Stock</option>
+        <option value="Low Stock">Low Stock</option>
+        <option value="Out of Stock">Out of Stock</option>
+    </select>
+
+</div>
+
+                            
+                            <!-- Data Table -->
+                         <div class="data-table" style="background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); padding: 20px; transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px; overflow-x: auto;">
+
+    <table style="width: 100%; border-collapse: collapse; min-width: 800px; background: #ffffff; border-radius: 12px; overflow: hidden;">
+        <thead style="background: #e0f0ff;">
+            <tr>
+                <th style="padding: 12px; text-align: left;">Product</th>
+                <th style="padding: 12px; text-align: left;">Category</th>
+                <th style="padding: 12px; text-align: left;">Quantity</th>
+                <th style="padding: 12px; text-align: left;">Current Quantity</th>
+                <th style="padding: 12px; text-align: left;">Unit Price</th>
+                <th style="padding: 12px; text-align: left;">Selling Price</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+                <th style="padding: 12px; text-align: left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody style="color: #1f2937;">
+            <% inventory.forEach((item, index) => { %>
+            <tr style="border-top: 1px solid #e5e7eb; transition: background 0.3s;" 
+                onmouseover="this.style.background='#f0f4f8';" onmouseout="this.style.background='transparent';">
+                <td style="padding: 12px;"><%= item.itemName %></td>
+                <td style="padding: 12px;"><%= item.category %></td>
+                <td style="padding: 12px;"><%= item.quantity %></td>
+                <td style="padding: 12px;"><%= item.currentquantity %></td>
+                <td style="padding: 12px;">$<%= item.bcost %></td>
+                <td style="padding: 12px;">$<%= item.scost %></td>
+                <td style="padding: 12px;">
+                    <% if (item.currentquantity > 10) { %>
+                        <span style="padding: 4px 8px; border-radius: 12px; background: #16a34a; color: #ffffff; font-size: 12px; font-weight: 600;">In Stock</span>
+                    <% } else if (item.currentquantity <= 10 && item.quantity > 0) { %>
+                        <span style="padding: 4px 8px; border-radius: 12px; background: #facc15; color: #1f2937; font-size: 12px; font-weight: 600;">Low Stock</span>
+                    <% } else { %>
+                        <span style="padding: 4px 8px; border-radius: 12px; background: #ef4444; color: #ffffff; font-size: 12px; font-weight: 600;">Out of Stock</span>
+                    <% } %>
+                </td>
+                <td class="action-cell" style="padding: 12px; display: flex; gap: 6px;">
+                    <button class="action-btn" style="padding: 6px 8px; border: none; border-radius: 8px; background: #3b82f6; color: #ffffff; cursor: pointer; transition: transform 0.2s;"
+                            onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <button class="action-btn" style="padding: 6px 8px; border: none; border-radius: 8px; background: #f3f4f6; color: #1f2937; cursor: pointer; transition: transform 0.2s;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#e5e7eb';" onmouseout="this.style.transform='scale(1)'; this.style.background='#f3f4f6';">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="19" cy="12" r="1"></circle>
+                            <circle cx="5" cy="12" r="1"></circle>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
                                         <!-- Popup Form -->
                 <div class="popup-overlay" id="popup-overlay"></div>
                 <div class="popup" id="popup">

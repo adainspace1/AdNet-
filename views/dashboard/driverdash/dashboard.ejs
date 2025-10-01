@@ -30,7 +30,7 @@
           <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" 
                alt="Driver" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
           <div>
-            <h2 class="font-semibold text-gray-900">John Doe</h2>
+            <h2 class="font-semibold text-gray-900"><%= driver.fullName %></h2>
             <p class="text-sm text-gray-500">4.8 ⭐ | 2341 trips</p>
           </div>
         </div>
@@ -254,7 +254,7 @@ window.addEventListener('load', () => {
       document.getElementById('preloader').style.display = 'none';
       document.getElementById('mainContent').classList.remove('hidden');
     }, 500);
-  }, 2000);
+  }, 500);
 });
 </script>
 

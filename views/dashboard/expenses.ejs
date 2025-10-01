@@ -25,72 +25,92 @@
 
         <%- include ("_topnav") %>
         <!-- Summary Cards -->
-        <div class="summary-cards">
-          <div class="summary-card">
-            <h3>Total Expenses For Today</h3>
-            <div class="amount">₦<%= totalAmountToday %></div>
-            <div class="trend up">↑ 12% from last month</div>
-          </div>
-          <div class="summary-card">
-            <h3>Budget</h3>
-            <div class="amount">$1343.51</div>
-            <div class="trend up">↑ 5% from last month</div>
-          </div>
-          <div class="summary-card">
-            <h3>Total Transactions For Today</h3>
-            <div class="amount"><%= totalExpensesToday %></div>
-            <div class="trend down">↓ 3% from last month</div>
-          </div>
-        </div>
+        <div class="summary-cards" style="display: flex; gap: 25px; justify-content: space-around; padding: 25px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; flex-wrap: wrap; margin-bottom: 30px;">
+
+    <div class="summary-card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Expenses For Today</h3>
+        <div class="amount" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">₦<%= totalAmountToday %></div>
+        <div class="trend up" style="font-size: 14px; color: #16a34a;">↑ 12% from last month</div>
+    </div>
+
+    <div class="summary-card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Budget</h3>
+        <div class="amount" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">$1343.51</div>
+        <div class="trend up" style="font-size: 14px; color: #16a34a;">↑ 5% from last month</div>
+    </div>
+
+    <div class="summary-card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Transactions For Today</h3>
+        <div class="amount" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;"><%= totalExpensesToday %></div>
+        <div class="trend down" style="font-size: 14px; color: #dc2626;">↓ 3% from last month</div>
+    </div>
+
+</div>
 
         <!-- Charts -->
-        <div class="charts-row">
-          <div class="chart-container">
-            <div class="chart-header">
-              <div class="chart-title">Expenses by Category Over Time</div>
-              <div class="chart-options">This Month ▼</div>
-            </div>
-            <canvas id="barChart"></canvas>
-          </div>
-          <div class="chart-container">
-            <div class="chart-header">
-              <div class="chart-title">Monthly Expense Trend</div>
-            </div>
-            <canvas id="lineChart"></canvas>
-          </div>
+       <div class="charts-row" style="display: flex; gap: 25px; flex-wrap: wrap; margin-top: 30px; justify-content: space-around;">
+
+    <div class="chart-container" style="flex: 1; min-width: 300px; background: linear-gradient(145deg, #ffffff, #e0f4ff); padding: 20px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 20px;"
+         onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div class="chart-title" style="font-size: 16px; font-weight: 600; color: #1f2937;">Expenses by Category Over Time</div>
+            <div class="chart-options" style="font-size: 14px; color: #3b82f6; cursor: pointer;">This Month ▼</div>
         </div>
+        <canvas id="barChart" style="background: #f9fafb; border-radius: 12px; padding: 10px;"></canvas>
+    </div>
+
+    <div class="chart-container" style="flex: 1; min-width: 300px; background: linear-gradient(145deg, #ffffff, #e0f4ff); padding: 20px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 20px;"
+         onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+        <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div class="chart-title" style="font-size: 16px; font-weight: 600; color: #1f2937;">Monthly Expense Trend</div>
+        </div>
+        <canvas id="lineChart" style="background: #f9fafb; border-radius: 12px; padding: 10px;"></canvas>
+    </div>
+
+</div>
+
 
         <!-- Transactions Table -->
-        <div class="transactions">
-          <div class="transactions-header">
-            <div class="chart-title">Expense Transactions</div>
-            <a href="/viewallexpenses" class="view-all">View All Expenses →</a>
-          </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Description</th>
-                  <th>Category</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
+      <div class="transactions" style="background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); padding: 25px; transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
+    
+    <div class="transactions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+        <div class="chart-title" style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Expense Transactions</div>
+        <a href="/viewallexpenses" class="view-all" style="font-size: 14px; color: #3b82f6; font-weight: 600; text-decoration: none; transition: color 0.3s;"
+           onmouseover="this.style.color='#2563eb';" onmouseout="this.style.color='#3b82f6';">View All Expenses →</a>
+    </div>
 
-                <% expenses.forEach(exp => { %>
+    <div class="table-container" style="overflow-x: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);">
+        <table style="width: 100%; border-collapse: collapse; min-width: 600px; background: #ffffff; border-radius: 12px; overflow: hidden;">
+            <thead style="background: #e0f0ff;">
                 <tr>
-                  <td><%= exp.time %></td>
-                  <td><%= exp.description %></td>
-                  <td><%= exp.category %></td>
-                  <td><%= exp.amount.toLocaleString() %></td>
+                    <th style="padding: 12px; text-align: left;">Date</th>
+                    <th style="padding: 12px; text-align: left;">Description</th>
+                    <th style="padding: 12px; text-align: left;">Category</th>
+                    <th style="padding: 12px; text-align: left;">Amount</th>
                 </tr>
-         
-                   <% }) %>
-              </tbody>
-            </table>
-          </div>
-        </div>
+            </thead>
+            <tbody style="color: #1f2937;">
+                <% expenses.forEach(exp => { %>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td style="padding: 12px;"><%= exp.time %></td>
+                    <td style="padding: 12px;"><%= exp.description %></td>
+                    <td style="padding: 12px;"><%= exp.category %></td>
+                    <td style="padding: 12px;">₦<%= exp.amount.toLocaleString() %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
         <!-- Add Expense Button -->
         <button class="add-expense-btn" id="addExpenseBtn">+</button>
