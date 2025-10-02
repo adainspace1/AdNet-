@@ -8,11 +8,16 @@ const LinkedBankSchema = new Schema({
   bankName: { type: String },
   accountNumber: { type: String },
   accountName: { type: String },
-  providerId: { type: String }, // provider link id
+  bvn: { type: String },       // optional
+  pin: { type: String },       // optional, careful about storing raw PINs
+  consent: { type: Boolean },  // ✅ add consent flag
+  providerId: { type: String },
   balance: { type: Number, default: 0 },
-  transactions: { type: Array, default: [] }, // optional cached txs
+  transactions: { type: Array, default: [] },
   metadata: { type: Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now }
 });
 
+
 module.exports = mongoose.model('LinkedBank', LinkedBankSchema);
+      

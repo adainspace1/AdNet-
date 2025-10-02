@@ -49,6 +49,9 @@ const Wallet = require('./models/Wallet');
 const WalletTransaction = require("./models/WalletTransaction");
 const Reconciliation = require("./models/Reconciliation"); // if you track mismatches
 const Invoice = require("./models/Invoice"); // if you track mismatches
+const LinkedBank = require("./models/LinkedBank"); // if you track mismatches
+
+
 // services/paystackService.js
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
@@ -4482,13 +4485,35 @@ app.post('/resolveAccount', async (req, res) => {
 
 // Check wallet existence
 app.get('/user/api/wallet/check', ensureAuthenticated, async (req, res) => {
+  console.log("Checking wallet for user:", req.session.user._id);
+
   const wallet = await Wallet.findOne({ userId: req.session.user._id });
+  console.log("Wallet found:", wallet);
   res.json({ success: true, hasWallet: !!wallet });
 });
 
+// Check wallet existence + status
+app.get('/user/api/wallet/status', ensureAuthenticated, async (req, res) => {
+  console.log("Checking wallet for user:", req.session.user._id);
+
+  const wallet = await Wallet.findOne({ userId: req.session.user._id });
+  console.log("Wallet found:", wallet);
+
+  res.json({ 
+    success: true, 
+    hasWallet: !!wallet, 
+    balance: wallet ? wallet.balance : 0,
+    provider: wallet ? (wallet.provider || 'paystack') : null 
+  });
+});
+
+
 // Create wallet
 app.post('/user/api/wallet/create', ensureAuthenticated, async (req, res) => {
+  console.log("Creating wallet for user:", req.session.user._id);
   let wallet = await Wallet.findOne({ userId: req.session.user._id });
+  console.log("Existing wallet:", wallet);
+
   if (wallet) return res.json({ success: false, message: "Wallet already exists" });
 
   wallet = await Wallet.create({ userId: req.session.user._id, balance: 0 });
@@ -4635,12 +4660,14 @@ app.get("/invoice/review", ensureAuthenticated, async (req, res) => {
 
 app.post('/user/api/banks/link', async (req, res) => {
   try {
-    const userId = req.session.user._id; // logged in user
+    const userId = req.session.user._id; // logged-in user
     const { bankCode, accountNumber, accountName, bvn, pin, consent } = req.body;
+    comsole.log("Link bank request:", req.body);
 
     // (optional) fetch bank name from your banks list collection/api
     const bankName = req.body.bankName || "Unknown Bank";
 
+    // Prepare linked bank object
     const linked = new LinkedBank({
       userId,
       bankCode,
@@ -4652,15 +4679,36 @@ app.post('/user/api/banks/link', async (req, res) => {
       consent
     });
 
-    console.log("Linking bank for user:", userId, linked);
+    // 🔹 Try fetching account details from external API
+    let transactions = [];
+    let balance = 0;
+
+    try {
+      // Example placeholder API call
+      const apiRes = await axios.get(`https://fake-bank-api.com/accounts/${accountNumber}`);
+
+      if (apiRes.data) {
+        transactions = apiRes.data.transactions || [];
+        balance = apiRes.data.balance || 0;
+      }
+    } catch (apiErr) {
+      console.log("Bank API not available, storing empty data", apiErr.message);
+    }
+
+    // Attach transactions + balance
+    linked.transactions = transactions;
+    linked.balance = balance;
+
+    // Save to DB
     await linked.save();
+
     res.json({ success: true, bank: linked });
+
   } catch (err) {
     console.error("Link bank error", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 // 📌 GET: list linked banks for this user
 app.get('/user/api/linked-banks', async (req, res) => {
   try {
@@ -4835,32 +4883,29 @@ app.get("/api/workflow-status/:recipientId", async (req, res) => {
 });
 
 
-app.get("/accountreconciliation2",  ensureAuthenticated, async (req, res) => {
-  try{
-
-       let recipientId = null;
+app.get("/wallet", ensureAuthenticated, checkTier(2), async (req, res) => {
+  try {
+    let recipientId = null;
     let companyinfo = null;
 
     if (req.session.user) {
-      // ✅ Admin logged in
       recipientId = req.session.user._id;
       companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
     } else if (req.session.worker) {
-      // ✅ Worker logged in → use admin’s ID
       recipientId = req.session.worker.adminId;
       companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
     } else {
       return res.redirect("/login");
     }
-const userId = recipientId;
 
-
-      res.render("dashboard/accountreconciliation2", {
-        user: req.session.user,
-       worker: req.session.worker || null,
-      companyinfo,    
-      });
-  } catch(err){
+    res.render("dashboard/wallet", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+      userTier: req.userTier,   // 👈 pass to frontend
+      requiredTier: req.requiredTier
+    });
+  } catch (err) {
     console.error("Error loading account reconciliation page:", err);
     res.status(500).send("Server error");
   }
