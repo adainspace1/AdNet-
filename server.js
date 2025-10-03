@@ -157,7 +157,7 @@ app.get("/Personal", (req, res) => {
 
 app.get("/Businessinfo", async (req, res) => {
   try {
-    const userId = req.query.id;io
+    const userId = req.query.id;
     console.log('Received userId:', userId);
 
     if (!userId) {

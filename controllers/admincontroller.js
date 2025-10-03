@@ -69,27 +69,16 @@ const submitForm = async (req, res) => {
       // Check if password matches
       const isMatch = await bcrypt.compare(password, existingUser.password);
 
-      if (isMatch) {
-        // Password matches, send JSON with user ID
-        // return res.status(200).json({
-        //   message: "User already exists, password matches",
-        //   userId: existingUser._id,
-        //   redirect: `/Businessinfo?id=${existingUser._id}` // originally: res.redirect(...)
-        // });
+     if (existingUser) {
+  const isMatch = await bcrypt.compare(password, existingUser.password);
 
-         res.redirect(`/Businessinfo?id=${existingUser._id}`) 
+  if (isMatch) {
+    return res.redirect(`/Businessinfo?id=${existingUser._id}`);
+  } else {
+    return res.redirect(`/email-exists?email=${encodeURIComponent(email)}`);
+  }
+}
 
-
-      } else {
-        // Password does not match
-        // return res.status(400).json({
-        //   message: "Email already exists but password does not match",
-        //   email: email,
-        //   redirect: `/email-exists?email=${encodeURIComponent(email)}` // originally: res.redirect(...)
-        // });
-
-         res.redirect(`/email-exists?email=${encodeURIComponent(email)}`) 
-      }
     }
 
     // If email does not exist, hash password and save new user

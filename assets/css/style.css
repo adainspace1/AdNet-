@@ -357,3 +357,76 @@ html, body {
 .sidebar {
     height: 100vh;
 }
+
+
+    .burger{
+        display: none;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 700px) {
+    .sidebar{
+        margin-left: -250px;
+    }
+    .burger{
+        position: absolute;
+        margin-left: 90%;
+        width: 50px;
+        background-color: #1d8ac1;
+        height: 50px;
+        display: flex;
+        top: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .burger i{
+        font-size: 20px;
+        color: #fff;
+    }
+
+    .sidebar.active{
+        position: fixed;
+        margin-left: 0px;
+    }
+}
+
+
+@media (max-width: 550px){
+    .burger{
+        margin-left: 85%;
+    }
+    .main-content{
+        width: 100%;
+        padding: 60px 10px;
+    }
+}
+
+@media (max-width: 350px){
+    .burger{
+        margin-left: 80%;
+    }
+}
+
