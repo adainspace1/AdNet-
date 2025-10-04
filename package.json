@@ -35,6 +35,8 @@
     "paystack-api": "^2.0.6",
     "pdfkit": "^0.17.1",
     "qrcode": "^1.5.4",
-    "streamifier": "^0.1.1"
+    "streamifier": "^0.1.1",
+    "ws": "^8.18.3",
+    "yahoo-finance2": "^2.13.3"
   }
 }

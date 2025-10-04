@@ -807,3 +807,11 @@
                 min-width: 25px;
             }
         }
+
+
+
+        #pieChart{
+    height: 250px !important;
+        }
+
+        
