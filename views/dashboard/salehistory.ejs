@@ -6,6 +6,7 @@
     <title>Sales History & Invoice Generator</title>
     
     <link rel="stylesheet" href="/css/salehistory.css" />
+        <link rel="stylesheet" href="/css/dashall.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
@@ -22,9 +23,18 @@
 
 </head>
 <body>
-    <div class="container">
-        <!-- Top Navigation Bar -->
+
+
+            
+    
+            <div class="all">       
+            <%- include ("_sidebar1") %>
+
+
+    <div class="main-content">
         <%- include ("_topnav") %>
+            <div class="container">
+        <!-- Top Navigation Bar -->
         <!-- Header -->
         <div class="header">
             <h1>Sales History & Invoice Generator</h1>
@@ -114,8 +124,8 @@
                     </button>
                 </div>
             </div>
-
-            <table class="sales-table">
+            <div class="tab">
+                  <table class="sales-table">
                 <thead>
                     <tr>
                         <th class="checkbox-cell">
@@ -134,6 +144,8 @@
                     <!-- Sales data will be populated here -->
                 </tbody>
             </table>
+            </div>
+          
 
             <div class="pagination" id="pagination">
                 <!-- Pagination will be populated here -->
@@ -225,345 +237,321 @@
         </div>
     </div>
    <!-- Sidebar -->
-    <%- include ("_sidebar1") %>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
-    <script>
-        // Sample sales data
-        let salesData = [
-            {
-                id: 'S001',
-                date: '2025-01-15',
-                customer: 'John Smith',
-                products: [{ name: 'Laptop', quantity: 1, price: 1200 }],
-                total: 1200,
-                paymentMethod: 'Credit Card',
-                invoiceStatus: 'Generated',
-                notes: 'Express shipping requested'
-            },
-            {
-                id: 'S002',
-                date: '2025-01-14',
-                customer: 'Sarah Johnson',
-                products: [{ name: 'Wireless Mouse', quantity: 2, price: 25 }, { name: 'Keyboard', quantity: 1, price: 80 }],
-                total: 130,
-                paymentMethod: 'PayPal',
-                invoiceStatus: 'Not Generated',
-                notes: ''
-            },
-            {
-                id: 'S003',
-                date: '2025-01-13',
-                customer: 'Mike Davis',
-                products: [{ name: 'Monitor', quantity: 1, price: 350 }],
-                total: 350,
-                paymentMethod: 'Bank Transfer',
-                invoiceStatus: 'Generated',
-                notes: 'Customer pickup'
-            },
-            {
-                id: 'S004',
-                date: '2025-01-12',
-                customer: 'Emma Wilson',
-                products: [{ name: 'Tablet', quantity: 1, price: 400 }, { name: 'Case', quantity: 1, price: 30 }],
-                total: 430,
-                paymentMethod: 'Cash',
-                invoiceStatus: 'Not Generated',
-                notes: ''
-            },
-            {
-                id: 'S005',
-                date: '2025-01-11',
-                customer: 'David Brown',
-                products: [{ name: 'Phone', quantity: 1, price: 800 }],
-                total: 800,
-                paymentMethod: 'Credit Card',
-                invoiceStatus: 'Generated',
-                notes: 'Extended warranty included'
-            },
-            {
-                id: 'S006',
-                date: '2025-01-10',
-                customer: 'Lisa Anderson',
-                products: [{ name: 'Headphones', quantity: 1, price: 150 }],
-                total: 150,
-                paymentMethod: 'PayPal',
-                invoiceStatus: 'Not Generated',
-                notes: ''
-            },
-            {
-                id: 'S007',
-                date: '2025-01-09',
-                customer: 'Robert Taylor',
-                products: [{ name: 'Printer', quantity: 1, price: 250 }, { name: 'Ink Cartridge', quantity: 3, price: 40 }],
-                total: 370,
-                paymentMethod: 'Bank Transfer',
-                invoiceStatus: 'Generated',
-                notes: 'Bulk discount applied'
-            }
-        ];
 
-        let currentPage = 1;
-        let itemsPerPage = 10;
-        let selectedSales = [];
-        let sortField = 'date';
-        let sortOrder = 'desc';
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
+
+<script src="https://unpkg.com/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let salesData = [];
+let selectedSales = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let sortField = 'date';
+let sortOrder = 'desc';
+
+// 🔹 Helper: Format large numbers (K, M, B)
+function formatNumber(num) {
+    if (num === null || num === undefined || isNaN(num)) return "0";
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + "B";
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+    return num.toFixed(0);
+}
+
+// 🔹 Helper: Animate numbers (smooth count-up)
+function animateValue(element, start, end, duration, isCurrency = false) {
+    const range = end - start;
+    const startTime = performance.now();
+    const step = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = start + range * progress;
+        element.textContent = isCurrency ? `$${formatNumber(value)}` : formatNumber(value);
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for Lucide to load
+    if (typeof lucide === 'undefined') {
+        console.error('❌ Lucide not loaded; retrying...');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+        if (typeof lucide === 'undefined') {
+            console.warn('⚠️ Lucide failed; proceeding without icons');
+        } else {
             lucide.createIcons();
-            updateSummaryCards();
-            renderSalesTable();
-            setupEventListeners();
-        });
+        }
+    } else {
+        lucide.createIcons();
+    }
 
-        function setupEventListeners() {
-            document.getElementById('searchInput').addEventListener('input', renderSalesTable);
-            document.getElementById('startDate').addEventListener('change', renderSalesTable);
-            document.getElementById('endDate').addEventListener('change', renderSalesTable);
-            document.getElementById('paymentFilter').addEventListener('change', renderSalesTable);
-            document.getElementById('statusFilter').addEventListener('change', renderSalesTable);
+    await Promise.all([loadSalesData(), loadChartData()]);
+    setupEventListeners();
+});
+
+async function loadSalesData() {
+    try {
+        console.log("🔁 Fetching sales data...");
+        const resp = await fetch('/api/sales');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        salesData = await resp.json();
+        // Map server schema to client (amount → total, item/quantity → products)
+        salesData = salesData.map(sale => ({
+            id: sale._id.toString(),
+            date: new Date(sale.date).toISOString().split('T')[0],
+            customer: sale.customer || 'Unknown',
+            products: [{ name: sale.item, quantity: sale.quantity || 1, price: sale.amount / (sale.quantity || 1) }],
+            total: sale.amount,
+            paymentMethod: sale.paymentMethod || 'Unknown',
+            invoiceStatus: sale.invoiceStatus || 'Not Generated',
+            notes: sale.notes || ''
+        }));
+        console.log("📦 Sales data fetched:", salesData.length, "records");
+        updateSummaryCards(salesData);
+        renderSalesTable(salesData);
+    } catch (err) {
+        console.error("❌ Error fetching sales:", err.message);
+        salesData = [];
+        updateSummaryCards([]);
+        renderSalesTable([]);
+    }
+}
+
+async function loadChartData() {
+    try {
+        console.log("📊 Fetching chart data...");
+        const resp = await fetch('/api/sales-chart-data?type=monthly');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const chartData = await resp.json();
+        console.log("📦 Chart data fetched:", chartData);
+    } catch (err) {
+        console.error("❌ Error fetching chart data:", err.message);
+    }
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput')?.addEventListener('input', () => renderSalesTable(salesData));
+    document.getElementById('startDate')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('endDate')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('paymentFilter')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('statusFilter')?.addEventListener('change', () => renderSalesTable(salesData));
+}
+
+// 🔹 Updated to use K/M/B + animation
+function updateSummaryCards(salesData) {
+    const today = new Date().toISOString().split('T')[0];
+    const thisMonth = new Date().toISOString().slice(0, 7);
+
+    const todaySales = salesData.filter(sale => sale.date === today);
+    const monthSales = salesData.filter(sale => sale.date.startsWith(thisMonth));
+    const generatedInvoices = salesData.filter(sale => sale.invoiceStatus === 'Generated');
+    const outstanding = salesData.filter(sale => sale.invoiceStatus === 'Not Generated');
+
+    const todayTotal = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+    const monthRevenue = monthSales.reduce((sum, sale) => sum + sale.total, 0);
+    const invoicesGenerated = generatedInvoices.length;
+    const outstandingPayments = outstanding.reduce((sum, sale) => sum + sale.total, 0);
+
+    // Animate the updates
+    animateValue(document.getElementById('todayTotal'), 0, todayTotal, 800, true);
+    animateValue(document.getElementById('monthRevenue'), 0, monthRevenue, 800, true);
+    animateValue(document.getElementById('invoicesGenerated'), 0, invoicesGenerated, 800, false);
+    animateValue(document.getElementById('outstandingPayments'), 0, outstandingPayments, 800, true);
+}
+
+function getFilteredSales(salesData) {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const startDate = document.getElementById('startDate')?.value || '';
+    const endDate = document.getElementById('endDate')?.value || '';
+    const paymentFilter = document.getElementById('paymentFilter')?.value || 'all';
+    const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+
+    let filtered = salesData.filter(sale => {
+        const matchesSearch = sale.customer.toLowerCase().includes(searchTerm) ||
+            sale.products.some(product => product.name.toLowerCase().includes(searchTerm));
+        const matchesPayment = paymentFilter === 'all' || sale.paymentMethod === paymentFilter;
+        const matchesStatus = statusFilter === 'all' || sale.invoiceStatus === statusFilter;
+        const matchesDateRange = (!startDate || sale.date >= startDate) &&
+            (!endDate || sale.date <= endDate);
+        return matchesSearch && matchesPayment && matchesStatus && matchesDateRange;
+    });
+
+    filtered.sort((a, b) => {
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+
+        if (sortField === 'date') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        } else if (sortField === 'total') {
+            aValue = Number(aValue);
+            bValue = Number(bValue);
+        } else if (sortField === 'products') {
+            aValue = a.products.map(p => p.name).join(', ');
+            bValue = b.products.map(p => p.name).join(', ');
         }
 
-        function updateSummaryCards() {
-            const today = new Date().toISOString().split('T')[0];
-            const thisMonth = new Date().toISOString().slice(0, 7);
-            
-            const todaySales = salesData.filter(sale => sale.date === today);
-            const monthSales = salesData.filter(sale => sale.date.startsWith(thisMonth));
-            const generatedInvoices = salesData.filter(sale => sale.invoiceStatus === 'Generated');
-            const outstanding = salesData.filter(sale => sale.invoiceStatus === 'Not Generated');
+        return sortOrder === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
+    });
 
-            document.getElementById('todayTotal').textContent = $${todaySales.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
-            document.getElementById('monthRevenue').textContent = $${monthSales.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
-            document.getElementById('invoicesGenerated').textContent = generatedInvoices.length;
-            document.getElementById('outstandingPayments').textContent = $${outstanding.reduce((sum, sale) => sum + sale.total, 0).toLocaleString()};
+    return filtered;
+}
+function renderSalesTable(salesData) {
+    const filteredSales = getFilteredSales(salesData);
+    const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentSales = filteredSales.slice(startIndex, endIndex);
+
+    const tableBody = document.getElementById('salesTableBody');
+    if (!tableBody) return console.error("❌ salesTableBody not found");
+    tableBody.innerHTML = '';
+
+    currentSales.forEach(sale => {
+        const productsText = sale.products.map(p => `${p.name} (${p.quantity})`).join(', ');
+        const statusClass = sale.invoiceStatus === 'Generated' ? 'status-generated' : 'status-not-generated';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="checkbox-cell">
+                <input type="checkbox" value="${sale.id}" onchange="toggleSaleSelection('${sale.id}')">
+            </td>
+            <td>${formatDate(sale.date)}</td>
+            <td>${sale.customer}</td>
+            <td>${productsText}</td>
+            <td>${sale.total.toLocaleString()}</td>
+            <td><span class="payment-method">${sale.paymentMethod}</span></td>
+            <td><span class="status-badge ${statusClass}">${sale.invoiceStatus}</span></td>
+            <td>
+                <button class="btn btn-primary" onclick="generateInvoice('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
+                    <i data-lucide="file-text"></i>
+                    Invoice
+                </button>
+                <button class="btn btn-secondary" onclick="editSale('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
+                    <i data-lucide="edit"></i>
+                    Edit
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    renderPagination(totalPages);
+    updateSelectAllCheckbox();
+}
+
+
+function renderPagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    if (!pagination) return console.error("❌ pagination not found");
+    pagination.innerHTML = '';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderSalesTable(salesData);
         }
+    };
+    pagination.appendChild(prevBtn);
 
-        function getFilteredSales() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const paymentFilter = document.getElementById('paymentFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = i === currentPage ? 'active' : '';
+        pageBtn.onclick = () => {
+            currentPage = i;
+            renderSalesTable(salesData);
+        };
+        pagination.appendChild(pageBtn);
+    }
 
-            let filtered = salesData.filter(sale => {
-                const matchesSearch = sale.customer.toLowerCase().includes(searchTerm) ||
-                                   sale.products.some(product => product.name.toLowerCase().includes(searchTerm));
-                
-                const matchesPayment = paymentFilter === 'all' || sale.paymentMethod === paymentFilter;
-                const matchesStatus = statusFilter === 'all' || sale.invoiceStatus === statusFilter;
-                
-                const matchesDateRange = (!startDate || sale.date >= startDate) &&
-                                        (!endDate || sale.date <= endDate);
-                
-                return matchesSearch && matchesPayment && matchesStatus && matchesDateRange;
-            });
-
-            // Sort data
-            filtered.sort((a, b) => {
-                let aValue = a[sortField];
-                let bValue = b[sortField];
-                
-                if (sortField === 'date') {
-                    aValue = new Date(aValue);
-                    bValue = new Date(bValue);
-                } else if (sortField === 'total') {
-                    aValue = Number(aValue);
-                    bValue = Number(bValue);
-                } else if (sortField === 'products') {
-                    aValue = a.products.map(p => p.name).join(', ');
-                    bValue = b.products.map(p => p.name).join(', ');
-                }
-                
-                if (sortOrder === 'asc') {
-                    return aValue > bValue ? 1 : -1;
-                } else {
-                    return aValue < bValue ? 1 : -1;
-                }
-            });
-
-            return filtered;
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderSalesTable(salesData);
         }
+    };
+    pagination.appendChild(nextBtn);
+}
 
-        function renderSalesTable() {
-            const filteredSales = getFilteredSales();
-            const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentSales = filteredSales.slice(startIndex, endIndex);
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
 
-            const tableBody = document.getElementById('salesTableBody');
-            tableBody.innerHTML = '';
+function toggleSaleSelection(saleId) {
+    const checkbox = document.querySelector(`input[value="${saleId}"]`);
+    if (checkbox.checked) {
+        if (!selectedSales.includes(saleId)) selectedSales.push(saleId);
+    } else {
+        selectedSales = selectedSales.filter(id => id !== saleId);
+    }
+    updateSelectAllCheckbox();
+}
 
-            currentSales.forEach(sale => {
-                const row = document.createElement('tr');
-                
-                const productsText = sale.products.map(p => ${p.name} (${p.quantity})).join(', ');
-                const statusClass = sale.invoiceStatus === 'Generated' ? 'status-generated' : 'status-not-generated';
-                
-                row.innerHTML = `
-                    <td class="checkbox-cell">
-                        <input type="checkbox" value="${sale.id}" onchange="toggleSaleSelection('${sale.id}')">
-                    </td>
-                    <td>${formatDate(sale.date)}</td>
-                    <td>${sale.customer}</td>
-                    <td>${productsText}</td>
-                    <td>${sale.total.toLocaleString()}</td>
-                    <td><span class="payment-method">${sale.paymentMethod}</span></td>
-                    <td><span class="status-badge ${statusClass}">${sale.invoiceStatus}</span></td>
-                    <td>
-                        <button class="btn btn-primary" onclick="generateInvoice('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
-                            <i data-lucide="file-text"></i>
-                            Invoice
-                        </button>
-                        <button class="btn btn-secondary" onclick="editSale('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
-                            <i data-lucide="edit"></i>
-                            Edit
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
+function selectAllSales() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
 
-            // Re-create icons for new elements
-            lucide.createIcons();
-            
-            // Update pagination
-            renderPagination(totalPages);
-            
-            // Update select all checkbox
-            updateSelectAllCheckbox();
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+        const saleId = checkbox.value;
+        if (selectAllCheckbox.checked) {
+            if (!selectedSales.includes(saleId)) selectedSales.push(saleId);
+        } else {
+            selectedSales = selectedSales.filter(id => id !== saleId);
         }
+    });
+}
 
-        function renderPagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            pagination.innerHTML = '';
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (!selectAllCheckbox) return;
+    const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
+    const checkedCheckboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]:checked');
 
-            // Previous button
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = 'Previous';
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderSalesTable();
-                }
-            };
-            pagination.appendChild(prevBtn);
+    if (checkboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (checkedCheckboxes.length === checkboxes.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else if (checkedCheckboxes.length > 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    }
+}
 
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.textContent = i;
-                pageBtn.className = i === currentPage ? 'active' : '';
-                pageBtn.onclick = () => {
-                    currentPage = i;
-                    renderSalesTable();
-                };
-                pagination.appendChild(pageBtn);
-            }
-
-            // Next button
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = 'Next';
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderSalesTable();
-                }
-            };
-            pagination.appendChild(nextBtn);
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function toggleFilters() {
-            const filtersPanel = document.getElementById('filtersPanel');
-            filtersPanel.classList.toggle('hidden');
-        }
-
-        function toggleSaleSelection(saleId) {
-            const checkbox = document.querySelector(input[value="${saleId}"]);
-            if (checkbox.checked) {
-                selectedSales.push(saleId);
-            } else {
-                selectedSales = selectedSales.filter(id => id !== saleId);
-            }
-            updateSelectAllCheckbox();
-        }
-
-        function selectAllSales() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
-                const saleId = checkbox.value;
-                if (selectAllCheckbox.checked) {
-                    if (!selectedSales.includes(saleId)) {
-                        selectedSales.push(saleId);
-                    }
-                } else {
-                    selectedSales = selectedSales.filter(id => id !== saleId);
-                }
-            });
-        }
-
-        function updateSelectAllCheckbox() {
-            const selectAllCheckbox = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
-            const checkedCheckboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]:checked');
-            
-            if (checkboxes.length === 0) {
-                selectAllCheckbox.checked = false;
-                selectAllCheckbox.indeterminate = false;
-            } else if (checkedCheckboxes.length === checkboxes.length) {
-                selectAllCheckbox.checked = true;
-                selectAllCheckbox.indeterminate = false;
-            } else if (checkedCheckboxes.length > 0) {
-                selectAllCheckbox.checked = false;
-                selectAllCheckbox.indeterminate = true;
-            } else {
-                selectAllCheckbox.checked = false;
-                selectAllCheckbox.indeterminate = false;
-            }
-        }
-
-        function sortTable(field) {
-            if (sortField === field) {
-                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortField = field;
-                sortOrder = 'asc';
-            }
-            renderSalesTable();
-        }
-
-        function generateInvoice(saleId) {
-            const sale = salesData.find(s => s.id === saleId);
-            if (!sale) return;
-
-            // Populate modal with sale data
-            document.getElementById('invoiceNumber').value = INV-${Date.now()};
+function generateInvoice(saleId) {
+    fetch(`/api/sales/${saleId}`)
+        .then(resp => {
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
+        })
+        .then(sale => {
+            document.getElementById('invoiceNumber').value = `INV-${Date.now()}`;
             document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('customerName').value = sale.customer;
             document.getElementById('dueDate').value = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             document.getElementById('paymentTerms').value = 'Net 30';
             document.getElementById('invoiceNotes').value = sale.notes || '';
 
-            // Populate items
             const itemsContainer = document.getElementById('invoiceItems');
             itemsContainer.innerHTML = '';
-            
             sale.products.forEach(product => {
                 const itemRow = document.createElement('div');
                 itemRow.className = 'item-row';
@@ -576,122 +564,111 @@
                 itemsContainer.appendChild(itemRow);
             });
 
-            // Update totals
-            document.getElementById('subtotalAmount').textContent = ${sale.total.toLocaleString()};
+            document.getElementById('subtotalAmount').textContent = `$${sale.total.toLocaleString()}`;
             document.getElementById('taxAmount').textContent = '$0.00';
-            document.getElementById('totalAmount').textContent = ${sale.total.toLocaleString()};
+            document.getElementById('totalAmount').textContent = `$${sale.total.toLocaleString()}`;
 
-            // Store current sale ID for later use
             document.getElementById('invoiceModal').dataset.saleId = saleId;
-
-            // Show modal
             document.getElementById('invoiceModal').style.display = 'block';
-        }
+        })
+        .catch(err => console.error("❌ Error fetching sale:", err.message));
+}
 
-        function generateBulkInvoices() {
-            if (selectedSales.length === 0) {
-                alert('Please select at least one sale to generate invoices.');
-                return;
-            }
-            
-            const confirmMessage = Generate invoices for ${selectedSales.length} selected sales?;
-            if (confirm(confirmMessage)) {
-                selectedSales.forEach(saleId => {
-                    const saleIndex = salesData.findIndex(sale => sale.id === saleId);
-                    if (saleIndex !== -1) {
-                        salesData[saleIndex].invoiceStatus = 'Generated';
-                    }
-                });
-                
-                selectedSales = [];
-                updateSummaryCards();
-                renderSalesTable();
-                alert(Successfully generated ${selectedSales.length} invoices!);
-            }
-        }
+async function generateBulkInvoices() {
+    if (selectedSales.length === 0) {
+        alert('Please select at least one sale to generate invoices.');
+        return;
+    }
 
-        function editSale(saleId) {
-            const sale = salesData.find(s => s.id === saleId);
-            if (!sale) return;
-            
-            // For demo purposes, just show an alert
-            alert(Edit functionality would open a form to edit sale ${saleId} for customer ${sale.customer});
+    if (confirm(`Generate invoices for ${selectedSales.length} selected sales?`)) {
+        try {
+            await Promise.all(selectedSales.map(saleId =>
+                fetch(`/api/sales/${saleId}/generate-invoice`, { method: 'PATCH' })
+            ));
+            selectedSales = [];
+            await loadSalesData();
+            alert(`Successfully generated ${selectedSales.length} invoices!`);
+        } catch (err) {
+            console.error("❌ Error generating invoices:", err.message);
+            alert("Failed to generate invoices.");
         }
+    }
+}
 
-        function closeInvoiceModal() {
-            document.getElementById('invoiceModal').style.display = 'none';
-        }
+function editSale(saleId) {
+    fetch(`/api/sales/${saleId}`)
+        .then(resp => {
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
+        })
+        .then(sale => {
+            alert(`Edit functionality would open a form to edit sale ${saleId} for customer ${sale.customer}`);
+        })
+        .catch(err => console.error("❌ Error fetching sale:", err.message));
+}
 
-        function printInvoice() {
-            // For demo purposes
-            alert('Invoice sent to printer!');
-            closeInvoiceModal();
-        }
+function closeInvoiceModal() {
+    document.getElementById('invoiceModal').style.display = 'none';
+}
 
-        function downloadInvoice() {
-            const saleId = document.getElementById('invoiceModal').dataset.saleId;
-            
-            // Update invoice status
-            const saleIndex = salesData.findIndex(sale => sale.id === saleId);
-            if (saleIndex !== -1) {
-                salesData[saleIndex].invoiceStatus = 'Generated';
-            }
-            
-            // For demo purposes
-            alert('Invoice downloaded as PDF!');
-            
-            // Update UI
-            updateSummaryCards();
-            renderSalesTable();
-            closeInvoiceModal();
-        }
+function printInvoice() {
+    alert('Invoice sent to printer!');
+    closeInvoiceModal();
+}
 
-        function exportData(format) {
-            const filteredSales = getFilteredSales();
-            
-            if (format === 'csv') {
-                // Create CSV content
-                const headers = ['Date', 'Customer', 'Products', 'Total', 'Payment Method', 'Invoice Status'];
-                const csvContent = [
-                    headers.join(','),
-                    ...filteredSales.map(sale => [
-                        sale.date,
-                        "${sale.customer}",
-                        `"${sale.products.map(p => ${p.name} (${p.quantity})).join(', ')}"`,
-                        sale.total,
-                        "${sale.paymentMethod}",
-                        "${sale.invoiceStatus}"
-                    ].join(','))
-                ].join('\n');
-                
-                // Download CSV
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = sales-history-${new Date().toISOString().split('T')[0]}.csv;
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } else if (format === 'pdf') {
-                // For demo purposes
-                alert('PDF export functionality would generate a detailed sales report here!');
-            }
-        }
+async function downloadInvoice() {
+    const saleId = document.getElementById('invoiceModal').dataset.saleId;
+    try {
+        const resp = await fetch(`/api/sales/${saleId}/generate-invoice`, { method: 'PATCH' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        alert('Invoice downloaded as PDF!');
+        await loadSalesData();
+        closeInvoiceModal();
+    } catch (err) {
+        console.error("❌ Error updating invoice status:", err.message);
+    }
+}
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('invoiceModal');
-            if (event.target === modal) {
-                closeInvoiceModal();
-            }
-        }
+function exportData(format) {
+    const filteredSales = getFilteredSales(salesData);
+    if (format === 'csv') {
+        const headers = ['Date', 'Customer', 'Products', 'Total', 'Payment Method', 'Invoice Status'];
+        const csvContent = [
+            headers.join(','),
+            ...filteredSales.map(sale => [
+                sale.date,
+                `"${sale.customer}"`,
+                `"${sale.products.map(p => `${p.name} (${p.quantity})`).join(', ')}"`,
+                sale.total,
+                `"${sale.paymentMethod}"`,
+                `"${sale.invoiceStatus}"`
+            ].join(','))
+        ].join('\n');
 
-        // Handle escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeInvoiceModal();
-            }
-        });
-    </script>
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sales-history-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+        alert('PDF export functionality would generate a detailed sales report here!');
+    }
+}
+
+window.onclick = function (event) {
+    const modal = document.getElementById('invoiceModal');
+    if (event.target === modal) {
+        closeInvoiceModal();
+    }
+};
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        closeInvoiceModal();
+    }
+});
+</script>
 </body>
 </html>

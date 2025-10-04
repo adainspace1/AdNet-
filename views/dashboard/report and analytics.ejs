@@ -60,42 +60,47 @@
 
 <!-- KPIs -->
 <div class="kpi-grid">
-    <div class="kpi-card green">
-        <div class="kpi-header">
-            <span class="kpi-title">Inventory Turnover</span>
-        </div>
-        <div class="kpi-value"><%= kpis.turnover %></div>
-        <div class="kpi-change"><%= kpis.turnoverChange || "→ No change" %></div>
+  <div class="kpi-card green">
+    <div class="kpi-header">
+      <span class="kpi-title">Inventory Turnover</span>
     </div>
-    <div class="kpi-card yellow">
-        <div class="kpi-header">
-            <span class="kpi-title">Average Inventory</span>
-        </div>
-        <div class="kpi-value">$<%= kpis.avgInventoryValue %>K</div>
-        <div class="kpi-change"><%= kpis.avgInventoryChange || "→ No change" %></div>
+    <div class="kpi-value" id="turnoverValue"><%= kpis.turnover %></div>
+    <div class="kpi-change"><%= kpis.turnoverChange || "→ No change" %></div>
+  </div>
+
+  <div class="kpi-card yellow">
+    <div class="kpi-header">
+      <span class="kpi-title">Average Inventory</span>
     </div>
-    <div class="kpi-card yellow">
-        <div class="kpi-header">
-            <span class="kpi-title">Stock-to-Sales Ratio</span>
-        </div>
-        <div class="kpi-value"><%= kpis.stockToSalesRatio %></div>
-        <div class="kpi-change">→ No change</div>
+    <div class="kpi-value" id="avgInventoryValue">$<%= kpis.avgInventoryValue %></div>
+    <div class="kpi-change"><%= kpis.avgInventoryChange || "→ No change" %></div>
+  </div>
+
+  <!-- <div class="kpi-card yellow">
+    <div class="kpi-header">
+      <span class="kpi-title">Stock-to-Sales Ratio</span>
     </div>
-    <div class="kpi-card green">
-        <div class="kpi-header">
-            <span class="kpi-title">Sell-Through Rate</span>
-        </div>
-        <div class="kpi-value"><%= kpis.sellThroughRate %>%</div>
-        <div class="kpi-change">→ No change</div>
+    <div class="kpi-value" id="stockToSalesValue"><%= kpis.stockToSalesRatio %></div>
+    <div class="kpi-change">→ No change</div>
+  </div> -->
+
+  <!-- <div class="kpi-card green">
+    <div class="kpi-header">
+      <span class="kpi-title">Sell-Through Rate</span>
     </div>
-    <div class="kpi-card red">
-        <div class="kpi-header">
-            <span class="kpi-title">Fill Rate (LIFR)</span>
-        </div>
-        <div class="kpi-value"><%= kpis.fillRate %>%</div>
-        <div class="kpi-change">→ No change</div>
+    <div class="kpi-value" id="sellThroughValue"><%= kpis.sellThroughRate %>%</div>
+    <div class="kpi-change">→ No change</div>
+  </div> -->
+
+  <div class="kpi-card red">
+    <div class="kpi-header">
+      <span class="kpi-title">Fill Rate (LIFR)</span>
     </div>
+    <div class="kpi-value" id="fillRateValue"><%= kpis.fillRate %>%</div>
+    <div class="kpi-change">→ No change</div>
+  </div>
 </div>
+
 
 <!-- Charts -->
 <div class="charts-grid">
@@ -164,7 +169,34 @@
 
 </div>
 
-<script>
+<!-- ✅ Chart.js CDN -->
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <script>
+// ✅ Helper: format big numbers (2M, 33K, etc.)
+function formatCompactNumber(num) {
+  return new Intl.NumberFormat("en", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1
+  }).format(num);
+}
+
+// ✅ Format initial KPI values when page loads
+document.addEventListener("DOMContentLoaded", () => {
+  const turnover = document.getElementById("turnoverValue");
+  const avgInventory = document.getElementById("avgInventoryValue");
+//   const stockToSales = document.getElementById("stockToSalesValue");
+//   const sellThrough = document.getElementById("sellThroughValue");
+  const fillRate = document.getElementById("fillRateValue");
+
+  if (turnover) turnover.textContent = formatCompactNumber(parseFloat(turnover.textContent));
+  if (avgInventory) avgInventory.textContent = "$" + formatCompactNumber(parseFloat(avgInventory.textContent.replace("$","")));
+  if (stockToSales) stockToSales.textContent = formatCompactNumber(parseFloat(stockToSales.textContent));
+  if (sellThrough) sellThrough.textContent = formatCompactNumber(parseFloat(sellThrough.textContent)) + "%";
+  if (fillRate) fillRate.textContent = formatCompactNumber(parseFloat(fillRate.textContent)) + "%";
+});
+
+// ✅ Form submit (AJAX KPI update)
 document.getElementById("reportForm").addEventListener("submit", function(e) {
   e.preventDefault();
 
@@ -175,69 +207,96 @@ document.getElementById("reportForm").addEventListener("submit", function(e) {
   fetch(`/reportandanalysis?${params.toString()}`)
     .then(res => res.json())
     .then(data => {
-      document.getElementById("turnoverValue").textContent = data.turnover;
-      document.getElementById("avgInventoryValue").textContent = `$${data.avgInventoryValue}K`;
-      document.getElementById("stockToSalesValue").textContent = data.stockToSales;
-      document.getElementById("sellThroughValue").textContent = `${data.sellThrough}%`;
-      document.getElementById("fillRateValue").textContent = `${data.fillRate}%`;
+      document.getElementById("turnoverValue").textContent = formatCompactNumber(data.kpis.turnover);
+      document.getElementById("avgInventoryValue").textContent = "$" + formatCompactNumber(data.kpis.avgInventoryValue);
+    //   document.getElementById("stockToSalesValue").textContent = formatCompactNumber(data.kpis.stockToSales);
+    //   document.getElementById("sellThroughValue").textContent = formatCompactNumber(data.kpis.sellThrough) + "%";
+      document.getElementById("fillRateValue").textContent = formatCompactNumber(data.kpis.fillRate) + "%";
     })
     .catch(err => console.error("Error fetching KPI data:", err));
 });
-</script>
 
+// ✅ Standalone refresh button
+async function refreshData() {
+  const startDate = document.querySelector('input[name="startDate"]').value;
+  const endDate = document.querySelector('input[name="endDate"]').value;
+  const category = document.querySelector('select[name="category"]')?.value || "";
+  const supplier = document.querySelector('select[name="supplier"]')?.value || "";
 
+  try {
+    const res = await fetch(`/reportandanalysis?ajax=true&startDate=${startDate}&endDate=${endDate}&category=${category}&supplier=${supplier}`);
+    const data = await res.json();
 
+    document.getElementById("turnoverValue").textContent = formatCompactNumber(data.kpis.turnover);
+    document.getElementById("avgInventoryValue").textContent = "$" + formatCompactNumber(data.kpis.avgInventoryValue);
+    // document.getElementById("stockToSalesValue").textContent = formatCompactNumber(data.kpis.stockToSales);
+    // document.getElementById("sellThroughValue").textContent = formatCompactNumber(data.kpis.sellThrough) + "%";
+    document.getElementById("fillRateValue").textContent = formatCompactNumber(data.kpis.fillRate) + "%";
+  } catch (err) {
+    console.error("Error refreshing report:", err);
+  }
+}
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+// ✅ Generate PDF
+function generateReport() {
+  const table = document.querySelector(".data-table-container table");
+  if (!table) return alert("No data table found!");
+  const pdf = new jspdf.jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+  pdf.html(table, {
+    callback: (doc) => doc.save("Inventory_Report.pdf"),
+    x: 20, y: 20
+  });
+}
+
+// ✅ Initialize Charts
 document.addEventListener('DOMContentLoaded', function() {
-    const chartsData = <%- JSON.stringify(charts) %>;
+  const chartsData = <%- JSON.stringify(charts) %>;
 
-    new Chart(document.getElementById('salesInventoryChart'), {
-        type: 'line',
-        data: {
-            labels: chartsData.salesInventoryTrend.labels,
-            datasets: [
-                { label: 'Sales', data: chartsData.salesInventoryTrend.sales, borderColor: 'blue', fill: false },
-                { label: 'Inventory', data: chartsData.salesInventoryTrend.inventory, borderColor: 'orange', fill: false }
-            ]
-        }
-    });
+  window.salesInventoryChart = new Chart(document.getElementById('salesInventoryChart'), {
+    type: 'line',
+    data: {
+      labels: chartsData.monthlyData.map(m => `${m._id.month}/${m._id.year}`),
+      datasets: [
+        { label: 'Sales', data: chartsData.monthlyData.map(m => m.totalSales), borderColor: 'blue', fill: false },
+      ]
+    }
+  });
 
-    new Chart(document.getElementById('turnoverTrendChart'), {
-        type: 'line',
-        data: {
-            labels: chartsData.turnoverTrend.labels,
-            datasets: [
-                { label: 'Turnover', data: chartsData.turnoverTrend.turnover, borderColor: 'green', fill: false }
-            ]
-        }
-    });
+  window.turnoverTrendChart = new Chart(document.getElementById('turnoverTrendChart'), {
+    type: 'line',
+    data: {
+      labels: chartsData.turnoverTrend.map(t => t.label),
+      datasets: [
+        { label: 'Turnover', data: chartsData.turnoverTrend.map(t => t.turnover), borderColor: 'green', fill: false }
+      ]
+    }
+  });
 
-    new Chart(document.getElementById('fillRateChart'), {
-        type: 'pie',
-        data: {
-            labels: chartsData.fillRateBySupplier.labels,
-            datasets: [{
-                data: chartsData.fillRateBySupplier.rates,
-                backgroundColor: ['#4CAF50','#FFC107','#2196F3','#FF5722']
-            }]
-        }
-    });
+  window.fillRateChart = new Chart(document.getElementById('fillRateChart'), {
+    type: 'pie',
+    data: {
+      labels: chartsData.fillRateBySupplier.map(f => f._id),
+      datasets: [{
+        data: chartsData.fillRateBySupplier.map(f => f.fillRate),
+        backgroundColor: ['#4CAF50','#FFC107','#2196F3','#FF5722']
+      }]
+    }
+  });
 
-    new Chart(document.getElementById('stockDistributionChart'), {
-        type: 'bar',
-        data: {
-            labels: chartsData.stockDistribution.labels,
-            datasets: [{
-                label: 'Stock Levels',
-                data: chartsData.stockDistribution.stockLevels,
-                backgroundColor: '#673AB7'
-            }]
-        }
-    });
+  window.stockDistributionChart = new Chart(document.getElementById('stockDistributionChart'), {
+    type: 'bar',
+    data: {
+      labels: chartsData.stockDistribution.map(s => s._id),
+      datasets: [{
+        label: 'Stock Levels',
+        data: chartsData.stockDistribution.map(s => s.totalStock),
+        backgroundColor: '#673AB7'
+      }]
+    }
+  });
 });
 </script>
+
 
 
 

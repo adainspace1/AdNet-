@@ -787,3 +787,173 @@ button:hover {
 
 
 resolveAccountName()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let salesData = [];
+let selectedSales = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let sortField = 'date';
+let sortOrder = 'desc';
+
+// 🔹 Helper: Format large numbers (K, M, B)
+function formatNumber(num) {
+    if (num === null || num === undefined || isNaN(num)) return "0";
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + "B";
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+    return num.toFixed(0);
+}
+
+// 🔹 Helper: Animate numbers (smooth count-up)
+function animateValue(element, start, end, duration, isCurrency = false) {
+    const range = end - start;
+    const startTime = performance.now();
+    const step = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = start + range * progress;
+        element.textContent = isCurrency ? `$${formatNumber(value)}` : formatNumber(value);
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for Lucide to load
+    if (typeof lucide === 'undefined') {
+        console.error('❌ Lucide not loaded; retrying...');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+        if (typeof lucide === 'undefined') {
+            console.warn('⚠️ Lucide failed; proceeding without icons');
+        } else {
+            lucide.createIcons();
+        }
+    } else {
+        lucide.createIcons();
+    }
+
+    await Promise.all([loadSalesData(), loadChartData()]);
+    setupEventListeners();
+});
+
+async function loadSalesData() {
+    try {
+        console.log("🔁 Fetching sales data...");
+        const resp = await fetch('/api/sales');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        salesData = await resp.json();
+        // Map server schema to client (amount → total, item/quantity → products)
+        salesData = salesData.map(sale => ({
+            id: sale._id.toString(),
+            date: new Date(sale.date).toISOString().split('T')[0],
+            customer: sale.customer || 'Unknown',
+            products: [{ name: sale.item, quantity: sale.quantity || 1, price: sale.amount / (sale.quantity || 1) }],
+            total: sale.amount,
+            paymentMethod: sale.paymentMethod || 'Unknown',
+            invoiceStatus: sale.invoiceStatus || 'Not Generated',
+            notes: sale.notes || ''
+        }));
+        console.log("📦 Sales data fetched:", salesData.length, "records");
+        updateSummaryCards(salesData);
+        renderSalesTable(salesData);
+    } catch (err) {
+        console.error("❌ Error fetching sales:", err.message);
+        salesData = [];
+        updateSummaryCards([]);
+        renderSalesTable([]);
+    }
+}
+
+async function loadChartData() {
+    try {
+        console.log("📊 Fetching chart data...");
+        const resp = await fetch('/api/sales-chart-data?type=monthly');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const chartData = await resp.json();
+        console.log("📦 Chart data fetched:", chartData);
+    } catch (err) {
+        console.error("❌ Error fetching chart data:", err.message);
+    }
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput')?.addEventListener('input', () => renderSalesTable(salesData));
+    document.getElementById('startDate')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('endDate')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('paymentFilter')?.addEventListener('change', () => renderSalesTable(salesData));
+    document.getElementById('statusFilter')?.addEventListener('change', () => renderSalesTable(salesData));
+}
+
+// 🔹 Updated to use K/M/B + animation
+function updateSummaryCards(salesData) {
+    const today = new Date().toISOString().split('T')[0];
+    const thisMonth = new Date().toISOString().slice(0, 7);
+
+    const todaySales = salesData.filter(sale => sale.date === today);
+    const monthSales = salesData.filter(sale => sale.date.startsWith(thisMonth));
+    const generatedInvoices = salesData.filter(sale => sale.invoiceStatus === 'Generated');
+    const outstanding = salesData.filter(sale => sale.invoiceStatus === 'Not Generated');
+
+    const todayTotal = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+    const monthRevenue = monthSales.reduce((sum, sale) => sum + sale.total, 0);
+    const invoicesGenerated = generatedInvoices.length;
+    const outstandingPayments = outstanding.reduce((sum, sale) => sum + sale.total, 0);
+
+    // Animate the updates
+    animateValue(document.getElementById('todayTotal'), 0, todayTotal, 800, true);
+    animateValue(document.getElementById('monthRevenue'), 0, monthRevenue, 800, true);
+    animateValue(document.getElementById('invoicesGenerated'), 0, invoicesGenerated, 800, false);
+    animateValue(document.getElementById('outstandingPayments'), 0, outstandingPayments, 800, true);
+}
+
+function getFilteredSales(salesData) {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const startDate = document.getElementById('startDate')?.value || '';
+    const endDate = document.getElementById('endDate')?.value || '';
+    const paymentFilter = document.getElementById('paymentFilter')?.value || 'all';
+    const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+
+    let filtered = salesData.filter(sale => {
+        const matchesSearch = sale.customer.toLowerCase().includes(searchTerm) ||
+            sale.products.some(product => product.name.toLowerCase().includes(searchTerm));
+        const matchesPayment = paymentFilter === 'all' || sale.paymentMethod === paymentFilter;
+        const matchesStatus = statusFilter === 'all' || sale.invoiceStatus === statusFilter;
+        const matchesDateRange = (!startDate || sale.date >= startDate) &&
+            (!endDate || sale.date <= endDate);
+        return matchesSearch && matchesPayment && matchesStatus && matchesDateRange;
+    });
+
+    filtered.sort((a, b) => {
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+
+        if (sortField === 'date') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        } else if (sortField === 'total') {
+            aValue = Number(aValue);
+            bValue = Number(bValue);
+        } else if (sortField === 'products') {
+            aValue = a.products.map(p => p.name).join(', ');
+            bValue = b.products.map(p => p.name).join(', ');
+        }
+
+        return sortOrder === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
+    });
+
+    return filtered;
+}

@@ -24,20 +24,8 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: "Google Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-primary);
-  line-height: 1.6;
-  min-height: 100vh;
-}
 
-.app-container {
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
-  overflow: hidden;
-}
+
 
 /* Sidebar */
 .sidebar {
@@ -102,9 +90,6 @@ body {
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: var(--sidebar-width);
-  background-color: var(--background-color);
-  width: 100vw;
   min-height: 100vh;
   transition: margin-left var(--transition-speed) ease;
   display: flex;
@@ -134,9 +119,10 @@ body {
 }
 
 .content-body {
-  padding: 32px;
+  width: 100%;
   flex: 1;
   overflow-y: auto;
+  margin-top: 16px;
 }
 
 /* Cards */
@@ -520,9 +506,7 @@ tbody tr:hover {
     margin-left: 0;
   }
 
-  .content-body {
-    padding: 16px;
-  }
+
 
   .controls-section {
     grid-template-columns: 1fr;

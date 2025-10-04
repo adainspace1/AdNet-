@@ -21,10 +21,19 @@
 body {
   background-color: #031224;
   width: 100%;
-  overflow: hidden;
   padding: 0;
   margin: 0;
 }
+
+.main-content{
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+
 
 .all {
   width: 100%;
@@ -96,16 +105,7 @@ body {
   cursor: pointer;
 }
 
-/* Main Content */
-.container {
-  padding: 1.5rem;
-  width: 95%;
-  overflow: hidden;
-  overflow-y: scroll;
-  height: 100vh;
-  margin-left: auto;
-  background: #031224;
-}
+
 
 /* Summary Cards */
 .summary-cards {

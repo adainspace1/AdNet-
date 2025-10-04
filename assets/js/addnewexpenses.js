@@ -1,116 +1,98 @@
-// Bar Chart
-const barCtx = document.getElementById("barChart").getContext("2d");
-const barChart = new Chart(barCtx, {
-  type: "bar",
-  data: {
-    labels: [
-      "Supplies",
-      "Transport",
-      "Software",
-      "Marketing",
-      "Events",
-      "Services",
-      "Testing",
-    ],
-    datasets: [
-      {
-        label: "Expenses by Category",
-        data: [302.75, 110.0, 299.97, 454.99, 465.75, 450.0, 85.0],
-        backgroundColor: "#007bff",
-        borderColor: "#007bff",
-        borderWidth: 1,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          display: true,
-          drawBorder: false,
+document.addEventListener("DOMContentLoaded", async () => {
+  async function loadChartData() {
+    try {
+      console.log("📊 Fetching chart data...");
+      const res = await fetch("/api/expenses/chart-data");
+      console.log("🌐 Response status:", res.status);
+      const data = await res.json();
+      console.log("📦 Chart data received:", data);
+
+      if (!data.categoryLabels) {
+        console.warn("⚠️ No category labels found");
+        return;
+      }
+
+      // 🟦 BAR CHART — Expenses by Category
+      const barCtx = document.getElementById("barChart").getContext("2d");
+      if (window.barChart && typeof window.barChart.destroy === "function") {
+        console.log("🧹 Destroying previous bar chart");
+        window.barChart.destroy();
+      }
+      window.barChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+          labels: data.categoryLabels,
+          datasets: [
+            {
+              label: "Expenses by Category",
+              data: data.categoryData,
+              backgroundColor: "#007bff",
+              borderColor: "#007bff",
+              borderWidth: 1,
+            },
+          ],
         },
-      },
-      x: {
-        grid: {
-          display: false,
-          drawBorder: false,
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true },
+            x: { grid: { display: false } },
+          },
         },
-      },
-    },
-  },
+      });
+      console.log("✅ Bar chart rendered");
+
+      // 🟩 LINE CHART — Monthly Expenses
+      const lineCtx = document.getElementById("lineChart").getContext("2d");
+      if (window.lineChart && typeof window.lineChart.destroy === "function") {
+        console.log("🧹 Destroying previous line chart");
+        window.lineChart.destroy();
+      }
+      window.lineChart = new Chart(lineCtx, {
+        type: "line",
+        data: {
+          labels: [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+          ],
+          datasets: [
+            {
+              label: "Monthly Expenses",
+              data: data.monthlyData,
+              backgroundColor: "rgba(0, 123, 255, 0.1)",
+              borderColor: "#007bff",
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true },
+            x: { grid: { display: false } },
+          },
+        },
+      });
+      console.log("✅ Line chart rendered");
+    } catch (err) {
+      console.error("❌ Failed to load chart data:", err);
+    }
+  }
+
+  await loadChartData();
 });
 
-// Line Chart
-const lineCtx = document.getElementById("lineChart").getContext("2d");
-const lineChart = new Chart(lineCtx, {
-  type: "line",
-  data: {
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    datasets: [
-      {
-        label: "Monthly Expense",
-        data: [650, 590, 800, 810, 1200, 1100, 900, 750, 720, 780, 890, 700],
-        backgroundColor: "rgba(0, 123, 255, 0.1)",
-        borderColor: "#007bff",
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          display: true,
-          drawBorder: false,
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-          drawBorder: false,
-        },
-      },
-    },
-  },
-});
 
 // Get modal elements
 const modal = document.getElementById("expenseForm");
-const addExpenseBtn = document.getElementById("addExpenseBtn");
 const closeModalBtn = document.getElementById("closeModal");
 const cancelBtn = document.getElementById("cancelExpense");
 const saveBtn = document.getElementById("saveExpense");
-const expenseForm = document.getElementById("expenseForm");
 
 // Open modal when Add Expense button is clicked
 addExpenseBtn.addEventListener("click", () => {

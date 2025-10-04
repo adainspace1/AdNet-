@@ -14,11 +14,8 @@ body {
     line-height: 1.6;
 }
 
+
 .container {
-    background-color: #031224;
-    width: calc(100% - 70px);
-    margin-left: 70px;
-    padding: 20px;
     min-height: 100vh;
 }
 
@@ -251,9 +248,16 @@ body {
 .btn-secondary:hover {
     background: #5A6268;
 }
-
+.tab{
+    width: 100%;
+    overflow: hidden;
+    overflow-x: scroll;
+}
 .sales-table {
     width: 100%;
+    min-width: 500px;
+    overflow: hidden;
+    overflow-x: scroll;
     border-collapse: collapse;
     font-size: clamp(0.8rem, 2vw, 1rem);
 }
@@ -532,16 +536,13 @@ body {
 /* Responsive breakpoints */
 @media (max-width: 1200px) {
     .container {
-        width: calc(100% - 60px);
-        margin-left: 60px;
+        width: 100%;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        width: calc(100% - 50px);
-        margin-left: 50px;
-        padding: 15px;
+        width: 100%;
     }
     
     .summary-cards {
@@ -617,11 +618,7 @@ body {
 }
 
 @media (max-width: 480px) {
-    .container {
-        width: calc(100% - 40px);
-        margin-left: 40px;
-        padding: 10px;
-    }
+  
 
     .header {
         padding: 15px;
@@ -658,21 +655,10 @@ body {
     }
 }
 
-/* Fix for sidebar spacing issues */
-@media (max-width: 1024px) {
-    .container {
-        width: calc(100% - 55px);
-        margin-left: 55px;
-    }
-}
 
 /* Extra small screens */
 @media (max-width: 360px) {
-    .container {
-        width: calc(100% - 35px);
-        margin-left: 35px;
-        padding: 8px;
-    }
+
     
     .table-actions {
         flex-direction: column;

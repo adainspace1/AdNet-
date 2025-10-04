@@ -14,7 +14,6 @@ html body{
 /* Budget Container */
 .container {
   width: 100%;
-  padding: 2rem;
   backdrop-filter: blur(10px);
   border-radius: 20px;
   margin-top: 2rem;
@@ -27,7 +26,7 @@ html body{
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-color: #007bff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -35,11 +34,11 @@ html body{
 
 /* Dashboard Layout */
 .dashboard {
-  display: grid;
-  gap: 2rem;
+  width: 100%;
 }
 
 .dashboard-section {
+  width: 100%;
   background: white;
   padding: 2rem;
   border-radius: 16px;
@@ -58,7 +57,7 @@ html body{
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: #2d3748;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #023a77;
   padding-bottom: 0.5rem;
 }
 
@@ -72,29 +71,19 @@ html body{
 
 /* Budget Cards */
 .budget-card {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background-color: #ccc;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
-.budget-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-}
+
 
 .budget-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border-color: #667eea;
 }
 
 .budget-card h3 {
@@ -143,8 +132,8 @@ html body{
 .create-btn {
   bottom: 2rem;
   right: 2rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  background-color: #007bff;
   border: none;
   border-radius: 50px;
   padding: 1rem 2rem;

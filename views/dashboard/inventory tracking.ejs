@@ -158,11 +158,11 @@
 
 
   <div class="form-group">
-    <input type="text" name="recipientId" value="<%= user.id || worker._id %>" required>
+    <input type="text" name="recipientId" value="<%= user.id %>" required>
   </div>
 
   <div class="form-group">
-    <input type="hidden" name="username" value="<%= user.firstName || worker.name %> <%= user.lastName %>" required>
+    <input type="hidden" name="username" value="<%= user.firstName  %> <%= user.lastName %>" required>
   </div>
 
   <div class="form-group">
@@ -226,7 +226,9 @@
 
 
 
+
 <script>
+  
     document.querySelector(".add-btn").addEventListener("click", function() {
         document.getElementById("itemModal").style.display = "flex";
         document.getElementById("modalTitle").innerText = "Add New Item";

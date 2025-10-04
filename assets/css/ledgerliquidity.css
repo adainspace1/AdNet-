@@ -5,7 +5,6 @@
 }
     body {
       margin: 0;
-      background: linear-gradient(to right, #f4f7f9, #e1ecf9);
       color: #333;
     }
     .container {
@@ -18,9 +17,7 @@
       transition: transform 0.3s ease;
     }
 
-    h1, h2 {
-      color: #007bff;
-    }
+ 
     label {
       font-weight: 600;
     }
@@ -71,9 +68,10 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       border-radius: 10px;
       overflow: hidden;
+      margin-top: 20px;
     }
     thead {
-      background: #007bff;
+      background: #888;
       color: #fff;
     }
     th, td {
@@ -101,13 +99,13 @@
       margin-top: 30px;
       display: flex;
       justify-content: space-around;
-      background: #e7f0ff;
+      background: #888;
       align-items: center;
-      border-radius: 12px;
+      border-radius: 3px;
       padding: 5px;
       font-weight: 700;
       font-size: 18px;
-      color: #007bff;
+      color: #ffffff;
     }
     .summary div {
       text-align: center;

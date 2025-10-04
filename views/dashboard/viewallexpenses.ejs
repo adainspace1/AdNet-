@@ -7,9 +7,12 @@
   <title>Expenses History</title>
 
     <link rel="stylesheet" href="/css/viewallexpenses.css">
+        <link rel="stylesheet" href="/css/dashall.css">
 </head>
 <body style="background-color: #031224;">
-  <!-- Sidebar -->
+
+  <div class="all">
+      <!-- Sidebar -->
   <%- include("_sidebar1") %>
 
   <div class="main-content">
@@ -102,6 +105,8 @@
       </div>
     </div>
   </div>
+  </div>
+
   </div>
 
 
@@ -320,15 +325,20 @@
       }
     };
 
+  document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/expenses/pie-line-data");
+    const data = await res.json();
+
     // Pie Chart
     const ctx1 = document.getElementById("categoryChart").getContext("2d");
     new Chart(ctx1, {
       type: "pie",
       data: {
-        labels: ["Transport", "Food", "Maintenance", "Other"],
+        labels: data.categoryLabels,
         datasets: [{
-          data: [120000, 80000, 50000, 20000],
-          backgroundColor: ["#3498db", "#27ae60", "#e67e22", "#9b59b6"]
+          data: data.categoryData,
+          backgroundColor: ["#3498db", "#27ae60", "#e67e22", "#9b59b6", "#16a085", "#c0392b"]
         }]
       },
       options: getChartOptions('pie')
@@ -339,10 +349,10 @@
     new Chart(ctx2, {
       type: "line",
       data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         datasets: [{
-          label: "Expenses",
-          data: [50000, 70000, 65000, 90000, 120000, 100000],
+          label: "Expenses Trend",
+          data: data.monthlyData,
           borderColor: "#3498db",
           backgroundColor: "rgba(52, 152, 219, 0.2)",
           fill: true,
@@ -351,6 +361,12 @@
       },
       options: getChartOptions('line')
     });
+
+  } catch (err) {
+    console.error("❌ Failed to load chart data:", err);
+  }
+});
+
 
     // Redraw charts on window resize
     window.addEventListener('resize', () => {

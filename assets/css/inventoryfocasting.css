@@ -10,11 +10,11 @@
             background-color: #1e293b; /* Dark background */
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+
+        .main-content{
+            min-height: 100vh;
+            }
+       
 
         .header {
             backdrop-filter: blur(10px);

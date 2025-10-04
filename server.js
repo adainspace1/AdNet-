@@ -907,19 +907,14 @@ app.get('/Inventory', ensureAuthenticated, async (req, res) => {
 // ✅ Inventory Tracking Page
 app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
   try {
-    // Check if session belongs to admin or worker
     let recipientId = null;
-    let companyinfo = null; // ✅ Always define this
+    let companyinfo = null;
 
     if (req.session.user) {
-      // Admin logged in
       recipientId = req.session.user._id;
-      console.log("session admin id", req.session.user._id)
       companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
     } else if (req.session.worker) {
-      // Worker logged in, use adminId
       recipientId = req.session.worker.adminId;
-      console.log("session worker admin id", req.session.worker.adminId)
       companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
     }
 
@@ -929,9 +924,6 @@ app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
 
     const items = await Inventory.find({ recipientId });
 
-
-    
-    // Format items for frontend
     const formatted = items.map((item, index) => {
       const status =
         item.currentquantity === 0
@@ -959,22 +951,26 @@ app.get("/inventorytracking", ensureAuthenticated, async (req, res) => {
     const lowStockCount = formatted.filter((i) => i.status === "Low Stock").length;
     const outOfStockCount = formatted.filter((i) => i.status === "Out of Stock").length;
 
+    // ✅ Mock weekly data or calculate it from sales table if available
+    const weeklySalesData = [500, 750, 1000, 900, 1200, 800, 950]; // Example placeholder
+
     res.render("dashboard/inventory tracking", {
       user: req.session.user || req.session.worker,
       worker: req.session.worker || null,
-      companyinfo, // ✅ now it's always defined
+      companyinfo,
       inventory: formatted,
       totalItems,
       totalQuantity,
       lowStockCount,
       outOfStockCount,
+      weeklySalesData, // ✅ Add this so EJS finds it
     });
-
   } catch (err) {
     console.error("Error loading inventory tracking page:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 
@@ -1232,18 +1228,29 @@ app.get('/Sales', ensureAuthenticated, async (req, res) => {
 // --- Sale history (filters + optional JSON response) ---
 app.get('/salehistory', ensureAuthenticated, async (req, res) => {
   try {
-    // resolve recipientId same as above
-    let recipientId = null;
-    let companyinfo = null;
+   // Determine who we should query for (admin or worker)
+     let recipientId;
 
-    if (req.session && req.session.user) {
+    if (req.session.user) {
+      // ✅ Superadmin / Owner
       recipientId = req.session.user._id;
-      companyinfo = await Company.findOne({ recipientId });
-    } else if (req.session && req.session.worker) {
+    } else if (req.session.worker) {
+      // ✅ Worker → use their admin's ID
       recipientId = req.session.worker.adminId;
-      companyinfo = await Company.findOne({ recipientId });
     } else {
-      return res.redirect('/login');
+      return res.redirect('/login'); // fallback if no session
+    }
+
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
     }
 
     const {
@@ -1414,12 +1421,62 @@ app.get("/api/sales-chart-data", ensureAuthenticated, async (req, res) => {
 });
 
 
+// New /api/sales endpoint
+app.get('/api/sales', async (req, res) => {
+    const recipientId = req.session.user?._id;
+    if (!recipientId) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const sales = await Sales.find({ recipientId }).lean();
+        console.log("✅ Fetched sales:", sales.length);
+        res.json(sales);
+    } catch (err) {
+        console.error("❌ Error fetching sales:", err.message);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// New /api/sales/:id endpoint
+app.get('/api/sales/:id', async (req, res) => {
+    const recipientId = req.session.user?._id;
+    if (!recipientId) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const sale = await Sales.findOne({ _id: req.params.id, recipientId }).lean();
+        if (!sale) return res.status(404).json({ error: "Sale not found" });
+        res.json(sale);
+    } catch (err) {
+        console.error("❌ Error fetching sale:", err.message);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// New /api/sales/:id/generate-invoice endpoint
+app.patch('/api/sales/:id/generate-invoice', async (req, res) => {
+    const recipientId = req.session.user?._id;
+    if (!recipientId) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const result = await Sales.updateOne(
+            { _id: req.params.id, recipientId },
+            { $set: { invoiceStatus: 'Generated' } }
+        );
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Sale not found" });
+        }
+        console.log(`✅ Invoice generated for sale ${req.params.id}`);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("❌ Error generating invoice:", err.message);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 
 
 
 // ---------- Expenses page (staff/admin-aware) ----------
-// ---------- Expenses page (staff/admin-aware with companyInfo) ----------
+// ---------- Expenses page (staff/admin-aware with companyinfo) ----------
 app.get("/Expenses", ensureAuthenticated, async (req, res) => {
   try {
     let recipientId = null;
@@ -1455,7 +1512,7 @@ app.get("/Expenses", ensureAuthenticated, async (req, res) => {
       createdAt: { $gte: todayStart, $lte: todayEnd },
     })
       .sort({ createdAt: -1 })
-      .populate("companyInfo");
+      .populate("companyinfo");
 
     // 🔹 Budgets for this recipient
     const budgets = await Budget.find({ recipientId }).sort({ startDate: -1 });
@@ -1473,7 +1530,7 @@ app.get("/Expenses", ensureAuthenticated, async (req, res) => {
       type: "expense",
       amount: Number(exp.amount || 0),
       date: exp.createdAt,
-      company: exp.companyInfo ? exp.companyInfo.name : "Unknown",
+      company: exp.companyinfo ? exp.companyinfo.name : "Unknown",
     }));
 
     // 🔹 Render page
@@ -1496,6 +1553,55 @@ app.get("/Expenses", ensureAuthenticated, async (req, res) => {
 });
 
 
+
+// 📊 API endpoint to provide chart data dynamically (with logging)
+app.get("/api/expenses/chart-data", ensureAuthenticated, async (req, res) => {
+  try {
+    let recipientId = null;
+
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+      console.log("👤 Logged in as user:", recipientId);
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+      console.log("👷 Logged in as worker. Admin ID:", recipientId);
+    } else {
+      console.log("⚠️ Unauthorized access to chart data");
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.log("📦 Fetching expenses for:", recipientId);
+    const expenses = await Expense.find({ recipientId });
+    console.log(`📊 Found ${expenses.length} expenses`);
+
+    // 🔹 Group by category
+    const categoryTotals = {};
+    expenses.forEach(exp => {
+      categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+    });
+    console.log("🗂 Category Totals:", categoryTotals);
+
+    // 🔹 Group by month
+    const monthTotals = Array(12).fill(0);
+    expenses.forEach(exp => {
+      const month = new Date(exp.dateOfExpense).getMonth();
+      monthTotals[month] += exp.amount;
+    });
+    console.log("📅 Monthly Totals:", monthTotals);
+
+    const responseData = {
+      categoryLabels: Object.keys(categoryTotals),
+      categoryData: Object.values(categoryTotals),
+      monthlyData: monthTotals,
+    };
+
+    console.log("✅ Sending chart data:", responseData);
+    res.json(responseData);
+  } catch (err) {
+    console.error("❌ Chart data error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 
@@ -1685,6 +1791,47 @@ app.get("/viewallexpenses", ensureAuthenticated, async (req, res) => {
 
 
 
+// 📊 API endpoint for Pie & Line charts
+app.get("/api/expenses/pie-line-data", ensureAuthenticated, async (req, res) => {
+  try {
+    let recipientId = null;
+
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+    } else {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Fetch expenses for the current user/admin
+    const expenses = await Expense.find({ recipientId });
+
+    // 🔹 Group by category for Pie Chart
+    const categoryTotals = {};
+    expenses.forEach(exp => {
+      categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+    });
+
+    // 🔹 Group by month for Line Chart
+    const monthTotals = Array(12).fill(0);
+    expenses.forEach(exp => {
+      const month = new Date(exp.dateOfExpense).getMonth();
+      monthTotals[month] += exp.amount;
+    });
+
+    res.json({
+      categoryLabels: Object.keys(categoryTotals),
+      categoryData: Object.values(categoryTotals),
+      monthlyData: monthTotals,
+    });
+  } catch (err) {
+    console.error("❌ Pie/Line chart data error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 
 // ---------- API endpoints (JSON) ----------
 app.get("/api/expenses/summary", ensureAuthenticated, async (req, res) => {
@@ -1771,20 +1918,20 @@ app.get("/Transaction", ensureAuthenticated, async (req, res) => {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // 🔹 Fetch data with companyInfo populated
+    // 🔹 Fetch data with companyinfo populated
     const [todayProductions, todaySales, todayExpenses] = await Promise.all([
       Production.find({
         recipientId,
         createdAt: { $gte: todayStart, $lte: todayEnd },
-      }).populate("companyInfo"),
+      }),
       Sales.find({
         recipientId,
         date: { $gte: todayStart, $lte: todayEnd },
-      }).populate("companyInfo"),
+      }),
       Expense.find({
         recipientId,
         createdAt: { $gte: todayStart, $lte: todayEnd },
-      }).populate("companyInfo"),
+      }),
     ]);
 
     // 🔹 Totals
@@ -1843,14 +1990,11 @@ app.get('/Profit', ensureAuthenticated, async (req, res) => {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // 🔹 Fetch sales, expenses, production with companyInfo populated
+    // 🔹 Fetch sales, expenses, production with companyinfo populated
     const [sales, expenses, production] = await Promise.all([
-      Sales.find({ recipientId, date: { $gte: todayStart, $lte: todayEnd } })
-        .populate("companyInfo"),
-      Expense.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } })
-        .populate("companyInfo"),
-      Production.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } })
-        .populate("companyInfo")
+      Sales.find({ recipientId, date: { $gte: todayStart, $lte: todayEnd } }),
+      Expense.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } }),
+      Production.find({ recipientId, createdAt: { $gte: todayStart, $lte: todayEnd } }),
     ]);
 
     // 🔹 Calculate totals
@@ -1867,19 +2011,16 @@ app.get('/Profit', ensureAuthenticated, async (req, res) => {
         type: 'sales',
         amount: Number(s.amount || 0),
         date: s.date,
-        company: s.companyInfo ? s.companyInfo.companyName : "Unknown"
       })),
       ...expenses.map(e => ({
         type: 'expenses',
         amount: Number(e.amount || 0),
         date: e.createdAt,
-        company: e.companyInfo ? e.companyInfo.companyName : "Unknown"
       })),
       ...production.map(p => ({
         type: 'production',
         amount: Number(p.amount || 0),
         date: p.createdAt,
-        company: p.companyInfo ? p.companyInfo.companyName : "Unknown"
       }))
     ];
 
@@ -2351,7 +2492,7 @@ app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
     const userId = req.session.user._id;
 
     // Fetch company info
-    const companyInfo = await Company.findOne({ reciepientId: userId });
+    const companyinfo = await Company.findOne({ reciepientId: userId });
 
     const salesitem = await Sales.find({ recipientId: userId });
     const expenses = await Expense.find({ recipientId: userId });
@@ -2455,7 +2596,7 @@ app.get("/statementofaccount", ensureAuthenticated, async (req, res) => {
   user: req.session.user,
   worker: req.session.worker || null,
   transactions,
-  companyinfo: companyInfo, // 👈 match the lowercase name used in EJS
+  companyinfo: companyinfo, // 👈 match the lowercase name used in EJS
   businessinfo,
   summary: {
     openingBalance,
