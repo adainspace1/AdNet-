@@ -152,6 +152,7 @@ table {
   border-collapse: collapse;
   margin-top: 30px;
   overflow-x: scroll;
+  
 }
 th,
 td {
@@ -242,9 +243,13 @@ tr:hover {
   max-height: 450px;
   overflow: hidden;
   overflow-y: scroll;
+  overflow-x: scroll;
 }
 
 
+table{
+  min-width: 500px;
+}
 
 
 
