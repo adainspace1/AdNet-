@@ -22,20 +22,10 @@
             min-height: 100vh;
         }
 
-      .top-container {
-  margin-left: 100px;
-  background: #031224;
-  border-radius: 0 0 30px 30px;
-  padding-bottom: 10px;
-  width: 100%;
-  min-height: 100vh;
-  overflow: auto; /* Keep scrolling possible */
-  scrollbar-width: none; /* Firefox */
-}
-
-.top-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}
+        
+      .main-content{
+        background: #031224;
+            }
 
 
         .top-container .nav {

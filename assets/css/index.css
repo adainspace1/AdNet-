@@ -51,7 +51,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-left: -190px;
         }
 
         .nav-links {
@@ -59,7 +58,6 @@
             gap: 2rem;
             list-style: none;
             align-items: center;
-             margin-left: 550px;
         }
 
         .nav-links .all-nav{
