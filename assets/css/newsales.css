@@ -141,6 +141,10 @@ button {
 button:hover {
   background-color: #2980b9;
 }
+#openSaleFormBtn{
+  padding: 15px 15px;
+  border-radius: 50px;
+}
 button.reset {
   background-color: #e74c3c;
 }

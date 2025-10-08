@@ -35,32 +35,58 @@ module.exports = {
     }
   },
 
-  // POST /api/wallet/create
-  async createWallet(req, res) {
-    try {
-      const userId = req.session.user ? req.session.user._id : req.session.worker.adminId;
-      const result = await paystackClient.createWalletForUser(userId);
-      if (!result || !result.success) {
-        return res.json({ success: false, message: 'Provider failed to create wallet' });
-      }
+// POST /api/wallet/create
+async createWallet(req, res) {
+  console.log("createWallet request body:", req.body);
+  try {
 
-      const wallet = await Wallet.findOneAndUpdate(
-        { userId },
-        {
-          userId,
-          provider: 'paystack',
-          providerId: result.providerId,
-          balance: result.balance || 0,
-        },
-        { upsert: true, new: true }
-      );
+    const userId = req.session.user
+      ? req.session.user._id
+      : req.session.worker.adminId;
 
-      return res.json({ success: true, wallet });
-    } catch (err) {
-      console.error('createWallet error', err);
-      res.status(500).json({ success: false, message: 'Server error' });
+    const {
+      bankCode,
+      bankName,
+      accountNumber,
+      accountName,
+      bvn,
+      consent
+    } = req.body;
+
+    if (!bankCode || !bankName || !accountNumber || !accountName) {
+      return res.json({ success: false, message: "All bank details are required." });
     }
-  },
+
+    // 🔹 (Optional) Create wallet via Paystack or your provider
+    const result = await paystackClient.createWalletForUser(userId);
+    if (!result || !result.success) {
+      return res.json({ success: false, message: "Provider failed to create wallet" });
+    }
+
+    // 🔹 Save or update LinkedBank info
+    const linkedBank = await LinkedBank.findOneAndUpdate(
+      { userId },
+      {
+        userId,
+        bankCode,
+        bankName,
+        accountNumber,
+        accountName,
+        bvn,
+        consent,
+        providerId: result.providerId,
+        balance: result.balance || 0,
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log("LinkedBank saved/updated:", linkedBank);
+    return res.json({ success: true, linkedBank });
+  } catch (err) {
+    console.error("createWallet error", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+},
 
   // GET /api/banks/list
   async banksList(req, res) {
@@ -80,31 +106,38 @@ module.exports = {
     }
   },
 
-  // POST /api/banks/link
-  async linkBank(req, res) {
-    try {
-      const userId = req.session.user ? req.session.user._id : req.session.worker.adminId;
-      const { bank, accountNumber, bvn, pin, consent } = req.body;
-      if (!consent) return res.json({ success: false, message: 'Consent required' });
+async linkBank(req, res) {
+  try {
+    const userId = req.session.user ? req.session.user._id : req.session.worker.adminId;
+    const { bankCode, bankName, accountNumber, accountName, bvn, consent } = req.body;
 
-      // Save linked bank directly (since OnePipe is removed)
-      const linked = new LinkedBank({
-        userId,
-        bankCode: bank,
-        bankName: bank, // map properly if you want
-        accountNumber,
-        accountName: null,
-        providerId: null,
-        balance: 0,
-        metadata: { bank, accountNumber, bvn, pin },
-      });
-      await linked.save();
-      return res.json({ success: true, linked });
-    } catch (err) {
-      console.error('linkBank error', err);
-      res.status(500).json({ success: false, message: 'Server error' });
+    // Validate required fields
+    if (!consent) {
+      return res.json({ success: false, message: 'Consent required' });
     }
-  },
+    if (!bankCode || !accountNumber || !accountName) {
+      return res.json({ success: false, message: 'Bank code, account number, and account name are required' });
+    }
+
+    // Save linked bank
+    const linked = new LinkedBank({
+      userId,
+      bankCode,
+      bankName,
+      accountNumber,
+      accountName,
+      providerId: null,
+      balance: 0,
+      metadata: { bankCode, bankName, accountNumber, accountName, bvn: bvn || null },
+    });
+
+    await linked.save();
+    return res.json({ success: true, linked });
+  } catch (err) {
+    console.error('linkBank error', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+},
 
   // GET /api/linked-banks
   async getLinkedBanks(req, res) {
