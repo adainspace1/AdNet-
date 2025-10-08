@@ -107,7 +107,7 @@ setInterval(() => {
           {
             label: "Sales",
             data: weeklyData,
-            backgroundColor: "#F5F5DC",
+            backgroundColor: "#60a5fa",
             borderWidth: 3,
             borderRadius: 6,
             hoverBackgroundColor: "#60a5fa",
@@ -308,7 +308,7 @@ const weeklyData2 = window.weeklySalesData || [];
         {
           label: "Sales",
           data: weeklyData2,
-          backgroundColor: "#F5F5DC",
+          backgroundColor: "#60a5fa",
           borderWidth: 3,
           borderRadius: 6,
           hoverBackgroundColor: "#60a5fa",
