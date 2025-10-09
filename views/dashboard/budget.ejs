@@ -26,17 +26,17 @@
 
 
     <div class="container">
-  <h1>💰 Budget Manager</h1>
+  <h1> Budget Manager</h1>
 
   <!-- Dashboard UI Sections -->
   <section class="dashboard">
 
-  <!-- 🔁 RECURRING Budgets -->
+  <!--  RECURRING Budgets -->
   <div class="dashboard-section">
-    <h2>🔁 Recurring Budgets</h2>
+    <h2> Recurring Budgets</h2>
     
-      <!-- ➕ CREATE Button -->
-  <button class="create-btn" id="createBudgetBtn">➕ Create New Budget</button>
+      <!--  CREATE Button -->
+  <button class="create-btn" id="createBudgetBtn"> Create </button>
 
     <% const recurringBudgets = budgets.filter(b => b.recurrence !== 'none'); %>
     <% if (recurringBudgets.length === 0) { %>
@@ -61,9 +61,9 @@
     <% } %>
   </div>
 
-  <!-- 📅 CURRENT Budgets (with spending) -->
+  <!--  CURRENT Budgets (with spending) -->
   <div class="dashboard-section">
-    <h2>📅 Current Budgets (Used)</h2>
+    <h2> Current Budgets (Used)</h2>
     <% const currentBudgets = budgets.filter(b => (!b.recurrence || b.recurrence === 'none') && b.amount !== b.currentamount); %>
     <% if (currentBudgets.length === 0) { %>
       <p style="color: gray;">No used current budgets to display.</p>
@@ -82,9 +82,9 @@
     <% } %>
   </div>
 
-  <!-- 📊 Budget Usage Summary -->
+  <!--  Budget Usage Summary -->
   <div class="dashboard-section">
-    <h2>📊 Budget Usage Summary</h2>
+    <h2> Budget Usage Summary</h2>
     <% if (budgets.length === 0) { %>
       <p style="color: gray;">No budget data available yet.</p>
     <% } else { %>
@@ -94,9 +94,9 @@
     <% } %>
   </div>
 
-  <!-- 📂 ARCHIVED Budgets -->
+  <!--  ARCHIVED Budgets -->
   <div class="dashboard-section">
-    <h2>📂 Archived / Expired Budgets</h2>
+    <h2> Archived / Expired Budgets</h2>
     <% const archivedBudgets = budgets.filter(b => b.endDate && new Date(b.endDate) < new Date()); %>
     <% if (archivedBudgets.length === 0) { %>
       <p style="color: gray;">No archived budgets to display.</p>

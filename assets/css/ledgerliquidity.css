@@ -17,7 +17,10 @@
       transition: transform 0.3s ease;
     }
 
- 
+    .container h1,
+    .container h2{
+      font-weight: 500;
+    }
     label {
       font-weight: 600;
     }

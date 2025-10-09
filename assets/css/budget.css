@@ -22,10 +22,10 @@ html body{
 
 /* Main Title */
 .container h1 {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+  text-align: left;
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
   background-color: #007bff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
