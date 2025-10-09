@@ -15,6 +15,8 @@
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
@@ -42,7 +44,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1><i class="fas fa-boxes"></i> Inventory Tracking</h1>
+            <h1>Inventory Tracking</h1>
             <p>Manage and monitor all stock items in real-time</p>
         </div>
 
@@ -126,7 +128,8 @@
                         <td>₦<%= item.unitPrice.toFixed(2) %></td>
                         <td><%= item.reorderLevel %></td>
                         <td><%= item.supplier %></td>
-                        <td><span class="status-badge status-<%= item.status.replace(' ', '-').toLowerCase() %>"><%= item.status %></span></td>
+                        <td class="stat"><span class="status-badge status-<%= item.status.replace(' ', '-').toLowerCase() %>"><%= item.status %></span></td>
+
                         <td><%= new Date(item.lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
                         <td>
                             <div class="action-buttons">

@@ -27,8 +27,8 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 500;
             background:#1a73e8;
             color: #1a73e8;
             -webkit-background-clip: text;
@@ -38,7 +38,7 @@
 
         .header p {
             color: #666;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .kpi-section {
@@ -65,7 +65,7 @@
         }
 
         .kpi-card .icon {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             margin-bottom: 15px;
             background: #1a73e8;
             -webkit-background-clip: text;
@@ -74,7 +74,7 @@
 
         .kpi-card .value {
             font-size: 2.2rem;
-            font-weight: 700;
+            font-weight: 500;
             color: #333;
             margin-bottom: 5px;
         }
@@ -190,11 +190,16 @@
             margin-top: 20px;
         }
 
-        .inventory-table th,
+         .inventory-table th,
         .inventory-table td {
             padding: 15px 10px;
             text-align: left;
             border-bottom: 1px solid #e8e8e8;
+            min-width: 100px;
+        }
+
+        #inventoryTableBody .stat{
+            min-width: 150px;
         }
 
         .inventory-table th {
@@ -434,4 +439,43 @@
         padding: 8px 12px;
         font-size: 0.9rem;
     }
+}
+
+
+@media (max-width: 768px) {
+
+    .controls{
+        padding: 20px 5px;
+    }
+
+    .controls  .controls-row {
+        padding: 0px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+    }
+    .controls  .controls-row .search-filter {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        width: 97%;
+        min-width: 95%;
+    }
+    .controls .controls-row .search-filter .search-box{
+        width: 97%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+    .controls .controls-row .search-filter .search-box input{
+        width: 85%;
+        padding: 10px 10px;
+    }
+
+    .controls .controls-row .search-filter .filter-select{
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+
 }

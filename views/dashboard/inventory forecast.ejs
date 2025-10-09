@@ -39,14 +39,8 @@
   
     <div class="container">
         <div class="header">
-                <div class="breadcrumb">
-                <a href="#" onclick="goBack()"><i class="fas fa-home"></i> Adnet</a>
-                <span class="separator">></span>
-                <a href="#" onclick="goToInventory()"><i class="fas fa-boxes"></i> Inventory Management</a>
-                <span class="separator">></span>
-                <span><i class="fas fa-chart-line"></i> Inventory Forecasting</span>
-            </div>
-            <h1>📊 Inventory Forecasting</h1>
+               
+            <h1>Inventory Forecasting</h1>
             <p class="subtitle">Intelligently predict future inventory needs using sales velocity, lead time, and historical data to prevent stockouts and optimize replenishment.</p>
         </div>
 
@@ -114,12 +108,12 @@
     <input type="number" id="holdingCost" step="0.01" placeholder="For EOQ calculation">
   </div>
 
-  <button type="submit" class="btn">🚀 Generate Forecast</button>
+  <button type="submit" class="btn"> Generate Forecast</button>
 </form>
 
 
             <div class="results-section">
-                <h2>📈 Forecast Results</h2>
+                <h2> Forecast Results</h2>
                 <div id="resultsContent" class="hidden">
                     <div class="metrics-grid">
                         <div class="metric-card">
@@ -141,12 +135,12 @@
                     </div>
 
                     <div class="recommendations">
-                        <h3>🎯 Smart Recommendations</h3>
+                        <h3> Smart Recommendations</h3>
                         <div id="recommendationsList"></div>
                     </div>
 
                       <div class="recommendations">
-                            <h3>📅 7-Day Forecast Snapshot</h3>
+                            <h3> 7-Day Forecast Snapshot</h3>
                                 <ul>
                                 <% projectedUsage.forEach(day => { %>
                                     <li><strong><%= day.day %></strong>: <%= day.forecast.toFixed(2) %> units projected</li>
@@ -158,13 +152,13 @@
                 </div>
 
                 <div id="noResults" class="alert alert-warning">
-                    📝 Complete the form above to generate your inventory forecast and recommendations.
+                     Complete the form above to generate your inventory forecast and recommendations.
                 </div>
             </div>
         </div>
 
         <div class="charts-section">
-            <h2>📊 Visual Analytics</h2>
+            <h2> Visual Analytics</h2>
             <div class="charts-grid">
                 <div class="chart-container">
                     <h3>Sales Forecast vs Historical</h3>
@@ -436,7 +430,6 @@
             }
         });
     </script> -->
-
 
 
 

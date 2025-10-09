@@ -107,18 +107,46 @@ body {
     transform: translateX(0);
   }
   .sidebar.active {
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
     padding: 0;
     transform: translateX(0%);
     transition: transform var(--transition-speed), width var(--transition-speed);
   
 }
-.sidebar .all-dropdown-btn .dropdown-btn span{
-  display: block;
-  width: 30px;
-  height: 30px;
-  opacity: 1;
-}
+
+    .sidebar.active .nav-link span,
+  .sidebar.active .dropdown-btn span,
+  .sidebar.active .logout-link span,
+  .sidebar.active .sidebar-header h3,
+  .sidebar.active .dropdown-btn .chevron {
+    display: inline;
+    opacity: 1;
+  }
+
+  .sidebar.active .nav-link,
+  .sidebar.active .dropdown-btn,
+  .sidebar.active .logout-link {
+    justify-content: flex-start;
+    padding: 12px 24px;
+    text-align: left;
+  }
+    .sidebar:hover .nav-link span,
+  .sidebar:hover .dropdown-btn span,
+  .sidebar:hover .logout-link span,
+  .sidebar:hover .sidebar-header h3,
+  .sidebar:hover .dropdown-btn .chevron {
+    display: inline;
+    opacity: 1;
+  }
+
+  .sidebar:hover .nav-link,
+  .sidebar:hover .dropdown-btn,
+  .sidebar:hover .logout-link {
+    justify-content: flex-start;
+    padding: 12px 24px;
+    text-align: left;
+  }
 }
 
 .sidebar-header {
@@ -508,31 +536,39 @@ body {
     margin-left: 0;
   }
 
-  .sidebar.mobile-open .nav-link span,
-  .sidebar.mobile-open .dropdown-btn span,
-  .sidebar.mobile-open .logout-link span,
-  .sidebar.mobile-open .sidebar-header h3,
-  .sidebar.mobile-open .dropdown-btn .chevron {
+      .sidebar.active .nav-link span,
+  .sidebar.active .dropdown-btn span,
+  .sidebar.active .logout-link span,
+  .sidebar.active .sidebar-header h3,
+  .sidebar.active .dropdown-btn .chevron {
     display: inline;
     opacity: 1;
   }
 
-  .sidebar.mobile-open .nav-link,
-  .sidebar.mobile-open .dropdown-btn,
-  .sidebar.mobile-open .logout-link {
+  .sidebar.active .nav-link,
+  .sidebar.active .dropdown-btn,
+  .sidebar.active .logout-link {
+    justify-content: flex-start;
+    padding: 12px 24px;
+    text-align: left;
+  }
+    .sidebar:hover .nav-link span,
+  .sidebar:hover .dropdown-btn span,
+  .sidebar:hover .logout-link span,
+  .sidebar:hover .sidebar-header h3,
+  .sidebar:hover .dropdown-btn .chevron {
+    display: inline;
+    opacity: 1;
+  }
+
+  .sidebar:hover .nav-link,
+  .sidebar:hover .dropdown-btn,
+  .sidebar:hover .logout-link {
     justify-content: flex-start;
     padding: 12px 24px;
     text-align: left;
   }
 
-  .sidebar.mobile-open .sidebar-header {
-    justify-content: flex-start;
-    padding: 0 24px 24px;
-  }
-
-  .sidebar.mobile-open .sidebar-header img {
-    margin-right: 12px;
-  }
 }
 
 /* Mobile styles */
@@ -551,51 +587,61 @@ body {
   }
 
   .sidebar {
-    width: 280px;
+    width: 100%;
+    max-width: 280px;
   }
 
   .sidebar.mobile-open {
-    width: 280px;
+    width: 100%;
+    max-width: 280px;
   }
-#icons{
-    margin-left: -250px;
-    
-}
-  .sidebar.mobile-open .nav-link span,
-  .sidebar.mobile-open .dropdown-btn span,
-  .sidebar.mobile-open .logout-link span,
-  .sidebar.mobile-open .sidebar-header h3,
-  .sidebar.mobile-open .dropdown-btn .chevron {
+
+
+
+    .sidebar.active .nav-link span,
+  .sidebar.active .dropdown-btn span,
+  .sidebar.active .logout-link span,
+  .sidebar.active .sidebar-header h3,
+  .sidebar.active .dropdown-btn .chevron {
     display: inline;
     opacity: 1;
   }
 
-  .sidebar.mobile-open .nav-link,
-  .sidebar.mobile-open .dropdown-btn,
-  .sidebar.mobile-open .logout-link {
+  .sidebar.active .nav-link,
+  .sidebar.active .dropdown-btn,
+  .sidebar.active .logout-link {
+    justify-content: flex-start;
+    padding: 12px 24px;
+    text-align: left;
+  }
+    .sidebar:hover .nav-link span,
+  .sidebar:hover .dropdown-btn span,
+  .sidebar:hover .logout-link span,
+  .sidebar:hover .sidebar-header h3,
+  .sidebar:hover .dropdown-btn .chevron {
+    display: inline;
+    opacity: 1;
+  }
+
+  .sidebar:hover .nav-link,
+  .sidebar:hover .dropdown-btn,
+  .sidebar:hover .logout-link {
     justify-content: flex-start;
     padding: 12px 24px;
     text-align: left;
   }
 
-  .sidebar.mobile-open .sidebar-header {
-    justify-content: flex-start;
-    padding: 0 24px 24px;
-  }
 
-  .sidebar.mobile-open .sidebar-header img {
-    margin-right: 12px;
-  }
 }
 
 /* Small mobile styles */
 @media (max-width: 480px) {
   .sidebar {
-    width: 260px;
+    width: 100%;
   }
 
   .sidebar.mobile-open {
-    width: 260px;
+    width: 100%;
   }
 
   .main-content {

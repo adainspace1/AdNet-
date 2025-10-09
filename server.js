@@ -655,11 +655,9 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
 // ================== FINNHUB WEBSOCKET ==================
 let ws;
 function setupFinnhubWebsocket() {
-  console.log("🔁 Setting up Finnhub WebSocket...");
   ws = new WebSocket(FINNHUB_WS);
 
   ws.on("open", () => {
-    console.log("✅ Finnhub WebSocket Connected");
     ws.send(JSON.stringify({ type: "subscribe", symbol: "AAPL" }));
     ws.send(JSON.stringify({ type: "subscribe", symbol: "TSLA" }));
   });
@@ -678,7 +676,6 @@ function setupFinnhubWebsocket() {
   });
 
   ws.on("close", () => {
-    console.log("🔌 WS closed — reconnecting in 5s...");
     setTimeout(setupFinnhubWebsocket, 5000);
   });
 }
@@ -4074,7 +4071,134 @@ if (alerts.length === 0) {
 });
 
 
+// GET /api/charts - Fetch chart data for report and analysis
+app.get('/charts', ensureAuthenticated, async (req, res) => {
+  try {
+    const { startDate, endDate, category, supplier } = req.query;
 
+    // Determine user ID (admin or worker)
+    let recipientId = null;
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+    } else {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    // Build query filters
+    const inventoryQuery = {};
+    const salesQuery = {};
+
+    if (startDate || endDate) {
+      const dateFilter = {};
+      if (startDate) dateFilter.$gte = new Date(startDate);
+      if (endDate) dateFilter.$lte = new Date(endDate);
+      inventoryQuery.addedDate = dateFilter;
+      salesQuery.date = dateFilter;
+    }
+
+    if (category) {
+      inventoryQuery.category = category;
+      salesQuery.category = category;
+    }
+    if (supplier) {
+      inventoryQuery.supplier = supplier;
+      salesQuery.supplier = supplier;
+    }
+
+    // Fetch data for charts
+    const monthlyData = await Sales.aggregate([
+      {
+        $match: salesQuery,
+      },
+      {
+        $group: {
+          _id: { month: { $month: '$date' }, year: { $year: '$date' } },
+          totalSales: { $sum: { $multiply: ['$quantity', '$cost'] } },
+        },
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
+    ]);
+
+    // Calculate turnover for the current period
+    const inventory = await Inventory.find(inventoryQuery);
+    const sales = await Sales.find(salesQuery);
+
+    const totalSalesValue = sales.reduce((sum, s) => {
+      const qty = Number(s.quantity) || 0;
+      const unitPrice = Number(s.unitPrice) || 0;
+      return sum + qty * unitPrice;
+    }, 0);
+
+    const totalStartInventory = inventory.reduce((sum, i) => {
+      const qty = Number(i.quantity) || 0;
+      const cost = Number(i.bcost) || 0;
+      return sum + qty * cost;
+    }, 0);
+
+    const totalEndInventory = inventory.reduce((sum, i) => {
+      const qty = Number(i.currentquantity) || 0;
+      const cost = Number(i.bcost) || 0;
+      return sum + qty * cost;
+    }, 0);
+
+    const avgInventoryValue = (totalStartInventory + totalEndInventory) / 2;
+    const turnover = avgInventoryValue > 0 ? totalSalesValue / avgInventoryValue : 0;
+
+    const turnoverTrend = monthlyData.map(m => ({
+      label: `${m._id.month}/${m._id.year}`,
+      turnover: turnover.toFixed(2),
+    }));
+
+    const fillRateBySupplier = await Sales.aggregate([
+      {
+        $match: salesQuery,
+      },
+      {
+        $group: {
+          _id: '$supplier',
+          totalPurchased: { $sum: '$quantity' },
+          totalOrdered: { $sum: { $ifNull: ['$itemsOrdered', '$quantity'] } },
+        },
+      },
+      {
+        $project: {
+          supplier: '$_id',
+          fillRate: {
+            $cond: [
+              { $gt: ['$totalOrdered', 0] },
+              { $multiply: [{ $divide: ['$totalPurchased', '$totalOrdered'] }, 100] },
+              0,
+            ],
+          },
+        },
+      },
+    ]);
+
+    const stockDistribution = await Inventory.aggregate([
+      {
+        $match: inventoryQuery,
+      },
+      { $group: { _id: '$category', totalStock: { $sum: '$currentquantity' } } },
+    ]);
+
+    // Return chart data
+    res.json({
+      success: true,
+      charts: {
+        monthlyData,
+        turnoverTrend,
+        fillRateBySupplier,
+        stockDistribution,
+      },
+    });
+    console.log('Chart data sent successfully');
+  } catch (err) {
+    console.error('Error fetching chart data:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 
 

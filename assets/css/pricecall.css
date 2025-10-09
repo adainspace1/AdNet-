@@ -25,7 +25,7 @@ header {
 
 header h1 {
     font-size: 2.5rem;
-    color: #60a5fa;
+    color: #fff;
     margin-bottom: 0.5rem;
 }
 
@@ -253,5 +253,18 @@ header p {
     
     .metric-value {
         font-size: 1.5rem;
+    }
+}
+
+
+
+@media (max-width: 480px) {
+    .calculator-section{
+        padding: 20px 10px;
+    }
+    .calculator-section .form-group{
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
     }
 }

@@ -426,7 +426,7 @@ function renderSalesTable(salesData) {
             <td>${sale.total.toLocaleString()}</td>
             <td><span class="payment-method">${sale.paymentMethod}</span></td>
             <td><span class="status-badge ${statusClass}">${sale.invoiceStatus}</span></td>
-            <td>
+            <td class="actions-cell">
                 <button class="btn btn-primary" onclick="generateInvoice('${sale.id}')" style="padding: 6px 12px; font-size: 0.8rem;">
                     <i data-lucide="file-text"></i>
                     Invoice

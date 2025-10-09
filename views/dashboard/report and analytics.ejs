@@ -31,16 +31,9 @@
       <div class="main-content">
         <%- include ("_topnav") %>
 <div class="container">
-    <!-- Breadcrumb Navigation -->
-    <nav class="breadcrumb">
-        <a href="#dashboard">Dashboard</a> &gt;
-        <a href="#inventory">Inventory Management</a> &gt;
-        <span>Reports & Analytics</span>
-    </nav>
-
     <!-- Header -->
     <div class="header">
-        <h1>📊 Inventory Reports & Analytics</h1>
+        <h1>Inventory Reports & Analytics</h1>
         <p>Data-driven insights for optimal inventory performance</p>
     </div>
 
@@ -54,8 +47,8 @@
         <select name="supplier" id="supplierFilter">
             <option value="">All Suppliers</option>
         </select>
-        <button type="submit">🔄 Refresh Data</button>
-        <button type="button" onclick="generateReport()">📋 Generate Report</button>
+        <button type="submit">Refresh Data</button>
+        <button type="button" onclick="generateReport()"> Generate Report</button>
     </form>
 
 <!-- KPIs -->
@@ -105,19 +98,19 @@
 <!-- Charts -->
 <div class="charts-grid">
     <div class="chart-container">
-        <h3>📈 Monthly Sales vs Inventory Trend</h3>
+        <h3> Monthly Sales vs Inventory Trend</h3>
         <canvas id="salesInventoryChart"></canvas>
     </div>
     <div class="chart-container">
-        <h3>📊 Turnover Ratio Trend</h3>
+        <h3> Turnover Ratio Trend</h3>
         <canvas id="turnoverTrendChart"></canvas>
     </div>
     <div class="chart-container">
-        <h3>🥧 Fill Rate by Supplier</h3>
+        <h3> Fill Rate by Supplier</h3>
         <canvas id="fillRateChart"></canvas>
     </div>
     <div class="chart-container">
-        <h3>📊 Stock Level Distribution</h3>
+        <h3> Stock Level Distribution</h3>
         <canvas id="stockDistributionChart"></canvas>
     </div>
 </div>
@@ -125,7 +118,7 @@
 <!-- Data Table -->
 <div class="data-table-container">
     <div class="table-header">
-        <h3>📋 Detailed Inventory Performance</h3>
+        <h3> Detailed Inventory Performance</h3>
     </div>
     <table>
         <thead>
@@ -161,7 +154,7 @@
 
 <!-- Alerts -->
 <div class="alerts-section">
-    <h3>⚠️ Performance Alerts & Recommendations</h3>
+    <h3> Performance Alerts & Recommendations</h3>
     <% alerts.forEach(alert => { %>
         <div class="alert-item"><%= alert %></div>
     <% }) %>
@@ -169,10 +162,10 @@
 
 </div>
 
-<!-- ✅ Chart.js CDN -->
+<!--  Chart.js CDN -->
  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  <script>
-// ✅ Helper: format big numbers (2M, 33K, etc.)
+//  Helper: format big numbers (2M, 33K, etc.)
 function formatCompactNumber(num) {
   return new Intl.NumberFormat("en", {
     notation: "compact",
@@ -181,7 +174,7 @@ function formatCompactNumber(num) {
   }).format(num);
 }
 
-// ✅ Format initial KPI values when page loads
+//  Format initial KPI values when page loads
 document.addEventListener("DOMContentLoaded", () => {
   const turnover = document.getElementById("turnoverValue");
   const avgInventory = document.getElementById("avgInventoryValue");
@@ -196,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (fillRate) fillRate.textContent = formatCompactNumber(parseFloat(fillRate.textContent)) + "%";
 });
 
-// ✅ Form submit (AJAX KPI update)
+//  Form submit (AJAX KPI update)
 document.getElementById("reportForm").addEventListener("submit", function(e) {
   e.preventDefault();
 
@@ -216,7 +209,7 @@ document.getElementById("reportForm").addEventListener("submit", function(e) {
     .catch(err => console.error("Error fetching KPI data:", err));
 });
 
-// ✅ Standalone refresh button
+//  Standalone refresh button
 async function refreshData() {
   const startDate = document.querySelector('input[name="startDate"]').value;
   const endDate = document.querySelector('input[name="endDate"]').value;
@@ -237,7 +230,7 @@ async function refreshData() {
   }
 }
 
-// ✅ Generate PDF
+//  Generate PDF
 function generateReport() {
   const table = document.querySelector(".data-table-container table");
   if (!table) return alert("No data table found!");
@@ -248,7 +241,7 @@ function generateReport() {
   });
 }
 
-// ✅ Initialize Charts
+//   Initialize Charts
 document.addEventListener('DOMContentLoaded', function() {
   const chartsData = <%- JSON.stringify(charts) %>;
 
