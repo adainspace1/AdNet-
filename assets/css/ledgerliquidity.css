@@ -109,11 +109,21 @@
       font-weight: 700;
       font-size: 18px;
       color: #ffffff;
+      flex-wrap: wrap;
     }
     .summary div {
       text-align: center;
     }
+    .summary p,
+    .summary h4{
+      font-weight: 400;
+    }
 
+    @media (max-width: 500px){
+      .summary{
+        flex-direction: column;
+      }
+    }
 
 
     .formcontainer {
@@ -184,4 +194,23 @@
     }
     .overlay.show {
       display: block;
+    }
+
+
+    
+
+
+
+    .dt{
+      width: 100%;
+      overflow-x: scroll;
+    }
+
+    @media (max-width: 500px){
+      .two{
+        padding: 10px;
+      }
+      .container{
+        padding: 10px;
+      }
     }

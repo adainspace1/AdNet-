@@ -12,8 +12,8 @@
             color: #333;
         }
 
-        .dashboard-container {
-            max-width: 1400px;
+        .container {
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
         }
@@ -41,6 +41,16 @@
             font-size: 1.1rem;
             opacity: 0.9;
             font-weight: 300;
+        }
+
+        @media (max-width: 500px){
+            .dashboard-header{
+                flex-wrap: wrap;
+            }
+            .dashboard-header .oneaside{
+                width: 100%;
+                margin-bottom: 20px;
+            }
         }
 
         .tab-container {
@@ -172,6 +182,17 @@
             font-size: 0.85rem;
         }
 
+        
+        @media (max-width: 500px){
+            .export-buttons{
+                flex-wrap: wrap;
+            }
+            .btn{
+                padding: 15px 30px;
+            }
+        }
+
+
         .btn-primary {
             background: linear-gradient(135deg, #2d9bdb 0%, #007bff 100%);
             color: #ffffff;
@@ -225,6 +246,7 @@
             padding: 15px;
             border-bottom: 1px solid #f3f3f3;
             vertical-align: middle;
+            min-width: 150px;
         }
 
         .table tbody tr {
