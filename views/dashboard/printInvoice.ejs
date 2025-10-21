@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice - <%= sale.custormername %></title>
+      <link rel="stylesheet" href="/css/dashall.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+  <style>
+    body {
+      background-color: #031224;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+    .invoice-box {
+      background: #fff;
+      color: #222;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .invoice-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .invoice-details p {
+      margin: 4px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f1f1f1;
+    }
+    .total {
+      text-align: right;
+      margin-top: 15px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .btn {
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.2s ease;
+    }
+    .btn:hover {
+      background: #1d4ed8;
+    }
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .btn {
+        display: none;
+      }
+      .invoice-box {
+        box-shadow: none;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <div class="invoice-header">
+      <h2> Invoice</h2>
+      <p><strong>Date:</strong> <%= new Date(sale.date).toLocaleString() %></p>
+    </div>
+
+    <div class="invoice-details">
+      <p><strong>Customer:</strong> <%= sale.custormername %></p>
+      <p><strong>Payment Method:</strong> <%= sale.paymentMethod %></p>
+      <% if (sale.discription) { %>
+        <p><strong>Description:</strong> <%= sale.discription %></p>
+      <% } %>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sale.items.forEach(itm => { %>
+          <tr>
+            <td><%= itm.itemName %></td>
+            <td><%= itm.quantity %></td>
+            <td>₦<%= itm.unitPrice.toLocaleString() %></td>
+            <td>₦<%= itm.amount.toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <p class="total">Grand Total: ₦<%= sale.totalAmount.toLocaleString() %></p>
+
+    <button class="btn" onclick="window.print()">🖨️ Print Invoice</button>
+  </div>
+</body>
+</html>

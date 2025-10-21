@@ -10,23 +10,36 @@ const saleSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  item: {
-    type: String,
-    required: true
-  },
-   unitPrice: {
+  items: [
+    {
+      itemId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Inventory',
+        required: true
+      },
+      itemName: {
+        type: String,
+        required: true
+      },
+      unitPrice: {
+        type: Number,
+        required: true
+      },
+      quantity: {
+        type: Number,
+        required: true
+      },
+      amount: {
+        type: Number,
+        required: true
+      }
+    }
+  ],
+  totalAmount: {
     type: Number,
     required: true
   },
-  quantity: {
-    type: Number,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-    paymentMethod: {
+  paymentMethod: {
     type: String,
     required: true
   },
@@ -35,8 +48,7 @@ const saleSchema = new mongoose.Schema({
     required: true
   },
   discription: {
-    type: String,
-    required: false
+    type: String
   },
   date: {
     type: Date,

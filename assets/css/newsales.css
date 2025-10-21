@@ -6,19 +6,13 @@
   font-family: poppins, sans-serif;
 }
 body {
-  height: 100%;
     font-family: poppins, sans-serif;
   line-height: 1.6;
   margin: 0;
   background-color: #031224;
   color: #0c0c0c;
-  overflow: hidden;
 }
-.main-content {
-  height: 100vh;
-  overflow: hidden;
-  overflow-y: scroll;
-}
+
 .container {
   width: 100%;
   background: white;
@@ -40,18 +34,7 @@ body {
   border-radius: 10px;
 }
 
-/* Modal styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-}
+
 .modal-content {
   background-color: white;
   margin: 5% auto;
@@ -262,48 +245,382 @@ table{
 
 
 
-
-
 #saleModal {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 5000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
-  align-items: start;
+  align-items: center;
+  padding: 20px;
 }
+
 #saleModal.hidden {
   display: flex;
 }
-.dsalemodel{
-  max-width: 600px;
-  width: 90%;
-  padding: 15px 0px;
-  background-color: white;
+
+.dsalemodel {
+  max-width: 800px;
+  width: 95%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: auto;
+}
+
+.dsalemodel h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.dsalemodel form {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  border-radius: 5px;
+  justify-content: space-between;
+  gap: 1rem;
 }
-.dsalemodel form{
-  width: 90%;
+
+.dsalemodel #itemsContainer {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
 }
+
+.dsalemodel #itemsContainer .inside{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.dsalemodel #itemsContainer .item-row {
+  position: relative;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #f9fafb;
+}
+
+.dsalemodel .removeItemBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: color 0.2s;
+}
+
+.dsalemodel .removeItemBtn:hover {
+  color: #b91c1c;
+}
+
+.dsalemodel .form-group {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dsalemodel .form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
 .dsalemodel form input,
-.dsalemodel form select {
+.dsalemodel form select,
+.dsalemodel form textarea {
   width: 100%;
-  margin-bottom: 3px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background-color: #fff;
+  transition: border-color 0.2s;
 }
-.dsalemodel form textarea{
+
+.dsalemodel form input:focus,
+.dsalemodel form select:focus,
+.dsalemodel form textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dsalemodel form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.dsalemodel #addItemBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #dbeafe;
+  color: #2563eb;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  width: 90%;
+  height: 40px;
+}
+
+.dsalemodel #addItemBtn:hover {
+  background-color: #bfdbfe;
+}
+
+.dsalemodel .flex.justify-between {
+  display: flex;
   width: 100%;
-  margin-bottom: 3px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  height: 100px;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dsalemodel .flex.justify-between button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.dsalemodel .flex.justify-between button[type="button"] {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.dsalemodel .flex.justify-between button[type="button"]:hover {
+  background-color: #d1d5db;
+}
+
+.dsalemodel .flex.justify-between button[type="submit"] {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.dsalemodel .flex.justify-between button[type="submit"]:hover {
+  background-color: #1d4ed8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .dsalemodel {
+    padding: 16px;
+  }
+
+  .dsalemodel h3 {
+    font-size: 1.25rem;
+  }
+
+  .dsalemodel .item-row {
+    padding: 1rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Invoice Modal Styles */
+#invoiceModal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+#invoiceModal.flex {
+  display: flex;
+}
+
+#invoiceModal > div {
+  max-width: 600px;
+  width: 95%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+#closeModal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+#closeModal:hover {
+  color: #1f2937;
+}
+
+#invoiceContent {
+  color: #1f2937;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+#invoiceContent h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+#invoiceContent p {
+  margin-bottom: 0.5rem;
+}
+
+#invoiceContent hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 1rem 0;
+}
+#invoiceContent .slid{
+  width: 100%;
+  overflow: hidden;
+  overflow-x: scroll;
+}
+#invoiceContent table {
+  width: 100%;
+  min-width: 500px;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+#invoiceContent table th,
+#invoiceContent table td {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+#invoiceContent table th {
+  background-color: #f3f4f6;
+  font-weight: 500;
+  text-align: left;
+}
+
+#invoiceContent table td {
+  text-align: center;
+}
+
+#invoiceContent table td:first-child {
+  text-align: left;
+}
+
+#invoiceContent h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+#invoiceContent p.text-gray-600 {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+#printInvoice {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#printInvoice:hover {
+  background-color: #1d4ed8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #invoiceModal > div {
+    padding: 16px;
+  }
+
+  #invoiceContent h2 {
+    font-size: 1.25rem;
+  }
+
+  #invoiceContent table th,
+  #invoiceContent table td {
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Print-specific styles */
+@media print {
+  #invoiceModal {
+    background-color: transparent;
+  }
+
+  #invoiceModal > div {
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+
+  #closeModal,
+  #printInvoice {
+    display: none;
+  }
+
+  #invoiceContent {
+    font-size: 12pt;
+  }
+
+  #invoiceContent table {
+    border-collapse: collapse;
+  }
+
+  #invoiceContent table th,
+  #invoiceContent table td {
+    border: 1px solid #000;
+    padding: 5pt;
+  }
+}
+.btn{
+  text-decoration: none;
+  background-color: #3b82f6;
+  color: #fff;
+  font-weight: 400;
+  border-radius: 8px;
+  padding: 10px 20px;
 }

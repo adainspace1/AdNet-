@@ -32,21 +32,36 @@
             <div class="container">
         <h1>Sales Record System</h1>
         
-        <!-- Summary Section (moved to top) -->
-        <div class="summary-section" style="background:#f8faff;border:1px solid #e1e8f5;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-    <h3 style="margin-bottom:12px;font-size:20px;color:#0c0c0c;font-weight:500;">Sales Summary</h3>
-    <p style="font-size:15px;margin:6px 0;">Total Sales: 
-      <strong id="totalSalesCount" style="color:#1a73e8;font-weight:600;"><%= totalSalesToday %></strong>
-    </p>
-    <p style="font-size:15px;margin:6px 0;">Total Revenue: 
-      <strong id="totalRevenue" style="color:#1a73e8;font-weight:600;">₦<%= totalAmountToday %></strong>
-    </p>
+<div class="summary-section" style="background:#f8faff;border:1px solid #e1e8f5;padding:20px;border-radius:16px;margin-bottom:25px;box-shadow:0 3px 8px rgba(0,0,0,0.06);">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <h3 style="font-size:20px;color:#0c0c0c;font-weight:600;margin:0;">Sales Summary</h3>
+    
+    <!-- Add New Sale Button -->
+    <div class="form-buttons">
+      <button type="button" id="openSaleFormBtn" onclick="openModal()" 
+        style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:15px;transition:0.2s;">
+        <i class="fa-solid fa-plus"></i> New Sale
+      </button>
+    </div>
   </div>
-        
-        <!-- Add New Sale Button -->
-        <div class="form-buttons" style="margin-bottom: 20px; margin-top: 20px;">
-            <button type="button" id="openSaleFormBtn" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
-        </div>
+
+  <div style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:140px;background:white;border:1px solid #e1e8f5;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.04);">
+      <p style="margin:0;font-size:14px;color:#555;">Total Sales</p>
+      <strong id="totalSalesCount" style="font-size:18px;color:#1a73e8;font-weight:700;">
+        <%= totalSalesToday %>
+      </strong>
+    </div>
+
+    <div style="flex:1;min-width:140px;background:white;border:1px solid #e1e8f5;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.04);">
+      <p style="margin:0;font-size:14px;color:#555;">Total Revenue</p>
+      <strong id="totalRevenue" style="font-size:18px;color:#1a73e8;font-weight:700;">
+        ₦<%= totalAmountToday %>
+      </strong>
+    </div>
+  </div>
+</div>
+
         
   
 
@@ -92,44 +107,105 @@
         </div>
 
 
-        <div class="salestab">
-             <!-- Sales Table -->
-        <table id="salesTable">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Customer</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                    <th>Payment</th>
-                    <th>Discription</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="salesTableBody">
-                
-               
-          <% salesitem.forEach(sale => { %>
-            <tr class="hover:bg-gray-50">
-               <td class="border px-4 py-2"><%= sale.item %></td>
-              <td class="border px-4 py-2"><%= sale.custormername %></td>
-              <td class="border px-4 py-2"><%= sale.quantity %></td>
-              <td class="border px-4 py-2"><%= sale.unitPrice %></td>
-              <td class="border px-4 py-2">₦<%= sale.amount %></td>
-              <td class="border px-4 py-2"><%= sale.paymentMethod %></td>
-              <td class="border px-4 py-2">
-                <%= sale.discription ? sale.discription : '-' %>
-              </td>
-              <td class="border px-4 py-2 text-gray-500">
-                <%= new Date(sale.date).toDateString() %>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-         
-        </table>
-        </div>
+<div class="salestab mt-6">
+  <!-- 🧾 Sales Table -->
+  <table id="salesTable" class="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+    <thead>
+      <tr class="bg-gray-100 text-left text-sm font-semibold text-gray-700">
+        <th class="px-4 py-2 border">Product(s)</th>
+        <th class="px-4 py-2 border">Customer</th>
+        <th class="px-4 py-2 border">Total</th>
+        <th class="px-4 py-2 border">Payment</th>
+        <th class="px-4 py-2 border">Description</th>
+        <th class="px-4 py-2 border">Date</th>
+        <th class="px-4 py-2 border text-center">Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% if (salesitem && salesitem.length > 0) { %>
+        <% salesitem.forEach((sale) => { %>
+          <tr class="hover:bg-gray-50 text-sm">
+            <td class="px-4 py-2 border">
+              <% if (sale.items && sale.items.length > 0) { %>
+                <% sale.items.forEach((itm, i) => { %>
+                  <span><%= itm.itemName %> (x<%= itm.quantity %>)</span>
+                  <%= i < sale.items.length - 1 ? ', ' : '' %>
+                <% }) %>
+              <% } else { %>
+                <em>No items</em>
+              <% } %>
+            </td>
+
+            <td class="px-4 py-2 border"><%= sale.custormername || "—" %></td>
+
+            <td class="px-4 py-2 border text-green-600 font-semibold">
+              ₦<%= sale.totalAmount ? sale.totalAmount.toLocaleString() : 0 %>
+            </td>
+
+            <td class="px-4 py-2 border"><%= sale.paymentMethod || "—" %></td>
+
+            <td class="px-4 py-2 border"><%= sale.discription || "—" %></td>
+
+            <td class="px-4 py-2 border"><%= new Date(sale.date).toLocaleString() %></td>
+
+            <td class="px-4 py-2 border text-center space-x-2">
+              <!-- 👁 View Button -->
+              <button
+                class="view-btn btn"
+                data-sale='<%- JSON.stringify(sale) %>'
+              >
+                View
+              </button>
+
+          
+                <a 
+  href="/print/invoice/<%= sale._id %>" 
+  target="_blank" 
+  class="print-btn btn"
+>
+  Print Invoice
+</a>
+
+
+            </td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr>
+          <td colspan="7" class="text-center py-4 text-gray-500 italic">
+            No sales found.
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- 💡 Popup Modal -->
+<div id="invoiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white w-[90%] max-w-lg rounded-lg shadow-lg p-6 relative">
+    <button id="closeModal" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl">✖</button>
+    
+    <div id="invoiceContent" class="text-sm text-gray-800"></div>
+    
+    <div class="mt-4 text-right">
+      <!-- We'll fill this dynamically -->
+      <a 
+        id="printLink"
+        href="#"
+        target="_blank"
+        class="btn"
+      >
+        Print Invoice
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
+
 
      
 
@@ -138,173 +214,316 @@
 
 
             <!-- Modal Form -->
-    <div id="saleModal" class="">
-      <div class="dsalemodel">
-        <h3 class="text-xl font-semibold mb-4">New Sale</h3>
-        <form  action="/user/createsales" method="POST">
+<div id="saleModal" class="">
+  <div class="dsalemodel">
+    <h3 class="text-xl font-semibold mb-4">New Sale</h3>
 
-            <input type="hidden" name="recipientId" value="<%= user._id %>" required>
+    <form action="/user/createsales" method="POST" id="saleForm">
+      <input type="hidden" name="recipientId" value="<%= user._id %>" required>
+      <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
 
-              <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
+      <!-- 🧾 ITEMS SECTION -->
+      <div id="itemsContainer">
+        <div class="item-row mb-4 p-4 border rounded-md bg-white shadow-sm relative inside">
 
-<label class="block mb-2">Item:</label>
-<select id="itemSelect" name="item" class="w-full border rounded px-2 py-1">
-  <option value="">Select item</option>
-  <% inventory.forEach((item) => {
-    if (item.currentquantity > 0) { %>
-      <option 
-        value="<%= item.itemName %>" 
-        data-item-id="<%= item._id %>" 
-        data-scost="<%= item.scost %>" 
-        data-currentqty="<%= item.currentquantity %>">
-        <%= item.itemName %> - Qty: <%= item.currentquantity %>
-      </option>
-  <% } }) %>
-</select>
-
-<input type="hidden" name="itemId"  id="itemId">
-
-<label for="unitPrice">Unit Price ($)</label>
-<input type="text" id="unitPrice" name="unitPrice" min="0" step="0.01" required readonly>
-
-
-
-
-          </label>
-          <label class="block mb-2">Quantity:
-            <input type="number" name="quantity" class="w-full border rounded px-2 py-1" />
-          </label>
-          <label class="block mb-2">Amount (₦):
-            <input type="number" name="amount" class="w-full border rounded px-2 py-1" readonly />
-          </label>
-          <label class="block mb-2">Custormer Name:
-            <input type="text" name="custormername" class="w-full border rounded px-2 py-1" />
-          </label>
-
-
-
-                  <label for="paymentMethod">Payment Method</label>
-                                <select id="paymentMethod" name="paymentMethod" required>
-                                    <option value="">Select payment method</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Credit Card">Credit Card</option>
-                                    <option value="Debit Card">Debit Card</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="Check">Check</option>
-                                    <option value="PayPal">PayPal</option>
-                                </select>
-
-
-
-          <label class="block mb-4">Discription:
-            <textarea type="text" name="discription" class="w-full border rounded px-2 py-1" ></textarea>
-          </label>
-          <div class="flex justify-between">
-            <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save Sale</button>
+          <!-- ❌ Remove Button -->
+          <button type="button" class="removeItemBtn absolute top-2 right-2 text-red-500 hover:text-red-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          
+          <div class="form-group mb-3">
+            <label class="block mb-1 font-medium">Item:</label>
+            <select name="items[0][itemName]" class="w-full border rounded px-2 py-1 itemSelect">
+              <option value="">Select item</option>
+              <% inventory.forEach((item) => {
+                if (item.currentquantity > 0) { %>
+                  <option 
+                    value="<%= item.itemName %>" 
+                    data-item-id="<%= item._id %>"
+                    data-scost="<%= item.scost %>"
+                    data-currentqty="<%= item.currentquantity %>">
+                    <%= item.itemName %> - Qty: <%= item.currentquantity %>
+                  </option>
+              <% } }) %>
+            </select>
           </div>
-        </form>
+
+          <input type="hidden" name="items[0][itemId]" class="itemId">
+
+          <div class="form-group mb-3">
+            <label class="block mb-1 font-medium">Unit Price (₦):</label>
+            <input type="number" name="items[0][unitPrice]" class="w-full border rounded px-2 py-1 unitPrice" readonly>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="block mb-1 font-medium">Quantity:</label>
+            <input type="number" name="items[0][quantity]" class="w-full border rounded px-2 py-1 quantity" min="1">
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="block mb-1 font-medium">Amount (₦):</label>
+            <input type="number" name="items[0][amount]" class="w-full border rounded px-2 py-1 amount" readonly>
+          </div>
+
+        </div>
       </div>
-    </div>
+
+      <button type="button" id="addItemBtn" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-md mb-4 hover:bg-blue-200 transition">
+        + Add Another Item
+      </button>
+
+      <!-- 👥 OTHER DETAILS -->
+      <div class="form-group mb-3">
+        <label class="block mb-1 font-medium">Customer Name:</label>
+        <input type="text" name="custormername" class="w-full border rounded px-2 py-1" required />
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="paymentMethod" class="block mb-1 font-medium">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" required class="w-full border rounded px-2 py-1">
+          <option value="">Select payment method</option>
+          <option value="Cash">Cash</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Debit Card">Debit Card</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Check">Check</option>
+          <option value="PayPal">PayPal</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block mb-1 font-medium">Description:</label>
+        <textarea name="discription" class="w-full border rounded px-2 py-1" rows="3"></textarea>
+      </div>
+
+      <!-- ✅ ACTION BUTTONS -->
+      <div class="flex justify-between">
+        <button type="button" onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition">
+          Cancel
+        </button>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+          Save Sale
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
 
   <script src="/js/newsales.js"></script>
 
 
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let itemIndex = 1;
+
+  const addItemBtn = document.getElementById('addItemBtn');
+  const itemsContainer = document.getElementById('itemsContainer');
+
+  // 🧱 Add new item
+  if (addItemBtn && itemsContainer) {
+    addItemBtn.addEventListener('click', () => {
+      const newRow = document.createElement('div');
+      newRow.classList.add('item-row', 'mb-4', 'p-4', 'border', 'rounded-md', 'bg-white', 'shadow-sm', 'relative', 'inside');
+      newRow.innerHTML = itemsContainer.children[0].innerHTML.replace(/\[0\]/g, `[${itemIndex}]`);
+      itemsContainer.appendChild(newRow);
+      itemIndex++;
+    });
+  }
+
+  // 💥 Remove item row
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.removeItemBtn')) {
+      const rows = document.querySelectorAll('.item-row');
+      if (rows.length > 1) {
+        e.target.closest('.item-row').remove();
+      } else {
+        alert("You must have at least one item in the sale.");
+      }
+    }
+  });
+
+  // 💰 Auto-fill price and calc total
+  document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('itemSelect')) {
+      const selected = e.target.options[e.target.selectedIndex];
+      const row = e.target.closest('.item-row');
+      row.querySelector('.unitPrice').value = selected.dataset.scost || 0;
+      row.querySelector('.itemId').value = selected.dataset.itemId || '';
+    }
+  });
+
+  // 🔢 Auto-update amount
+  document.addEventListener('input', function (e) {
+    if (e.target.classList.contains('quantity')) {
+      const row = e.target.closest('.item-row');
+      const price = parseFloat(row.querySelector('.unitPrice').value || 0);
+      const qty = parseInt(e.target.value || 0);
+      row.querySelector('.amount').value = price * qty;
+    }
+  });
+
+  // 🚫 Validate stock before submit
+  const saleForm = document.querySelector('form#saleForm');
+  if (saleForm) {
+    saleForm.addEventListener('submit', function (event) {
+      const itemRows = document.querySelectorAll('.item-row');
+      for (const row of itemRows) {
+        const selectedOption = row.querySelector('.itemSelect').selectedOptions[0];
+        if (!selectedOption) {
+          alert('Please select an item for all rows!');
+          event.preventDefault();
+          return;
+        }
+
+        const currentQty = parseInt(selectedOption.dataset.currentqty || 0, 10);
+        const quantity = parseInt(row.querySelector('.quantity').value || 0, 10);
+
+        if (currentQty <= 0) {
+          alert(`"${selectedOption.value}" is out of stock.`);
+          event.preventDefault();
+          return;
+        }
+
+        if (quantity > currentQty) {
+          alert(`Not enough stock for "${selectedOption.value}". Available: ${currentQty}`);
+          event.preventDefault();
+          return;
+        }
+      }
+    });
+  }
+
+  // 🧾 Sale Details Preview (unchanged)
+  window.showSaleDetails = function (index) {
+    const detailsContainer = document.getElementById('sale-details');
+    const allDetails = document.querySelectorAll('[id^="details-"]');
+    allDetails.forEach(div => div.classList.add('hidden'));
+
+    const selected = document.getElementById(`details-${index}`);
+    if (selected && detailsContainer) {
+      detailsContainer.innerHTML = selected.innerHTML;
+    }
+  };
+});
+</script>
+
+
+  </div>
+     </div>
+  </div>
+
+
+
+
 
   <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const itemSelect = document.getElementById("itemSelect");
-  const unitPriceInput = document.getElementById("unitPrice");
+document.querySelectorAll('.print-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sale = JSON.parse(btn.dataset.sale);
+    let printContent = `
+      <h2>Invoice</h2>
+      <p><strong>Customer:</strong> ${sale.custormername}</p>
+      <p><strong>Payment:</strong> ${sale.paymentMethod}</p>
+      <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
+      <hr>
+      <table border="1" cellspacing="0" cellpadding="5">
+        <tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+        ${sale.items.map(itm => `
+          <tr>
+            <td>${itm.itemName}</td>
+            <td>${itm.quantity}</td>
+            <td>₦${itm.unitPrice}</td>
+            <td>₦${itm.amount}</td>
+          </tr>
+        `).join('')}
+      </table>
+      <h3>Total: ₦${sale.totalAmount.toLocaleString()}</h3>
+    `;
 
-  itemSelect.addEventListener("change", function () {
-    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-    const scost = selectedOption.getAttribute("data-scost");
-
-    if (scost) {
-      unitPriceInput.value = scost;
-    } else {
-      unitPriceInput.value = "";
-    }
+    const printWindow = window.open('', '', 'width=600,height=800');
+    printWindow.document.write(printContent);
+    printWindow.print();
   });
 });
 </script>
 
 
 
-<script>
-  const itemSelect = document.querySelector('select[name="item"]');
-  const quantityInput = document.querySelector('input[name="quantity"]');
-  const amountInput = document.querySelector('input[name="amount"]');
-
-  function updateAmount() {
-    const selectedOption = itemSelect.selectedOptions[0];
-    const quantity = parseInt(quantityInput.value, 10);
-
-    if (selectedOption && !isNaN(quantity)) {
-      const scost = parseFloat(selectedOption.dataset.scost);
-      if (!isNaN(scost)) {
-        amountInput.value = scost * quantity;
-      } else {
-        amountInput.value = '';
-      }
-    } else {
-      amountInput.value = '';
-    }
-  }
-
-  itemSelect.addEventListener('change', updateAmount);
-  quantityInput.addEventListener('input', updateAmount);
-</script>
-
 
 
 
 <script>
-  document.querySelector('form').addEventListener('submit', function(event) {
-    const selectedOption = document.querySelector('select[name="item"]').selectedOptions[0];
+// 🧾 View Invoice in Popup
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sale = JSON.parse(btn.dataset.sale);
 
-    if (!selectedOption) {
-      alert('Please select an item!');
-      event.preventDefault();
-      return;
-    }
+    const invoiceHTML = `
+      <h2 class="text-lg font-semibold mb-2">Invoice</h2>
+      <p><strong>Customer:</strong> ${sale.custormername}</p>
+      <p><strong>Payment:</strong> ${sale.paymentMethod}</p>
+      <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
+      <hr class="my-3">
+      <div class="slid">
+        <table class="w-full border text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-2 py-1 text-left">Item</th>
+              <th class="border px-2 py-1">Qty</th>
+              <th class="border px-2 py-1">Unit</th>
+              <th class="border px-2 py-1">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sale.items.map(itm => `
+              <tr>
+                <td class="border px-2 py-1">${itm.itemName}</td>
+                <td class="border px-2 py-1 text-center">${itm.quantity}</td>
+                <td class="border px-2 py-1 text-center">₦${itm.unitPrice.toLocaleString()}</td>
+                <td class="border px-2 py-1 text-center">₦${itm.amount.toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <h3 class="text-right font-semibold mt-3">Total: ₦${sale.totalAmount.toLocaleString()}</h3>
+      ${sale.discription ? `<p class="mt-2 text-gray-600"><strong>Note:</strong> ${sale.discription}</p>` : ""}
+    `;
 
-    const currentQty = parseInt(selectedOption.dataset.currentqty, 10);
+    // 🧾 Fill modal content
+    document.getElementById('invoiceContent').innerHTML = invoiceHTML;
 
-    if (currentQty <= 0) {
-      alert('Item is out of stock');
-      event.preventDefault();
-    }
+    // 🔗 Update print link dynamically with sale ID
+    document.getElementById('printLink').setAttribute('href', `/print/invoice/${sale._id}`);
+
+    // 🪟 Show modal
+    const modal = document.getElementById('invoiceModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
   });
+});
+
+// ❌ Close Modal
+document.getElementById('closeModal').addEventListener('click', () => {
+  const modal = document.getElementById('invoiceModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+});
 </script>
 
 
-<script>
-  itemSelect.addEventListener('change', () => {
-    const selectedOption = itemSelect.selectedOptions[0];
-    document.getElementById('itemId').value = selectedOption.dataset.itemId || '';
-  });
-</script>
-
-
-
-<script>
-  function showSaleDetails(index) {
-    const detailsContainer = document.getElementById('sale-details');
-    const allDetails = document.querySelectorAll('[id^="details-"]');
-    allDetails.forEach(div => div.classList.add('hidden'));
-
-    const selected = document.getElementById(`details-${index}`);
-    if (selected) {
-      detailsContainer.innerHTML = selected.innerHTML;
-    }
+<!-- <script>
+  function printInvoice(saleId) {
+    window.open(`/print/invoice/${saleId}`, '_blank');
   }
-</script>
+</script> -->
 
-  </div>
-     </div>
-  </div>
+
 
 
 

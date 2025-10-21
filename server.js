@@ -1154,72 +1154,90 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 
 
-// --- Sales page (list + today's totals) ---
-app.get('/Sales', ensureAuthenticated, async (req, res) => {
+// --- 🧾 Sales Page (list + today's totals) ---
+app.get("/Sales", ensureAuthenticated, async (req, res) => {
   try {
-    // Determine who we should query for (admin or worker)
-     let recipientId;
+    let recipientId;
+    let companyinfo = null;
 
+    // 🧍 Identify user type
     if (req.session.user) {
-      // ✅ Superadmin / Owner
       recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: recipientId });
     } else if (req.session.worker) {
-      // ✅ Worker → use their admin's ID
       recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: recipientId });
     } else {
-      return res.redirect('/login'); // fallback if no session
+      return res.redirect("/login");
     }
 
-    let companyinfo = null; // ✅ Always define this
-
-    if (req.session.user) {
-      // Admin logged in
-      recipientId = req.session.user._id;
-      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
-    } else if (req.session.worker) {
-      // Worker logged in, use adminId
-      recipientId = req.session.worker.adminId;
-      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
-    }
-
-    // Fetch data for this recipient
+    // 🗃️ Fetch inventory + sales
     const inventoryItems = await Inventory.find({ recipientId }).sort({ addedDate: -1 });
-    const salesItems = await Sales.find({ recipientId });
+    const salesItems = await Sales.find({ recipientId }).sort({ date: -1 });
 
-    const oneinventoryItems = await Inventory.findOne({ recipientId });
-
-    // Today's date range
+    // 🕒 Get today's range
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Today's sales for recipient
     const todaySales = await Sales.find({
       recipientId,
-      date: { $gte: todayStart, $lte: todayEnd }
+      date: { $gte: todayStart, $lte: todayEnd },
     });
 
-    // Count and sum
+    // 🧮 Daily totals
     const totalSalesToday = todaySales.length;
-    const totalAmountToday = todaySales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+    const totalAmountToday = todaySales.reduce(
+      (sum, sale) => sum + (sale.totalAmount || 0),
+      0
+    );
 
-    // Render with both possible session objects so EJS can pick user or worker
-    res.render('dashboard/sales', {
-      user: req.session.user || req.session.worker,
-      worker: req.session.worker || null,
-      companyinfo,
-      inventory: inventoryItems,
-      salesitem: salesItems,
-      totalSalesToday,
-      totalAmountToday,
-      oneinventoryItems
-    });
+    // 🧩 Flatten each sale’s items for display
+// ✅ Keep sales grouped (so each sale has its array of items)
+const groupedSales = salesItems.map((sale) => ({
+  _id: sale._id,
+  custormername: sale.custormername,
+  paymentMethod: sale.paymentMethod,
+  discription: sale.discription,
+  date: sale.date,
+  totalAmount: sale.totalAmount,
+  items: sale.items || [],
+}));
+
+console.log("groupedSales", groupedSales)
+
+    // 🎨 Render dashboard
+res.render("dashboard/sales", {
+  user: req.session.user || req.session.worker,
+  worker: req.session.worker || null,
+  companyinfo,
+  inventory: inventoryItems,
+  salesitem: groupedSales, // 👈 use this
+  totalSalesToday,
+  totalAmountToday,
+});
+
   } catch (err) {
-    console.error('Error loading sales page:', err);
-    res.status(500).send('Server error');
+    console.error("❌ Error loading sales page:", err);
+    res.status(500).send("Server error");
   }
 });
+
+
+
+app.get("/print/invoice/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const sale = await Sales.findById(req.params.id).populate("items.itemId");
+    if (!sale) return res.status(404).send("Sale not found");
+    res.render("dashboard/printInvoice", { sale });
+  } catch (err) {
+    console.error("🧾 Invoice print error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
 
 
 // --- Sale history (filters + optional JSON response) ---

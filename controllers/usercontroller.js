@@ -180,84 +180,104 @@ const createInventory = async (req, res) => {
 
 
 
-// Handle new sale submission
 const createSale = async (req, res) => {
   try {
     const {
       recipientId,
       username,
-      item,
-      unitPrice,
-      itemId,
-      quantity,
-      amount,
+      items,
       paymentMethod,
       custormername,
       discription
     } = req.body;
 
-    console.log("Received sale data:", req.body);
+    console.log("📦 STEP 1 — Received Sale Data:", JSON.stringify(req.body, null, 2));
 
-    if (!recipientId || !username || !unitPrice || !item  || !itemId || !quantity || !amount || !custormername || !paymentMethod) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // ✅ Basic validation
+    if (!recipientId || !username || !Array.isArray(items) || items.length === 0) {
+      console.log("❌ Missing required fields or empty items array.");
+      return res.status(400).json({ error: "Missing required fields or items list." });
     }
 
+    let totalAmount = 0;
 
-const inventoryItem = await Inventory.findOne({
-  recipientId,
-  _id: itemId, // Use the unique ID now
-});
+    // ✅ Loop through each item
+    for (const [index, item] of items.entries()) {
+      console.log(`\n🔍 STEP 2 — Checking item ${index + 1}:`, item);
 
+      // 🚨 Check property names (could be 'itemName' or 'item')
+      const { itemId, itemName, item: altItemName, unitPrice, quantity, amount } = item;
+      const finalItemName = itemName || altItemName;
 
-if (!inventoryItem) {
-  return res.status(404).json({ error: 'Item not found in inventory' });
-}
+      console.log("🧾 Extracted values:", {
+        itemId,
+        finalItemName,
+        unitPrice,
+        quantity,
+        amount
+      });
 
-// ✅ Ensure currentquantity is a valid number
-const currentQty = Number(inventoryItem.currentquantity);
-const quantityNumber = Number(quantity);
+      if (!itemId || !finalItemName || !unitPrice || !quantity || !amount) {
+        console.log("❌ Incomplete item data detected:", item);
+        return res.status(400).json({ error: "Incomplete item data." });
+      }
 
-console.log("Inventory currentquantity:", inventoryItem.currentquantity);
-console.log("Converted currentQty:", currentQty);
-console.log("Quantity requested:", quantityNumber);
+      // 🏪 Fetch inventory
+      const inventoryItem = await Inventory.findOne({ recipientId, _id: itemId });
+      console.log("📦 STEP 3 — Fetched inventory item:", inventoryItem ? inventoryItem.itemName : "NOT FOUND");
 
-if (isNaN(currentQty)) {
-  return res.status(500).json({ error: 'Inventory currentquantity is invalid (NaN)' });
-}
+      if (!inventoryItem) {
+        return res.status(404).json({ error: `Item '${finalItemName}' not found in inventory.` });
+      }
 
-if (currentQty < quantityNumber) {
-  return res.status(400).json({ error: 'Insufficient stock available' });
-}
+      const currentQty = Number(inventoryItem.currentquantity);
+      const qty = Number(quantity);
 
-// 🧮 Deduct the quantity
-inventoryItem.currentquantity = currentQty - quantityNumber;
-await inventoryItem.save();
+      console.log(`📊 STEP 4 — Stock Check: current=${currentQty}, requested=${qty}`);
 
+      if (isNaN(currentQty)) {
+        console.log("⚠️ Invalid currentquantity detected:", inventoryItem.currentquantity);
+        return res.status(500).json({ error: `Invalid stock data for '${finalItemName}'.` });
+      }
 
-    // ✅ 4. Save the sale
+      if (currentQty < qty) {
+        console.log("❌ Insufficient stock for", finalItemName);
+        return res.status(400).json({ error: `Insufficient stock for '${finalItemName}'.` });
+      }
+
+      // 🧮 Deduct stock
+      inventoryItem.currentquantity = currentQty - qty;
+      await inventoryItem.save();
+      console.log(`✅ STEP 5 — Updated stock for ${finalItemName}: newQty=${inventoryItem.currentquantity}`);
+
+      // 💰 Add to total
+      totalAmount += parseFloat(amount) || 0;
+    }
+
+    // ✅ Save overall sale
+    console.log("💾 STEP 6 — Saving sale record...");
     const newSale = new Sale({
       recipientId,
       username,
-      item,
-      unitPrice,
-      quantity,
-      amount,
+      items,
+      totalAmount,
       paymentMethod,
       custormername,
       discription
     });
 
     await newSale.save();
+    console.log("✅ STEP 7 — Sale saved successfully:", newSale._id);
 
-    // ✅ 5. Redirect back
-    const returnUrl = req.headers.referer || "/";
+    const returnUrl = req.headers.referer || "/dashboard";
     return res.redirect(returnUrl);
 
   } catch (error) {
-    console.error('Error saving sale:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("💥 STEP 8 — Error saving sale:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 
 
