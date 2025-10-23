@@ -5122,7 +5122,7 @@ app.get("/invoice/review", ensureAuthenticated, async (req, res) => {
 
 
 
-app.post('/user/api/banks/link', async (req, res) => {
+app.post('/user/api/banks/link', ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user._id; // logged-in user
     const { bankCode, accountNumber, accountName, bvn, pin, consent } = req.body;
@@ -5277,7 +5277,7 @@ app.get("/cashflow-insights/:recipientId", ensureAuthenticated, async (req, res)
 
 
 // 🔹 Aging Analysis
-app.get("/api/aging-analysis/:recipientId", async (req, res) => {
+app.get("/api/aging-analysis/:recipientId", ensureAuthenticated, async (req, res) => {
   try {
     const { recipientId } = req.params;
     const today = new Date();
@@ -5313,7 +5313,7 @@ app.get("/api/aging-analysis/:recipientId", async (req, res) => {
 });
 
 // 🔹 Workflow Status
-app.get("/api/workflow-status/:recipientId", async (req, res) => {
+app.get("/api/workflow-status/:recipientId", ensureAuthenticated, async (req, res) => {
   try {
     // Later we can tie this to actual reconciliation runs
     const workflow = [
@@ -5425,6 +5425,106 @@ app.get("/driver-dashboard", ensureDriverAuth, (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/Vendors", ensureAuthenticated, async (req, res) => {
+  try {
+        let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+            companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+
+    console.log("Dashboard recipientId:", recipientId);
+    console.log("Company info:", companyinfo);
+    
+    res.render("dashboard/procurement&payables/Supplier", {
+       user: req.session.user || req.session.worker,
+       worker: req.session.worker || null,
+      companyinfo,   
+    });
+  } catch (err) {
+    console.error("Error rendering Driver dash page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

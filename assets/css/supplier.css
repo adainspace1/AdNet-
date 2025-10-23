@@ -1,0 +1,49 @@
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .header {
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-btn {
+            margin-right: 10px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .rating-stars {
+            color: #ffc107;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .status-active { background-color: #28a745; color: white; }
+        .status-suspended { background-color: #dc3545; color: white; }
+        .status-pending { background-color: #ffc107; color: black; }
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .card-layout {
+            margin-top: 20px;
+        }
+        .verification-badge {
+            font-size: 1.2rem;
+        }
+        .verified { color: #28a745; }
+        .pending { color: #ffc107; }
+
+
+        #table-card{
+            width: 100%;
+            overflow-x: scroll;
+
+        }
+        .container{
+            width: 100%;
+        }
