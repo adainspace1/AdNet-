@@ -76,6 +76,13 @@ body {
     list-style: none;
     padding: 60px 0 20px 0;
     margin: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+    .adnet-sidebar-wrapper .sidebar .sidebar-nav {
+    height: 95vh;
+    overflow: hidden;
   }
 
   .adnet-sidebar-wrapper .sidebar-nav li {
@@ -144,6 +151,7 @@ body {
     white-space: nowrap;
     z-index: 1100;
     opacity: 1;
+    overflow-y: scroll;
     transition: opacity 0.2s ease-in-out;
   }
 
@@ -152,6 +160,67 @@ body {
     position: fixed;
     width: 280px; /* Expanded: icons + text */
   }
+
+
+
+
+
+
+
+
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav {
+  /* Layout & Sizing */
+  height: 95vh; /* Account for top padding/margin */
+  overflow-y: auto; /* Smooth scrolling */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+
+  
+  /* Background & Visual */
+  background-color: var(--primary-bg, #111827);
+  border-right: 1px solid rgba(75, 85, 99, 0.3); /* Subtle border */
+  
+  /* Scrollbar Styling (Webkit browsers) */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(0, 191, 166, 0.3) var(--primary-bg); /* Firefox */
+}
+
+/* Webkit Scrollbar (Chrome, Safari, Edge) */
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5); /* Dark transparent */
+  border-radius: 3px;
+}
+
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--accent-color); /* Accent color with transparency */
+  border-radius: 3px;
+  transition: background 0.2s ease-in-out;
+}
+
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color); /* Brighter on hover */
+}
+
+/* Smooth scrolling behavior */
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav {
+  scroll-behavior: smooth;
+}
+
+/* Ensure content doesn't get cut off */
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav > * {
+  flex-shrink: 0; /* Prevent items from shrinking */
+}
+
+/* Optional: Add padding at bottom for last item visibility */
+.adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav {
+  padding-bottom: 20px; /* Extra space for last item */
+}
+
+
+
 
   .adnet-sidebar-wrapper .sidebar.expanded .sidebar-nav a {
     justify-content: flex-start; /* Align left when expanded */

@@ -21,76 +21,51 @@
   <button class="hamburger"><i data-lucide="menu"></i></button>
 
   <!-- Collapsed Sidebar -->
+<!-- Font Awesome (put in <head>) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+
+<!-- Sidebar HTML (partial) -->
 <nav class="sidebar">
   <ul class="sidebar-nav">
-    <li>
-      <a href="#" data-module="dashboard" data-tooltip="Dashboard">
-        <i class="fa-solid fa-gauge"></i>
-        <span>Dashboard</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="finance" data-tooltip="Finance & Accounting">
-        <i class="fa-solid fa-dollar-sign"></i>
-        <span>Finance & Accounting</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="reconciliation" data-tooltip="Reconciliation">
-        <i class="fa-solid fa-rotate"></i>
-        <span>Reconciliation</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="sales" data-tooltip="Sales Management">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <span>Sales Management</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="procurement" data-tooltip="Procurement & Payables">
-        <i class="fa-solid fa-box-open"></i>
-        <span>Procurement & Payables</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="inventory" data-tooltip="Inventory">
-        <i class="fa-solid fa-boxes-stacked"></i>
-        <span>Inventory</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="assets" data-tooltip="Assets">
-        <i class="fa-solid fa-briefcase"></i>
-        <span>Assets</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="debt" data-tooltip="Debt & Credit">
-        <i class="fa-solid fa-credit-card"></i>
-        <span>Debt & Credit</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="reports" data-tooltip="Reports">
-        <i class="fa-solid fa-chart-column"></i>
-        <span>Reports</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="settings" data-tooltip="Settings">
-        <i class="fa-solid fa-gear"></i>
-        <span>Settings</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" data-module="support" data-tooltip="Support">
-        <i class="fa-solid fa-circle-question"></i>
-        <span>Support</span>
-      </a>
-    </li>
+    <li><a href="#" data-module="dashboard" data-tooltip="Dashboard"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+
+    <li><a href="#" data-module="finance_core" data-tooltip="Finance & Core Accounting"><i class="fa-solid fa-landmark"></i><span>Finance & Core Accounting</span></a></li>
+
+    <li><a href="#" data-module="bank_integration" data-tooltip="Account Reconciliation & Bank Integration"><i class="fa-solid fa-piggy-bank"></i><span>Account Reconciliation</span></a></li>
+
+    <li><a href="#" data-module="sales_management" data-tooltip="Sales Management (CRM + Invoicing)"><i class="fa-solid fa-cart-shopping"></i><span>Sales Management</span></a></li>
+
+    <li><a href="#" data-module="procurement_payables" data-tooltip="Procurement & Payables"><i class="fa-solid fa-box-open"></i><span>Procurement & Payables</span></a></li>
+
+    <li><a href="#" data-module="inventory_warehouse" data-tooltip="Inventory & Warehouse Management"><i class="fa-solid fa-warehouse"></i><span>Inventory & Warehouse</span></a></li>
+
+    <li><a href="#" data-module="asset_management" data-tooltip="Asset & Fixed Asset Management"><i class="fa-solid fa-briefcase"></i><span>Asset Management</span></a></li>
+
+    <li><a href="#" data-module="debt_credit" data-tooltip="Debt & Credit Management"><i class="fa-solid fa-credit-card"></i><span>Debt & Credit</span></a></li>
+
+    <li><a href="#" data-module="taxation" data-tooltip="Taxation & Statutory Remittances"><i class="fa-solid fa-file-invoice-dollar"></i><span>Taxation & Statutory</span></a></li>
+
+    <li><a href="#" data-module="payroll_hr" data-tooltip="Payroll, HR & Admin"><i class="fa-solid fa-users-gear"></i><span>Payroll, HR & Admin</span></a></li>
+
+    <li><a href="#" data-module="auditing" data-tooltip="Auditing, Assurance & Evidence Vault"><i class="fa-solid fa-shield-halved"></i><span>Auditing & Vault</span></a></li>
+
+    <li><a href="#" data-module="crm_pipeline" data-tooltip="CRM, Lead & Sales Pipeline"><i class="fa-solid fa-user-friends"></i><span>CRM & Pipeline</span></a></li>
+
+    <li><a href="#" data-module="procurement_logistics" data-tooltip="Procurement & Logistics"><i class="fa-solid fa-truck"></i><span>Procurement & Logistics</span></a></li>
+
+    <li><a href="#" data-module="analytics_reporting" data-tooltip="Analytics, BI & Reporting"><i class="fa-solid fa-chart-line"></i><span>Analytics & Reporting</span></a></li>
+
+    <li><a href="#" data-module="security_compliance" data-tooltip="Security, Compliance & Governance"><i class="fa-solid fa-shield-check"></i><span>Security & Compliance</span></a></li>
+
+    <li><a href="#" data-module="integrations_api" data-tooltip="Integrations & API Ecosystem"><i class="fa-solid fa-plug"></i><span>Integrations & API</span></a></li>
+
+    <li><a href="#" data-module="agents_field_ops" data-tooltip="Agents, ABP & Field Operations"><i class="fa-solid fa-route"></i><span>Agents & Field Ops</span></a></li>
+
+    <li><a href="#" data-module="billing_subscriptions" data-tooltip="Billing, Subscriptions & Monetization"><i class="fa-solid fa-credit-card-blank"></i><span>Billing & Monetization</span></a></li>
   </ul>
 </nav>
+
+
 
 
   <!-- Fullscreen Overlay (Desktop Only) -->
@@ -118,58 +93,143 @@
   });
 
   // Module subtopics
-  const modules = {
-    dashboard: [
-      { name: 'Overview', href: '#' },
-      { name: 'Analytics', href: '#' },
-      { name: 'Summary', href: '#' }
-    ],
-    finance: [
-      { name: 'Accounts', href: '#' },
-      { name: 'Budgets', href: '#' },
-      { name: 'Transactions', href: '#' }
-    ],
-    reconciliation: [
-      { name: 'Bank Reconciliation', href: '#' },
-      { name: 'Ledger Matching', href: '#' }
-    ],
-    sales: [
-      { name: 'Orders', href: '#' },
-      { name: 'Customers', href: '#' },
-      { name: 'Invoices', href: '#' }
-    ],
-    procurement: [
-      { name: 'Purchase Orders', href: '#' },
-      { name: 'Vendors', href: '#' },
-      { name: 'Payments', href: '#' }
-    ],
-    inventory: [
-      { name: 'Stock Levels', href: '#' },
-      { name: 'Warehouses', href: '#' },
-      { name: 'Transfers', href: '#' }
-    ],
-    assets: [
-      { name: 'Fixed Assets', href: '#' },
-      { name: 'Depreciation', href: '#' }
-    ],
-    debt: [
-      { name: 'Loans', href: '#' },
-      { name: 'Credit Lines', href: '#' }
-    ],
-    reports: [
-      { name: 'Financial Reports', href: '#' },
-      { name: 'Sales Reports', href: '#' },
-      { name: 'Inventory Reports', href: '#' }
-    ],
-    settings: [
-      { name: 'User Settings', href: '#' },
-      { name: 'System Config', href: '#' }
-    ],
-    support: [
-      { name: 'Help Center', href: '#' },
-      { name: 'Contact Support', href: '#' }
-    ]
-  };
+// modules object — use this with your existing overlay injection logic
+const modules = {
+  // Dashboard
+  dashboard: [
+    { name: 'Dashboard Home', href: '/Dashboard' },
+    { name: 'Admin Dashboard', href: '/adminAccount' },
+    { name: 'Driver Dashboard', href: '/driver-dashView' }
+  ],
+
+  // Finance & Core Accounting (Ledger / Contra)
+  finance_core: [
+    { name: 'Ledger / Accounts', href: '/Ledger' },
+    { name: 'Statement of Account', href: '/statementofaccount' },
+    { name: 'Balance Sheet', href: '/balancesheet' },
+    { name: 'Cash Flow', href: '/cashflow' },
+    { name: 'Profit', href: '/Profit' },
+    { name: 'Budget', href: '/budget' },
+    { name: 'Ledger Liquidity', href: '/ledgerliquidity' }
+  ],
+
+  // Account Reconciliation & Bank Integration
+  bank_integration: [
+    { name: 'Account Reconciliation', href: '/accountreconciliation' },
+    { name: 'Wallet', href: '/wallet' },
+    { name: 'Transactions', href: '/Transaction' }
+  ],
+
+  // Sales Management (CRM + Invoicing)
+  sales_management: [
+    { name: 'Sales', href: '/Sales' },
+    { name: 'Sales Metric Overview', href: '/salesmetricoverview' },
+    { name: 'Sales Forecast', href: '/salesforecast' },
+    { name: 'Print Invoice', href: '/print/invoice/:idSale' },
+    { name: 'Order Management', href: '/OrderManagement' },
+    { name: 'Order View', href: '/order/:idOrder' },
+    { name: 'Order Confirmation', href: '/order-placed/:buyername/:orderIdAdmin' },
+    { name: 'Sale History', href: '/salehistory' }
+  ],
+
+  // Procurement & Payables
+  procurement_payables: [
+    { name: 'Purchase Orders', href: '/PurchaseOrders' },
+    { name: 'Account Payable', href: '/accountpayable' },
+    { name: 'Vendors / Suppliers', href: '/Vendors' },
+    { name: 'Payments', href: '/Payments' }
+  ],
+
+  // Inventory & Warehouse Management
+  inventory_warehouse: [
+    { name: 'Inventory', href: '/Inventory' },
+    { name: 'Inventory Tracking', href: '/inventorytracking' },
+    { name: 'Inventory Forecast', href: '/inventoryforecast' },
+    { name: 'Stock Transfers', href: '/Transfers' }
+  ],
+
+  // Asset & Fixed Asset Management
+  asset_management: [
+    { name: 'Assets', href: '/Assets' },
+    { name: 'Depreciation', href: '/Depreciation' },
+    { name: 'Asset Register', href: '/AssetRegister' }
+  ],
+
+  // Debt & Credit Management
+  debt_credit: [
+    { name: 'Debt Management', href: '/Debtmanagement' },
+    { name: 'Loans', href: '/Loans' },
+    { name: 'Account Receivable', href: '/accountreceivablePrice' }
+  ],
+
+  // Taxation & Statutory Remittances
+  taxation: [
+    { name: 'Tax Remittances', href: '/tax-remittances' },
+    { name: 'Statutory Reports', href: '/statutory-reports' }
+  ],
+
+  // Payroll, HR & Admin
+  payroll_hr: [
+    { name: 'Payroll', href: '/payroll' },
+    { name: 'People / HR', href: '/hr' },
+    { name: 'Driver Signup', href: '/signup-driverDriver' },
+    { name: 'Driver Login', href: '/login-driverDriver' }
+  ],
+
+  // Auditing, Assurance & Evidence Vault
+  auditing: [
+    { name: 'Audit Trail', href: '/audit-trail' },
+    { name: 'Evidence Vault', href: '/evidence-vault' },
+    { name: 'Assurance Reports', href: '/assurance' }
+  ],
+
+  // CRM, Lead & Sales Pipeline
+  crm_pipeline: [
+    { name: 'Leads', href: '/leads' },
+    { name: 'Opportunities', href: '/opportunities' },
+    { name: 'CRM Overview', href: '/crm-overview' }
+  ],
+
+  // Procurement & Logistics (expanded)
+  procurement_logistics: [
+    { name: 'Logistics', href: '/logistics' },
+    { name: 'Driver Dashboard', href: '/driver-dashView' },
+    { name: 'Delivery Tracking', href: '/delivery-tracking' }
+  ],
+
+  // Analytics, BI & Reporting
+  analytics_reporting: [
+    { name: 'Report & Analysis', href: '/reportandanalysis' },
+    { name: 'Financial Reports', href: '/FinancialReports' },
+    { name: 'Sales Reports', href: '/SalesReports' }
+  ],
+
+  // Security, Compliance & Governance
+  security_compliance: [
+    { name: 'Security Settings', href: '/security-settings' },
+    { name: 'Compliance Dashboard', href: '/compliance' }
+  ],
+
+  // Integrations & API Ecosystem
+  integrations_api: [
+    { name: 'API Keys', href: '/api-keys' },
+    { name: 'Connected Apps', href: '/integrations' }
+  ],
+
+  // Agents, ABP & Field Operations
+  agents_field_ops: [
+    { name: 'Agent Management', href: '/agents' },
+    { name: 'Field Ops Dashboard', href: '/field-ops' }
+  ],
+
+  // Billing, Subscriptions & Monetization
+  billing_subscriptions: [
+    { name: 'Billing', href: '/billing' },
+    { name: 'Subscriptions', href: '/subscriptions' },
+    { name: 'Price Determinant', href: '/pricedeterminant' },
+    { name: 'Price Call', href: '/pricecall' }
+  ]
+};
 
   // Handle sidebar hover (desktop only)
   const sidebar = document.querySelector('.adnet-sidebar-wrapper .sidebar');
