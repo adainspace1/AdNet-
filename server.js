@@ -5486,7 +5486,7 @@ app.get("/Vendors", ensureAuthenticated, async (req, res) => {
     console.log("Dashboard recipientId:", recipientId);
     console.log("Company info:", companyinfo);
 
-    res.render("dashboard/procurement_payables/Supplier", {
+    res.render("dashboard/Procurement_payables/Supplier", {
        user: req.session.user || req.session.worker,
        worker: req.session.worker || null,
       companyinfo,   
