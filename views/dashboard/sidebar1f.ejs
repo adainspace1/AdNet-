@@ -1,0 +1,287 @@
+<head>
+  <link rel="stylesheet" href="/css/sidebar1.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <!-- Mobile sidebar toggle button -->
+  <button class="mobile-toggle">
+    <i class="bx bx-menu"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-items">
+      <!-- Main Navigation Links -->
+      <a href="/Dashboard" class="nav-link ">
+        <i class="fa-solid fa-receipt"></i>
+        <span>Dashboard</span>
+      </a>
+
+
+      <div class="dropdown" id="posandbookkeeping-main">
+      <button class="all-dropdown-btn">
+    <i class="bx bxs-dashboard"></i>
+    <span>Pos & Bookkeeping</span>
+    <i class="bx bx-chevron-down chevron"></i>
+  </button>
+      <div class="main-drop main-dropdown-content" id="posandbookkeepingdrop">
+      
+      <!-- POS Dropdown -->
+      <div class="dropdown" id="pos-dropdown">
+        <button class="dropdown-btn">
+          <i class="bx bx-cog" id="icons"></i>
+          <span>POS</span>
+          <i class="bx bx-chevron-down chevron"></i>
+        </button>
+        <div class="dropdown-contentt">
+          <div class="submenu">
+            <!-- Sales Section -->
+            <div class="submenu-section" id="sales-section">
+              <div class="submenu-title">
+                <span>Sales</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Sales" class="submenu-link">New Sale Interface</a>
+                <a href="/salehistory" class="submenu-link">Sales History</a>
+                <a href="/salesmetricoverview" class="submenu-link">Sales Metrics Overview</a>
+                <a href="/salesforecast" class="submenu-link">Sales Forecast</a>
+              
+              </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div class="submenu-section" id="expenses-section">
+              <div class="submenu-title">
+                <span>Expenses</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Expenses" class="submenu-link">Add New Expense</a>
+                <a href="/viewallexpenses" class="submenu-link">View All Expenses</a>
+              </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div class="submenu-section" id="inventory-section">
+              <div class="submenu-title">
+                <span>Inventory</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Inventory" class="submenu-link">Product List</a>
+                <a href="/inventorytracking" class="submenu-link">Inventory Tracking</a>
+                <a href="/inventoryforecast" class="submenu-link">Inventory Forecast</a>
+                <a href="/reportandanalysis" class="submenu-link">Inventory Reports & Analytics</a>
+                <a href="/pricecall" class="submenu-link">Price Calculator</a>
+              </div>
+            </div>
+
+            <!-- Production Section -->
+            <div class="submenu-section" id="production-section">
+              <div class="submenu-title">
+                <span>Production</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Production" class="submenu-link">Production</a>
+                <a href="/pricedeterminant" class="submenu-link">Price Determination</a>
+              </div>
+            </div>
+
+            <!-- Orders Section (moved under POS as it's sales/order related) -->
+            <div class="submenu-section" id="orders-section">
+              <div class="submenu-title">
+                <span>Orders</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/OrderManagement" class="submenu-link">Manage Orders</a>
+                <a href="/order-placed/:buyername/:orderId" class="submenu-link">Order Confirmation</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bookkeeping Dropdown (new top-level under main, grouping financial/bookkeeping items) -->
+      <div class="dropdown" id="bookkeeping-dropdown">
+        <button class="dropdown-btn">
+          <i class="bx bx-book" id="icons" ></i>
+          <span>Bookkeeping</span>
+          <i class="bx bx-chevron-down chevron"></i>
+        </button>
+        <div class="dropdown-contentt">
+          <div class="submenu">
+            <!-- Profit and Transactions -->
+            <div class="submenu-section" id="profit-section">
+              <div class="submenu-title">
+                <span>Profit & Transactions</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Profit" class="submenu-link">Profit Reports</a>
+                <a href="/Transaction" class="submenu-link">Transactions</a>
+              </div>
+            </div>
+
+            <!-- Accounts -->
+            <div class="submenu-section" id="accounts-section">
+              <div class="submenu-title">
+                <span>Accounts</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/accountpayable" class="submenu-link">Accounts Payable</a>
+                <a href="/accountreceivable" class="submenu-link">Accounts Receivable</a>
+                <a href="/statementofaccount" class="submenu-link">Statement of Account</a>
+              </div>
+            </div>
+
+            <!-- Financial Reports -->
+            <div class="submenu-section" id="reports-section">
+              <div class="submenu-title">
+                <span>Reports</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/cashflow" class="submenu-link">Cash Flow</a>
+                <a href="/balancesheet" class="submenu-link">Balance Sheet</a>
+                <a href="/ledgerliquidity" class="submenu-link">Ledger Liquidity</a>
+              </div>
+            </div>
+
+            <!-- Budget and Payroll -->
+            <div class="submenu-section" id="budget-payroll-section">
+              <div class="submenu-title">
+                <span>Budget & Payroll</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/budget" class="submenu-link">Budget</a>
+                <a href="/payroll" class="submenu-link">Payroll</a>
+              </div>
+            </div>
+
+            <!-- CRM and Sales Metrics -->
+            <div class="submenu-section" id="crm-metrics-section">
+              <div class="submenu-title">
+                <span>CRM & Metrics</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/crm" class="submenu-link">CRM</a>
+                <a href="/Debtmanagement" class="submenu-link">Debt Management</a>
+              </div>
+            </div>
+
+            <!-- Assets Section (moved under Bookkeeping as it's financial/asset management related) -->
+            <div class="submenu-section" id="assets-section">
+              <div class="submenu-title">
+                <span>Assets</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Assets" class="submenu-link">Assets</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+
+      </div>
+    </div>
+
+
+
+    <!-- Admin and Driver Dashboard -->
+      <div class="dropdown" id="admin-driver-dropdown">
+        <button class="dropdown-btn">
+          <i class="bx bx-user"></i>
+          <span>Admin & Driver</span>
+          <i class="bx bx-chevron-down chevron"></i>
+        </button>
+        <div class="dropdown-contentt">
+          <div class="submenu">
+            <div class="submenu-section" id="admin-driver-section">
+              <div class="submenu-title">
+                <span>Admin & Driver</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/admin" class="submenu-link">Admin Dashboard</a>
+                <a href="/driver-dash" class="submenu-link">Driver Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup Steps -->
+      <div class="dropdown" id="setup-dropdown">
+        <button class="dropdown-btn">
+          <i class="bx bx-wrench"></i>
+          <span>Setup</span>
+          <i class="bx bx-chevron-down chevron"></i>
+        </button>
+        <div class="dropdown-contentt">
+          <div class="submenu">
+            <div class="submenu-section" id="setup-section">
+              <div class="submenu-title">
+                <span>Setup Steps</span>
+                <i class="bx bx-chevron-down chevron"></i>
+              </div>
+              <div class="submenu-items">
+                <a href="/Personal" class="submenu-link">Personal Info</a>
+                <a href="/Businessinfo" class="submenu-link">Business Info</a>
+                <a href="/Company" class="submenu-link">Company Info</a>
+                <a href="/Bank" class="submenu-link">Bank Info</a>
+                <a href="/Review" class="submenu-link">Review</a>
+                <a href="/Finished" class="submenu-link">Finish Setup</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    <!-- Logout Link in the footer -->
+    <div class="sidebar-footer">
+      <a href="/logout" class="logout-link">
+        <i class="bx bx-log-out"></i>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </div>
+
+
+
+
+
+   <div class="thelrealloader">
+    <div class="loader">
+      <div class="d-loader">
+      </div>
+      <p> Adnet </p>
+    </div>
+
+  </div>
+  
+
+  <script>
+    setTimeout( () => {
+      document.querySelector(".thelrealloader").style.display = "none"
+    }, 1000);
+    
+    </script>
+
+
+
+  <!-- Main Content Area -->
+  <script src="/js/sidebar1.js"></script>
+</body>
+
