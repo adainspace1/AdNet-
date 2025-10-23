@@ -297,6 +297,7 @@ body {
     .adnet-sidebar-wrapper .sidebar {
       width: 0; /* Hidden by default */
       overflow: hidden;
+      position: fixed;
     }
 
     .adnet-sidebar-wrapper .sidebar.active {

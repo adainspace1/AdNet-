@@ -197,7 +197,7 @@
           const module = link.dataset.module;
           if (modules[module]) {
             overlayContent.innerHTML = `
-              <button onclick="closeOverlay()"  class="closefull" aria-label="Close Overlay"><i data-lucide="x"></i></button>
+              <button onclick="closeOverlay()"  class="closefull" aria-label="Close Overlay"><i class="fa fa-close"></i></button>
               <h3>${link.querySelector('span').textContent}</h3>
               <ul>
                 ${modules[module].map(item => `<li><a href="${item.href}">${item.name}</a></li>`).join('')}
