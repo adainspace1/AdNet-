@@ -1,4 +1,5 @@
 
+
         body {
             background-color: #f8f9fa;
             font-family: 'Arial', sans-serif;
@@ -7,6 +8,9 @@
             background-color: #ffffff;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header .col-md-6 h1{
+            font-size: 30px;
         }
         .action-btn {
             margin-right: 10px;
@@ -23,8 +27,8 @@
             font-size: 0.8rem;
         }
         .status-active { background-color: #28a745; color: white; }
-        .status-suspended { background-color: #dc3545; color: white; }
         .status-pending { background-color: #ffc107; color: black; }
+        .status-blocked { background-color: #dc3545; color: white; }
         .modal-content {
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -37,13 +41,13 @@
         }
         .verified { color: #28a745; }
         .pending { color: #ffc107; }
-
-
-        #table-card{
-            width: 100%;
-            overflow-x: scroll;
-
+        .vendor-type-badge {
+            font-size: 0.8rem;
         }
-        .container{
-            width: 100%;
+        .vendor-logo {
+            max-width: 100px;
+            border-radius: 50%;
+        }
+        .loading-spinner {
+            display: none;
         }

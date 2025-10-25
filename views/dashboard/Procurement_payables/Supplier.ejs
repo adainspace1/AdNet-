@@ -24,11 +24,13 @@
         <link rel="stylesheet" href="/css/supplier.css">
     <link rel="stylesheet" href="/css/dashall.css">
 
-
 </head>
 <body>
 
 
+
+
+    
       <div class="all">
         <%- include ("../_sidebar1") %>
 
@@ -41,30 +43,31 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h1>Supplier & Vendor Registry</h1>
+                <h1>Vendor Registry</h1>
             </div>
             <div class="col-md-6 text-end">
-                <button class="btn btn-primary action-btn"><i class="fas fa-plus"></i> Add New Vendor</button>
+                <button class="btn btn-primary action-btn add-vendor-btn" data-bs-toggle="tooltip" title="Add New Vendor (Manual / Internal)"><i class="fas fa-plus"></i> Add New Vendor</button>
+                <button class="btn btn-primary action-btn view-applications-btn" data-bs-toggle="tooltip" title="Vendor Applications (From Public)"><i class="fas fa-file-alt"></i> Vendor Applications</button>
                 <button class="btn btn-outline-secondary action-btn"><i class="fas fa-search"></i> Search Vendors</button>
+                <input type="text" id="searchVendors" class="form-control d-inline-block w-auto ms-2" placeholder="Search...">
                 <button class="btn btn-outline-secondary action-btn"><i class="fas fa-filter"></i> Filters</button>
-                <button class="btn btn-outline-secondary action-btn"><i class="fas fa-download"></i> Export</button>
-                <button class="btn btn-outline-secondary action-btn"><i class="fas fa-sync"></i> Sync with Bank API</button>
+                <button class="btn btn-outline-secondary action-btn sync-btn" data-bs-toggle="tooltip" title="Export / Sync"><i class="fas fa-sync"></i> Export / Sync</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Main Table / Directory View -->
+<!-- Main Table / Vendor Directory -->
 <div class="containerr mt-4">
     <div class="card">
-        <div class="card-body" id="table-card">
+        <div class="card-body">
             <table class="table table-hover table-responsive">
                 <thead class="table-light">
                     <tr>
-                        <th>Vendor Name</th>
-                        <th>Vendor ID</th>
+                        <th>Vendor Name / Company</th>
+                        <th>Vendor Type</th>
                         <th>Category</th>
-                        <th>Bank Details</th>
+                        <th>Bank Name</th>
                         <th>Rating</th>
                         <th>Status</th>
                         <th>Last Transaction</th>
@@ -72,34 +75,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example Row 1 -->
-                    <tr data-bs-toggle="modal" data-bs-target="#vendorProfileModal" style="cursor: pointer;">
-                        <td>ABC Supplies Inc.</td>
-                        <td>VEN-00045</td>
-                        <td>Office Supplies</td>
-                        <td>Bank of America, ****1234</td>
+                    <!-- Example Row 1: Internal -->
+                    <tr class="vendor-row" data-bs-toggle="modal" data-bs-target="#vendorProfileModal" style="cursor: pointer;">
+                        <td>Internal Drivers Co.</td>
+                        <td><span class="badge bg-info vendor-type-badge">Internal</span></td>
+                        <td>Logistics</td>
+                        <td>Bank of America</td>
                         <td><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="far fa-star"></i> (4.0)</td>
                         <td><span class="status-badge status-active">Active</span></td>
                         <td>2023-10-15</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-ban"></i></button>
+                            <button class="btn btn-sm btn-outline-primary view-vendor-btn" data-bs-toggle="tooltip" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Block"><i class="fas fa-ban"></i></button>
                         </td>
                     </tr>
-                    <!-- Example Row 2 -->
-                    <tr data-bs-toggle="modal" data-bs-target="#vendorProfileModal" style="cursor: pointer;">
-                        <td>LogiTrans Logistics</td>
-                        <td>VEN-00046</td>
-                        <td>Logistics</td>
-                        <td>Chase Bank, ****5678</td>
+                    <!-- Example Row 2: External -->
+                    <tr class="vendor-row" data-bs-toggle="modal" data-bs-target="#vendorProfileModal" style="cursor: pointer;">
+                        <td>External Supplies Inc.</td>
+                        <td><span class="badge bg-success vendor-type-badge">External</span></td>
+                        <td>Supply</td>
+                        <td>Chase Bank</td>
                         <td><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="far fa-star"></i><i class="far fa-star"></i> (3.0)</td>
                         <td><span class="status-badge status-pending">Pending</span></td>
                         <td>2023-09-20</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-ban"></i></button>
+                            <button class="btn btn-sm btn-outline-primary view-vendor-btn" data-bs-toggle="tooltip" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Block"><i class="fas fa-ban"></i></button>
                         </td>
                     </tr>
                     <!-- Add more rows as needed -->
@@ -108,13 +111,13 @@
         </div>
     </div>
 
-    <!-- Vendor Analytics Widget -->
+    <!-- Analytics Summary Widgets -->
     <div class="row card-layout">
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
                     <h5>Total Vendors</h5>
-                    <h2>150</h2>
+                    <h2>200</h2>
                 </div>
             </div>
         </div>
@@ -122,7 +125,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h5>Verified Vendors</h5>
-                    <h2>120</h2>
+                    <h2>150</h2>
                 </div>
             </div>
         </div>
@@ -130,15 +133,15 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h5>Average Rating</h5>
-                    <h2>4.2</h2>
+                    <h2>4.1</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5>Vendors with Pending Docs</h5>
-                    <h2>5</h2>
+                    <h5>Pending Applications</h5>
+                    <h2>10</h2>
                 </div>
             </div>
         </div>
@@ -150,82 +153,74 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="vendorProfileModalLabel"><i class="fas fa-building"></i> Vendor Profile: ABC Supplies Inc.</h5>
+                <h5 class="modal-title" id="vendorProfileModalLabel"><i class="fas fa-user-tie"></i> Vendor Profile: Internal Drivers Co.</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Vendor Information -->
+                <!-- Vendor Logo -->
+                <div class="text-center mb-3">
+                    <img src="https://via.placeholder.com/100" alt="Vendor Logo" class="vendor-logo">
+                </div>
+                <!-- Company Info -->
                 <div class="card mb-3">
-                    <div class="card-header"><i class="fas fa-info-circle"></i> Vendor Information</div>
+                    <div class="card-header"><i class="fas fa-building"></i> Company Info</div>
                     <div class="card-body">
-                        <p><strong>Company Name:</strong> ABC Supplies Inc.</p>
-                        <p><strong>Contact Person:</strong> John Doe</p>
-                        <p><strong>Phone:</strong> +1-123-456-7890</p>
-                        <p><strong>Email:</strong> john@abcsupplies.com</p>
-                        <p><strong>Address:</strong> 123 Main St, City, State, ZIP</p>
-                        <p><strong>Tax ID (TIN):</strong> 12-3456789</p>
-                        <p><strong>Registration Number:</strong> REG-001</p>
-                        <p><strong>Category:</strong> Office Supplies</p>
-                        <p><strong>Services Provided:</strong> Stationery, Furniture</p>
+                        <p><strong>Name:</strong> Internal Drivers Co.</p>
+                        <p><strong>Contact:</strong> Jane Smith, jane@driversco.com, +1-987-654-3210</p>
+                        <p><strong>Category:</strong> Logistics</p>
+                        <p><strong>Registration Details:</strong> REG-002</p>
                     </div>
                 </div>
-
+                <!-- Ratings -->
+                <div class="card mb-3">
+                    <div class="card-header"><i class="fas fa-star"></i> Ratings</div>
+                    <div class="card-body">
+                        <p><strong>Avg Score:</strong> 4.0 (10 Reviews)</p>
+                    </div>
+                </div>
                 <!-- Bank Details -->
                 <div class="card mb-3">
                     <div class="card-header"><i class="fas fa-bank"></i> Bank Details</div>
                     <div class="card-body">
                         <p><strong>Bank Name:</strong> Bank of America</p>
-                        <p><strong>Account Number:</strong> ****1234</p>
-                        <p><strong>Sort Code:</strong> 123-456</p>
+                        <p><strong>Account:</strong> ****5678</p>
                         <p><strong>Tier-3 Verification:</strong> <span class="verification-badge verified">Verified ✅</span></p>
-                        <p><strong>Linked Payment Method:</strong> ACH</p>
-                        <p><strong>Currency:</strong> USD</p>
+                        <p><strong>Payment Method:</strong> Wire Transfer</p>
                     </div>
                 </div>
-
-                <!-- Ratings & Performance -->
+                <!-- Uploaded Docs -->
                 <div class="card mb-3">
-                    <div class="card-header"><i class="fas fa-star"></i> Ratings & Performance</div>
-                    <div class="card-body">
-                        <p><strong>Rating:</strong> <i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="fas fa-star rating-stars"></i><i class="far fa-star"></i> (4.0)</p>
-                        <p><strong>Last 5 Transactions:</strong> Invoice #123 (Paid), #124 (Pending), etc.</p>
-                        <p><strong>Average Payment Cycle:</strong> 7 days</p>
-                        <p><strong>Reliability:</strong> 95% On-Time Delivery, 2 Disputes</p>
-                    </div>
-                </div>
-
-                <!-- Documents -->
-                <div class="card mb-3">
-                    <div class="card-header"><i class="fas fa-file-alt"></i> Documents</div>
+                    <div class="card-header"><i class="fas fa-file-alt"></i> Uploaded Docs</div>
                     <div class="card-body">
                         <ul>
-                            <li>KYC Doc: <a href="#">View</a> | <button class="btn btn-sm btn-outline-primary">Upload</button></li>
-                            <li>Certification: <a href="#">View</a> | <button class="btn btn-sm btn-outline-primary">Upload</button></li>
-                            <li>Contract: <a href="#">View</a> | <button class="btn btn-sm btn-outline-primary">Upload</button></li>
+                            <li>KYC: <a href="#">View</a></li>
+                            <li>Certificate: <a href="#">View</a></li>
+                            <li>Contract: <a href="#">View</a></li>
                         </ul>
                     </div>
                 </div>
-
-                <!-- History -->
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-history"></i> History</div>
+                <!-- Performance Metrics -->
+                <div class="card mb-3">
+                    <div class="card-header"><i class="fas fa-chart-bar"></i> Performance Metrics</div>
                     <div class="card-body">
-                        <p><strong>Purchase Orders:</strong> PO-001, PO-002</p>
-                        <p><strong>Invoices:</strong> INV-123, INV-124</p>
-                        <p><strong>Payments:</strong> Paid on 2023-10-15 ($500)</p>
-                        <p><strong>Disputes:</strong> 1 Resolved</p>
+                        <p><strong>No. of Transactions:</strong> 50</p>
+                        <p><strong>Dispute Count:</strong> 2</p>
+                        <p><strong>On-time Delivery %:</strong> 95%</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="View History"><i class="fas fa-history"></i> View History</button>
+                <button type="button" class="btn btn-outline-secondary edit-vendor-btn" data-bs-toggle="tooltip" title="Edit Vendor"><i class="fas fa-edit"></i> Edit Vendor</button>
+                <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" title="Assign Vendor"><i class="fas fa-user-plus"></i> Assign Vendor</button>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Report Vendor"><i class="fas fa-ban"></i> Report Vendor</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Vendor</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add/Edit Vendor Modal -->
+<!-- Add Vendor Modal -->
 <div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -235,91 +230,51 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <!-- Basic Info -->
-                    <div class="mb-3">
-                        <h6>Basic Info</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="vendorName" class="form-label">Vendor Name</label>
-                                <input type="text" class="form-control" id="vendorName">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="category" class="form-label">Category</label>
-                                <select class="form-select" id="category">
-                                    <option>Office Supplies</option>
-                                    <option>Logistics</option>
-                                    <option>Maintenance</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <label for="contactPerson" class="form-label">Contact Person</label>
-                                <input type="text" class="form-control" id="contactPerson">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="phone" class="form-label">Phone</label>
-                                <input type="tel" class="form-control" id="phone">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address">
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Bank Info -->
+                    <input type="hidden" name="UserId" id="UserId" value="<%= user.id %>">
                     <div class="mb-3">
-                        <h6>Bank Info</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="bankName" class="form-label">Bank Name</label>
-                                <input type="text" class="form-control" id="bankName">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="accountNumber" class="form-label">Account Number</label>
-                                <input type="text" class="form-control" id="accountNumber">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <label for="sortCode" class="form-label">Sort Code</label>
-                                <input type="text" class="form-control" id="sortCode">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="currency" class="form-label">Currency</label>
-                                <select class="form-select" id="currency">
-                                    <option>USD</option>
-                                    <option>EUR</option>
-                                    <option>GBP</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-check mt-3">
-                            <input class="form-check-input" type="checkbox" id="tier3Verify">
-                            <label class="form-check-label" for="tier3Verify">Tier-3 Verification</label>
-                        </div>
+                        <label for="companyName" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="companyName">
                     </div>
-
-                    <!-- Documents -->
                     <div class="mb-3">
-                        <h6>Documents</h6>
-                        <div class="input-group">
-                            <input type="file" class="form-control" id="uploadDocs">
-                            <button class="btn btn-outline-secondary" type="button">Upload</button>
-                        </div>
+                        <label for="vendorType" class="form-label">Vendor Type</label>
+                        <select class="form-select" id="vendorType">
+                            <option>Internal</option>
+                            <option>External</option>
+                        </select>
                     </div>
-
-                    <!-- Ratings -->
                     <div class="mb-3">
-                        <h6>Ratings (Optional)</h6>
-                        <select class="form-select" id="initialRating">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category">
+                            <option>Construction</option>
+                            <option>Logistics</option>
+                            <option>Supply</option>
+                            <option>Maintenance</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactInfo" class="form-label">Contact Info (Person, Email, Phone)</label>
+                        <input type="text" class="form-control" id="contactInfo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bankInfo" class="form-label">Bank Info (Bank Name, Account Number)</label>
+                        <input type="text" class="form-control" id="bankInfo">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="tier3Verify">
+                        <label class="form-check-label" for="tier3Verify">Tier-3 Verification</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="uploadDocs" class="form-label">Upload Docs (KYC, Certificate, Proof of Business)</label>
+                        <input type="file" name="uploadDocs" class="form-control" id="uploadDocs" multiple>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating (Optional)</label>
+                        <select class="form-select" id="rating">
                             <option>1 Star</option>
                             <option>2 Stars</option>
                             <option>3 Stars</option>
@@ -327,141 +282,667 @@
                             <option>5 Stars</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags (Optional, e.g., Cement, Transport)</label>
+                        <input type="text" class="form-control" id="tags">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-primary save-vendor-btn">Save Vendor</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Vendor Applications Modal -->
+<div class="modal fade" id="vendorApplicationsModal" tabindex="-1" aria-labelledby="vendorApplicationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vendorApplicationsModalLabel"><i class="fas fa-file-alt"></i> Vendor Applications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name / Company</th>
+                            <th>Category</th>
+                            <th>Submitted Date</th>
+                            <th>Documents</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Example Application Row -->
+                        <tr>
+                            <td>New Vendor LLC</td>
+                            <td>Maintenance</td>
+                            <td>2023-10-10</td>
+                            <td><a href="#">View/Download</a></td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Reject"><i class="fas fa-times"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Application"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-      </div>
-      
+</div>
 
+<!-- Optional Vendor Reviews Modal -->
+<div class="modal fade" id="vendorReviewsModal" tabindex="-1" aria-labelledby="vendorReviewsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vendorReviewsModalLabel"><i class="fas fa-star"></i> Vendor Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="reviewRating" class="form-label">Rating</label>
+                        <select class="form-select" id="reviewRating">
+                            <option>1 Star</option>
+                            <option>2 Stars</option>
+                            <option>3 Stars</option>
+                            <option>4 Stars</option>
+                            <option>5 Stars</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reviewComment" class="form-label">Comment</label>
+                        <textarea class="form-control" id="reviewComment" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reviewDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="reviewDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- REPORT VENDOR MODAL -->
+<div class="modal fade" id="reportVendorModal" tabindex="-1" aria-labelledby="reportVendorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportVendorModalLabel">Report Vendor</h5>
+      </div>
+      <div class="modal-body">
+        <input type="text" name="Fullname" id="Rfullname">
+        <input type="text" name="email" id="Remail">
+        <textarea id="reportReason" class="form-control" placeholder="Why are you reporting this vendor?" rows="3"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="submitReportBtn">Submit Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT VENDOR MODAL -->
+<div class="modal fade" id="editVendorModal" tabindex="-1" aria-labelledby="editVendorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="editVendorModalLabel">Edit Vendor</h5>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="editCompanyName" class="form-control mb-2" placeholder="Company name" />
+        <input type="text" id="editCategory" class="form-control mb-2" placeholder="Category" />
+        <input type="text" id="editContact" class="form-control mb-2" placeholder="Contact info" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="updateVendorBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW HISTORY MODAL -->
+<div class="modal fade" id="vendorHistoryModal" tabindex="-1" aria-labelledby="vendorHistoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="vendorHistoryModalLabel">Vendor Report History</h5>
+      </div>
+      <div class="modal-body">
+        <div id="vendorHistoryList" class="p-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+</div>
+</div>
+
+<script>
+    vendorId = "<%= user._id || user.id %>"
+    console.log(vendorId)
+</script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
 <script>
-// ✅ Grab main action buttons
-const addBtn = document.querySelector('.btn.btn-primary.action-btn');
-const searchBtn = document.querySelector('button i.fas.fa-search')?.closest('button');
-const filterBtn = document.querySelector('button i.fas.fa-filter')?.closest('button');
-const exportBtn = document.querySelector('button i.fas.fa-download')?.closest('button');
-const syncBtn = document.querySelector('button i.fas.fa-sync')?.closest('button');
+document.querySelector(".save-vendor-btn")?.addEventListener("click", async () => {
+  try {
+    // 🔥 Collect form data
+    const UserId = document.getElementById("UserId").value.trim();
+    const companyName = document.getElementById("companyName").value.trim();
+    const vendorType = document.getElementById("vendorType").value;
+    const category = document.getElementById("category").value;
+    const contactInfo = document.getElementById("contactInfo").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const bankInfo = document.getElementById("bankInfo").value.trim();
+    const tier3Verify = document.getElementById("tier3Verify").checked;
+    const rating = document.getElementById("rating").value;
+    const tags = document.getElementById("tags").value.trim();
+    const files = document.getElementById("uploadDocs").files;
 
-// ✅ Bootstrap modal helper
-function showModal(id) {
-  const modal = new bootstrap.Modal(document.getElementById(id));
-  modal.show();
-}
+    // 🧩 Basic validation
+    if (!companyName || !contactInfo) {
+      return alert("Company name and contact info are required.");
+    }
 
-// ✅ 1. Add Vendor
-addBtn.addEventListener('click', () => showModal('addVendorModal'));
+    // 🧾 Step 1: Build FormData for possible file uploads
+    const formData = new FormData();
+    formData.append("UserId", UserId);
+    formData.append("companyName", companyName);
+    formData.append("vendorType", vendorType);
+    formData.append("category", category);
+    formData.append("contactInfo", contactInfo);
+    formData.append("address", address);
+    formData.append("bankInfo", bankInfo);
+    formData.append("tier3Verify", tier3Verify);
+    formData.append("rating", rating);
+    formData.append("tags", tags);
 
-// ✅ 2. Search Vendors popup
-searchBtn.addEventListener('click', () => {
-  const searchModalHTML = `
-  <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-search"></i> Search Vendors</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="text" class="form-control" placeholder="Enter vendor name, ID or category...">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Search</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', searchModalHTML);
-  showModal('searchModal');
-});
+    // 🔥 Attach uploaded files if any
+    for (let file of files) {
+      formData.append("uploadDocs", file);
+    }
 
-// ✅ 3. Filters popup
-filterBtn.addEventListener('click', () => {
-  const filterModalHTML = `
-  <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-filter"></i> Filter Vendors</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <label class="form-label">Status</label>
-          <select class="form-select mb-3">
-            <option>All</option>
-            <option>Active</option>
-            <option>Pending</option>
-            <option>Inactive</option>
-          </select>
-          <label class="form-label">Category</label>
-          <select class="form-select">
-            <option>All</option>
-            <option>Office Supplies</option>
-            <option>Logistics</option>
-            <option>Maintenance</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary">Apply</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', filterModalHTML);
-  showModal('filterModal');
-});
+    // 🪄 Optional vendor ID (if you want to link to logged-in vendor)
+    formData.append("createdBy", window.vendorId || "");
 
-// ✅ 4. Export confirmation popup
-exportBtn.addEventListener('click', () => {
-  const exportModalHTML = `
-  <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-center p-3">
-        <h5><i class="fas fa-download text-success"></i> Export Vendor List?</h5>
-        <p>Download as Excel or PDF?</p>
-        <div class="d-flex justify-content-center gap-3">
-          <button class="btn btn-outline-success"><i class="fas fa-file-excel"></i> Excel</button>
-          <button class="btn btn-outline-danger"><i class="fas fa-file-pdf"></i> PDF</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', exportModalHTML);
-  showModal('exportModal');
-});
+    // 🚀 Step 2: Push to backend
+    const res = await axios.post("/api/vendors/add/vendor", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
 
-// ✅ 5. Sync with Bank API popup
-syncBtn.addEventListener('click', () => {
-  const syncModalHTML = `
-  <div class="modal fade" id="syncModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-center p-3">
-        <h5><i class="fas fa-sync fa-spin text-info"></i> Syncing Vendors...</h5>
-        <p class="mt-2">Connecting to Bank API. Please wait.</p>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', syncModalHTML);
-  showModal('syncModal');
+    console.log("✅ Vendor added successfully:", res.data);
+    alert("Vendor added successfully!");
 
-  // fake 3s sync process
-  setTimeout(() => {
-    document.getElementById('syncModal').querySelector('.modal-content').innerHTML = `
-      <h5 class="text-success"><i class="fas fa-check-circle"></i> Sync Complete</h5>
-      <p>All bank records updated successfully ✅</p>`;
-  }, 3000);
+    // 🧹 Step 3: Reset form + close modal
+    document.querySelector("#addVendorModal form").reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById("addVendorModal"));
+    modal.hide();
+
+    // 🔄 Optionally reload vendor list
+    location.reload();
+
+  } catch (err) {
+    console.error("❌ Error saving vendor:", err);
+    alert("Failed to add vendor. Check console for details.");
+  }
 });
 </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Enable tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  [...tooltipTriggerList].map(el => new bootstrap.Tooltip(el));
+
+  // Add Vendor Modal
+  document.querySelector(".add-vendor-btn")?.addEventListener("click", async () => {
+    try {
+      const vendorId = window.vendorId;
+      console.log("🪄 Fetching vendor info for ID:", vendorId);
+
+      const res = await axios.get(`/api/vendors/${vendorId}`);
+      const vendor = res.data;
+      console.log("📦 Vendor data received:", vendor);
+
+      // 🧠 Works for both vendor & admin
+      document.getElementById("companyName").value = 
+        vendor.companyName || vendor.fullName || "";
+
+      document.getElementById("contactInfo").value = 
+        `${vendor.contactPerson?.name || vendor.fullName || ""}, ${vendor.contactPerson?.email || vendor.email || ""}, ${vendor.contactPerson?.phone || vendor.phone || ""}`;
+
+      document.getElementById("address").value = vendor.address || "";
+      document.getElementById("category").value = vendor.category || vendor.plan || "";
+      document.getElementById("bankInfo").value = vendor.bankInfo
+        ? `${vendor.bankInfo.bankName || ""}, ${vendor.bankInfo.accountNumber || ""}`
+        : "";
+      document.getElementById("rating").value = vendor.rating?.average
+        ? `${vendor.rating.average} Stars`
+        : "";
+      document.getElementById("tags").value = vendor.tags?.join(", ") || "";
+
+      document.getElementById("tier3Verify").checked = vendor.bankInfo?.tier3Verified || false;
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById("addVendorModal"));
+      modal.show();
+
+    } catch (err) {
+      console.error("❌ Error fetching vendor data:", err);
+      alert("Could not load vendor data. Please try again.");
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+<!-- GET ALL Vendors + Handle Modal View -->
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const tableBody = document.querySelector("table tbody");
+  const currentUserId = "<%= user.id %>"; // ✅ Logged-in user ID from EJS
+
+  try {
+    const res = await fetch("/api/vendors");
+    const vendors = await res.json();
+    tableBody.innerHTML = "";
+
+    vendors.forEach(vendor => {
+      const row = document.createElement("tr");
+      row.classList.add("vendor-row");
+      row.style.cursor = "pointer";
+
+      const isOwner = vendor.UserId === currentUserId;
+      const vendorTypeLabel = isOwner ? "Internal" : "External";
+      const typeBadgeClass = isOwner ? "bg-info" : "bg-success";
+      const ratingStars = "⭐".repeat(Math.round(vendor.rating?.average || 0));
+
+      // 🧩 Actions
+      let actionsHTML = `
+        <button class="btn btn-sm btn-outline-primary view-vendor-btn" 
+          title="View" 
+          data-vendor-id="${vendor._id}">
+          <i class="fas fa-eye"></i>
+        </button>
+      `;
+      if (isOwner) {
+        actionsHTML += `
+          <button class="btn btn-sm btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-outline-danger" title="Block"><i class="fas fa-ban"></i></button>
+        `;
+      }
+
+      // 🧩 Row content
+      row.innerHTML = `
+        <td>${vendor.companyName}</td>
+        <td><span class="badge ${typeBadgeClass}">${vendorTypeLabel}</span></td>
+        <td>${vendor.category}</td>
+        <td>${vendor.bankInfo}</td>
+        <td>${ratingStars} (${vendor.rating?.average?.toFixed(1) || 0})</td>
+        <td><span class="status-badge ${vendor.tier3Verified ? "status-active" : "status-pending"}">${vendor.tier3Verified ? "Active" : "Pending"}</span></td>
+        <td>${new Date(vendor.createdAt).toLocaleDateString()}</td>
+        <td>${actionsHTML}</td>
+      `;
+
+      tableBody.appendChild(row);
+    });
+
+// 🧠 After table loads → attach event listeners for View buttons
+document.querySelectorAll(".view-vendor-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const vendorId = btn.dataset.vendorId;
+    window.activeVendorId = vendorId; // ✅ make vendorId globally accessible
+
+    try {
+      const res = await axios.get(`/api/vendors/view/${vendorId}`);
+      const vendor = res.data;
+
+      // 🧩 Fill modal dynamically
+      document.getElementById("vendorProfileModalLabel").innerHTML =
+        `<i class="fas fa-user-tie"></i> Vendor Profile: ${vendor.companyName}`;
+
+      const modalBody = document.querySelector("#vendorProfileModal .modal-body");
+      modalBody.innerHTML = `
+        <div class="text-center mb-3">
+          <img src="${vendor.uploadedDocs[0] || 'https://via.placeholder.com/100'}" alt="Vendor Logo" class="vendor-logo">
+        </div>
+        <div class="card mb-3">
+          <div class="card-header"><i class="fas fa-building"></i> Company Info</div>
+          <div class="card-body">
+            <p><strong>Name:</strong> ${vendor.companyName}</p>
+            <p><strong>Contact:</strong> ${vendor.contactInfo}</p>
+            <p><strong>Category:</strong> ${vendor.category}</p>
+            <p><strong>Address:</strong> ${vendor.address}</p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header"><i class="fas fa-star"></i> Ratings</div>
+          <div class="card-body">
+            <p><strong>Average Rating:</strong> ${vendor.rating.average} (${vendor.rating.totalReviews} Reviews)</p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header"><i class="fas fa-bank"></i> Bank Info</div>
+          <div class="card-body">
+            <p><strong>Bank Info:</strong> ${vendor.bankInfo}</p>
+            <p><strong>Tier 3 Verification:</strong>
+              <span class="verification-badge ${vendor.tier3Verified ? 'verified' : 'unverified'}">
+                ${vendor.tier3Verified ? 'Verified ✅' : 'Not Verified ❌'}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header"><i class="fas fa-file-alt"></i> Uploaded Documents</div>
+          <div class="card-body">
+            <ul>
+              ${vendor.uploadedDocs.length > 0 
+                ? vendor.uploadedDocs.map(doc => `<li><a href="${doc}" target="_blank">View Document</a></li>`).join("") 
+                : "<li>No documents uploaded</li>"
+              }
+            </ul>
+          </div>
+        </div>
+      `;
+
+      // ✅ Wire all footer buttons
+      const footer = document.querySelector("#vendorProfileModal .modal-footer");
+
+      // REPORT
+      footer.querySelector(".btn-outline-danger").onclick = () => {
+        new bootstrap.Modal(document.getElementById("reportVendorModal")).show();
+      };
+
+      // EDIT
+      footer.querySelector(".btn-outline-secondary").onclick = () => {
+        new bootstrap.Modal(document.getElementById("editVendorModal")).show();
+      };
+
+      // VIEW HISTORY
+      footer.querySelector(".btn-outline-primary").onclick = async () => {
+        await loadVendorHistory(vendorId);
+        new bootstrap.Modal(document.getElementById("vendorHistoryModal")).show();
+      };
+
+    // Assign Vendor
+        document.querySelectorAll(".assign-vendor-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                try {
+                    const vendorRow = btn.closest(".vendor-row") || btn.closest(".modal-content");
+                    const vendorId = vendorRow?.dataset?.vendorId || "vendor123"; // Fallback for demo
+                    const userId = "user456"; // Replace with actual user ID from session
+
+                    // Log both IDs before sending
+                    console.log("📦 Assign Vendor Debug (Frontend):");
+                    console.log("➡️ vendorId:", vendorId);
+                    console.log("➡️ userId:", userId);
+
+                    const res = await axios.post("/api/vendors/assign", { vendorId, userId });
+                    alert(res.data.message || "Vendor assigned successfully!");
+                } catch (err) {
+                    console.error("❌ Error assigning vendor:", err);
+                    alert("Failed to assign vendor.");
+                }
+            });
+        });
+
+
+      // 🧩 Show modal
+      new bootstrap.Modal(document.getElementById("vendorProfileModal")).show();
+
+    } catch (err) {
+      console.error("❌ Error fetching vendor data:", err);
+      alert("Failed to load vendor details.");
+    }
+  });
+});
+
+
+  } catch (error) {
+    console.error("❌ Error loading vendors:", error);
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center text-danger">Failed to load vendors</td>
+      </tr>
+    `;
+  }
+});
+</script>
+
+
+
+
+<!-- APPLICATION VENDORS -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("vendorApplicationsModal");
+  const tableBody = modal.querySelector("tbody");
+
+  // When modal is opened
+  modal.addEventListener("show.bs.modal", async () => {
+    tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Loading applications...</td></tr>`;
+
+    try {
+      const res = await fetch("/api/vendor-applications");
+      const apps = await res.json();
+
+      if (apps.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No applications found</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = ""; // clear the loading row
+
+      apps.forEach(app => {
+        const row = document.createElement("tr");
+
+        const docsHTML = app.uploadedDocs?.length
+          ? app.uploadedDocs.map((url, i) => `<a href="${url}" target="_blank">Doc ${i + 1}</a>`).join(", ")
+          : "No Documents";
+
+        row.innerHTML = `
+          <td>${app.companyName}</td>
+          <td>${app.category}</td>
+          <td>${new Date(app.createdAt).toLocaleDateString()}</td>
+          <td>${docsHTML}</td>
+          <td>
+            <span class="status-badge ${app.tier3Verified ? "status-active" : "status-pending"}">
+              ${app.tier3Verified ? "Approved" : "Pending"}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-success" title="Approve"><i class="fas fa-check"></i></button>
+            <button class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></button>
+            <button class="btn btn-sm btn-outline-primary" title="View Application"><i class="fas fa-eye"></i></button>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Error loading vendor applications:", err);
+      tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Failed to load applications</td></tr>`;
+    }
+  });
+});
+</script>
+
+
+
+<!-- STATS -->
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const cards = document.querySelectorAll(".card-layout .card-body h2");
+  const [totalEl, verifiedEl, avgEl, pendingEl] = cards;
+
+  // Optional: show temporary loading state
+  totalEl.textContent = verifiedEl.textContent = avgEl.textContent = pendingEl.textContent = "...";
+
+  try {
+    const res = await fetch("/api/vendor-stats");
+    const data = await res.json();
+
+    totalEl.textContent = data.totalVendors;
+    verifiedEl.textContent = data.verifiedVendors;
+    avgEl.textContent = data.avgRating;
+    pendingEl.textContent = data.pendingApplications;
+  } catch (err) {
+    console.error("❌ Error fetching vendor stats:", err);
+    totalEl.textContent = verifiedEl.textContent = avgEl.textContent = pendingEl.textContent = "—";
+  }
+});
+</script>
+
+
+
+
+
+
+<!-- REPORT -->
+<script>
+
+document.getElementById("submitReportBtn")?.addEventListener("click", async () => {
+  const reason = document.getElementById("reportReason").value.trim();
+  const fullname = document.getElementById("Rfullname").value.trim();
+  const email = document.getElementById("Remail").value.trim();
+  const vendorId = window.vendorId;
+  const reporterId = "<%= user.id %>";
+
+  if (!reason) return alert("Please provide a reason.");
+
+  try {
+    const res = await axios.post("/api/vendors/report", { vendorId, reporterId, reason, email, fullname });
+    alert(res.data.message);
+    bootstrap.Modal.getInstance(document.getElementById("reportVendorModal")).hide();
+  } catch (err) {
+    console.error("❌ Error reporting vendor:", err);
+    alert("Failed to submit report.");
+  }
+});
+
+</script>
+
+
+
+
+<!-- EDIT APLICATION -->
+<script>
+
+    if (vendor.UserId === currentUserId) {
+  document.querySelector(".edit-vendor-btn").style.display = "inline-block";
+} else {
+  document.querySelector(".edit-vendor-btn").style.display = "none";
+}
+
+
+
+
+document.getElementById("updateVendorBtn")?.addEventListener("click", async () => {
+  const vendorId = window.activeVendorId;
+  const updates = {
+    companyName: document.getElementById("editCompanyName").value,
+    category: document.getElementById("editCategory").value,
+    contactInfo: document.getElementById("editContact").value,
+  };
+
+  try {
+    const res = await axios.put(`/api/vendors/update/${vendorId}`, updates);
+    alert(res.data.message);
+    bootstrap.Modal.getInstance(document.getElementById("editVendorModal")).hide();
+    location.reload();
+  } catch (err) {
+    console.error("❌ Error updating vendor:", err);
+    alert("Failed to update vendor.");
+  }
+});
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- VIEW HISTORY -->
+<script>
+    async function loadVendorHistory(vendorId) {
+  try {
+    const res = await axios.get(`/api/vendors/history/${vendorId}`);
+    const historyList = document.getElementById("vendorHistoryList");
+    historyList.innerHTML = "";
+
+    if (res.data.reports.length === 0) {
+      historyList.innerHTML = "<p>No reports found for this vendor.</p>";
+      return;
+    }
+
+    res.data.reports.forEach((r, i) => {
+      historyList.innerHTML += `
+        <div class="border p-2 mb-2">
+          <strong>#${i + 1}</strong> - ${r.reason}<br>
+          <small>Reported by: ${r.reporterId?.name || "Unknown"} on ${new Date(r.date).toLocaleDateString()}</small>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error("❌ Error loading vendor history:", err);
+  }
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

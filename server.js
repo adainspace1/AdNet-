@@ -48,6 +48,9 @@ const Asset = require('./models/Asset');
 const Budget = require('./models/budget');
 const Worker = require("./models/Worker"); // adjust path
 
+const Vendor = require("./models/vendorreg");
+const AddVendor = require("./models/AddVendor");
+
 
 
 const Driver = require("./models/Driver");
@@ -58,6 +61,9 @@ const WalletTransaction = require("./models/WalletTransaction");
 const Reconciliation = require("./models/Reconciliation"); // if you track mismatches
 const Invoice = require("./models/Invoice"); // if you track mismatches
 const LinkedBank = require("./models/LinkedBank"); // if you track mismatches
+
+
+
 
 
 // services/paystackService.js
@@ -77,6 +83,7 @@ const session = require("express-session")
 // app.use(express.json())
 
 
+const vendorRoutes = require("./routes/vendorRoutes");
 const authRoutes = require("./routes/adminroutes");
 const userRoutes = require("./routes/userroutes");
 const driverRoutes = require("./routes/driverRoutes");
@@ -118,6 +125,7 @@ app.use(bodyparser.json())
 app.use("/api/auth", authRoutes);
 app.use("/api/driver", driverRoutes);
 app.use("/user", userRoutes);
+app.use("/api/vendors", vendorRoutes);
 
 
 
@@ -457,16 +465,20 @@ function ensureAuthenticated(req, res, next) {
     }
 
     // Nobody logged in → redirect accordingly
-    const attemptedUrl = req.originalUrl;
-    console.log(`[AUTH] ${now} | PAGE: ${attemptedUrl} | TYPE: GUEST | REDIRECT`);
+   const attemptedUrl = req.originalUrl;
+console.log(`[AUTH] ${now} | PAGE: ${attemptedUrl} | TYPE: GUEST | REDIRECT`);
 
-    if (attemptedUrl && attemptedUrl.startsWith("/employee")) {
-      // Worker login redirect
-      return res.redirect(`/employee/repons/auth/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-    } else {
-      // Normal login redirect
-      return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-    }
+if (req.session?.lastLoginOrigin === "vendor") {
+  // redirect vendor to vendorAuth
+  return res.redirect(`/vendorAuth?redirect=${encodeURIComponent(attemptedUrl)}`);
+} else if (attemptedUrl && attemptedUrl.startsWith("/employee")) {
+  // worker redirect
+  return res.redirect(`/employee/repons/auth/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+} else {
+  // default admin redirect
+  return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
+}
+
   } catch (err) {
     console.error("Error in ensureAuthenticated middleware:", err);
     res.status(500).send("Server error");
@@ -5455,46 +5467,204 @@ app.get("/driver-dashboard", ensureDriverAuth, (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-app.get("/Vendors", ensureAuthenticated, async (req, res) => {
+async function vendorAuth(req, res, next) {
   try {
-        let recipientId = null;
-    let companyinfo = null;
+    const now = Date.now();
+    const redirectUrl = `/vendorAuth?redirect=${encodeURIComponent(req.originalUrl)}`;
 
-    if (req.session.user) {
-      // ✅ Admin logged in
-      recipientId = req.session.user._id;
-            companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
-    } else if (req.session.worker) {
-      // ✅ Worker logged in → use admin’s ID
-      recipientId = req.session.worker.adminId;
-      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
-    } else {
-      return res.redirect("/login");
+    // 🧩 STEP 1: Check Admin/Worker Auth first
+    if (req.session.user || req.session.worker) {
+      console.log("✅ Admin/Worker authenticated via ensureAuthenticated — access granted to vendor route.");
+
+      let recipientId = null;
+      let companyinfo = null;
+
+      if (req.session.user) {
+        recipientId = req.session.user._id;
+        companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+      } else if (req.session.worker) {
+        recipientId = req.session.worker.adminId;
+        companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
+      }
+
+      req.recipientId = recipientId;
+      req.companyinfo = companyinfo;
+      req.isVendor = false;
+      return next();
     }
 
-    console.log("Dashboard recipientId:", recipientId);
-    console.log("Company info:", companyinfo);
+    // 🧩 STEP 2: Vendor login check
+    if (!req.session.vendor) {
+      console.log("🚫 Unauthorized — no vendor session found.");
+      req.session.lastLoginOrigin = "vendor";
+      return res.redirect(redirectUrl);
+    }
 
-    res.render("dashboard/Procurement_payables/Supplier", {
-       user: req.session.user || req.session.worker,
-       worker: req.session.worker || null,
-      companyinfo,   
+    // 🕒 STEP 3: Check vendor inactivity (25 hours)
+    const sessionTimeout = 1000 * 60 * 60 * 25; // 25 hours in ms
+
+    if (req.session.lastActivity && now - req.session.lastActivity > sessionTimeout) {
+      console.log(`⚠️ Vendor session expired after 25 hours (${req.session.vendor.email}).`);
+      req.session.destroy(() => {
+        return res.redirect(redirectUrl);
+      });
+      return;
+    }
+
+    // 🧩 STEP 4: Update last activity + attach vendor info
+    req.session.lastActivity = now;
+
+    const vendor = await Vendor.findById(req.session.vendor.id);
+    if (!vendor) {
+      console.log("❌ Vendor not found in DB — clearing session.");
+      req.session.destroy(() => res.redirect(redirectUrl));
+      return;
+    }
+
+    req.recipientId = vendor._id;
+    req.companyinfo = {
+      companyName: vendor.companyName,
+      vendorName: vendor.name,
+      email: vendor.email,
+      phone: vendor.phone,
+      address: vendor.address,
+      description: vendor.description,
+    };
+    req.isVendor = true;
+
+    console.log(`✅ Vendor authenticated: ${vendor.companyName} (${vendor.email})`);
+
+    next();
+  } catch (err) {
+    console.error("❌ Vendor Auth Middleware Error:", err);
+    res.status(500).send("Server error in authentication middleware");
+  }
+}
+
+
+
+
+
+app.get("/vendorAuth", async (req, res) => {
+  try {
+  
+    const redirect = req.query.redirect || "/";
+
+    res.render("dashboard/vendors/vendorAuth", {
+      redirect
     });
   } catch (err) {
     console.error("Error rendering Driver dash page:", err);
     res.status(500).send("Server error");
   }
+});
+
+
+
+
+
+
+app.get("/Vendors", vendorAuth, async (req, res) => {
+  try {
+    res.render("dashboard/Procurement_payables/Supplier", {
+      user: req.session.user || req.session.worker || req.session.vendor,
+      worker: req.session.worker || null,
+      companyinfo: req.companyinfo,
+      isVendor: req.isVendor
+    });
+  } catch (err) {
+    console.error("Error rendering Vendor page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+// ✅ GET all vendors
+app.get("/api/vendors", async (req, res) => {
+  try {
+    const vendors = await AddVendor.find().sort({ createdAt: -1 });
+    res.status(200).json(vendors);
+  } catch (err) {
+    console.error("Error fetching vendors:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ Get all vendor applications (you can later filter where tier3Verified is false if needed)
+app.get("/api/vendor-applications", async (req, res) => {
+  try {
+    const applications = await AddVendor.find().sort({ createdAt: -1 });
+    res.status(200).json(applications);
+  } catch (err) {
+    console.error("Error fetching vendor applications:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// ✅ Vendor stats summary
+app.get("/api/vendor-stats", async (req, res) => {
+  try {
+    const totalVendors = await AddVendor.countDocuments();
+    const verifiedVendors = await AddVendor.countDocuments({ tier3Verified: true });
+    const pendingApplications = await AddVendor.countDocuments({ tier3Verified: false });
+
+    // Average rating (avoid NaN if no vendors)
+    const vendors = await AddVendor.find({}, "rating.average");
+    const avgRating =
+      vendors.length > 0
+        ? (
+            vendors.reduce((sum, v) => sum + (v.rating?.average || 0), 0) / vendors.length
+          ).toFixed(1)
+        : 0;
+
+    res.status(200).json({
+      totalVendors,
+      verifiedVendors,
+      pendingApplications,
+      avgRating,
+    });
+  } catch (err) {
+    console.error("Error fetching vendor stats:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+
+
+// APPLICATION COMPANY INFO
+
+app.get("/api/vendors/view/:id", async (req, res) => {
+  try {
+    console.log("incoming vendor", req.body)
+    const vendor = await AddVendor.findById(req.params.id);
+    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+    res.json(vendor);
+  } catch (err) {
+    console.error("Error fetching vendor:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+app.get("/vendor/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) return res.status(500).json({ message: "Logout failed" });
+    res.clearCookie("connect.sid"); // clears the cookie
+    res.json({ message: "Logged out successfully" });
+  });
 });
 
 
