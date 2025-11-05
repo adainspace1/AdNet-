@@ -164,12 +164,12 @@
             </div>
 
             <!-- Create Order Tab -->
-            <div class="tab-content" id="create-order">
+<div class="tab-content" id="create-order">
                 <h3>Create New Purchase Order</h3>
 
 
                     
-<form class="createOrderForm" method="POST" action="/api/auth/createOrder" enctype="application/x-www-form-urlencoded">
+    <form class="createOrderForm" method="POST" action="/api/auth/createOrder" enctype="application/x-www-form-urlencoded">
   <div class="form-row">
 
           <input type="hidden" name="recipientId" value="<%= user._id %>" >
@@ -186,23 +186,23 @@
     </div>
 
     <!-- Delivery Type Section -->
-<div class="form-group">
-  <label for="deliveryType">Delivery Type</label>
-  <select name="delivery.type" id="deliveryType" required>
-    <option value="">Select Delivery Type</option>
-    <option value="self_pickup">Self Pickup</option>
-    <option value="waybill">Waybill</option>
-    <option value="motorcycle">Motorcycle</option>
-    <option value="truck">Truck</option>
-  </select>
-</div>
+    <div class="form-group">
+      <label for="deliveryType">Delivery Type</label>
+      <select name="delivery.type" id="deliveryType" required>
+        <option value="">Select Delivery Type</option>
+        <option value="self_pickup">Self Pickup</option>
+        <option value="waybill">Waybill</option>
+        <option value="motorcycle">Motorcycle</option>
+        <option value="truck">Truck</option>
+      </select>
+    </div>
 
 <div id="deliveryExtraFields">
   <!-- This will be populated dynamically via JS -->
 </div>
 
 
-       <div class="form-group">
+<div class="form-group">
       <label for="buyer-name">Product Confirmation Password</label>
       <input type="text" name="productpassword" id="buyer-name" placeholder="Enter Buyer's prefered confirmation code" required>
     </div>
@@ -211,9 +211,9 @@
       <label for="expectedDelivery">Expected Delivery Date</label>
       <input type="date" id="expectedDelivery" name="expectedDelivery">
     </div>
-  </div>
+</div>
 
-  <div class="items-section">
+  <div class="items-section ">
     <h4>Order Items</h4>
     <div id="orderItems">
       <div class="item-row">
@@ -281,13 +281,13 @@
       <i class="fas fa-save"></i> Create Order
     </button>
   </div>
-</form>
+  </form>
 
 
             </div>
 
             <!-- In Transit Tab -->
-            <div class="tab-content" id="in-transit">
+  <div class="tab-content" id="in-transit">
                 <div class="action-bar">
                     <h3>In Transit Orders</h3>
                 </div>
@@ -338,7 +338,13 @@
                 </div>
             </div>
         </div>
-    </div>
+</div>
+
+
+
+
+
+
 
     <!-- Order Details Modal -->
     <div class="modal" id="orderDetailsModal">

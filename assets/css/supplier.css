@@ -51,3 +51,25 @@
         .loading-spinner {
             display: none;
         }
+
+
+
+
+        .table-cover{
+            padding: 10px;
+            width: 100%;
+            overflow-x: scroll;
+        }
+       
+
+        @media (max-width: 600px){
+                 .table-cover{
+            background-color: #ccc;
+            padding: 10px;
+            width: 100%;
+            overflow-x: scroll;
+        }
+       .table-cover table td{
+        min-width: 150px;
+       }
+        }

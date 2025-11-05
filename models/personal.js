@@ -1,3 +1,4 @@
+// Personal Model
 const mongoose = require('mongoose');
 
 const userFormSchema = new mongoose.Schema({
@@ -23,7 +24,11 @@ const userFormSchema = new mongoose.Schema({
     type: Number,
     enum: [1, 2, 3], // 1=API Wallet, 2=Platform Wallet, 3=Bank & Third-Party
     default: 1
-  }
+  },
+    creditLimit: { type: Number, default: 500000 }, // 💰 threshold range
+  creditWarning: { type: Number, default: 300000 }, // ⚠️ warning threshold
+  usedCredit: { type: Number, default: 0 }, // 🧮 dynamic tracker
+  availableCredit: { type: Number, default: function() { return this.creditLimit; } },
 }, {
   timestamps: true
 });

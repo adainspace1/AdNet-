@@ -7,11 +7,13 @@ const Expense = require('../models/expense');
 const Production = require('../models/production');
 const AccountsPayable = require('../models/AccountsPayable');
 const AccountReceivable = require("../models/AccountReceivable");
+const Personal = require('../models/personal');
     const APPayment = require('../models/APPayment');
     const ARInvoice = require('../models/ARInvoice');
 const Budget = require('../models/budget');
 const Payroll = require('../models/Payroll');
 const Asset = require('../models/Asset');
+const Credit = require("../models/Credit");
 
 const Forecast = require("../models/Forecast");
 const Deal = require('../models/Deal');
@@ -883,7 +885,175 @@ const workerlogin = async (req, res) => {
 
 
 
+
+
+// 🧾 Add new credit
+const addCredit = async (req, res) => {
+  try {
+    let {
+      personalId,
+      customerName,
+      amount,
+      dueDate,
+      notes,
+      hasInterest,
+      interestRate,
+      interestType,
+      paymentType
+    } = req.body;
+
+    const personal = await Personal.findById(personalId);
+    if (!personal) return res.status(404).send("Personal record not found");
+
+    const creditAmount = parseFloat(amount);
+    const newUsedCredit = personal.usedCredit + creditAmount;
+
+    // ⚠️ 1. Warning threshold reached
+    if (newUsedCredit >= personal.creditWarning && newUsedCredit < personal.creditLimit) {
+      console.warn("⚠️ Credit limit warning reached for:", personal.name);
+      // You can send this to UI as a warning message
+    }
+
+    // 🚫 2. Full limit reached — deny credit
+    if (newUsedCredit >= personal.creditLimit) {
+      console.log("❌ Credit limit reached! Declining credit for:", personal.name);
+      return res.status(400).send("Credit limit exceeded, cannot add new credit.");
+    }
+
+    // ✅ Otherwise, approve and update
+    const interestFlag = hasInterest === "on" || hasInterest === true;
+
+    const newCredit = new Credit({
+      personalId,
+      customerName,
+      amount: creditAmount,
+      currentBalance: creditAmount, // ✅ Set directly from amount
+      dueDate,
+      notes,
+      hasInterest: interestFlag,
+      interestRate: interestFlag ? parseFloat(interestRate) : 0,
+      interestType: interestFlag ? interestType : null,
+      paymentType
+    });
+
+    await newCredit.save();
+
+    // 🧮 Update Personal’s credit usage
+    personal.usedCredit = newUsedCredit;
+    personal.availableCredit = personal.creditLimit - newUsedCredit;
+    await personal.save();
+
+    console.log("✅ Credit added successfully:", newCredit);
+    res.redirect("/creditmanagement");
+
+  } catch (error) {
+    console.error("❌ Error adding credit:", error);
+    res.status(500).send("Server error while adding credit");
+  }
+};
+
+
+
+
+// 💰 Mark credit as repaid or partial (installment)
+const repayCredit = async (req, res) => {
+  try {
+    const { creditId, amountPaid, userId } = req.body;
+
+    console.log("🧾 Repayment request received:");
+    console.log("📦 creditId:", creditId);
+    console.log("💰 amountPaid:", amountPaid);
+    console.log("👤 userId:", userId);
+
+    // 🔍 Fetch the credit record
+    const credit = await Credit.findById(creditId);
+    if (!credit) {
+      console.log("❌ Credit not found for ID:", creditId);
+      return res.status(404).send("Credit not found");
+    }
+
+    // 🔍 Fetch the user's personal record using userId
+    const personal = await Personal.findOne({ _id: userId });
+    if (!personal) {
+      console.log("⚠️ No personal record found for userId:", userId);
+      return res.status(404).send("Linked personal record not found");
+    }
+
+    console.log(`📋 Current credit data for ${credit.customerName}:`, {
+      currentBalance: credit.currentBalance,
+      paymentType: credit.paymentType,
+      isRepaid: credit.isRepaid,
+    });
+
+    console.log("📋 Linked personal data:", {
+      name: personal.name,
+      usedCredit: personal.usedCredit,
+      availableCredit: personal.availableCredit,
+      creditLimit: personal.creditLimit,
+    });
+
+    // 🧮 Validation: Prevent overpayment
+    if (amountPaid > credit.currentBalance) {
+      console.log("❌ Overpayment detected. Amount exceeds outstanding balance.");
+      return res.status(400).send("Payment exceeds outstanding balance");
+    }
+
+    // ⚖️ Check payment type rules
+    if (credit.paymentType === "full" && amountPaid < credit.currentBalance) {
+      console.log("❌ Partial payment attempted on full repayment credit.");
+      return res.status(400).send("This credit requires full repayment at once");
+    }
+
+    // 💸 Deduct payment from credit currentBalance
+    credit.currentBalance -= amountPaid;
+    if (credit.currentBalance < 0) credit.currentBalance = 0;
+    console.log(`💳 New current balance after payment: ${credit.currentBalance}`);
+
+    // ✅ Fully repaid logic
+    if (credit.currentBalance === 0) {
+      credit.isRepaid = true;
+      console.log("🎉 Credit fully repaid!");
+    }
+
+    // 💾 Save updated credit record
+    await credit.save();
+    console.log("💾 Credit record updated successfully.");
+
+    // 🧾 Update linked personal account
+    personal.usedCredit -= amountPaid;
+    if (personal.usedCredit < 0) personal.usedCredit = 0;
+
+    personal.availableCredit = personal.creditLimit - personal.usedCredit;
+    if (personal.availableCredit > personal.creditLimit)
+      personal.availableCredit = personal.creditLimit;
+
+    await personal.save();
+    console.log("💾 Personal record updated successfully.");
+
+    console.log("✅ Repayment processed successfully:", {
+      customer: credit.customerName,
+      amountPaid,
+      remainingBalance: credit.currentBalance,
+      newUsedCredit: personal.usedCredit,
+      newAvailableCredit: personal.availableCredit,
+    });
+
+    // 🧭 Redirect or respond
+    res.redirect("/creditmanagement");
+  } catch (error) {
+    console.error("❌ Error in repayment process:", error);
+    res.status(500).send("Server error while updating repayment");
+  }
+};
+
+
+
+
+
+
+
   
+
   
 
   
@@ -909,5 +1079,7 @@ const workerlogin = async (req, res) => {
     createdeal,
     createBudget,
     createWorker,
-    workerlogin
+    workerlogin,
+    addCredit,
+    repayCredit
 };

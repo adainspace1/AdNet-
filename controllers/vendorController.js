@@ -175,8 +175,8 @@ exports.getVendorById = async (req, res) => {
 
       // 🏦 Try both recipientId and userId to find bank info
       const bankInfo =
-        (await BankInfo.findOne({ recipientId: vendor._id })) ||
-        (await BankInfo.findOne({ recipientId: vendor.userId })) ||
+        (await BankInfo.findOne({ reciepientId: vendor._id })) ||
+        (await BankInfo.findOne({ reciepientId: vendor.userId })) ||
         (await BankInfo.findOne({ userId: vendor.userId }));
 
       console.log("🏦 Bank info found:", bankInfo ? "✅ Yes" : "❌ No");
@@ -207,11 +207,11 @@ exports.getVendorById = async (req, res) => {
     if (personal) {
       console.log("✅ Personal record found for ID:", id);
 
-      const bankInfo =
-        (await BankInfo.findOne({ recipientId: personal._id })) ||
-        (await BankInfo.findOne({ userId: personal._id }));
+      // ✅ Fix bank info (uses reciepientId)
+      const bankInfo = await BankInfo.findOne({ reciepientId: personal._id });
 
-      const businessinfo = await Businessinfo.findOne({ recipientId: personal._id });
+      // ✅ Fix business name (uses reciepientId)
+      const businessInfo = await Businessinfo.findOne({ reciepientId: personal._id });
 
       return res.json({
         type: "personal",
@@ -223,7 +223,11 @@ exports.getVendorById = async (req, res) => {
         address: `${personal.streetAddress}, ${personal.city}, ${personal.state}, ${personal.country}`,
         tier: personal.tier,
         plan: personal.plan,
-        companyName: businessinfo?.businessName || "",
+
+        // ✅ Pull company name from Business model
+        companyName: businessInfo?.businessName || "",
+
+        // ✅ Pull bank details from BankInfo model
         bankInfo: bankInfo
           ? {
               bankName: bankInfo.bankName,
@@ -256,6 +260,7 @@ exports.getVendorById = async (req, res) => {
 
 
 
+
 // ✅ POST /api/vendors
 // ✅ POST /api/vendors
 exports.addVendor = async (req, res) => {
@@ -265,13 +270,10 @@ exports.addVendor = async (req, res) => {
     const {
       UserId,
       companyName,
-      vendorType,
       category,
       contactInfo,
       address,
       bankInfo,
-      tier3Verify,
-      rating,
       tags,
       createdBy
     } = req.body;
@@ -291,13 +293,10 @@ exports.addVendor = async (req, res) => {
     const vendor = new AddVendor({
       UserId,
       companyName,
-      vendorType,
       category,
       contactInfo,
       address,
       bankInfo,
-      tier3Verified: tier3Verify === "true",
-      rating: { average: parseInt(rating) || 0 },
       tags: tags ? tags.split(",").map((t) => t.trim()) : [],
       createdBy,
       uploadedDocs: image1Url || null,

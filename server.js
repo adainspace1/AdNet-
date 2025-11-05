@@ -20,6 +20,7 @@ const Liquidity = require("./models/Liquidity");
 const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
 
+const Credit = require("./models/Credit");
 const WebSocket = require("ws");  // for websocket
 
 const yahooFinance = require('yahoo-finance2').default; // npm i yahoo-finance2
@@ -4282,7 +4283,7 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
     } else {
       return res.redirect("/login");
     }
-const userId = recipientId;
+  const userId = recipientId;
 
 
     // Update all overdue orders in one go
@@ -5583,13 +5584,41 @@ app.get("/Vendors", vendorAuth, async (req, res) => {
 // ✅ GET all vendors
 app.get("/api/vendors", async (req, res) => {
   try {
-    const vendors = await AddVendor.find().sort({ createdAt: -1 });
-    res.status(200).json(vendors);
+    // 🧩 Get all vendors from AddVendor
+    const addedVendors = await AddVendor.find().sort({ createdAt: -1 });
+
+    // 🧩 Get all vendors from Vendor (only rating)
+    const vendorRatings = await Vendor.find({}, { email: 1, companyName: 1, rating: 1 });
+
+    // 🧩 Merge only rating info into AddVendor data
+    const mergedVendors = addedVendors.map((addV) => {
+      const match = vendorRatings.find(
+        (v) =>
+          v.email === addV.contactInfo || v.companyName === addV.companyName
+      );
+
+      return {
+        _id: addV._id,
+        companyName: addV.companyName,
+        category: addV.category,
+        contactInfo: addV.contactInfo,
+        address: addV.address,
+        bankInfo: addV.bankInfo,
+        tier3Verified: addV.tier3Verified,
+        createdAt: addV.createdAt,
+        UserId: addV.UserId,
+        rating: match?.rating || { average: 0, totalReviews: 0 }, // ✅ from Vendor model
+      };
+    });
+
+    res.status(200).json(mergedVendors);
   } catch (err) {
     console.error("Error fetching vendors:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
 
 // ✅ Get all vendor applications (you can later filter where tier3Verified is false if needed)
 app.get("/api/vendor-applications", async (req, res) => {
@@ -5636,18 +5665,111 @@ app.get("/api/vendor-stats", async (req, res) => {
 
 
 // APPLICATION COMPANY INFO
-
 app.get("/api/vendors/view/:id", async (req, res) => {
   try {
-    console.log("incoming vendor", req.body)
+    console.log("incoming vendor id:", req.params.id); // <- correct debug
     const vendor = await AddVendor.findById(req.params.id);
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-    res.json(vendor);
+    return res.json(vendor);
   } catch (err) {
     console.error("Error fetching vendor:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+// GET APPLICATION TO ADD
+// ✅ Get vendor by ID
+app.get("/api/vendor/:id", async (req, res) => {
+  try {
+    const vendor = await AddVendor.findById(req.params.id);
+
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    res.status(200).json(vendor);
+  } catch (err) {
+    console.error("❌ Error fetching vendor:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+
+// ✅ Update vendor by ID
+app.put("/api/vendor/:id", async (req, res) => {
+  try {
+    const {
+      companyName,
+      category,
+      contactInfo,
+      address,
+      bankInfo,
+      tags
+    } = req.body;
+
+    const vendor = await AddVendor.findByIdAndUpdate(
+      req.params.id,
+      {
+        companyName,
+        category,
+        contactInfo,
+        address,
+        bankInfo,
+        tags: tags ? tags.split(",").map((t) => t.trim()) : [],
+      },
+      { new: true }
+    );
+
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    res.status(200).json({ message: "Vendor updated successfully", vendor });
+  } catch (err) {
+    console.error("❌ Error updating vendor:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+// DELETE A VENDOR (with ownership check)
+app.delete("/api/vendors/delete/:id", async (req, res) => {
+  try {
+    const vendorId = req.params.id;
+    const { userId } = req.body; // sent from frontend
+    console.log("🧾 Delete Request for Vendor:", vendorId, "by User:", userId);
+
+    const vendor = await AddVendor.findById(vendorId);
+    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+
+    // Check ownership
+    if (vendor.UserId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this vendor" });
+    }
+
+    await AddVendor.findByIdAndDelete(vendorId);
+    res.json({ message: "Vendor deleted successfully!" });
+  } catch (err) {
+    console.error("❌ Error deleting vendor:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
 
 
 
@@ -5688,7 +5810,312 @@ app.get("/vendor/logout", (req, res) => {
 
 
 
+app.get("/warehousing", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
 
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+  const userId = recipientId;
+
+
+
+    res.render("dashboard/warehouse/warehousing", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/creditmanagement", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+  const userId = recipientId;
+
+
+  console.log("Rendering credit management for user:", req.session);
+
+    res.render("dashboard/creditmanagement", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+app.get("/api/credits", async (req, res) => {
+  try {
+    const now = new Date();
+    const credits = await Credit.find().sort({ createdAt: -1 });
+
+    const formattedCredits = credits.map(c => {
+      // calc days overdue or days left
+      const diffDays = Math.ceil((now - c.dueDate) / (1000 * 60 * 60 * 24));
+      const daysOverdue = diffDays > 0 ? diffDays : 0;
+
+      return {
+        id: c._id,
+        customerName: c.customerName,
+        currentBalance: c.currentBalance || 0,
+        amount: c.amount || 0,
+        availableCredit: c.amount || 0, // amount displayed under “Available Credit”
+        paymentType: c.paymentType || "N/A",
+        dueDate: c.dueDate,
+        daysOverdue,
+        isRepaid: c.isRepaid,
+      };
+    });
+
+    res.json({ credits: formattedCredits });
+  } catch (error) {
+    console.error("❌ Error fetching credits:", error);
+    res.status(500).json({ message: "Server error loading credits" });
+  }
+});
+
+
+
+
+
+
+app.get("/api/credit-summary", async (req, res) => {
+  try {
+    const now = new Date();
+    const credits = await Credit.find();
+
+    const unpaid = credits.filter(c => !c.isRepaid);
+    const totalReceivables = unpaid.reduce((sum, c) => sum + c.amount, 0);
+    const overdueAccounts = unpaid.filter(c => c.dueDate < now).length;
+
+    const avgCollectionDays =
+      unpaid.length > 0
+        ? Math.round(
+            unpaid.reduce((sum, c) => {
+              const diff = (c.dueDate - c.createdAt) / (1000 * 60 * 60 * 24);
+              return sum + diff;
+            }, 0) / unpaid.length
+          )
+        : 0;
+
+    // 🧠 New Risk Alert Logic
+    const riskAlerts = unpaid.filter(c => {
+      const nearDue = (c.dueDate - now) / (1000 * 60 * 60 * 24) <= 3 && (c.dueDate - now) > 0;
+      const highInterest =
+        c.hasInterest &&
+        ((c.interestType === "daily" && c.interestRate > 0.4) ||
+         (c.interestType === "monthly" && c.interestRate > 5) ||
+         (c.interestType === "yearly" && c.interestRate > 20));
+      return nearDue || highInterest;
+    }).length;
+
+    res.json({
+      totalReceivables,
+      overdueAccounts,
+      avgCollectionDays,
+      riskAlerts,
+    });
+  } catch (err) {
+    console.error("❌ Error fetching credit summary:", err);
+    res.status(500).json({ message: "Server error loading summary" });
+  }
+});
+
+
+
+
+
+// 💸 Auto-update interest-based credits
+const applyInterestToCredits = async () => {
+  try {
+    const credits = await Credit.find({ hasInterest: true });
+
+    const now = new Date();
+
+    for (const c of credits) {
+      const lastApplied = c.lastInterestApplied || c.createdAt;
+      const diffDays = Math.floor((now - lastApplied) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) continue; // no update yet
+
+      let increaseFactor = 0;
+      switch (c.interestType) {
+        case "daily":
+          increaseFactor = c.interestRate * diffDays;
+          break;
+        case "monthly":
+          increaseFactor = c.interestRate * (diffDays / 30);
+          break;
+        case "yearly":
+          increaseFactor = c.interestRate * (diffDays / 365);
+          break;
+        default:
+          increaseFactor = 0;
+      }
+
+      // Add interest (either in % or flat depending on your definition)
+      const interestAmount = c.amount * (increaseFactor / 100);
+      c.currentBalance += interestAmount;
+      c.lastInterestApplied = now;
+
+      await c.save();
+    }
+
+    console.log("💹 Interest updated for credits");
+  } catch (err) {
+    console.error("❌ Error applying interest:", err);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/finance", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+  const userId = recipientId;
+
+
+
+    res.render("dashboard/finance", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 

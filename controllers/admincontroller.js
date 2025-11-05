@@ -374,6 +374,11 @@ const login = async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      creditLimit: user.creditLimit,
+      usedCredit: user.creditWarning,
+      usedCredit: user.usedCredit,
+      availableCredit: user.availableCredit,
+
     };
 
    // Redirect to dashboard or requested page

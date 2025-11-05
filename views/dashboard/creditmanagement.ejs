@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Credit Management Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  
+    
+        <link rel="stylesheet" href="/css/dashall.css">
+  <style>
+    .progress-bar { @apply h-2 rounded-full bg-gray-200 overflow-hidden; }
+    .progress-fill { @apply h-full transition-all duration-300; }
+    .tab-active { @apply border-b-2 border-blue-600 text-blue-600; }
+  </style>
+</head>
+<body class="">
+
+
+
+    <div class="all">
+
+    <%- include ("_sidebar1") %>
+
+     <div class="main-content">
+        <%- include ("_topnav") %>
+
+
+
+          <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-900">Credit Management</h1>
+      <div class="flex items-center space-x-4">
+        <button id="blockOrdersToggle" class="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
+          <i data-lucide="shield-alert"></i>
+          <span>Block New Orders: <span id="blockStatus">OFF</span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Summary Cards -->
+<section id="summary-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Total Receivables</p>
+          <p id="totalReceivables" class="text-2xl font-bold text-gray-900">$0</p>
+        </div>
+        <i data-lucide="dollar-sign" class="w-8 h-8 text-green-600"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Overdue Accounts</p>
+          <p id="overdueAccounts" class="text-2xl font-bold text-red-600">0</p>
+        </div>
+        <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Avg. Collection Period</p>
+          <p id="avgCollectionDays" class="text-2xl font-bold text-gray-900">0 days</p>
+        </div>
+        <i data-lucide="clock" class="w-8 h-8 text-blue-600"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Risk Alerts</p>
+          <p id="riskAlerts" class="text-2xl font-bold text-orange-600">0</p>
+        </div>
+        <i data-lucide="alert-circle" class="w-8 h-8 text-orange-600"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  async function loadSummary() {
+    try {
+      const res = await fetch("/api/credit-summary");
+      const data = await res.json();
+
+      document.getElementById("totalReceivables").textContent = `$${data.totalReceivables.toLocaleString()}`;
+      document.getElementById("overdueAccounts").textContent = data.overdueAccounts;
+      document.getElementById("avgCollectionDays").textContent = `${data.avgCollectionDays} days`;
+      document.getElementById("riskAlerts").textContent = data.riskAlerts;
+    } catch (err) {
+      console.error("Error loading summary:", err);
+    }
+  }
+
+  loadSummary();
+</script>
+
+
+  <!-- Tabs Navigation -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8" aria-label="Tabs">
+        <button class="tab-btn tab-active py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="overview">Overview</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="transactions">Transactions</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="risk">Risk Tools</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="reminders">Reminders</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Customer Credit Overview</h2>
+          <div class="flex space-x-3">
+<!-- Add Credit Button -->
+<button id="openAddCreditModal" class="flex items-center space-x-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+  </svg>
+  <span>Add Credit</span>
+</button>
+            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+              <option>All Regions</option>
+              <option>North America</option>
+              <option>Europe</option>
+              <option>Asia</option>
+            </select>
+            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+              <option>All Status</option>
+              <option>Overdue</option>
+              <option>Current</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Credit Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Balance</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment plan</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Credit</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+                <tbody id="creditTableBody">
+                <!-- Dynamic rows come here -->
+                </tbody>
+
+          </table>
+        </div>
+
+        <!-- Aging Buckets -->
+<div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+    <p class="text-xs text-green-600 font-medium">0–30 Days</p>
+    <p class="text-xl font-bold text-green-700" data-bucket="0_30">$0.00</p>
+  </div>
+  <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+    <p class="text-xs text-yellow-600 font-medium">31–60 Days</p>
+    <p class="text-xl font-bold text-yellow-700" data-bucket="31_60">$0.00</p>
+  </div>
+  <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+    <p class="text-xs text-orange-600 font-medium">61–90 Days</p>
+    <p class="text-xl font-bold text-orange-700" data-bucket="61_90">$0.00</p>
+  </div>
+  <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+    <p class="text-xs text-red-600 font-medium">90+ Days</p>
+    <p class="text-xl font-bold text-red-700" data-bucket="90_plus">$0.00</p>
+  </div>
+</div>
+
+</div>
+
+      </div>
+    </div>
+
+    <!-- Transactions Tab -->
+    <div id="transactions" class="tab-content hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Credit Transactions</h2>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+            <i data-lucide="plus"></i>
+            <span>New Transaction</span>
+          </button>
+        </div>
+        <div class="space-y-4" id="transactionList">
+          <!-- Sample Transaction -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-medium">Order #INV-2025-048</p>
+                <p class="text-sm text-gray-500">Acme Corp • $15,000 • Credit Sale</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium text-green-600">+ $15,000</p>
+                <p class="text-xs text-gray-500">Oct 28, 2025</p>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center space-x-4">
+              <button class="text-xs text-blue-600 hover:underline">Record Payment</button>
+              <button class="text-xs text-gray-600 hover:underline">Add Note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Tools Tab -->
+    <div id="risk" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Scorecard -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold mb-4">Customer Risk Scorecard</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Acme Corp</span>
+                <span class="text-sm font-bold text-red-600">High Risk</span>
+              </div>
+              <div class="space-y-2">
+                <div>
+                  <div class="flex justify-between text-xs">
+                    <span>Payment History</span>
+                    <span>68%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill bg-yellow-500" style="width: 68%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs">
+                    <span>Overdue Count</span>
+                    <span>4</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill bg-red-500" style="width: 80%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs">
+                    <span>Total Exposure</span>
+                    <span>$68,500</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill bg-orange-500" style="width: 75%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend Graph -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold mb-4">Payment Performance Trend</h3>
+          <canvas id="paymentTrendChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- External API Integration Note -->
+      <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center space-x-3">
+        <i data-lucide="plug" class="w-5 h-5 text-blue-600"></i>
+        <p class="text-sm text-blue-800">
+          <strong>API Integration Available:</strong> Connect to Experian, Equifax, or bank risk feeds for real-time credit data.
+        </p>
+      </div>
+    </div>
+
+    <!-- Reminders Tab -->
+    <div id="reminders" class="tab-content hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Collections Workflow</h2>
+          <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2">
+            <i data-lucide="mail"></i>
+            <span>Send Reminder</span>
+          </button>
+        </div>
+
+        <!-- Workflow Stages -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="border border-gray-300 rounded-lg p-4 bg-yellow-50">
+            <h4 class="font-medium text-yellow-800">Reminder</h4>
+            <p class="text-2xl font-bold text-yellow-900">8</p>
+            <p class="text-xs text-gray-600">Scheduled</p>
+          </div>
+          <div class="border border-gray-300 rounded-lg p-4 bg-orange-50">
+            <h4 class="font-medium text-orange-800">Escalation</h4>
+            <p class="text-2xl font-bold text-orange-900">3</p>
+            <p class="text-xs text-gray-600">In Progress</p>
+          </div>
+          <div class="border border-gray-300 rounded-lg p-4 bg-red-50">
+            <h4 class="font-medium text-red-800">Recovery</h4>
+            <p class="text-2xl font-bold text-red-900">1</p>
+            <p class="text-xs text-gray-600">Legal Action</p>
+          </div>
+        </div>
+
+        <!-- Reminder Log -->
+        <div class="space-y-3" id="reminderLog">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="mail" class="w-5 h-5 text-gray-500"></i>
+              <div>
+                <p class="font-medium text-sm">Reminder sent to Acme Corp</p>
+                <p class="text-xs text-gray-500">Overdue: $12,000 • Nov 1, 2025</p>
+              </div>
+            </div>
+            <span class="text-xs text-gray-500">2 days ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+     </div>
+
+    </div>
+
+
+
+
+<!-- Add Credit Modal -->
+<div id="addCreditModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <!-- Scrollable container -->
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Add Credit</h2>
+    <form method="post" action="/user/addcredit" id="creditForm">
+      <div class="space-y-4">
+        <input type="hidden" name="personalId" value="<%= user._id %>">
+
+        <!-- Customer -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+          <input type="text" name="customerName" class="w-full p-2 border rounded-md" required />
+        </div>
+
+        <!-- Amount -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Amount</label>
+          <input type="number" name="amount" id="creditAmount" step="0.01" class="w-full p-2 border rounded-md" required />
+        </div>
+
+        <!-- Payment Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Payment Type</label>
+          <select name="paymentType" class="w-full p-2 border rounded-md" required>
+            <option value="">Select...</option>
+            <option value="full">Full Payment</option>
+            <option value="installment">Installment</option>
+          </select>
+        </div>
+
+        <!-- Due Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Due Date</label>
+          <input type="date" name="dueDate" class="w-full p-2 border rounded-md" required />
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Notes</label>
+          <textarea name="notes" rows="2" class="w-full p-2 border rounded-md" placeholder="Optional notes..."></textarea>
+        </div>
+
+        <!-- Interest Checkbox -->
+        <div class="flex items-center space-x-2">
+          <input type="checkbox" id="interestCheck" name="hasInterest" />
+          <label for="interestCheck" class="text-sm text-gray-700">Add Interest?</label>
+        </div>
+
+        <!-- Interest Fields -->
+        <div id="interestFields" class="hidden space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Interest Rate</label>
+            <input type="number" name="interestRate" placeholder="e.g. 10" step="0.01" class="w-full p-2 border rounded-md" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Rate Type</label>
+            <select name="interestType" class="w-full p-2 border rounded-md">
+              <option value="daily">Daily</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Threshold Alert (auto-filled) -->
+        <div id="thresholdWarning" class="hidden text-sm text-red-600 font-semibold">
+          ⚠️ Warning: Customer has reached or exceeded their credit threshold.
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3 mt-4 sticky bottom-0 bg-white py-2">
+          <button type="button" id="closeAddCreditModal" class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+          <button type="submit" id="submitCredit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Repay Modal -->
+<div id="repayModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+    <h2 class="text-lg font-bold mb-2">Repay Credit</h2>
+    <p class="text-sm mb-4">
+      Customer: <span id="repayCustomerName" class="font-semibold"></span><br>
+      Current Balance: <span id="repayCurrentBalance" class="font-semibold text-gray-700"></span>
+    </p>
+
+    <form action="/user/repayCredit" method="POST">
+      <input type="text" name="creditId" id="repayCreditId">
+      <input type="text" name="userId" id="repayPersonalId" value="<%= user._id %>">
+
+      <input type="number" 
+             name="amountPaid" 
+             placeholder="Enter amount" 
+             id="amountPaidInput"
+             required 
+             min="1"
+             class="w-full border rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none">
+
+      <button type="submit" 
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 font-medium">
+        Confirm Repayment
+      </button>
+    </form>
+
+    <button onclick="document.getElementById('repayModal').classList.add('hidden')" 
+            class="w-full mt-2 text-gray-600 hover:text-gray-800 text-sm">Cancel</button>
+  </div>
+</div>
+
+
+
+
+<script>
+  const interestCheck = document.getElementById("interestCheck");
+  const interestFields = document.getElementById("interestFields");
+
+  interestCheck.addEventListener("change", () => {
+    interestFields.classList.toggle("hidden", !interestCheck.checked);
+  });
+</script>
+
+
+
+
+<script>
+  const creditAmount = document.getElementById("creditAmount");
+  const thresholdWarning = document.getElementById("thresholdWarning");
+  const submitBtn = document.getElementById("submitCredit");
+
+  // toggle interest fields
+  interestCheck.addEventListener("change", () => {
+    interestFields.classList.toggle("hidden", !interestCheck.checked);
+  });
+
+  // 📊 Real-time credit data from session user
+  const availableCredit = <%= user.availableCredit %>; 
+  const creditLimit = <%= user.creditLimit %>; 
+  const warningLimit = availableCredit * 0.2; // 20% of remaining credit
+  const debtModeLimit = 20000; // threshold to show "debt mode"
+
+  console.log("🧾 Available Credit:", availableCredit);
+  console.log("⚠️ Warning Limit (20%):", warningLimit);
+
+  creditAmount.addEventListener("input", () => {
+    const amount = parseFloat(creditAmount.value || 0);
+
+    // reset default state
+    thresholdWarning.classList.add("hidden");
+    submitBtn.disabled = false;
+
+    if (availableCredit <= debtModeLimit) {
+      thresholdWarning.textContent = "🚨 Your available credit is below ₦20,000 — you're in debt mode!";
+      thresholdWarning.classList.remove("hidden");
+      submitBtn.disabled = true;
+    }
+    else if (amount > availableCredit) {
+      thresholdWarning.textContent = `❌ Credit amount exceeds available credit (₦${availableCredit.toLocaleString()})`;
+      thresholdWarning.classList.remove("hidden");
+      submitBtn.disabled = true;
+    } 
+    else if (amount >= warningLimit && amount < availableCredit) {
+      thresholdWarning.textContent = `⚠️ Warning: Amount is within 20% of your available credit (₦${warningLimit.toLocaleString()} - ₦${availableCredit.toLocaleString()})`;
+      thresholdWarning.classList.remove("hidden");
+    }
+  });
+</script>
+
+
+
+
+<!-- Modal JS -->
+<script>
+  const openBtn = document.getElementById("openAddCreditModal");
+  const closeBtn = document.getElementById("closeAddCreditModal");
+  const modal = document.getElementById("addCreditModal");
+
+  openBtn.addEventListener("click", () => modal.classList.remove("hidden"));
+  closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  window.addEventListener("click", e => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+</script>
+
+  <!-- Scripts -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchAndRenderCredits();
+});
+
+async function fetchAndRenderCredits() {
+  try {
+    const res = await fetch("/api/credits");
+    const data = await res.json();
+    renderCreditTable(data.credits || []);
+    renderBuckets(data.buckets || {});
+  } catch (err) {
+    console.error("❌ Error fetching credits:", err);
+  }
+}
+
+function renderCreditTable(credits) {
+  const tbody = document.getElementById("creditTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = credits.map(c => {
+    // 🟢 status
+    let statusText, statusColor;
+    if (c.isRepaid) {
+      statusText = "Repaid";
+      statusColor = "bg-green-100 text-green-700";
+    } else if (c.daysOverdue > 60) {
+      statusText = "High Risk";
+      statusColor = "bg-red-100 text-red-700";
+    } else if (c.daysOverdue > 30) {
+      statusText = "Late";
+      statusColor = "bg-yellow-100 text-yellow-700";
+    } else {
+      statusText = "On Track";
+      statusColor = "bg-blue-100 text-blue-700";
+    }
+
+    return `
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          ${c.customerName}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+          ₦${c.currentBalance.toLocaleString()}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+          ${c.paymentType === "installment" ? "Installment" : "Full"}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm ${c.availableCredit < 0 ? 'text-red-600' : 'text-green-600'}">
+          $${Math.abs(c.availableCredit).toLocaleString()} ${c.availableCredit < 0 ? '(Over)' : ''}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+          ${new Date(c.dueDate).toLocaleDateString()}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">
+            ${statusText}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <button
+            onclick="openRepayModal('${c.id}', '${c.customerName}', ${c.currentBalance})"
+            class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">
+            Repay
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderBuckets(buckets) {
+  document.querySelector('[data-bucket="0_30"]').textContent = `$${buckets["0_30"].toLocaleString()}`;
+  document.querySelector('[data-bucket="31_60"]').textContent = `$${buckets["31_60"].toLocaleString()}`;
+  document.querySelector('[data-bucket="61_90"]').textContent = `$${buckets["61_90"].toLocaleString()}`;
+  document.querySelector('[data-bucket="90_plus"]').textContent = `$${buckets["90_plus"].toLocaleString()}`;
+}
+
+
+
+function openRepayModal(id, customerName, balance) {
+  const modal = document.getElementById("repayModal");
+  modal.classList.remove("hidden");
+
+  document.getElementById("repayCreditId").value = id;
+  document.getElementById("repayCustomerName").textContent = customerName;
+  document.getElementById("repayCurrentBalance").textContent = `$${balance.toLocaleString()}`;
+  document.getElementById("amountPaidInput").max = balance;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('tab-active', 'text-blue-600', 'border-blue-600');
+          b.classList.add('text-gray-500');
+        });
+        btn.classList.add('tab-active', 'text-blue-600', 'border-blue-600');
+        btn.classList.remove('text-gray-500');
+
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // Block Orders Toggle
+    const blockToggle = document.getElementById('blockOrdersToggle');
+    const blockStatus = document.getElementById('blockStatus');
+    let isBlocked = false;
+    blockToggle.addEventListener('click', () => {
+      isBlocked = !isBlocked;
+      blockStatus.textContent = isBlocked ? 'ON' : 'OFF';
+      blockToggle.classList.toggle('bg-red-600', isBlocked);
+      blockToggle.classList.toggle('text-white', isBlocked);
+      blockToggle.classList.toggle('bg-red-100', !isBlocked);
+      blockToggle.classList.toggle('text-red-700', !isBlocked);
+    });
+
+    // Payment Trend Chart
+    const ctx = document.getElementById('paymentTrendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+        datasets: [{
+          label: 'Avg. Days to Pay',
+          data: [38, 42, 40, 45, 48],
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: false } }
+      }
+    });
+
+    // Initialize
+    renderCreditTable();
+  </script>
+</body>
+</html>

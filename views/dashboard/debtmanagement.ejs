@@ -1,431 +1,442 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debt Management & Cost of Capital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/debtmanagement.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Debt Management Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  
         <link rel="stylesheet" href="/css/dashall.css">
+  <style>
+    .progress-bar { @apply h-2 rounded-full bg-gray-200 overflow-hidden; }
+    .progress-fill { @apply h-full transition-all duration-300; }
+    .tab-active { @apply border-b-2 border-red-600 text-red-600; }
+    .overdue { @apply bg-red-50 border-red-200; }
+    .early-discount { @apply bg-green-50 border-green-200; }
+  </style>
 </head>
-
-
-<body>
-
-
-
-<div class="all">
-                <%- include ("_sidebar1") %>
-
-            <div class="main-content">
-                <%- include ("_topnav") %>
+<body class="">
 
 
 
+            <div class="all">       
+            <%- include ("_sidebar1") %>
 
-                        <div class="container">
-                <div class="main-container">
-                    <!-- Header -->
-                     <header class="page-header">
-    <div class="header-content">
-      <h1> Debt Management & Cost of Capital</h1>
-      <p>Manage your company's capital structure and financing costs</p>
+
+    <div class="main-content">
+        <%- include ("_topnav") %>
+
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-900">Debt Management</h1>
+      <div class="flex items-center space-x-4">
+        <button class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+          <i data-lucide="plus"></i>
+          <span>Record Payment</span>
+        </button>
+        <div class="relative">
+          <button class="p-2 rounded-full hover:bg-gray-100">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="header-actions">
-      <a href="/Debtmanagement/export" class="btn-secondary">
-        <i class="bx bx-export"></i> Export Report
-      </a>
-      <button class="btn-primary" form="analysis-form" type="submit">
-        <i class="bx bx-save"></i> Save Analysis
-      </button>
+  </header>
+
+  <!-- Dashboard Summary Cards -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Total Outstanding Debts</p>
+            <p class="text-2xl font-bold text-red-600">$1,248,500</p>
+          </div>
+          <i data-lucide="trending-down" class="w-8 h-8 text-red-600"></i>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Active Loans</p>
+            <p class="text-2xl font-bold text-gray-900">8</p>
+          </div>
+          <i data-lucide="landmark" class="w-8 h-8 text-blue-600"></i>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Overdue Payments</p>
+            <p class="text-2xl font-bold text-red-600">5</p>
+          </div>
+          <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Upcoming Due (7d)</p>
+            <p class="text-2xl font-bold text-orange-600">3</p>
+          </div>
+          <i data-lucide="calendar" class="w-8 h-8 text-orange-600"></i>
+        </div>
+      </div>
     </div>
-                        </header>
+  </section>
 
-                        <div class="content-wrapper">
-                            <% if (error) { %>
-                            <p class="error-message"><%= error %></p>
-                            <% } %>
-                            <% if (success) { %>
-                            <p class="success-message"><%= success %></p>
-                            <% } %>
+  <!-- Tabs Navigation -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="border-b border-gray-200">
+      <nav class="flex space-x-8" aria-label="Tabs">
+        <button class="tab-btn tab-active py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="payables">Payables</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="loans">Loans</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="repayments">Repayments</button>
+        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="reports">Reports</button>
+      </nav>
+    </div>
+  </div>
 
-                            <div class="overview-cards">
-                            <div class="overview-card">
-                                <div class="card-icon"><i class="bx bx-trending-down"></i></div>
-                                <div class="card-content">
-                                <h3>Current WACC</h3>
-                                <div class="metric-value" id="current-wacc">
-                                    <%= analysis.results && analysis.results.wacc ? analysis.results.wacc.toFixed(2) + '%' : '--' %>
-                                </div>
-                                <span class="metric-label">Weighted Average Cost</span>
-                                </div>
-                            </div>
-                            <div class="overview-card">
-                                <div class="card-icon"><i class="bx bx-pie-chart-alt-2"></i></div>
-                                <div class="card-content">
-                                <h3>Debt Ratio</h3>
-                                <div class="metric-value" id="debt-ratio">
-                                    <%= analysis.results && analysis.results.debtRatio ? analysis.results.debtRatio.toFixed(1) + '%' : '--' %>
-                                </div>
-                                <span class="metric-label">Debt / Total Capital</span>
-                                </div>
-                            </div>
-                            <div class="overview-card">
-                                <div class="card-icon"><i class="bx bx-shield"></i></div>
-                                <div class="card-content">
-                                <h3>Tax Shield</h3>
-                                <div class="metric-value" id="tax-shield">
-                                    <%= analysis.results && analysis.results.taxShield ? '$' + analysis.results.taxShield.toFixed(1) + 'M' : '--' %>
-                                </div>
-                                <span class="metric-label">Annual Tax Savings</span>
-                                </div>
-                            </div>
-                            <div class="overview-card">
-                                <div class="card-icon"><i class="bx bx-chart"></i></div>
-                                <div class="card-content">
-                                <h3>Cost of Equity</h3>
-                                <div class="metric-value" id="cost-equity">
-                                    <%= analysis.results && analysis.results.costOfEquity ? analysis.results.costOfEquity.toFixed(2) + '%' : '--' %>
-                                </div>
-                                <span class="metric-label">Required Return</span>
-                                </div>
-                            </div>
-                            </div>
+  <!-- Tab Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-                            <div class="calculator-grid">
-                            <!-- Company Information -->
-                            <div class="calculator-section">
-                                <div class="section-header">
-                                <h2><i class="bx bx-building"></i> Company Information</h2>
-                                <button class="btn-icon" form="company-form" type="reset">
-                                    <i class="bx bx-refresh"></i>
-                                </button>
-                                </div>
-                                <div class="section-content">
-                                <form id="company-form" action="/Debtmanagement/company" method="POST">
-                                    <div class="input-group">
-                                    <label for="company-name">Company Name</label>
-                                    <input type="text" id="company-name" name="companyName" value="<%= company.companyName || '' %>" placeholder="Enter company name">
-                                    </div>
-                                    <div class="input-row">
-                                    <div class="input-group">
-                                        <label for="market-cap">Market Capitalization</label>
-                                        <div class="input-with-currency">
-                                        <span class="currency">$</span>
-                                        <input type="number" id="market-cap" name="marketCap" value="<%= company.marketCap || '' %>" placeholder="0" step="1000000">
-                                        <span class="unit">M</span>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="total-debt">Total Debt</label>
-                                        <div class="input-with-currency">
-                                        <span class="currency">$</span>
-                                        <input type="number" id="total-debt" name="totalDebt" value="<%= company.totalDebt || '' %>" placeholder="0" step="1000000">
-                                        <span class="unit">M</span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                    <div class="input-row">
-                                    <div class="input-group">
-                                        <label for="tax-rate">Corporate Tax Rate</label>
-                                        <div class="input-with-currency">
-                                        <input type="number" id="tax-rate" name="taxRate" value="<%= company.taxRate || '' %>" placeholder="25" step="0.1" min="0" max="100">
-                                        <span class="unit">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="shares-outstanding">Shares Outstanding</label>
-                                        <div class="input-with-currency">
-                                        <input type="number" id="shares-outstanding" name="sharesOutstanding" value="<%= company.sharesOutstanding || '' %>" placeholder="0" step="1000000">
-                                        <span class="unit">M</span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                    <button type="submit" class="btn-primary">Save Company Info</button>
-                                </form>
-                                </div>
-                            </div>
+    <!-- Payables Tab -->
+    <div id="payables" class="tab-content">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Supplier Payables</h2>
+          <div class="flex space-x-3">
+            <input type="text" placeholder="Search supplier..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+            <button class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <i data-lucide="file-text"></i>
+              <span>Upload Invoice</span>
+            </button>
+          </div>
+        </div>
 
-                            <!-- Cost of Debt Calculator -->
-                            <div class="calculator-section">
-                                <div class="section-header">
-                                <h2><i class="bx bx-credit-card"></i> Cost of Debt</h2>
-                                <div class="toggle-switch">
-                                    <input type="checkbox" id="after-tax-toggle" name="afterTax" <%= analysis.costOfDebtInputs && analysis.costOfDebtInputs.afterTax ? 'checked' : '' %>>
-                                    <label for="after-tax-toggle">After-Tax</label>
-                                </div>
-                                </div>
-                                <div class="section-content">
-                                <form id="analysis-form" action="/Debtmanagement/save" method="POST">
-                                    <input type="hidden" name="analysisName" value="Default Analysis">
-                                    <div class="input-row">
-                                    <div class="input-group">
-                                        <label for="risk-free-rate">Risk-Free Rate</label>
-                                        <div class="input-with-currency">
-                                        <input type="number" id="risk-free-rate" name="riskFreeRate" value="<%= analysis.costOfDebtInputs ? analysis.costOfDebtInputs.riskFreeRate : '' %>" placeholder="2.5" step="0.01">
-                                        <span class="unit">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="credit-spread">Credit Spread</label>
-                                        <div class="input-with-currency">
-                                        <input type="number" id="credit-spread" name="creditSpread" value="<%= analysis.costOfDebtInputs ? analysis.costOfDebtInputs.creditSpread : '' %>" placeholder="1.5" step="0.01">
-                                        <span class="unit">%</span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                    <div class="calculation-result">
-                                    <div class="result-label">Cost of Debt</div>
-                                    <div class="result-value" id="cost-of-debt">
-                                        <%= analysis.results && analysis.results.costOfDebt ? analysis.results.costOfDebt.toFixed(2) + '%' : '--' %>
-                                    </div>
-                                    </div>
-                                    <div class="calculation-breakdown" id="debt-breakdown">
-                                    <div class="breakdown-item">
-                                        <span>Before-Tax Cost:</span>
-                                        <span id="before-tax-cost">
-                                        <%= analysis.costOfDebtInputs ? (analysis.costOfDebtInputs.riskFreeRate + analysis.costOfDebtInputs.creditSpread).toFixed(2) + '%' : '--' %>
-                                        </span>
-                                    </div>
-                                    <div class="breakdown-item">
-                                        <span>Tax Shield:</span>
-                                        <span id="tax-shield-rate">
-                                        <%= analysis.results && analysis.results.taxShield ? (analysis.results.taxShield / company.totalDebt * 100).toFixed(2) + '%' : '--' %>
-                                        </span>
-                                    </div>
-                                    </div>
+        <!-- Payables Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Owed</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Credit Terms</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Early Discount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="payablesTableBody">
+              <!-- Rows injected via JS -->
+            </tbody>
+          </table>
+        </div>
 
-                                    <!-- Cost of Equity Calculator -->
-                                    <div class="section-header">
-                                    <h2><i class="bx bx-line-chart"></i> Cost of Equity</h2>
-                                    <select id="equity-method" name="equityMethod" class="method-selector">
-                                        <option value="CAPM" <%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.method === 'CAPM' ? 'selected' : '' %>>CAPM Model</option>
-                                        <option value="DDM" <%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.method === 'DDM' ? 'selected' : '' %>>Dividend Discount Model</option>
-                                    </select>
-                                    </div>
-                                    <div class="section-content">
-                                    <div id="capm-inputs" class="method-inputs" style="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.method === 'DDM' ? 'display: none;' : '' %>">
-                                        <div class="input-row">
-                                        <div class="input-group">
-                                            <label for="capm-risk-free">Risk-Free Rate</label>
-                                            <div class="input-with-currency">
-                                            <input type="number" id="capm-risk-free" name="capmRiskFree" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.capm ? analysis.costOfEquityInputs.capm.riskFreeRate : '' %>" placeholder="2.5" step="0.01">
-                                            <span class="unit">%</span>
-                                            </div>
-                                        </div>
-                                        <div class="input-group">
-                                            <label for="beta">Beta (β)</label>
-                                            <input type="number" id="beta" name="beta" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.capm ? analysis.costOfEquityInputs.capm.beta : '' %>" placeholder="1.2" step="0.01">
-                                        </div>
-                                        </div>
-                                        <div class="input-group">
-                                        <label for="market-return">Market Return</label>
-                                        <div class="input-with-currency">
-                                            <input type="number" id="market-return" name="marketReturn" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.capm ? analysis.costOfEquityInputs.capm.marketReturn : '' %>" placeholder="8.0" step="0.01">
-                                            <span class="unit">%</span>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    <div id="ddm-inputs" class="method-inputs" style="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.method === 'CAPM' ? 'display: none;' : '' %>">
-                                        <div class="input-row">
-                                        <div class="input-group">
-                                            <label for="dividend-per-share">Dividend Per Share</label>
-                                            <div class="input-with-currency">
-                                            <span class="currency">$</span>
-                                            <input type="number" id="dividend-per-share" name="dividendPerShare" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.ddm ? analysis.costOfEquityInputs.ddm.dividendPerShare : '' %>" placeholder="2.50" step="0.01">
-                                            </div>
-                                        </div>
-                                        <div class="input-group">
-                                            <label for="current-price">Current Stock Price</label>
-                                            <div class="input-with-currency">
-                                            <span class="currency">$</span>
-                                            <input type="number" id="current-price" name="currentPrice" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.ddm ? analysis.costOfEquityInputs.ddm.currentPrice : '' %>" placeholder="50.00" step="0.01">
-                                            </div>
-                                        </div>
-                                        </div>
-                                        <div class="input-group">
-                                        <label for="growth-rate">Dividend Growth Rate</label>
-                                        <div class="input-with-currency">
-                                            <input type="number" id="growth-rate" name="growthRate" value="<%= analysis.costOfEquityInputs && analysis.costOfEquityInputs.ddm ? analysis.costOfEquityInputs.ddm.growthRate : '' %>" placeholder="3.0" step="0.01">
-                                            <span class="unit">%</span>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    <div class="calculation-result">
-                                        <div class="result-label">Cost of Equity</div>
-                                        <div class="result-value" id="cost-of-equity">
-                                        <%= analysis.results && analysis.results.costOfEquity ? analysis.results.costOfEquity.toFixed(2) + '%' : '--' %>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </form>
-                            </div>
-                            </div>
+        <!-- Aging Buckets -->
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p class="text-xs text-green-600 font-medium">0–30 Days</p>
+            <p class="text-xl font-bold text-green-700">$485,000</p>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <p class="text-xs text-yellow-600 font-medium">31–60 Days</p>
+            <p class="text-xl font-bold text-yellow-700">$312,000</p>
+          </div>
+          <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <p class="text-xs text-orange-600 font-medium">61–90 Days</p>
+            <p class="text-xl font-bold text-orange-700">$98,500</p>
+          </div>
+          <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+            <p class="text-xs text-red-600 font-medium">90+ Days</p>
+            <p class="text-xl font-bold text-red-700">$53,000</p>
+          </div>
+        </div>
 
-                            <!-- WACC Calculator -->
-                        <div class="calculator-section full-width">
-                                <div class="section-header">
-                                <h2><i class="bx bx-pie-chart-alt-2"></i> WACC Analysis</h2>
-                                <button class="btn-secondary" onclick="optimizeCapitalStructure()">
-                                    <i class="bx bx-target-lock"></i> Optimize Structure
-                                </button>
-                                </div>
-                                <div class="section-content">
-                                <div class="wacc-visual">
-                                    <div class="capital-structure">
-                                    <h4>Capital Structure</h4>
-                                    <div class="structure-chart">
-                                        <div class="structure-bar">
-                                        <div class="equity-portion" id="equity-bar" style="width: <%= analysis.results && analysis.results.debtRatio ? (100 - analysis.results.debtRatio) + '%' : '0%' %>"></div>
-                                        <div class="debt-portion" id="debt-bar" style="width: <%= analysis.results && analysis.results.debtRatio ? analysis.results.debtRatio + '%' : '0%' %>"></div>
-                                        </div>
-                                        <div class="structure-labels">
-                                        <span class="equity-label">Equity: <span id="equity-percentage">
-                                            <%= analysis.results && analysis.results.debtRatio ? (100 - analysis.results.debtRatio).toFixed(1) + '%' : '--' %>
-                                        </span></span>
-                                        <span class="debt-label">Debt: <span id="debt-percentage">
-                                            <%= analysis.results && analysis.results.debtRatio ? analysis.results.debtRatio.toFixed(1) + '%' : '--' %>
-                                        </span></span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                    <div class="wacc-result">
-                                    <h4>WACC Calculation</h4>
-                                    <div class="wacc-formula">
-                                        <div class="formula-part">
-                                        <span class="component">Equity Component</span>
-                                        <span class="value" id="equity-component">
-                                            <%= analysis.results && analysis.results.costOfEquity && analysis.results.debtRatio ? ((100 - analysis.results.debtRatio) / 100 * analysis.results.costOfEquity).toFixed(2) + '%' : '--' %>
-                                        </span>
-                                        </div>
-                                        <div class="formula-operator">+</div>
-                                        <div class="formula-part">
-                                        <span class="component">Debt Component</span>
-                                        <span class="value" id="debt-component">
-                                            <%= analysis.results && analysis.results.costOfDebt && analysis.results.debtRatio ? (analysis.results.debtRatio / 100 * analysis.results.costOfDebt).toFixed(2) + '%' : '--' %>
-                                        </span>
-                                        </div>
-                                        <div class="formula-operator">=</div>
-                                        <div class="formula-result">
-                                        <span class="component">WACC</span>
-                                        <span class="value final" id="final-wacc">
-                                            <%= analysis.results && analysis.results.wacc ? analysis.results.wacc.toFixed(2) + '%' : '--' %>
-                                        </span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
+        <!-- Factoring Note -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center space-x-3">
+          <i data-lucide="handshake" class="w-5 h-5 text-blue-600"></i>
+          <p class="text-sm text-blue-800">
+            <strong>Invoice Factoring:</strong> 3 invoices assigned to FactorCo. Total factored: $78,000
+          </p>
+        </div>
+      </div>
+    </div>
 
-                            <!-- Scenario Analysis -->
-                            <div class="calculator-section full-width">
-                                <div class="section-header">
-                                <h2><i class="bx bx-trending-up"></i> Scenario Analysis</h2>
-                                <button class="btn-primary" form="scenario-form" type="submit">
-                                    <i class="bx bx-play"></i> Run Analysis
-                                </button>
-                                </div>
-                                <div class="section-content">
-                                <form id="scenario-form" action="/Debtmanagement/scenario" method="POST">
-                                    <div class="scenario-controls">
-                                    <div class="scenario-input">
-                                        <label for="debt-range-min">Debt Ratio Range</label>
-                                        <div class="range-inputs">
-                                        <input type="number" id="debt-range-min" name="debtRangeMin" value="<%= analysis.results && analysis.results.scenarioResults ? analysis.results.optimalDebtRatio - 10 : '10' %>" placeholder="10" min="0" max="90">
-                                        <span>% to</span>
-                                        <input type="number" id="debt-range-max" name="debtRangeMax" value="<%= analysis.results && analysis.results.scenarioResults ? analysis.results.optimalDebtRatio + 10 : '70' %>" placeholder="70" min="10" max="100">
-                                        <span>%</span>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </form>
-                                <div class="scenario-results" id="scenario-chart">
-                                    <% if (analysis.results && analysis.results.scenarioResults) { %>
-                                    ```chartjs
-                                    {
-                                        "type": "line",
-                                        "data": {
-                                        "labels": <%= JSON.stringify(analysis.results.scenarioResults.map(r => r.debtRatio + '%')) %>,
-                                        "datasets": [{
-                                            "label": "WACC",
-                                            "data": <%= JSON.stringify(analysis.results.scenarioResults.map(r => r.wacc)) %>,
-                                            "borderColor": "#4caf50",
-                                            "backgroundColor": "rgba(76, 175, 80, 0.2)",
-                                            "fill": true
-                                        }]
-                                        },
-                                        "options": {
-                                        "responsive": true,
-                                        "scales": {
-                                            "x": { "title": { "display": true, "text": "Debt Ratio (%)" } },
-                                            "y": { "title": { "display": true, "text": "WACC (%)" } }
-                                        },
-                                        "plugins": {
-                                            "title": { "display": true, "text": "WACC vs Debt Ratio" }
-                                        }
-                                        }
-                                    }
-                                    ```
-                                    <% } else { %>
-                                    <div class="chart-placeholder">
-                                        <i class="bx bx-bar-chart-alt-2"></i>
-                                        <p>Run scenario analysis to see WACC optimization</p>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                </div>
-                            </div>
+    <!-- Loans Tab -->
+    <div id="loans" class="tab-content hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Loan & Debt Ledger</h2>
+          <button class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <i data-lucide="plus"></i>
+            <span>New Loan</span>
+          </button>
+        </div>
 
-                            <!-- Analysis Summary -->
-                            <div class="analysis-summary">
-                                <div class="summary-section">
-                                <h3><i class="bx bx-clipboard"></i> Analysis Summary</h3>
-                                <div class="summary-content" id="analysis-summary">
-                                    <% if (analysis.results && analysis.results.wacc) { %>
-                                    <p><strong>Current Capital Structure:</strong></p>
-                                    <ul>
-                                        <li>WACC: <%= analysis.results.wacc.toFixed(2) %>%</li>
-                                        <li>Debt Ratio: <%= analysis.results.debtRatio.toFixed(1) %>%</li>
-                                        <li>Cost of Equity: <%= analysis.results.costOfEquity.toFixed(2) %>%</li>
-                                        <li>Cost of Debt: <%= analysis.results.costOfDebt.toFixed(2) %>%</li>
-                                    </ul>
-                                    <% } else { %>
-                                    <p>Configure your company information and debt parameters to generate analysis summary.</p>
-                                    <% } %>
-                                </div>
-                                </div>
-                                <div class="recommendations-section">
-                                <h3><i class="bx bx-bulb"></i> Recommendations</h3>
-                                <div class="recommendations-content" id="recommendations">
-                                    <% if (analysis.results && analysis.results.debtRatio) { %>
-                                    <p><%= analysis.results.debtRatio < 30 ? 'Consider increasing debt to leverage tax benefits and reduce WACC.' : analysis.results.debtRatio > 60 ? 'Reduce debt levels to lower financial risk and optimize WACC.' : 'Current capital structure is balanced; monitor for optimization opportunities.' %></p>
-                                    <% } else { %>
-                                    <p>Complete the calculations to receive recommendations.</p>
-                                    <% } %>
-                                </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                        </div>
+        <!-- Loan Register Table -->
+        <div class="overflow-x-auto mb-6">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loan ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start / End</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="loansTableBody">
+              <!-- JS injected -->
+            </tbody>
+          </table>
+        </div>
 
+        <!-- Amortization Schedule (Sample) -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-md font-semibold mb-4">LOAN-2025-003: Amortization Schedule</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left py-2">Period</th>
+                  <th class="text-right py-2">Payment</th>
+                  <th class="text-right py-2">Principal</th>
+                  <th class="text-right py-2">Interest</th>
+                  <th class="text-right py-2">Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b">
+                  <td class="py-2">1</td>
+                  <td class="text-right">$12,500</td>
+                  <td class="text-right text-green-600">$9,167</td>
+                  <td class="text-right text-gray-600">$3,333</td>
+                  <td class="text-right">$490,833</td>
+                </tr>
+                <tr>
+                  <td class="py-2">2</td>
+                  <td class="text-right">$12,500</td>
+                  <td class="text-right text-green-600">$9,375</td>
+                  <td class="text-right text-gray-600">$3,125</td>
+                  <td class="text-right">$481,458</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 flex space-x-3">
+            <button class="text-xs text-blue-600 hover:underline">Download PDF</button>
+            <button class="text-xs text-blue-600 hover:underline">Upload Agreement</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Repayments Tab -->
+    <div id="repayments" class="tab-content hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold mb-6">Repayment Schedule</h2>
+
+        <!-- Calendar View -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2">
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium">November 2025</h3>
+                <div class="flex space-x-2">
+                  <button><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                  <button><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
-                </div>
-
-
+              </div>
+              <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                <div class="font-medium text-gray-500">Sun</div>
+                <div class="font-medium text-gray-500">Mon</div>
+                <div class="font-medium text-gray-500">Tue</div>
+                <div class="font-medium text-gray-500">Wed</div>
+                <div class="font-medium text-gray-500">Thu</div>
+                <div class="font-medium text-gray-500">Fri</div>
+                <div class="font-medium text-gray-500">Sat</div>
+                <!-- Calendar days -->
+                <div></div><div></div><div></div><div></div><div></div><div></div><div class="p-2"></div>
+                <div class="p-2"></div><div class="p-2"></div><div class="p-2"></div>
+                <div class="p-2 bg-red-100 rounded">5<br><span class="text-xs text-red-600">$12,500</span></div>
+                <div class="p-2"></div><div class="p-2"></div><div class="p-2"></div>
+                <div class="p-2 bg-orange-100 rounded">15<br><span class="text-xs text-orange-600">$45,000</span></div>
+              </div>
             </div>
+          </div>
 
+          <!-- Upcoming Alerts -->
+          <div>
+            <h3 class="font-medium mb-3">Upcoming Payments</h3>
+            <div class="space-y-3">
+              <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-sm font-medium text-red-800">Nov 5 – LOAN-2025-003</p>
+                <p class="text-xs text-red-600">$12,500 (Overdue)</p>
+              </div>
+              <div class="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p class="text-sm font-medium text-orange-800">Nov 15 – Supplier X</p>
+                <p class="text-xs text-orange-600">$45,000</p>
+              </div>
+              <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm font-medium text-blue-800">Nov 28 – Bank Loan</p>
+                <p class="text-xs text-blue-600">$18,750</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <!-- Payment Log -->
+        <div class="mt-8">
+          <h3 class="font-medium mb-3">Payment Confirmation Log</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+              <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+                <div>
+                  <p class="text-sm font-medium">Paid $25,000 to Supplier Y</p>
+                  <p class="text-xs text-gray-500">Oct 30, 2025 • Ref: PAY-8891</p>
+                </div>
+              </div>
+              <span class="text-xs text-green-600">Confirmed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-</div>
-    
+    <!-- Reports Tab -->
+    <div id="reports" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-lg font-semibold mb-4">Debt Composition</h3>
+          <canvas id="debtChart" height="200"></canvas>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-lg font-semibold mb-4">Interest vs Principal (YTD)</h3>
+          <canvas id="interestChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
 
-   
+  </main>
 
-    <script src="/js/debtmanagement.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+  </div>
+  </div>
+  
 
+  <!-- Scripts -->
+  <script>
+    lucide.createIcons();
+
+    // Sample Data
+    const payables = [
+      { name: "TechSupply Co", owed: 125000, terms: "Net 30", due: "2025-11-05", discount: "2% if paid by Nov 1", overdue: 5 },
+      { name: "Global Logistics", owed: 89000, terms: "Net 60", due: "2025-12-01", discount: "1.5% if paid by Nov 15", overdue: 0 },
+      { name: "Office Depot Inc", owed: 45000, terms: "Net 45", due: "2025-10-15", discount: "None", overdue: 21 },
+    ];
+
+    const loans = [
+      { id: "LOAN-2025-001", source: "Bank of America", type: "External", amount: 500000, start: "2025-01-15", end: "2029-01-15", status: "Active" },
+      { id: "LOAN-2025-003", source: "Internal Fund", type: "Internal", amount: 500000, start: "2025-03-01", end: "2027-03-01", status: "Overdue" },
+    ];
+
+    // Render Payables
+    function renderPayables() {
+      const tbody = document.getElementById('payablesTableBody');
+      tbody.innerHTML = payables.map(p => {
+        const isOverdue = p.overdue > 0;
+        const hasDiscount = p.discount.includes('%');
+        return `
+          <tr class="${isOverdue ? 'overdue' : hasDiscount ? 'early-discount' : ''}">
+            <td class="px-6 py-4 text-sm font-medium">${p.name}</td>
+            <td class="px-6 py-4 text-sm">$${p.owed.toLocaleString()}</td>
+            <td class="px-6 py-4 text-sm">${p.terms}</td>
+            <td class="px-6 py-4 text-sm ${isOverdue ? 'text-red-600' : ''}">${p.due}</td>
+            <td class="px-6 py-4 text-sm ${hasDiscount ? 'text-green-600' : ''}">${p.discount}</td>
+            <td class="px-6 py-4 text-sm">
+              <div class="flex space-x-2">
+                <button class="text-xs text-green-600 hover:underline">Pay</button>
+                <button class="text-xs text-blue-600 hover:underline">Factor</button>
+                <button class="text-xs text-gray-600 hover:underline">Docs</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render Loans
+    function renderLoans() {
+      const tbody = document.getElementById('loansTableBody');
+      tbody.innerHTML = loans.map(l => {
+        const isOverdue = l.status === 'Overdue';
+        return `
+          <tr class="${isOverdue ? 'bg-red-50' : ''}">
+            <td class="px-6 py-4 text-sm font-medium">${l.id}</td>
+            <td class="px-6 py-4 text-sm">${l.source}</td>
+            <td class="px-6 py-4 text-sm"><span class="px-2 py-1 text-xs rounded-full ${l.type === 'External' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">${l.type}</span></td>
+            <td class="px-6 py-4 text-sm">$${l.amount.toLocaleString()}</td>
+            <td class="px-6 py-4 text-sm">${l.start} → ${l.end}</td>
+            <td class="px-6 py-4 text-sm"><span class="px-2 py-1 text-xs rounded-full ${isOverdue ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${l.status}</span></td>
+            <td class="px-6 py-4 text-sm">
+              <button class="text-xs text-blue-600 hover:underline">View</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('tab-active', 'text-red-600', 'border-red-600');
+          b.classList.add('text-gray-500');
+        });
+        btn.classList.add('tab-active', 'text-red-600', 'border-red-600');
+        btn.classList.remove('text-gray-500');
+
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // Charts
+    new Chart(document.getElementById('debtChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Supplier Payables', 'Bank Loans', 'Internal Debt'],
+        datasets: [{ data: [65, 30, 5], backgroundColor: ['#EF4444', '#3B82F6', '#8B5CF6'] }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    new Chart(document.getElementById('interestChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          { label: 'Principal', data: [45000, 48000, 46000, 50000, 52000, 51000], backgroundColor: '#10B981' },
+          { label: 'Interest', data: [8000, 7500, 7200, 7000, 6800, 6500], backgroundColor: '#F59E0B' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'top' } } }
+    });
+
+    // Init
+    renderPayables();
+    renderLoans();
+  </script>
 </body>
 </html>

@@ -12,11 +12,6 @@ const addVendorSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    vendorType: {
-      type: String,
-      enum: ["Internal", "External"],
-      required: true,
-    },
     category: {
       type: String,
       enum: ["Construction", "Logistics", "Supply", "Maintenance"],
@@ -48,18 +43,7 @@ const addVendorSchema = new mongoose.Schema(
         type: String, // cloudinary URLs
       },
     ],
-    rating: {
-      average: {
-        type: Number,
-        min: 0,
-        max: 5,
-        default: 0,
-      },
-      totalReviews: {
-        type: Number,
-        default: 0,
-      },
-    },
+   
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     tags: [
