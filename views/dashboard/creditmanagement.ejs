@@ -13,6 +13,7 @@
   
     
         <link rel="stylesheet" href="/css/dashall.css">
+        <link rel="stylesheet" href="/css/creditmanagement.css">
   <style>
     .progress-bar { @apply h-2 rounded-full bg-gray-200 overflow-hidden; }
     .progress-fill { @apply h-full transition-all duration-300; }
@@ -109,17 +110,44 @@
 </script>
 
 
-  <!-- Tabs Navigation -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="border-b border-gray-200">
-      <nav class="flex space-x-8" aria-label="Tabs">
-        <button class="tab-btn tab-active py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="overview">Overview</button>
-        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="transactions">Transactions</button>
-        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="risk">Risk Tools</button>
-        <button class="tab-btn py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="reminders">Reminders</button>
-      </nav>
-    </div>
+<!-- Tabs Navigation -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="border-b border-gray-200 overflow-x-auto">
+    <nav 
+      class="flex space-x-6 sm:space-x-8 min-w-max sm:min-w-0"
+      aria-label="Tabs"
+    >
+      <button
+        class="tab-btn tab-active whitespace-nowrap py-3 px-2 border-b-2 font-medium text-sm text-gray-700 border-blue-600"
+        data-tab="overview"
+      >
+        Overview
+      </button>
+
+      <button
+        class="tab-btn whitespace-nowrap py-3 px-2 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        data-tab="transactions"
+      >
+        Transactions
+      </button>
+
+      <button
+        class="tab-btn whitespace-nowrap py-3 px-2 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        data-tab="risk"
+      >
+        Risk Tools
+      </button>
+
+      <button
+        class="tab-btn whitespace-nowrap py-3 px-2 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        data-tab="reminders"
+      >
+        Reminders
+      </button>
+    </nav>
   </div>
+</div>
+
 
   <!-- Tab Content -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -127,28 +155,54 @@
     <!-- Overview Tab -->
     <div id="overview" class="tab-content">
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-wrap justify-between items-center mb-6">
           <h2 class="text-lg font-semibold">Customer Credit Overview</h2>
-          <div class="flex space-x-3">
-<!-- Add Credit Button -->
-<button id="openAddCreditModal" class="flex items-center space-x-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-  </svg>
-  <span>Add Credit</span>
-</button>
-            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
-              <option>All Regions</option>
-              <option>North America</option>
-              <option>Europe</option>
-              <option>Asia</option>
-            </select>
-            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
-              <option>All Status</option>
-              <option>Overdue</option>
-              <option>Current</option>
-            </select>
-          </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Add Credit Button -->
+          <button
+            id="openAddCreditModal"
+            class="flex items-center justify-center space-x-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full sm:w-auto"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>Add Credit</span>
+          </button>
+
+          <!-- Search Input -->
+          <input
+            type="text"
+            id="creditSearch"
+            name="filterfield"
+            placeholder="Search customers..."
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/4 sm:w-[25%]"
+          />
+
+          <!-- Payment Type Filter -->
+          <select
+            id="paymentTypeFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-auto"
+          >
+            <option>All</option>
+            <option>Full</option>
+            <option>Installment</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select
+            id="statusFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-full sm:w-auto"
+          >
+            <option>All Status</option>
+            <option>Overdue</option>
+            <option>Current</option>
+          </select>
+                  </div>
+
         </div>
 
         <!-- Credit Table -->
@@ -172,25 +226,25 @@
           </table>
         </div>
 
-        <!-- Aging Buckets -->
-<div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-  <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-    <p class="text-xs text-green-600 font-medium">0–30 Days</p>
-    <p class="text-xl font-bold text-green-700" data-bucket="0_30">$0.00</p>
-  </div>
-  <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-    <p class="text-xs text-yellow-600 font-medium">31–60 Days</p>
-    <p class="text-xl font-bold text-yellow-700" data-bucket="31_60">$0.00</p>
-  </div>
-  <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
-    <p class="text-xs text-orange-600 font-medium">61–90 Days</p>
-    <p class="text-xl font-bold text-orange-700" data-bucket="61_90">$0.00</p>
-  </div>
-  <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-    <p class="text-xs text-red-600 font-medium">90+ Days</p>
-    <p class="text-xl font-bold text-red-700" data-bucket="90_plus">$0.00</p>
-  </div>
-</div>
+                <!-- Aging Buckets -->
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p class="text-xs text-green-600 font-medium">0–30 Days</p>
+            <p class="text-xl font-bold text-green-700" data-bucket="0_30">$0.00</p>
+          </div>
+          <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <p class="text-xs text-yellow-600 font-medium">31–60 Days</p>
+            <p class="text-xl font-bold text-yellow-700" data-bucket="31_60">$0.00</p>
+          </div>
+          <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <p class="text-xs text-orange-600 font-medium">61–90 Days</p>
+            <p class="text-xl font-bold text-orange-700" data-bucket="61_90">$0.00</p>
+          </div>
+          <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+            <p class="text-xs text-red-600 font-medium">90+ Days</p>
+            <p class="text-xl font-bold text-red-700" data-bucket="90_plus">$0.00</p>
+          </div>
+        </div>
 
 </div>
 
@@ -434,6 +488,51 @@
 
 
 
+
+
+<!-- View Creditor Modal -->
+<div id="viewCreditorModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-200 ease-out">
+
+  <div class="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative">
+    <button onclick="closeViewCreditorModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <h3 id="creditorName" class="text-xl font-semibold mb-4 text-gray-800">Creditor Details</h3>
+
+    <div id="creditorRecords" class="overflow-x-auto max-h-[400px] border rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Payment Plan</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+          </tr>
+        </thead>
+        <tbody id="creditorRecordsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-6 flex justify-end space-x-3">
+      <button onclick="printCreditorRecords()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 font-medium text-sm">
+        Print / Download
+      </button>
+      <button onclick="closeViewCreditorModal()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
 <!-- Repay Modal -->
 <div id="repayModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
   <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
@@ -527,6 +626,78 @@
 
 
 
+
+
+<!-- View Credit model -->
+<script>
+  async function openViewCreditorModal(customerName) {
+  const modal = document.getElementById("viewCreditorModal");
+  const nameElem = document.getElementById("creditorName");
+  const tbody = document.getElementById("creditorRecordsBody");
+
+  modal.classList.remove("hidden");
+  nameElem.textContent = `Credits for ${customerName}`;
+  tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Loading...</td></tr>`;
+
+  try {
+    const res = await fetch(`/api/credits/${encodeURIComponent(customerName)}`);
+    const data = await res.json();
+
+    if (!data.credits || data.credits.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-400">No credit records found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.credits.map(c => `
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm text-gray-700">${new Date(c.createdAt).toLocaleDateString()}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">₦${c.amount.toLocaleString()}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">₦${c.currentBalance.toLocaleString()}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">${c.paymentType}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">${new Date(c.dueDate).toLocaleDateString()}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">${c.isRepaid ? "Repaid" : (c.daysOverdue > 0 ? "Overdue" : "Active")}</td>
+      </tr>
+    `).join("");
+  } catch (err) {
+    console.error("❌ Error loading creditor records:", err);
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">Error loading data</td></tr>`;
+  }
+}
+
+function closeViewCreditorModal() {
+  document.getElementById("viewCreditorModal").classList.add("hidden");
+}
+
+function printCreditorRecords() {
+  const printContent = document.getElementById("viewCreditorModal").innerHTML;
+  const printWindow = window.open("", "", "width=900,height=600");
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Creditor Records</title>
+        <style>
+          body { font-family: Poppins, sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+          th { background: #f8f8f8; }
+        </style>
+      </head>
+      <body>${printContent}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+</script>
+
+
+
+
+
+
+
+
 <!-- Modal JS -->
 <script>
   const openBtn = document.getElementById("openAddCreditModal");
@@ -603,13 +774,24 @@ function renderCreditTable(credits) {
             ${statusText}
           </span>
         </td>
+
+
+
         <td class="px-6 py-4 whitespace-nowrap">
+                   <button
+    onclick="openViewCreditorModal('${c.customerName}')"
+    class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold rounded-lg border border-gray-300 transition-all">
+     View
+  </button>
+
           <button
             onclick="openRepayModal('${c.id}', '${c.customerName}', ${c.currentBalance})"
             class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">
             Repay
           </button>
         </td>
+
+      
       </tr>
     `;
   }).join("");
@@ -637,6 +819,53 @@ function openRepayModal(id, customerName, balance) {
 
 
 
+
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  let allCredits = [];
+  const creditSearch = document.getElementById("creditSearch");
+  const paymentTypeFilter = document.getElementById("paymentTypeFilter");
+  const statusFilter = document.getElementById("statusFilter");
+
+  // Fetch all credits once
+  const res = await fetch("/api/credits");
+  const data = await res.json();
+  allCredits = data.credits || [];
+  renderCreditTable(allCredits);
+  renderBuckets(data.buckets || {});
+
+  // Filter on input / select changes
+  creditSearch.addEventListener("input", applyFilters);
+  paymentTypeFilter.addEventListener("change", applyFilters);
+  statusFilter.addEventListener("change", applyFilters);
+
+  function applyFilters() {
+    let filtered = [...allCredits];
+
+    // Search by customer name
+    const searchTerm = creditSearch.value.toLowerCase();
+    if (searchTerm) {
+      filtered = filtered.filter(c => c.customerName.toLowerCase().includes(searchTerm));
+    }
+
+    // Filter by payment type
+    const paymentType = paymentTypeFilter.value;
+    if (paymentType !== "All") {
+      filtered = filtered.filter(c => (c.paymentType || "Full").toLowerCase() === paymentType.toLowerCase());
+    }
+
+    // Filter by status
+    const status = statusFilter.value;
+    if (status === "Overdue") {
+      filtered = filtered.filter(c => c.daysOverdue > 0);
+    } else if (status === "Current") {
+      filtered = filtered.filter(c => c.daysOverdue === 0);
+    }
+
+    renderCreditTable(filtered);
+  }
+});
 
 
 

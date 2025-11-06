@@ -5952,25 +5952,39 @@ app.get("/api/credits", async (req, res) => {
     const now = new Date();
     const credits = await Credit.find().sort({ createdAt: -1 });
 
+    // Format credits and compute overdue/days left
     const formattedCredits = credits.map(c => {
-      // calc days overdue or days left
-      const diffDays = Math.ceil((now - c.dueDate) / (1000 * 60 * 60 * 24));
-      const daysOverdue = diffDays > 0 ? diffDays : 0;
+      const diffDays = Math.ceil((c.dueDate - now) / (1000 * 60 * 60 * 24));
+      const daysUntilDue = diffDays > 0 ? diffDays : 0;
+      const daysOverdue = diffDays < 0 ? Math.abs(diffDays) : 0;
 
       return {
         id: c._id,
         customerName: c.customerName,
         currentBalance: c.currentBalance || 0,
         amount: c.amount || 0,
-        availableCredit: c.amount || 0, // amount displayed under “Available Credit”
+        availableCredit: c.amount || 0,
         paymentType: c.paymentType || "N/A",
         dueDate: c.dueDate,
+        daysUntilDue,
         daysOverdue,
-        isRepaid: c.isRepaid,
+        isRepaid: c.isRepaid || false,
       };
     });
 
-    res.json({ credits: formattedCredits });
+    // 🧮 Compute aging buckets
+    const buckets = { "0_30": 0, "31_60": 0, "61_90": 0, "90_plus": 0 };
+    formattedCredits.forEach(c => {
+      if (!c.dueDate) return;
+      const diffDays = Math.ceil((c.dueDate - now) / (1000 * 60 * 60 * 24));
+      if (diffDays > 0 && diffDays <= 30) buckets["0_30"] += c.amount;
+      else if (diffDays > 30 && diffDays <= 60) buckets["31_60"] += c.amount;
+      else if (diffDays > 60 && diffDays <= 90) buckets["61_90"] += c.amount;
+      else if (diffDays > 90) buckets["90_plus"] += c.amount;
+      else if (diffDays <= 0) buckets["90_plus"] += c.amount; // overdue > 90 days also goes here
+    });
+
+    res.json({ credits: formattedCredits, buckets });
   } catch (error) {
     console.error("❌ Error fetching credits:", error);
     res.status(500).json({ message: "Server error loading credits" });
@@ -6026,6 +6040,21 @@ app.get("/api/credit-summary", async (req, res) => {
 
 
 
+app.get("/api/credits/:customerName", async (req, res) => {
+  try {
+    const { customerName } = req.params;
+    const credits = await Credit.find({ customerName }).sort({ createdAt: -1 });
+
+    res.json({ credits });
+  } catch (err) {
+    console.error("❌ Error fetching creditor data:", err);
+    res.status(500).json({ message: "Server error loading creditor records" });
+  }
+});
+
+
+
+
 
 
 // 💸 Auto-update interest-based credits
@@ -6071,6 +6100,11 @@ const applyInterestToCredits = async () => {
 };
 
 
+// Run once at boot
+applyInterestToCredits();
+
+// Schedule daily updates
+setInterval(applyInterestToCredits, 24 * 60 * 60 * 1000);
 
 
 
