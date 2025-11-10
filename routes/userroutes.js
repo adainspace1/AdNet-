@@ -36,6 +36,8 @@ const {
 
 const WalletController = require('../controllers/walletController');
 
+const FinanceController = require('../controllers/financeController');
+
 // ===========================================
 // AUTH MIDDLEWARE
 // ===========================================
@@ -180,6 +182,10 @@ router.post('/api/wallet/fund', ensureAuthenticated, WalletController.fundWallet
 router.post('/api/wallet/withdraw', ensureAuthenticated, WalletController.withdrawFunds);
 router.post('/api/reconcile/run', ensureAuthenticated, WalletController.runReconcile);
 
+
+
+
+router.get('/finance/summary', ensureAuthenticated, FinanceController.getFinanceSummary);
 // ===========================================
 // PUBLIC ROUTES (no auth required)
 // ===========================================

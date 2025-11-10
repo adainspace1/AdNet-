@@ -6113,11 +6113,6 @@ setInterval(applyInterestToCredits, 24 * 60 * 60 * 1000);
 
 
 
-
-
-
-
-
 app.get("/finance", ensureAuthenticated, async (req, res) => {
   try {
     const now = new Date();
@@ -6150,6 +6145,249 @@ app.get("/finance", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+
+// 📦 Inventory Valuation Summary API
+app.get("/user/finance/valuation", async (req, res) => {
+  try {
+    console.log("📊 Fetching inventory valuation data...");
+
+    const Inventory = require("./models/inventory");
+
+    // 🔍 Optional query param: /user/finance/valuation?id=xxxx
+    const { id } = req.query;
+
+    if (id) {
+      console.log("🆔 Fetching specific inventory item:", id);
+
+      const item = await Inventory.findById(id);
+      if (!item) {
+        console.log("⚠️ No inventory found with that ID");
+        return res.status(404).json({ error: "Item not found" });
+      }
+
+      const totalValue = item.currentquantity * item.bcost;
+      const cogsImpact = (item.scost - item.bcost) * item.currentquantity;
+
+      console.log("✅ Valuation (single item):", {
+        name: item.itemName,
+        qty: item.currentquantity,
+        unitCost: item.bcost,
+        totalValue,
+        cogsImpact,
+      });
+
+      return res.json({
+        valuation: {
+          name: item.itemName,
+          qty: item.currentquantity,
+          unitCost: item.bcost,
+          totalValue,
+          cogsImpact,
+        },
+        totalValue,
+      });
+    }
+
+    // 📋 Otherwise, fetch all inventory
+    const items = await Inventory.find({});
+    console.log(`📦 Found ${items.length} inventory items`);
+
+    const valuation = items.map(item => {
+      const totalValue = item.currentquantity * item.bcost;
+      const cogsImpact = (item.scost - item.bcost) * item.currentquantity;
+
+      return {
+        name: item.itemName,
+        qty: item.currentquantity,
+        unitCost: item.bcost,
+        totalValue,
+        cogsImpact,
+      };
+    });
+
+    const totalValue = valuation.reduce((sum, v) => sum + v.totalValue, 0);
+
+    console.log("📈 Total Valuation:", totalValue);
+    res.json({
+      valuation,
+      totalValue,
+    });
+
+  } catch (err) {
+    console.error("❌ Error fetching inventory valuation:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+// 📈 Financial Ratios Summary API (DEBUG MODE)
+app.get("/user/finance/ratios", async (req, res) => {
+  try {
+
+
+    // optional
+    let Liabilities;
+    try {
+      Liabilities = require("./models/liabilities");
+    } catch {
+      console.log("⚠️ No liabilities model found. Skipping...");
+    }
+
+    // 🧮 1️⃣ Aggregate totals
+    const salesAgg = await Sales.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
+    const expenseAgg = await Expense.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
+
+
+
+    const totalSales = salesAgg[0]?.total || 0;
+    const totalExpenses = expenseAgg[0]?.total || 0;
+    const netProfit = totalSales - totalExpenses;
+
+    // 🧾 Optional liabilities
+    let totalLiabilities = 0;
+    if (Liabilities) {
+      const liabAgg = await Liabilities.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]).catch(err => {
+        console.log("⚠️ Liabilities aggregate error:", err.message);
+        return [];
+      });
+      console.log("📚 liabAgg:", liabAgg);
+      totalLiabilities = liabAgg[0]?.total || 0;
+    }
+
+    // 💰 Ratios
+    const currentRatio = totalExpenses > 0 ? (totalSales / totalExpenses).toFixed(2) : "0.00";
+    const quickRatio = (currentRatio * 0.75).toFixed(2);
+    const debtToEquity = totalLiabilities > 0 ? (totalLiabilities / (totalSales - totalExpenses)).toFixed(2) : "0.00";
+    const netProfitMargin = totalSales > 0 ? ((netProfit / totalSales) * 100).toFixed(2) : "0.00";
+
+
+
+    // 🕐 Mock trends
+    const trendData = {
+      labels: ["Aug", "Sep", "Oct", "Nov"],
+      profitMargin: [12.5, 15.3, 17.2, parseFloat(netProfitMargin)],
+    };
+
+    // ✅ Send JSON response
+    res.json({
+      totalSales,
+      totalExpenses,
+      totalLiabilities,
+      netProfit,
+      ratios: {
+        currentRatio,
+        quickRatio,
+        debtToEquity,
+        netProfitMargin,
+      },
+      trendData,
+    });
+
+  } catch (err) {
+    console.error("❌ [Finance] Error fetching ratios:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+app.get("/api/finance/reports", async (req, res) => {
+  try {
+    // 🧾 Fetch Receivables & Payables
+    const receivables = await AccountReceivable.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const payables = await AccountsPayable.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+
+    // 🧱 Assets & Loans
+    const assets = await Asset.aggregate([
+      { $group: { _id: null, total: { $sum: "$value" } } }
+    ]);
+    const loans = await Credit.aggregate([
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+
+    // 🧮 Generate Monthly summary
+    const month = new Date().toLocaleString("default", { month: "long" });
+    const year = new Date().getFullYear();
+
+    // 💡 Quick liquidity insight
+    const ratio = (receivables[0]?.total || 0) / ((payables[0]?.total || 1));
+    let notes = "";
+    if (ratio > 1.2) notes = "Cash inflow strong relative to obligations.";
+    else if (ratio < 0.9) notes = "Liquidity strain detected — review short-term debt.";
+
+    res.json({
+      month,
+      year,
+      receivables: receivables[0]?.total || 0,
+      payables: payables[0]?.total || 0,
+      assets: assets[0]?.total || 0,
+      loans: loans[0]?.total || 0,
+      notes,
+    });
+  } catch (err) {
+    console.error("Finance report error:", err);
+    res.status(500).json({ message: "Error generating finance report" });
+  }
+});
+
+
+
+
+
+
+
+// routes/financeRoutes.js
+app.get("/api/finance-metrics", async (req, res) => {
+  try {
+    const sales = await Sales.find();
+    const expenses = await Expense.find();
+
+    console.log("🧾 Sales Data:", sales);
+    console.log("💸 Expense Data:", expenses);
+
+    const totalRevenue = sales.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const totalExpense = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    console.log("📊 Total Revenue:", totalRevenue);
+    console.log("📉 Total Expense:", totalExpense);
+
+    const totalAssets = totalRevenue; // you can customize if needed
+    const totalLiabilities = totalExpense;
+    const netProfitMargin = totalRevenue
+      ? (totalRevenue - totalExpense) / totalRevenue
+      : 0;
+
+    console.log("💰 Computed Metrics =>", {
+      totalAssets,
+      totalLiabilities,
+      netProfitMargin,
+    });
+
+    res.json({
+      totalAssets,
+      totalLiabilities,
+      netProfitMargin,
+    });
+  } catch (err) {
+    console.error("❌ Finance Metrics Error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+
+
+
+
+
+
 
 
 

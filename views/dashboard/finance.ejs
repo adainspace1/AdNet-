@@ -51,47 +51,47 @@
     </div>
   </header>
 
-  <!-- Dashboard Summary Cards -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Assets Value</p>
-            <p class="text-2xl font-bold text-green-600">$4,850,000</p>
-          </div>
-          <i data-lucide="package" class="w-8 h-8 text-green-600"></i>
+<!-- Dashboard Summary Cards -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Total Assets -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Total Assets Value</p>
+          <p id="totalAssets" class="text-2xl font-bold text-green-600">$0</p>
         </div>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Liabilities</p>
-            <p class="text-2xl font-bold text-red-600">$2,180,000</p>
-          </div>
-          <i data-lucide="landmark" class="w-8 h-8 text-red-600"></i>
-        </div>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Active Covenants</p>
-            <p class="text-2xl font-bold text-blue-600">6</p>
-          </div>
-          <i data-lucide="file-check" class="w-8 h-8 text-blue-600"></i>
-        </div>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Financial Health Score</p>
-            <p class="text-2xl font-bold text-purple-600">78 / 100</p>
-          </div>
-          <i data-lucide="heart" class="w-8 h-8 text-purple-600"></i>
-        </div>
+        <i data-lucide="package" class="w-8 h-8 text-green-600"></i>
       </div>
     </div>
-  </section>
+
+    <!-- Total Liabilities -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Total Liabilities</p>
+          <p id="totalLiabilities" class="text-2xl font-bold text-red-600">$0</p>
+        </div>
+        <i data-lucide="landmark" class="w-8 h-8 text-red-600"></i>
+      </div>
+    </div>
+
+    <!-- Financial Health Score -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500">Financial Health Score</p>
+          <p id="financialHealth" class="text-2xl font-bold text-purple-600">0 / 100</p>
+        </div>
+        <i data-lucide="heart" class="w-8 h-8 text-purple-600"></i>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-6">
     <!-- Sidebar -->
@@ -104,10 +104,6 @@
         <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="ratios">
           <i data-lucide="trending-up" class="w-5 h-5"></i>
           <span>Ratios</span>
-        </button>
-        <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="covenants">
-          <i data-lucide="shield-check" class="w-5 h-5"></i>
-          <span>Covenants</span>
         </button>
         <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="reports">
           <i data-lucide="file-text" class="w-5 h-5"></i>
@@ -170,172 +166,126 @@
         </div>
       </div>
 
-      <!-- Ratios Tab -->
-      <div id="ratios" class="tab-content hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p class="text-sm text-gray-500">Current Ratio</p>
-            <p class="text-3xl font-bold text-blue-600">2.45</p>
-            <div class="flex items-center mt-2">
-              <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-              <span class="text-xs text-green-600 ml-1">+0.3</span>
-            </div>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p class="text-sm text-gray-500">Quick Ratio</p>
-            <p class="text-3xl font-bold text-blue-600">1.82</p>
-            <div class="flex items-center mt-2">
-              <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-              <span class="text-xs text-green-600 ml-1">+0.1</span>
-            </div>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p class="text-sm text-gray-500">Debt-to-Equity</p>
-            <p class="text-3xl font-bold text-orange-600">0.82</p>
-            <div class="flex items-center mt-2">
-              <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i>
-              <span class="text-xs text-red-600 ml-1">-0.05</span>
-            </div>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p class="text-sm text-gray-500">Net Profit Margin</p>
-            <p class="text-3xl font-bold text-green-600">18.4%</p>
-            <div class="flex items-center mt-2">
-              <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-              <span class="text-xs text-green-600 ml-1">+2.1%</span>
-            </div>
-          </div>
-        </div>
+          <!-- Ratios Tab -->
+          <div id="ratios" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-lg font-semibold mb-4">Financial Trends</h3>
-          <canvas id="ratioTrendChart" height="200"></canvas>
-        </div>
-      </div>
-
-      <!-- Covenants Tab -->
-      <div id="covenants" class="tab-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- DSCR & Leverage Gauges -->
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-semibold mb-4">Debt Service Coverage Ratio (DSCR)</h3>
-            <div class="relative inline-block">
-              <svg width="200" height="120" class="gauge">
-                <circle class="gauge-circle" cx="100" cy="100" r="50"></circle>
-                <circle id="dscrGauge" class="gauge-fill stroke-blue-600" cx="100" cy="100" r="50" stroke-dasharray="314" stroke-dashoffset="157"></circle>
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-center">
-                  <p class="text-2xl font-bold text-blue-600">1.95</p>
-                  <p class="text-xs text-gray-500">Min: 1.25</p>
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500">Current Ratio</p>
+                <p id="currentRatio" class="text-3xl font-bold text-blue-600">--</p>
+                <div class="flex items-center mt-2">
+                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
                 </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500">Quick Ratio</p>
+                <p id="quickRatio" class="text-3xl font-bold text-blue-600">--</p>
+                <div class="flex items-center mt-2">
+                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500">Debt-to-Equity</p>
+                <p id="debtEquity" class="text-3xl font-bold text-orange-600">--</p>
+                <div class="flex items-center mt-2">
+                  <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500">Net Profit Margin</p>
+                <p id="profitMargin" class="text-3xl font-bold text-green-600">--%</p>
+                <div class="flex items-center mt-2">
+                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <h3 class="text-lg font-semibold mb-4">Financial Trends</h3>
+              <canvas id="ratioTrendChart" height="200"></canvas>
+            </div>
+          </div>
+
+      <!-- ✅ Covenants Tab -->
+
+
+<!-- ✅ Script -->
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/finance/ratios"); // Your backend route
+    const data = await res.json();
+
+    // Gauges
+    const dscr = data.dscr || 0;
+    const leverage = data.leverage || 0;
+    const dscrGauge = document.getElementById("dscrGauge");
+    const leverageGauge = document.getElementById("leverageGauge");
+
+    const dscrOffset = 314 - Math.min(dscr / 3 * 314, 314);
+    const leverageOffset = 314 - Math.min(leverage / 5 * 314, 314);
+
+    dscrGauge.style.strokeDashoffset = dscrOffset;
+    leverageGauge.style.strokeDashoffset = leverageOffset;
+
+    document.getElementById("dscrValue").textContent = dscr.toFixed(2);
+    document.getElementById("leverageValue").textContent = leverage.toFixed(2);
+
+    // Table
+    const table = document.getElementById("covenantTableBody");
+    table.innerHTML = data.covenants.map(cov => `
+      <tr>
+        <td class="px-6 py-4">${cov.loan}</td>
+        <td class="px-6 py-4">${cov.asset}</td>
+        <td class="px-6 py-4">${cov.covenant}</td>
+        <td class="px-6 py-4 font-medium">${cov.current}</td>
+        <td class="px-6 py-4">${cov.threshold}</td>
+        <td class="px-6 py-4">
+          <span class="px-2 py-1 text-xs rounded-full ${cov.status === 'Breach' ? 'bg-red-100 text-red-800' : cov.status === 'Warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${cov.status}</span>
+        </td>
+      </tr>
+    `).join("");
+
+    // Depreciation
+    document.getElementById("depreciationValue").textContent = `$${data.depreciation.toLocaleString()}`;
+    document.getElementById("bookValue").textContent = `$${data.bookValue.toLocaleString()}`;
+    document.getElementById("usefulLife").textContent = `${data.usefulLife} yrs`;
+  } catch (err) {
+    console.error("Error loading covenants:", err);
+  }
+});
+</script>
+
+
+      <!-- ✅ Reports Tab -->
+          <!-- Reports Tab -->
+          <div id="reports" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Receivables vs Payables -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold mb-4">Receivables vs Payables</h3>
+                <canvas id="arApChart" height="200"></canvas>
+              </div>
+
+              <!-- Loan Balances vs Asset Values -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold mb-4">Loan Balances vs Asset Values</h3>
+                <canvas id="loanAssetChart" height="200"></canvas>
+              </div>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
+              <h3 class="text-lg font-semibold mb-4">Monthly Finance Summary</h3>
+              <div class="prose prose-sm max-w-none" id="monthlySummary">
+                Loading summary...
               </div>
             </div>
           </div>
-
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-semibold mb-4">Leverage Ratio</h3>
-            <div class="relative inline-block">
-              <svg width="200" height="120" class="gauge">
-                <circle class="gauge-circle" cx="100" cy="100" r="50"></circle>
-                <circle id="leverageGauge" class="gauge-fill stroke-orange-600" cx="100" cy="100" r="50" stroke-dasharray="314" stroke-dashoffset="220"></circle>
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-center">
-                  <p class="text-2xl font-bold text-orange-600">3.2</p>
-                  <p class="text-xs text-gray-500">Max: 4.0</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Covenant Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-          <h3 class="text-lg font-semibold mb-4">Asset-Linked Covenants</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loan</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Covenant</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Threshold</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr class="covenant-breach">
-                  <td class="px-6 py-4 text-sm">LOAN-2025-001</td>
-                  <td class="px-6 py-4 text-sm">Warehouse A</td>
-                  <td class="px-6 py-4 text-sm">LTV Ratio</td>
-                  <td class="px-6 py-4 text-sm font-medium">78%</td>
-                  <td class="px-6 py-4 text-sm">≤ 75%</td>
-                  <td class="px-6 py-4 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Breach</span></td>
-                </tr>
-                <tr class="covenant-warning">
-                  <td class="px-6 py-4 text-sm">LOAN-2025-003</td>
-                  <td class="px-6 py-4 text-sm">Equipment Line</td>
-                  <td class="px-6 py-4 text-sm">DSCR</td>
-                  <td class="px-6 py-4 text-sm font-medium">1.28</td>
-                  <td class="px-6 py-4 text-sm">≥ 1.25</td>
-                  <td class="px-6 py-4 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Warning</span></td>
-                </tr>
-                <tr class="covenant-safe">
-                  <td class="px-6 py-4 text-sm">LOAN-2025-005</td>
-                  <td class="px-6 py-4 text-sm">Inventory</td>
-                  <td class="px-6 py-4 text-sm">Inventory Turnover</td>
-                  <td class="px-6 py-4 text-sm font-medium">6.2x</td>
-                  <td class="px-6 py-4 text-sm">≥ 5.0x</td>
-                  <td class="px-6 py-4 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Compliant</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Depreciation Summary -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-          <h3 class="text-lg font-semibold mb-4">Asset Depreciation Summary</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="p-4 bg-gray-50 rounded-lg">
-              <p class="text-xs text-gray-500">YTD Depreciation</p>
-              <p class="text-xl font-bold">$248,500</p>
-            </div>
-            <div class="p-4 bg-gray-50 rounded-lg">
-              <p class="text-xs text-gray-500">Net Book Value</p>
-              <p class="text-xl font-bold">$3,920,000</p>
-            </div>
-            <div class="p-4 bg-gray-50 rounded-lg">
-              <p class="text-xs text-gray-500">Avg. Useful Life</p>
-              <p class="text-xl font-bold">7.2 yrs</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reports Tab -->
-      <div id="reports" class="tab-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-semibold mb-4">Receivables vs Payables</h3>
-            <canvas id="arApChart" height="200"></canvas>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-semibold mb-4">Loan Balances vs Asset Values</h3>
-            <canvas id="loanAssetChart" height="200"></canvas>
-          </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
-          <h3 class="text-lg font-semibold mb-4">Monthly Finance Summary</h3>
-          <div class="prose prose-sm max-w-none">
-            <p><strong>November 2025:</strong> Inventory valued at $1.42M under FIFO (vs $1.38M LIFO). DSCR improved to 1.95 from 1.88. One covenant breach on LTV for Warehouse A — action required.</p>
-            <button class="mt-4 text-xs text-blue-600 hover:underline">View Full Report →</button>
-          </div>
-        </div>
-      </div>
 
     </main>
   </div>
@@ -369,59 +319,8 @@
       document.querySelector('#inventoryTable tr:last-child td:last-child').textContent = impact;
     });
 
-    // Charts
-    new Chart(document.getElementById('inventoryChart'), {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
-        datasets: [{
-          label: 'Inventory Value ($K)',
-          data: [1200, 1280, 1320, 1350, 1380, 1400, 1410, 1390, 1370, 1385, 1420],
-          borderColor: '#10B981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: { responsive: true, plugins: { legend: { display: false } } }
-    });
 
-    new Chart(document.getElementById('ratioTrendChart'), {
-      type: 'line',
-      data: {
-        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-        datasets: [
-          { label: 'Current Ratio', data: [2.1, 2.3, 2.4, 2.45], borderColor: '#3B82F6' },
-          { label: 'Quick Ratio', data: [1.6, 1.7, 1.8, 1.82], borderColor: '#10B981' },
-          { label: 'D/E Ratio', data: [0.9, 0.88, 0.85, 0.82], borderColor: '#F59E0B' }
-        ]
-      },
-      options: { responsive: true }
-    });
-
-    new Chart(document.getElementById('arApChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          { label: 'Receivables', data: [820, 850, 880, 900, 920, 950], backgroundColor: '#3B82F6' },
-          { label: 'Payables', data: [680, 700, 720, 740, 760, 780], backgroundColor: '#EF4444' }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'top' } } }
-    });
-
-    new Chart(document.getElementById('loanAssetChart'), {
-      type: 'line',
-      data: {
-        labels: ['2023', '2024', '2025'],
-        datasets: [
-          { label: 'Total Assets', data: [4200000, 4600000, 4850000], borderColor: '#10B981' },
-          { label: 'Loan Balances', data: [1800000, 2000000, 2180000], borderColor: '#EF4444' }
-        ]
-      },
-      options: { responsive: true }
-    });
+ 
 
     // Gauges
     function updateGauge(elementId, value, max) {
@@ -442,5 +341,234 @@
       alert('Excel export would use SheetJS (xlsx) in production');
     });
   </script>
+
+
+
+
+
+<script>
+      async function loadFinanceSummary() {
+  try {
+    const res = await fetch("/user/finance/summary");
+    const data = await res.json();
+
+    document.querySelector("#totalAssets").textContent = `$${data.totalAssets.toLocaleString()}`;
+    document.querySelector("#totalLiabilities").textContent = `$${data.totalLiabilities.toLocaleString()}`;
+    document.querySelector("#activeCovenants").textContent = data.activeCovenants;
+    document.querySelector("#financialHealth").textContent = `${data.financialHealth} / 100`;
+    } catch (err) {
+      console.error("Error loading finance summary:", err);
+    }
+  }
+
+  loadFinanceSummary();
+</script>
+
+
+
+
+
+
+<script>
+async function loadInventoryValuation() {
+  try {
+    const res = await fetch("/user/finance/valuation");
+    const data = await res.json();
+    console.log("Valuation Data:", data);
+
+    const tableBody = document.getElementById("inventoryTable");
+    tableBody.innerHTML = "";
+
+    data.valuation.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="px-6 py-4 text-sm">${item.name}</td>
+        <td class="px-6 py-4 text-sm">${item.qty.toLocaleString()}</td>
+        <td class="px-6 py-4 text-sm">$${item.unitCost.toLocaleString()}</td>
+        <td class="px-6 py-4 text-sm font-medium">$${item.totalValue.toLocaleString()}</td>
+        <td class="px-6 py-4 text-sm ${item.cogsImpact >= 0 ? 'text-green-600' : 'text-red-600'}">
+          ${item.cogsImpact >= 0 ? '+' : '-'}$${Math.abs(item.cogsImpact).toLocaleString()}
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    // Optional chart update
+    const ctx = document.getElementById("inventoryChart");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.valuation.map(i => i.name),
+        datasets: [{
+          label: "Inventory Value",
+          data: data.valuation.map(i => i.totalValue),
+          borderWidth: 2
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  } catch (err) {
+    console.error("Error loading inventory valuation:", err);
+  }
+}
+
+loadInventoryValuation();
+</script>
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  async function loadRatios() {
+    try {
+      const res = await fetch("/user/finance/ratios");
+      const data = await res.json();
+
+      document.querySelector("#currentRatio").textContent = data.ratios.currentRatio;
+      document.querySelector("#quickRatio").textContent = data.ratios.quickRatio;
+      document.querySelector("#debtEquity").textContent = data.ratios.debtToEquity;
+      document.querySelector("#profitMargin").textContent = `${data.ratios.netProfitMargin}%`;
+
+      const ctx = document.getElementById("ratioTrendChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.trendData.labels,
+          datasets: [{
+            label: "Net Profit Margin (%)",
+            data: data.trendData.profitMargin,
+            borderWidth: 2,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    } catch (err) {
+      console.error("Error loading ratios:", err);
+    }
+  }
+
+  loadRatios();
+</script>
+
+
+
+
+
+<!-- ===== Chart.js CDN ===== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const res = await fetch("/api/finance/reports");
+      const data = await res.json();
+
+      console.log("Finance Report Data:", data); // 🔍 debug check
+
+      // ===== Chart 1: Receivables vs Payables =====
+      const arApCtx = document.getElementById("arApChart");
+      if (arApCtx) {
+        new Chart(arApCtx, {
+          type: "bar",
+          data: {
+            labels: ["Receivables", "Payables"],
+            datasets: [{
+              label: "Amount ($)",
+              data: [data.receivables, data.payables],
+              backgroundColor: ["#3b82f6", "#ef4444"],
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+          }
+        });
+      }
+
+      // ===== Chart 2: Loans vs Assets =====
+      const loanAssetCtx = document.getElementById("loanAssetChart");
+      if (loanAssetCtx) {
+        new Chart(loanAssetCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["Loans", "Assets"],
+            datasets: [{
+              data: [data.loans, data.assets],
+              backgroundColor: ["#f59e0b", "#10b981"],
+              hoverOffset: 10,
+            }]
+          },
+          options: {
+            plugins: { legend: { position: "bottom" } }
+          }
+        });
+      }
+
+      // ===== Summary =====
+      document.getElementById("monthlySummary").innerHTML = `
+        <strong>${data.month} ${data.year}:</strong> 
+        Receivables at <b>$${data.receivables.toLocaleString()}</b>, 
+        Payables at <b>$${data.payables.toLocaleString()}</b>. 
+        Asset valuation stands at <b>$${data.assets.toLocaleString()}</b> 
+        with loans totaling <b>$${data.loans.toLocaleString()}</b>. 
+        ${data.notes || ""}
+      `;
+
+    } catch (err) {
+      console.error("Error fetching finance report:", err);
+      document.getElementById("monthlySummary").textContent = "Failed to load summary.";
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/finance-metrics");
+    const data = await res.json();
+
+    // Example metrics from backend
+    const { totalAssets, totalLiabilities, netProfitMargin } = data;
+
+    // Financial Health Score formula (you can tweak)
+    const healthScore = Math.max(
+      0,
+      Math.min(100, 70 + (netProfitMargin * 30)) // base 70 + margin contribution
+    );
+
+    // Update DOM
+    document.getElementById("totalAssets").textContent = `$${totalAssets.toLocaleString()}`;
+    document.getElementById("totalLiabilities").textContent = `$${totalLiabilities.toLocaleString()}`;
+    document.getElementById("financialHealth").textContent = `${Math.round(healthScore)} / 100`;
+
+    lucide.createIcons(); // refresh icons
+  } catch (err) {
+    console.error("Failed to load finance metrics:", err);
+  }
+});
+</script>
+
+
+
+
+
+
 </body>
 </html>
