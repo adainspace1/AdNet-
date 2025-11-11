@@ -13,6 +13,7 @@
   <!-- html2pdf.js for PDF export -->
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>
     <link rel="stylesheet" href="/css/dashall.css">
+    <link rel="stylesheet" href="/css/finance.css">
   <style>
     .sidebar-active { @apply bg-blue-50 text-blue-700 border-l-4 border-blue-600; }
     .gauge { transform: rotate(-90deg); }
@@ -26,272 +27,214 @@
 <body class="">
 
 
-       <div class="all">
-              <!-- Sidebar -->
-      <%- include ("_sidebar1") %>
+<div class="all">
+  <!-- Sidebar (Included via EJS) -->
+  <%- include ("_sidebar1") %>
 
-       <div class="main-content">
-                <%- include ("_topnav") %>
+  <div class="main-content">
+    <%- include ("_topnav") %>
 
-
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-900">Finance Analytics</h1>
-      <div class="flex items-center space-x-4">
-        <button id="exportPDF" class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-          <i data-lucide="download"></i>
-          <span>Export PDF</span>
-        </button>
-        <button id="exportExcel" class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-          <i data-lucide="file-spreadsheet"></i>
-          <span>Excel</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-<!-- Dashboard Summary Cards -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-    <!-- Total Assets -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Total Assets Value</p>
-          <p id="totalAssets" class="text-2xl font-bold text-green-600">$0</p>
-        </div>
-        <i data-lucide="package" class="w-8 h-8 text-green-600"></i>
-      </div>
-    </div>
-
-    <!-- Total Liabilities -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Total Liabilities</p>
-          <p id="totalLiabilities" class="text-2xl font-bold text-red-600">$0</p>
-        </div>
-        <i data-lucide="landmark" class="w-8 h-8 text-red-600"></i>
-      </div>
-    </div>
-
-    <!-- Financial Health Score -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Financial Health Score</p>
-          <p id="financialHealth" class="text-2xl font-bold text-purple-600">0 / 100</p>
-        </div>
-        <i data-lucide="heart" class="w-8 h-8 text-purple-600"></i>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-6">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white rounded-xl shadow-sm border border-gray-200 p-4 hidden lg:block">
-      <nav class="space-y-1">
-        <button class="sidebar-btn sidebar-active w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-tab="valuation">
+    <!-- Mobile Sidebar (Visible on <lg) -->
+    <aside class="w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:hidden mb-6">
+      <nav class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <button class="sidebar-btn sidebar-active w-full text-left px-3 py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm" data-tab="valuation">
           <i data-lucide="calculator" class="w-5 h-5"></i>
           <span>Valuation</span>
         </button>
-        <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="ratios">
+        <button class="sidebar-btn w-full text-left px-3 py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm text-gray-600 hover:bg-gray-50" data-tab="ratios">
           <i data-lucide="trending-up" class="w-5 h-5"></i>
           <span>Ratios</span>
         </button>
-        <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="reports">
+        <button class="sidebar-btn w-full text-left px-3 py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 text-sm text-gray-600 hover:bg-gray-50" data-tab="reports">
           <i data-lucide="file-text" class="w-5 h-5"></i>
           <span>Reports</span>
         </button>
       </nav>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 space-y-6">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Finance Analytics</h1>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+          <button id="exportPDF" class="flex items-center justify-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm w-full sm:w-auto">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Export PDF</span>
+          </button>
+          <button id="exportExcel" class="flex items-center justify-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm w-full sm:w-auto">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Excel</span>
+          </button>
+        </div>
+      </div>
+    </header>
 
-      <!-- Valuation Tab -->
-      <div id="valuation" class="tab-content">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-lg font-semibold">Inventory Valuation</h2>
-            <select id="valuationMethod" class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
-              <option>FIFO</option>
-              <option>LIFO</option>
-              <option>Weighted Average</option>
-            </select>
+    <!-- Dashboard Summary Cards -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Total Assets -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs sm:text-sm text-gray-500">Total Assets Value</p>
+              <p id="totalAssets" class="text-xl sm:text-2xl font-bold text-green-600">$0</p>
+            </div>
+            <i data-lucide="package" class="w-7 h-7 sm:w-8 sm:h-8 text-green-600"></i>
           </div>
+        </div>
 
-          <!-- Valuation Table -->
-          <div class="overflow-x-auto mb-6">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Cost</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Value</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">COGS Impact</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200" id="inventoryTable">
-                <tr>
-                  <td class="px-6 py-4 text-sm">Widget A</td>
-                  <td class="px-6 py-4 text-sm">1,200</td>
-                  <td class="px-6 py-4 text-sm">$42.50</td>
-                  <td class="px-6 py-4 text-sm font-medium">$51,000</td>
-                  <td class="px-6 py-4 text-sm text-green-600">-$8,500</td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 text-sm">Component B</td>
-                  <td class="px-6 py-4 text-sm">850</td>
-                  <td class="px-6 py-4 text-sm">$78.20</td>
-                  <td class="px-6 py-4 text-sm font-medium">$66,470</td>
-                  <td class="px-6 py-4 text-sm text-red-600">+$3,200</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Total Liabilities -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs sm:text-sm text-gray-500">Total Liabilities</p>
+              <p id="totalLiabilities" class="text-xl sm:text-2xl font-bold text-red-600">$0</p>
+            </div>
+            <i data-lucide="landmark" class="w-7 h-7 sm:w-8 sm:h-8 text-red-600"></i>
           </div>
+        </div>
 
-          <!-- Historical Chart -->
-          <div class="bg-gray-50 p-6 rounded-lg">
-            <h3 class="text-md font-semibold mb-4">Inventory Value Over Time</h3>
-            <canvas id="inventoryChart" height="200"></canvas>
+        <!-- Health Score -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs sm:text-sm text-gray-500">Financial Health Score</p>
+              <p id="financialHealth" class="text-xl sm:text-2xl font-bold text-purple-600">0 / 100</p>
+            </div>
+            <i data-lucide="heart" class="w-7 h-7 sm:w-8 sm:h-8 text-purple-600"></i>
           </div>
         </div>
       </div>
+    </section>
 
-          <!-- Ratios Tab -->
-          <div id="ratios" class="tab-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Main Layout: Sidebar + Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6">
+      
+      <!-- Desktop Sidebar (Hidden on <lg) -->
+      <aside class="hidden lg:block w-64 bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex-shrink-0">
+        <nav class="space-y-1">
+          <button class="sidebar-btn sidebar-active w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-tab="valuation">
+            <i data-lucide="calculator" class="w-5 h-5"></i>
+            <span>Valuation</span>
+          </button>
+          <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="ratios">
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+            <span>Ratios</span>
+          </button>
+          <button class="sidebar-btn w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-gray-600 hover:bg-gray-50" data-tab="reports">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            <span>Reports</span>
+          </button>
+        </nav>
+      </aside>
 
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <p class="text-sm text-gray-500">Current Ratio</p>
-                <p id="currentRatio" class="text-3xl font-bold text-blue-600">--</p>
-                <div class="flex items-center mt-2">
-                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-                </div>
-              </div>
+      <!-- Main Content -->
+      <main class="flex-1 space-y-6 w-full">
 
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <p class="text-sm text-gray-500">Quick Ratio</p>
-                <p id="quickRatio" class="text-3xl font-bold text-blue-600">--</p>
-                <div class="flex items-center mt-2">
-                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-                </div>
-              </div>
+        <!-- Valuation Tab -->
+        <div id="valuation" class="tab-content">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">Inventory Valuation</h2>
 
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <p class="text-sm text-gray-500">Debt-to-Equity</p>
-                <p id="debtEquity" class="text-3xl font-bold text-orange-600">--</p>
-                <div class="flex items-center mt-2">
-                  <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i>
-                </div>
-              </div>
-
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <p class="text-sm text-gray-500">Net Profit Margin</p>
-                <p id="profitMargin" class="text-3xl font-bold text-green-600">--%</p>
-                <div class="flex items-center mt-2">
-                  <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 class="text-lg font-semibold mb-4">Financial Trends</h3>
-              <canvas id="ratioTrendChart" height="200"></canvas>
-            </div>
-          </div>
-
-      <!-- ✅ Covenants Tab -->
-
-
-<!-- ✅ Script -->
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const res = await fetch("/api/finance/ratios"); // Your backend route
-    const data = await res.json();
-
-    // Gauges
-    const dscr = data.dscr || 0;
-    const leverage = data.leverage || 0;
-    const dscrGauge = document.getElementById("dscrGauge");
-    const leverageGauge = document.getElementById("leverageGauge");
-
-    const dscrOffset = 314 - Math.min(dscr / 3 * 314, 314);
-    const leverageOffset = 314 - Math.min(leverage / 5 * 314, 314);
-
-    dscrGauge.style.strokeDashoffset = dscrOffset;
-    leverageGauge.style.strokeDashoffset = leverageOffset;
-
-    document.getElementById("dscrValue").textContent = dscr.toFixed(2);
-    document.getElementById("leverageValue").textContent = leverage.toFixed(2);
-
-    // Table
-    const table = document.getElementById("covenantTableBody");
-    table.innerHTML = data.covenants.map(cov => `
-      <tr>
-        <td class="px-6 py-4">${cov.loan}</td>
-        <td class="px-6 py-4">${cov.asset}</td>
-        <td class="px-6 py-4">${cov.covenant}</td>
-        <td class="px-6 py-4 font-medium">${cov.current}</td>
-        <td class="px-6 py-4">${cov.threshold}</td>
-        <td class="px-6 py-4">
-          <span class="px-2 py-1 text-xs rounded-full ${cov.status === 'Breach' ? 'bg-red-100 text-red-800' : cov.status === 'Warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${cov.status}</span>
-        </td>
-      </tr>
-    `).join("");
-
-    // Depreciation
-    document.getElementById("depreciationValue").textContent = `$${data.depreciation.toLocaleString()}`;
-    document.getElementById("bookValue").textContent = `$${data.bookValue.toLocaleString()}`;
-    document.getElementById("usefulLife").textContent = `${data.usefulLife} yrs`;
-  } catch (err) {
-    console.error("Error loading covenants:", err);
-  }
-});
-</script>
-
-
-      <!-- ✅ Reports Tab -->
-          <!-- Reports Tab -->
-          <div id="reports" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <!-- Receivables vs Payables -->
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold mb-4">Receivables vs Payables</h3>
-                <canvas id="arApChart" height="200"></canvas>
-              </div>
-
-              <!-- Loan Balances vs Asset Values -->
-              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold mb-4">Loan Balances vs Asset Values</h3>
-                <canvas id="loanAssetChart" height="200"></canvas>
+            <!-- Table: Responsive Wrapper -->
+            <div class="overflow-x-auto -mx-4 sm:mx-0 mb-4">
+              <div class="inline-block min-w-full align-middle">
+                <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Item</th>
+                      <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Qty</th>
+                      <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Unit Cost</th>
+                      <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Total Value</th>
+                      <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">COGS Impact</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="inventoryTable">
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-3 py-3 whitespace-nowrap">Widget A</td>
+                      <td class="px-3 py-3 whitespace-nowrap">1,200</td>
+                      <td class="px-3 py-3 whitespace-nowrap">$42.50</td>
+                      <td class="px-3 py-3 font-medium whitespace-nowrap">$51,000</td>
+                      <td class="px-3 py-3 text-green-600 whitespace-nowrap">-$8,500</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-3 py-3 whitespace-nowrap">Component B</td>
+                      <td class="px-3 py-3 whitespace-nowrap">850</td>
+                      <td class="px-3 py-3 whitespace-nowrap">$78.20</td>
+                      <td class="px-3 py-3 font-medium whitespace-nowrap">$66,470</td>
+                      <td class="px-3 py-3 text-red-600 whitespace-nowrap">+$3,200</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <!-- Monthly Summary -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
-              <h3 class="text-lg font-semibold mb-4">Monthly Finance Summary</h3>
-              <div class="prose prose-sm max-w-none" id="monthlySummary">
-                Loading summary...
+            <p class="text-xs text-gray-500 text-center sm:hidden mb-3">← Scroll to see more →</p>
+
+            <!-- Chart -->
+            <div class="bg-gray-50 p-4 sm:p-6 rounded-lg">
+              <h3 class="text-sm sm:text-md font-semibold mb-3">Inventory Value Over Time</h3>
+              <div class="overflow-x-auto -mx-4 sm:mx-0">
+                <div class="min-w-[280px] sm:min-w-0">
+                  <canvas id="inventoryChart" height="180" class="w-full"></canvas>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-    </main>
+        <!-- Ratios Tab -->
+        <div id="ratios" class="tab-content hidden">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 text-center sm:text-left">
+              <p class="text-xs sm:text-sm text-gray-500">Current Ratio</p>
+              <p id="currentRatio" class="text-2xl sm:text-3xl font-bold text-blue-600">--</p>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 text-center sm:text-left">
+              <p class="text-xs sm:text-sm text-gray-500">Quick Ratio</p>
+              <p id="quickRatio" class="text-2xl sm:text-3xl font-bold text-blue-600">--</p>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 text-center sm:text-left">
+              <p class="text-xs sm:text-sm text-gray-500">Debt-to-Equity</p>
+              <p id="debtEquity" class="text-2xl sm:text-3xl font-bold text-orange-600">--</p>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 text-center sm:text-left">
+              <p class="text-xs sm:text-sm text-gray-500">Net Profit Margin</p>
+              <p id="profitMargin" class="text-2xl sm:text-3xl font-bold text-green-600">--%</p>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-sm sm:text-lg font-semibold mb-3">Financial Trends</h3>
+            <canvas id="ratioTrendChart" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+              <h3 class="text-sm sm:text-lg font-semibold mb-3">Receivables vs Payables</h3>
+              <canvas id="arApChart" height="160"></canvas>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+              <h3 class="text-sm sm:text-lg font-semibold mb-3">Loan Balances vs Asset Values</h3>
+              <canvas id="loanAssetChart" height="160"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 mt-4 sm:mt-6">
+            <h3 class="text-sm sm:text-lg font-semibold mb-3">Monthly Finance Summary</h3>
+            <div class="prose prose-sm max-w-none text-xs sm:text-sm" id="monthlySummary">
+              Loading summary...
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
   </div>
-
-       </div>
-       </div>
+</div>
 
   <!-- Scripts -->
   <script>
@@ -565,6 +508,55 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/finance/ratios"); // Your backend route
+    const data = await res.json();
+
+    // Gauges
+    const dscr = data.dscr || 0;
+    const leverage = data.leverage || 0;
+    const dscrGauge = document.getElementById("dscrGauge");
+    const leverageGauge = document.getElementById("leverageGauge");
+
+    const dscrOffset = 314 - Math.min(dscr / 3 * 314, 314);
+    const leverageOffset = 314 - Math.min(leverage / 5 * 314, 314);
+
+    dscrGauge.style.strokeDashoffset = dscrOffset;
+    leverageGauge.style.strokeDashoffset = leverageOffset;
+
+    document.getElementById("dscrValue").textContent = dscr.toFixed(2);
+    document.getElementById("leverageValue").textContent = leverage.toFixed(2);
+
+    // Table
+    const table = document.getElementById("covenantTableBody");
+    table.innerHTML = data.covenants.map(cov => `
+      <tr>
+        <td class="px-6 py-4">${cov.loan}</td>
+        <td class="px-6 py-4">${cov.asset}</td>
+        <td class="px-6 py-4">${cov.covenant}</td>
+        <td class="px-6 py-4 font-medium">${cov.current}</td>
+        <td class="px-6 py-4">${cov.threshold}</td>
+        <td class="px-6 py-4">
+          <span class="px-2 py-1 text-xs rounded-full ${cov.status === 'Breach' ? 'bg-red-100 text-red-800' : cov.status === 'Warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${cov.status}</span>
+        </td>
+      </tr>
+    `).join("");
+
+    // Depreciation
+    document.getElementById("depreciationValue").textContent = `$${data.depreciation.toLocaleString()}`;
+    document.getElementById("bookValue").textContent = `$${data.bookValue.toLocaleString()}`;
+    document.getElementById("usefulLife").textContent = `${data.usefulLife} yrs`;
+  } catch (err) {
+    console.error("Error loading covenants:", err);
+  }
+});
+</script>
 
 
 

@@ -1,0 +1,28 @@
+<style>
+  @media (max-width: 340px) {
+    #inventoryTable tr {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: #fafafa;
+    }
+    #inventoryTable td {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border: none;
+    }
+    #inventoryTable td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #4b5563;
+      margin-right: 8px;
+    }
+    #inventoryTable thead {
+      display: none;
+    }
+  }
+</style>
