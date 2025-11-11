@@ -77,7 +77,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs sm:text-sm text-gray-500">Total Assets Value</p>
-              <p id="totalAssets" class="text-xl sm:text-2xl font-bold text-green-600">$0</p>
+              <p id="totalAssets" class="text-xl sm:text-2xl font-bold text-green-600">₦0</p>
             </div>
             <i data-lucide="package" class="w-7 h-7 sm:w-8 sm:h-8 text-green-600"></i>
           </div>
@@ -88,7 +88,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs sm:text-sm text-gray-500">Total Liabilities</p>
-              <p id="totalLiabilities" class="text-xl sm:text-2xl font-bold text-red-600">$0</p>
+              <p id="totalLiabilities" class="text-xl sm:text-2xl font-bold text-red-600">₦0</p>
             </div>
             <i data-lucide="landmark" class="w-7 h-7 sm:w-8 sm:h-8 text-red-600"></i>
           </div>
@@ -153,16 +153,16 @@
                     <tr class="hover:bg-gray-50">
                       <td class="px-3 py-3 whitespace-nowrap">Widget A</td>
                       <td class="px-3 py-3 whitespace-nowrap">1,200</td>
-                      <td class="px-3 py-3 whitespace-nowrap">$42.50</td>
-                      <td class="px-3 py-3 font-medium whitespace-nowrap">$51,000</td>
-                      <td class="px-3 py-3 text-green-600 whitespace-nowrap">-$8,500</td>
+                      <td class="px-3 py-3 whitespace-nowrap">₦42.50</td>
+                      <td class="px-3 py-3 font-medium whitespace-nowrap">₦51,000</td>
+                      <td class="px-3 py-3 text-green-600 whitespace-nowrap">-₦8,500</td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                       <td class="px-3 py-3 whitespace-nowrap">Component B</td>
                       <td class="px-3 py-3 whitespace-nowrap">850</td>
-                      <td class="px-3 py-3 whitespace-nowrap">$78.20</td>
-                      <td class="px-3 py-3 font-medium whitespace-nowrap">$66,470</td>
-                      <td class="px-3 py-3 text-red-600 whitespace-nowrap">+$3,200</td>
+                      <td class="px-3 py-3 whitespace-nowrap">₦78.20</td>
+                      <td class="px-3 py-3 font-medium whitespace-nowrap">₦66,470</td>
+                      <td class="px-3 py-3 text-red-600 whitespace-nowrap">+₦3,200</td>
                     </tr>
                   </tbody>
                 </table>
@@ -289,23 +289,6 @@
 
 
 
-<script>
-      async function loadFinanceSummary() {
-  try {
-    const res = await fetch("/user/finance/summary");
-    const data = await res.json();
-
-    document.querySelector("#totalAssets").textContent = `$${data.totalAssets.toLocaleString()}`;
-    document.querySelector("#totalLiabilities").textContent = `$${data.totalLiabilities.toLocaleString()}`;
-    document.querySelector("#activeCovenants").textContent = data.activeCovenants;
-    document.querySelector("#financialHealth").textContent = `${data.financialHealth} / 100`;
-    } catch (err) {
-      console.error("Error loading finance summary:", err);
-    }
-  }
-
-  loadFinanceSummary();
-</script>
 
 
 
@@ -327,10 +310,10 @@ async function loadInventoryValuation() {
       tr.innerHTML = `
         <td class="px-6 py-4 text-sm">${item.name}</td>
         <td class="px-6 py-4 text-sm">${item.qty.toLocaleString()}</td>
-        <td class="px-6 py-4 text-sm">$${item.unitCost.toLocaleString()}</td>
-        <td class="px-6 py-4 text-sm font-medium">$${item.totalValue.toLocaleString()}</td>
+        <td class="px-6 py-4 text-sm">₦${item.unitCost.toLocaleString()}</td>
+        <td class="px-6 py-4 text-sm font-medium">₦${item.totalValue.toLocaleString()}</td>
         <td class="px-6 py-4 text-sm ${item.cogsImpact >= 0 ? 'text-green-600' : 'text-red-600'}">
-          ${item.cogsImpact >= 0 ? '+' : '-'}$${Math.abs(item.cogsImpact).toLocaleString()}
+          ${item.cogsImpact >= 0 ? '+' : '-'}₦${Math.abs(item.cogsImpact).toLocaleString()}
         </td>
       `;
       tableBody.appendChild(tr);
@@ -424,7 +407,7 @@ loadInventoryValuation();
           data: {
             labels: ["Receivables", "Payables"],
             datasets: [{
-              label: "Amount ($)",
+              label: "Amount (₦)",
               data: [data.receivables, data.payables],
               backgroundColor: ["#3b82f6", "#ef4444"],
               borderRadius: 6
@@ -459,10 +442,10 @@ loadInventoryValuation();
       // ===== Summary =====
       document.getElementById("monthlySummary").innerHTML = `
         <strong>${data.month} ${data.year}:</strong> 
-        Receivables at <b>$${data.receivables.toLocaleString()}</b>, 
-        Payables at <b>$${data.payables.toLocaleString()}</b>. 
-        Asset valuation stands at <b>$${data.assets.toLocaleString()}</b> 
-        with loans totaling <b>$${data.loans.toLocaleString()}</b>. 
+        Receivables at <b>₦${data.receivables.toLocaleString()}</b>, 
+        Payables at <b>₦${data.payables.toLocaleString()}</b>. 
+        Asset valuation stands at <b>₦${data.assets.toLocaleString()}</b> 
+        with loans totaling <b>₦${data.loans.toLocaleString()}</b>. 
         ${data.notes || ""}
       `;
 
@@ -497,8 +480,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     // Update DOM
-    document.getElementById("totalAssets").textContent = `$${totalAssets.toLocaleString()}`;
-    document.getElementById("totalLiabilities").textContent = `$${totalLiabilities.toLocaleString()}`;
+    document.getElementById("totalAssets").textContent = `₦${totalAssets.toLocaleString()}`;
+    document.getElementById("totalLiabilities").textContent = `₦${totalLiabilities.toLocaleString()}`;
     document.getElementById("financialHealth").textContent = `${Math.round(healthScore)} / 100`;
 
     lucide.createIcons(); // refresh icons
@@ -549,8 +532,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     `).join("");
 
     // Depreciation
-    document.getElementById("depreciationValue").textContent = `$${data.depreciation.toLocaleString()}`;
-    document.getElementById("bookValue").textContent = `$${data.bookValue.toLocaleString()}`;
+    document.getElementById("depreciationValue").textContent = `₦${data.depreciation.toLocaleString()}`;
+    document.getElementById("bookValue").textContent = `₦${data.bookValue.toLocaleString()}`;
     document.getElementById("usefulLife").textContent = `${data.usefulLife} yrs`;
   } catch (err) {
     console.error("Error loading covenants:", err);
