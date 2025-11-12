@@ -12,8 +12,38 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
 
+        <link rel="stylesheet" href="/css/dashall.css">
+
 </head>
 <body>
+
+
+<!-- 🌀 Preloader -->
+<div id="preloader" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="background-color: #031224;">
+  <div class="loader border-4 border-gray-300 border-t-[#00b4ff] rounded-full w-14 h-14 animate-spin"></div>
+  <p class="mt-5 text-lg font-semibold text-white">Adnet</p>
+</div>
+
+<script>
+  // 🧠 Preloader Script
+  window.addEventListener("load", () => {
+    const preloader = document.getElementById("preloader");
+
+    // Fade out after 1s or when page is fully loaded
+    setTimeout(() => {
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => preloader.remove(), 500); // remove completely
+    }, 1000);
+  });
+</script>
+
+<style>
+  #preloader {
+    transition: opacity 0.5s ease;
+  }
+</style>
+
 
 
 
@@ -168,8 +198,8 @@ const modules = {
 
   // Taxation & Statutory Remittances
   taxation: [
-    { name: 'Tax Remittances', href: '/tax-remittances' },
-    { name: 'Statutory Reports', href: '/statutory-reports' }
+    { name: 'Taxation', href: '/taxation' },
+    { name: 'Statutory Reports', href: '/statutory' }
   ],
 
   // Payroll, HR & Admin

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statutory Compliance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="all">
+  <%- include ("../_sidebar1") %>
+
+  <div class="main-content">
+    <%- include ("../_topnav") %>
+
+
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Statutory Compliance Dashboard</h1>
+            <p class="text-sm text-gray-600 mt-1">Track tax compliance, deadlines, and overall regulatory health.</p>
+          </div>
+          <button id="generateReport" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium transition">
+  <i data-lucide="download" class="w-4 h-4"></i>
+  <span>Generate Report</span>
+</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Top Stats Cards -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Compliance Health -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-500">Compliance Health</p>
+              <p id="complianceRate" class="text-lg sm:text-xl font-bold text-green-600">0%</p>
+              <p class="text-xs text-green-600">Good Standing</p>
+            </div>
+            <i data-lucide="activity" class="w-8 h-8 text-green-600 opacity-20"></i>
+          </div>
+        </div>
+
+        <!-- On-Time Filings -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-500">On-Time Filings</p>
+              <p id="onTimeCount" class="text-lg sm:text-xl font-bold text-blue-600">0</p>
+            </div>
+            <i data-lucide="check-circle" class="w-8 h-8 text-blue-600 opacity-20"></i>
+          </div>
+        </div>
+
+        <!-- Overdue Filings -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-500">Overdue Filings</p>
+              <p id="overdueCount" class="text-lg sm:text-xl font-bold text-red-600">0</p>
+            </div>
+            <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600 opacity-20"></i>
+          </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-500">Upcoming (14d)</p>
+              <p id="upcomingCount" class="text-lg sm:text-xl font-bold text-amber-600">0</p>
+            </div>
+            <i data-lucide="calendar-clock" class="w-8 h-8 text-amber-600 opacity-20"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- Charts & Alerts Row -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
+
+  <!-- Compliance Trends Chart -->
+  <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-sm sm:text-base font-semibold text-gray-800">Compliance Trend</h3>
+      <div class="flex gap-2">
+        <button id="viewMonthly" class="text-xs px-3 py-1 rounded bg-blue-50 text-blue-700">Monthly</button>
+        <button id="viewQuarterly" class="text-xs px-3 py-1 rounded text-gray-600 hover:bg-gray-50">Quarterly</button>
+      </div>
+    </div>
+    <canvas id="complianceChart" height="220"></canvas>
+  </div>
+
+  <!-- Health Overview Panel -->
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center justify-center text-center">
+    <h3 class="text-sm font-semibold text-gray-800 mb-3">Compliance Score</h3>
+    <div class="relative w-32 h-32">
+      <canvas id="healthCircle"></canvas>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span id="healthScore" class="text-2xl font-bold text-gray-800">0</span>
+      </div>
+    </div>
+    <p id="lastAudit" class="mt-3 text-xs text-gray-500">Last Audit: </p>
+    <p id="standingStatus" class="mt-1 text-sm font-medium text-green-600">Compliant</p>
+    <p class="mt-2 text-xs text-gray-600">All filings up-to-date</p>
+  </div>
+</section>
+
+<!-- Alerts & Recommendations -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
+
+  <!-- Alerts Feed -->
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <h3 class="text-sm font-semibold text-gray-800 mb-4">Compliance Alerts</h3>
+    <div id="alertsFeed" class="space-y-3 max-h-64 overflow-y-auto">
+      <!-- Dynamic -->
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <h3 class="text-sm font-semibold text-gray-800 mb-4">Insights & Recommendations</h3>
+    <div id="insightsList" class="space-y-3 text-xs sm:text-sm">
+      <!-- Dynamic -->
+    </div>
+  </div>
+</section>
+
+ </div>
+</div>
+
+
+
+
+<!-- 📊 Generate Report Modal -->
+<div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-sm relative">
+    <h2 class="text-lg font-semibold mb-4">Select Company for Report</h2>
+    
+    <!-- Company dropdown (populated dynamically by JS) -->
+    <select id="companySelect" class="w-full border border-gray-300 rounded px-3 py-2 mb-4">
+      <option value="all">Loading companies...</option>
+    </select>
+
+    <div class="flex justify-end gap-2">
+      <button id="cancelReport" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+        Cancel
+      </button>
+      <button id="submitReport" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Generate
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+
+  let complianceChart;
+let healthCircle;
+
+// Modal Controls
+const reportModal = document.getElementById("reportModal");
+const generateBtn = document.getElementById("generateReport");
+const cancelBtn = document.getElementById("cancelReport");
+const submitBtn = document.getElementById("submitReport");
+const companySelect = document.getElementById("companySelect");
+
+generateBtn.addEventListener("click", () => {
+  reportModal.classList.remove("hidden");
+});
+
+cancelBtn.addEventListener("click", () => {
+  reportModal.classList.add("hidden");
+});
+
+submitBtn.addEventListener("click", async () => {
+  const company = companySelect.value; // selected company or 'all'
+  
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...';
+  lucide.createIcons();
+
+  try {
+    const res = await fetch(`/user/report?company=${encodeURIComponent(company)}`, { method: 'GET' });
+    if (!res.ok) throw new Error("Failed to generate report");
+    const data = await res.json();
+
+    // --- Update charts and UI ---
+    document.getElementById("healthScore").innerText = data.complianceRate;
+    const standingEl = document.getElementById("standingStatus");
+    standingEl.innerText = data.standing;
+    standingEl.classList.toggle("text-green-600", data.complianceRate >= 80);
+    standingEl.classList.toggle("text-red-600", data.complianceRate < 80);
+
+    document.getElementById("lastAudit").innerText = `Last Audit: ${data.lastAudit}`;
+    
+    const alertsFeed = document.getElementById("alertsFeed");
+    alertsFeed.innerHTML = data.alerts.map(a => `
+      <div class="p-3 rounded-lg border ${a.type === "danger" ? "border-red-200 bg-red-50 text-red-700" : "border-yellow-200 bg-yellow-50 text-yellow-700"}">
+        ${a.message}
+      </div>`).join("");
+
+    const insightsList = document.getElementById("insightsList");
+    insightsList.innerHTML = data.insights.map(i => `
+      <div class="p-3 rounded-lg bg-gray-50 border border-gray-100">${i}</div>`).join("");
+
+    // Compliance Chart
+    const ctx = document.getElementById("complianceChart").getContext("2d");
+    const labels = data.labels || ['On Time', 'Overdue', 'Upcoming'];
+    const dataset = data.dataset || [data.onTime, data.overdue, data.upcoming];
+
+    if (!complianceChart) {
+      complianceChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Compliance', data: dataset, backgroundColor: ['#16a34a','#dc2626','#facc15'] }] },
+        options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: true } }, scales: { y: { beginAtZero: true } } }
+      });
+    } else {
+      complianceChart.data.labels = labels;
+      complianceChart.data.datasets[0].data = dataset;
+      complianceChart.update();
+    }
+
+    // Health Circle
+    const healthCtx = document.getElementById("healthCircle").getContext("2d");
+    if (!healthCircle) {
+      healthCircle = new Chart(healthCtx, {
+        type: 'doughnut',
+        data: { labels: ['Compliant','Remaining'], datasets: [{ data: [data.complianceRate,100-data.complianceRate], backgroundColor:['#16a34a','#e5e7eb'], borderWidth:0 }] },
+        options: { cutout: '70%', plugins: { legend: { display: false } } }
+      });
+    } else {
+      healthCircle.data.datasets[0].data = [data.complianceRate, 100-data.complianceRate];
+      healthCircle.update();
+    }
+
+    // Close modal
+    reportModal.classList.add("hidden");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "Generate";
+    lucide.createIcons();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to generate report for selected company.");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "Generate";
+  }
+});
+
+</script>
+
+
+
+<script>
+async function loadStatutorySummary() {
+  try {
+    const res = await fetch("/user/statutory/summary");
+    if (!res.ok) throw new Error("Failed to fetch statutory summary");
+    const data = await res.json();
+
+    // Update UI
+    document.getElementById("complianceRate").textContent = `${data.complianceRate}%`;
+    document.getElementById("onTimeCount").textContent = data.onTime;
+    document.getElementById("overdueCount").textContent = data.overdue;
+    document.getElementById("upcomingCount").textContent = data.upcoming;
+
+    const rateEl = document.getElementById("complianceRate");
+    rateEl.classList.remove("text-green-600", "text-red-600", "text-amber-600");
+    if (data.complianceRate >= 80) {
+      rateEl.classList.add("text-green-600");
+    } else if (data.complianceRate >= 50) {
+      rateEl.classList.add("text-amber-600");
+    } else {
+      rateEl.classList.add("text-red-600");
+    }
+
+    // Optional: Update the status text
+    const statusEl = rateEl.nextElementSibling;
+    if (statusEl) statusEl.textContent = data.complianceStatus;
+
+    lucide.createIcons();
+  } catch (err) {
+    console.error("Error loading statutory summary:", err);
+  }
+}
+
+// 🔥 Call once page loads
+document.addEventListener("DOMContentLoaded", loadStatutorySummary);
+</script>
+
+
+
+<script>
+
+
+  // Load companies dynamically when the modal opens
+generateBtn.addEventListener("click", async () => {
+  reportModal.classList.remove("hidden");
+
+  try {
+    const res = await fetch("/user/tax/companies-list"); // 👈 new endpoint
+    const companies = await res.json();
+
+    // Reset and fill select options
+    companySelect.innerHTML = `<option value="all">All Companies</option>` +
+      companies.map(c => `<option value="${c}">${c}</option>`).join('');
+  } catch (err) {
+    console.error("Failed to load companies:", err);
+    companySelect.innerHTML = `<option value="all">All Companies</option>`;
+  }
+});
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taxation Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+
+<div class="all">
+  <%- include ("../_sidebar1") %>
+
+  <div class="main-content">
+    <%- include ("../_topnav") %>
+
+    <!-- Mobile Sidebar (Top on <lg) -->
+    <aside class="w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:hidden mb-6">
+      <nav class="grid grid-cols-3 gap-2 text-xs">
+        <button class="px-2 py-1.5 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center gap-1">
+          <i data-lucide="file-text" class="w-4 h-4"></i> Tax
+        </button>
+        <button class="px-2 py-1.5 rounded-lg text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-1">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Payroll
+        </button>
+        <button class="px-2 py-1.5 rounded-lg text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-1">
+          <i data-lucide="settings" class="w-4 h-4"></i> Settings
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Taxation Dashboard</h1>
+            <p class="text-sm text-gray-600 mt-1">Manage taxes, view filing history, and track compliance status.</p>
+          </div>
+          <button id="openAddModal" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Add Tax Record</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500">Total Taxes Paid</p>
+          <p id="totalPaid" class="text-lg sm:text-xl font-bold text-green-600">₦0</p>
+        </div>
+        <i data-lucide="check-circle" class="w-8 h-8 text-green-600 opacity-20"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500">Pending Taxes</p>
+          <p id="pendingTaxes" class="text-lg sm:text-xl font-bold text-orange-600">₦0</p>
+        </div>
+        <i data-lucide="clock" class="w-8 h-8 text-orange-600 opacity-20"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500">Upcoming Deadlines</p>
+          <p id="upcomingDeadlines" class="text-lg sm:text-xl font-bold text-purple-600">0</p>
+        </div>
+        <i data-lucide="calendar" class="w-8 h-8 text-purple-600 opacity-20"></i>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500">Compliance Score</p>
+          <p id="complianceScore" class="text-lg sm:text-xl font-bold text-blue-600">0%</p>
+        </div>
+        <i data-lucide="shield" class="w-8 h-8 text-blue-600 opacity-20"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+  <form id="taxFilterForm" class="flex flex-wrap gap-3 items-center">
+    <input type="text" name="companyname" placeholder="Company Name" class="px-3 py-2 border rounded-lg text-sm">
+    <select name="taxType" class="px-3 py-2 border rounded-lg text-sm">
+      <option value="">All Tax Types</option>
+      <option value="VAT">VAT</option>
+      <option value="PAYE">PAYE</option>
+      <option value="Corporate Income Tax">Corporate Income Tax</option>
+      <option value="Withholding Tax">Withholding Tax</option>
+      <option value="Income Tax">Income Tax</option>
+      <option value="Withholding">Withholding</option>
+    </select>
+    <select name="status" class="px-3 py-2 border rounded-lg text-sm">
+      <option value="">All Status</option>
+      <option value="Paid">Paid</option>
+      <option value="Pending">Pending</option>
+      <option value="Overdue">Overdue</option>
+    </select>
+    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">Filter</button>
+  </form>
+</section>
+
+
+<!-- 📊 Tax Records Table -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Comapny Name</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Tax Type</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Amount (₦)</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Date Filed</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-3 sm:px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" id="taxTable">
+          <!-- JS will populate this -->
+        </tbody>
+      </table>
+    </div>
+    <p class="text-xs text-gray-500 text-center py-2 sm:hidden">← Scroll to view all →</p>
+  </div>
+</section>
+
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+  </div>
+</div>
+
+<!-- Add Tax Record Modal -->
+<div id="addTaxModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-screen overflow-y-auto">
+    <div class="p-5 sm:p-6 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Add New Tax Record</h3>
+    </div>
+
+    <form id="taxForm" enctype="multipart/form-data" class="p-5 sm:p-6 space-y-4" method="post" action="/user/add/tax">
+
+        <input type="hidden" name="userId" value="<%= user._id %>">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tax Type</label>
+        <select name="taxType" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+          <option value="VAT">VAT</option>
+          <option value="PAYE">PAYE</option>
+          <option value="Corporate Income Tax">Corporate Income Tax</option>
+          <option value="Withholding Tax">Withholding Tax</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+        <input name="companyname" type="text" placeholder="" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tax Amount (₦)</label>
+        <input name="amount" type="number" placeholder="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Filing Date</label>
+        <input name="filingDate" type="text" id="filingDate" placeholder="Select date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+        <select name="paymentMethod" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Paystack">Paystack</option>
+          <option value="Manual">Manual</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Receipt Upload</label>
+        <input name="receipt" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Overdue">Overdue</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+        <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none"></textarea>
+      </div>
+
+      <div class="border-t border-gray-200 flex justify-end gap-3 pt-4">
+        <button type="button" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium" onclick="closeModal('addTaxModal')">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">Save Record</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- File Tax Modal -->
+<div id="fileTaxModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md">
+    <div class="p-5 sm:p-6 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">File Tax Payment</h3>
+    </div>
+    <div class="p-5 sm:p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tax Type</label>
+        <input type="text" value="Income Tax" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+        <input type="text" value="₦450,000" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-200 focus:outline-none">
+          <option>Bank Transfer</option>
+          <option>Paystack</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Upload Proof of Payment</label>
+        <input type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+      </div>
+    </div>
+    <div class="p-5 sm:p-6 border-t border-gray-200 flex justify-end gap-3">
+      <button class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-sm font-medium" onclick="closeModal('fileTaxModal')">Cancel</button>
+      <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">Submit Filing</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+  // ✅ Initialize Lucide Icons
+  lucide.createIcons();
+
+  // ✅ Date Picker Setup
+  flatpickr("#filingDate", {
+    dateFormat: "Y-m-d",
+    maxDate: "today",
+  });
+
+  // ✅ Modal Controls
+  document.getElementById("openAddModal").onclick = () => {
+    document.getElementById("addTaxModal").classList.remove("hidden");
+  };
+  function closeModal(id) {
+    document.getElementById(id).classList.add("hidden");
+  }
+  function openFileModal() {
+    document.getElementById("fileTaxModal").classList.remove("hidden");
+  }
+  // Close modal on outside click
+  document.querySelectorAll('[id$="Modal"]').forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal(modal.id);
+    });
+  });
+
+  // ✅ Toast Notification
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className =
+      "px-4 py-3 rounded-lg text-white text-sm font-medium shadow-lg transform transition-all duration-300 translate-y-4 opacity-0";
+    toast.innerText = message;
+
+    if (type === "success") toast.classList.add("bg-green-600");
+    else if (type === "warning") toast.classList.add("bg-orange-600");
+    else if (type === "error") toast.classList.add("bg-red-600");
+    else toast.classList.add("bg-blue-600");
+
+    document.getElementById("toastContainer").appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.remove("translate-y-4", "opacity-0");
+    }, 10);
+
+    setTimeout(() => {
+      toast.classList.add("translate-y-4", "opacity-0");
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  // 🧾 Render tax table rows
+  function renderTaxRows(taxes) {
+    const tableBody = document.getElementById("taxTable");
+
+    if (!taxes.length) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center py-6 text-gray-500">
+            No tax records found.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = taxes
+      .map(
+        (tax) => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap">${tax.companyname}</td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap">${tax.taxType}</td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap font-medium">₦${tax.amount.toLocaleString()}</td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap">${new Date(tax.filingDate).toLocaleDateString()}</td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap">${tax.paymentMethod}</td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-medium rounded-full ${
+              tax.status === "Paid"
+                ? "bg-green-100 text-green-800"
+                : tax.status === "Pending"
+                ? "bg-orange-100 text-orange-800"
+                : "bg-red-100 text-red-800"
+            }">${tax.status}</span>
+          </td>
+          <td class="px-3 sm:px-6 py-3 whitespace-nowrap text-sm">
+            ${
+              tax.receiptUrl
+                ? `<a href="${tax.receiptUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 mr-2">View Receipt</a>`
+                : `<span class="text-gray-400 mr-2">No Receipt</span>`
+            }
+            <button class="text-gray-600 hover:text-gray-800" onclick="openEditModal('${tax._id}')">Edit</button>
+          </td>
+        </tr>`
+      )
+      .join("");
+  }
+
+  // ⏳ Show preloader in table
+  function showPreloader() {
+    const tableBody = document.getElementById("taxTable");
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center py-6">
+          <div class="flex justify-center items-center space-x-2">
+            <div class="w-4 h-4 rounded-full animate-pulse bg-blue-600"></div>
+            <div class="w-4 h-4 rounded-full animate-pulse bg-blue-600"></div>
+            <div class="w-4 h-4 rounded-full animate-pulse bg-blue-600"></div>
+            <span>Loading...</span>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  // 🧾 Load filtered tax records
+  async function loadTaxes(query = "") {
+    try {
+      showPreloader(); // show loader
+      const res = await fetch(`/user/taxation${query}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch tax records");
+
+      const taxes = await res.json();
+      renderTaxRows(taxes);
+      showToast("Tax records loaded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      document.getElementById("taxTable").innerHTML = `
+        <tr><td colspan="7" class="text-center py-6 text-red-500">Error loading records</td></tr>`;
+      showToast("Error loading tax records.", "error");
+    }
+  }
+
+  // 📊 Load Tax Summary
+  async function loadTaxSummary() {
+    try {
+      const res = await fetch("/user/tax/summary");
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to fetch tax summary");
+
+      document.getElementById("totalPaid").textContent = `₦${data.totalPaid.toLocaleString()}`;
+      document.getElementById("pendingTaxes").textContent = `₦${data.totalPending.toLocaleString()}`;
+      document.getElementById("upcomingDeadlines").textContent = data.upcomingDeadlines;
+      document.getElementById("complianceScore").textContent = `${data.complianceScore}%`;
+    } catch (err) {
+      console.error("⚠️ Error loading tax summary:", err);
+      showToast("Failed to fetch summary data.", "error");
+    }
+  }
+
+  // 🔍 Filter form
+  const taxFilterForm = document.getElementById("taxFilterForm");
+  taxFilterForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(taxFilterForm);
+    const query = new URLSearchParams(formData).toString();
+    loadTaxes(`?${query}`);
+  });
+
+  // 🚀 Initial load
+  document.addEventListener("DOMContentLoaded", () => {
+    loadTaxes();
+    loadTaxSummary();
+
+    // ⏳ Optional Auto Refresh every 1 minute
+    setInterval(loadTaxSummary, 60000);
+
+    // ⚠️ Example Deadline Alerts
+    setTimeout(() => showToast("VAT filing due in 3 days!", "warning"), 2000);
+    setTimeout(() => showToast("Income Tax overdue! File now.", "error"), 3500);
+  });
+</script>
+
+
+
+
+</body>
+</html>

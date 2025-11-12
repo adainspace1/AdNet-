@@ -6403,6 +6403,133 @@ app.get("/api/finance-metrics", async (req, res) => {
 
 
 
+app.get("/taxation", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+  const userId = recipientId;
+
+
+
+    res.render("dashboard/taxation/taxation", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get("/statutory", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+     let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+  const userId = recipientId;
+
+
+
+    res.render("dashboard/taxation/statutory", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,  
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

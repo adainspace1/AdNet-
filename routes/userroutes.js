@@ -38,6 +38,10 @@ const WalletController = require('../controllers/walletController');
 
 const FinanceController = require('../controllers/financeController');
 
+
+const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport, getUserCompanies } = require("../controllers/taxController");
+
+
 // ===========================================
 // AUTH MIDDLEWARE
 // ===========================================
@@ -195,5 +199,31 @@ router.post('/forgot-password', forgotpassword);
 
 // Webhook (must be public — verify signature in controller)
 router.post('/webhooks/paystack', WalletController.paystackWebhook);
+
+
+
+
+
+
+
+
+const upload2 = multer({ storage: storage }).fields([
+  { name: 'receipt', maxCount: 1 },
+]);
+
+
+// Routes
+router.post("/add/tax", upload2, ensureAuthenticated, addTaxRecord);
+router.get("/all/taxes", ensureAuthenticated, getAllTaxes);
+router.get("/taxation", getFilteredTaxes);
+router.get("/tax/summary", ensureAuthenticated, getTaxSummary);
+router.get("/statutory/summary", ensureAuthenticated, getStatutorySummary);
+
+// route
+router.get("/tax/companies-list", getUserCompanies);
+
+router.get("/report", generateComplianceReport);
+
+
 
 module.exports = router;
