@@ -39,7 +39,7 @@ const WalletController = require('../controllers/walletController');
 const FinanceController = require('../controllers/financeController');
 
 
-const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport, getUserCompanies } = require("../controllers/taxController");
+const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport } = require("../controllers/taxController");
 
 
 // ===========================================
@@ -218,10 +218,6 @@ router.get("/all/taxes", ensureAuthenticated, getAllTaxes);
 router.get("/taxation", getFilteredTaxes);
 router.get("/tax/summary", ensureAuthenticated, getTaxSummary);
 router.get("/statutory/summary", ensureAuthenticated, getStatutorySummary);
-
-// route
-router.get("/tax/companies-list", getUserCompanies);
-
 router.get("/report", generateComplianceReport);
 
 

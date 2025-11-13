@@ -18,31 +18,7 @@
 <body>
 
 
-<!-- 🌀 Preloader -->
-<div id="preloader" class="fixed inset-0 flex flex-col items-center justify-center z-[9999]" style="background-color: #031224;">
-  <div class="loader border-4 border-gray-300 border-t-[#00b4ff] rounded-full w-14 h-14 animate-spin"></div>
-  <p class="mt-5 text-lg font-semibold text-white">Adnet</p>
-</div>
 
-<script>
-  // 🧠 Preloader Script
-  window.addEventListener("load", () => {
-    const preloader = document.getElementById("preloader");
-
-    // Fade out after 1s or when page is fully loaded
-    setTimeout(() => {
-      preloader.style.opacity = "0";
-      preloader.style.pointerEvents = "none";
-      setTimeout(() => preloader.remove(), 500); // remove completely
-    }, 1000);
-  });
-</script>
-
-<style>
-  #preloader {
-    transition: opacity 0.5s ease;
-  }
-</style>
 
 
 
@@ -112,6 +88,72 @@
 
 
 
+
+
+
+<!-- 🌀 Preloader -->
+<div id="preloader">
+  <div class="loader"></div>
+  <p>Adnet</p>
+</div>
+<script>
+  // 🧠 Preloader Script
+  window.addEventListener("load", () => {
+    const preloader = document.getElementById("preloader");
+
+    // Fade out after 1s or when page is fully loaded
+    setTimeout(() => {
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => preloader.remove(), 500); // remove completely
+    }, 1000);
+  });
+</script>
+
+<style>
+  #preloader {
+    transition: opacity 0.5s ease;
+  }
+  /* 🌀 Preloader Styles */
+#preloader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #031224;
+  z-index: 9999;
+}
+
+/* Spinner Animation */
+.loader {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 4px solid #cbd5e1; /* gray-300 */
+  border-top-color: #00b4ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Text Below Spinner */
+#preloader p {
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Animation Keyframes */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+</style>
 
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>

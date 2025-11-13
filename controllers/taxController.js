@@ -7,9 +7,12 @@ const cloudinary = require("../cloudinary");
 const streamifier  = require("streamifier");
 const multer = require('multer');
 const bodyparser = require('body-parser');
+const mongoose = require("mongoose");
 
 
 const Company = require("../models/company");
+const Sale = require('../models/sale');
+const Expense = require('../models/expense');
 
 
 
@@ -221,17 +224,9 @@ exports.getStatutorySummary = async (req, res) => {
 
 
 
-// controller
-exports.getUserCompanies = async (req, res) => {
-  try {
-    const userId = req.user?.id || req.session.user?._id || req.session.worker?.adminId;
-    const companies = await Tax.distinct("companyname", { userId });
-    res.json(companies);
-  } catch (err) {
-    console.error("Error fetching company list:", err);
-    res.status(500).json([]);
-  }
-};
+
+
+
 
 
 
@@ -239,21 +234,56 @@ exports.getUserCompanies = async (req, res) => {
 exports.generateComplianceReport = async (req, res) => {
   try {
     const userId = req.user?.id || req.session.user?._id || req.session.worker?.adminId;
-    const { company } = req.query;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    // always filter by userId, but company is optional
-    const query = { userId };
-    if (company && company !== "all") query.companyname = company;
-
-    const taxes = await Tax.find(query);
-
+    // 🔹 1️⃣ Fetch tax records for compliance calculation
+    const taxes = await Tax.find({ userId });
     const total = taxes.length;
     const onTime = taxes.filter(t => t.status === "Paid" && !t.isLate).length;
     const overdue = taxes.filter(t => t.status === "Pending" && new Date(t.dueDate) < new Date()).length;
     const upcoming = taxes.filter(t => t.status === "Pending" && new Date(t.dueDate) > new Date()).length;
-
     const complianceRate = total > 0 ? Math.round((onTime / total) * 100) : 0;
 
+    // 🔹 2️⃣ Fetch total sales and total expenses (use recipientId not userId)
+    const salesAgg = await Sale.aggregate([
+      { $match: { recipientId: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } }
+    ]);
+
+    const expenseAgg = await Expense.aggregate([
+      { $match: { recipientId: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: null, totalExpenses: { $sum: "$amount" } } }
+    ]);
+
+    const totalSales = salesAgg[0]?.totalSales || 0;
+    const totalExpenses = expenseAgg[0]?.totalExpenses || 0;
+    const profit = totalSales - totalExpenses;
+
+    // 🔹 3️⃣ Tax calculation based on profit bands
+    const taxBands = [
+      { min: 0, max: 800000, rate: 0 },
+      { min: 800001, max: 3000000, rate: 15 },
+      { min: 3000001, max: 12000000, rate: 18 },
+      { min: 12000001, max: 25000000, rate: 21 },
+      { min: 25000001, max: 50000000, rate: 23 },
+      { min: 50000001, max: Infinity, rate: 25 },
+    ];
+
+    const annualTaxable = Math.max(profit * 12, 0); // prevent negative values
+    let remaining = annualTaxable;
+    let annualTax = 0;
+
+    for (const band of taxBands) {
+      if (remaining <= 0) break;
+      const bandLimit = band.max === Infinity ? remaining : Math.min(remaining, band.max - band.min);
+      annualTax += (bandLimit * band.rate) / 100;
+      remaining -= bandLimit;
+    }
+
+    const monthlyTax = Math.round(annualTax / 12);
+    const taxToPay = Math.max(monthlyTax, 0);
+
+    // 🔹 4️⃣ Alerts & Insights
     const alerts = [];
     if (overdue > 0) alerts.push({ message: `${overdue} overdue filing(s)`, type: "danger" });
     if (upcoming > 0) alerts.push({ message: `${upcoming} upcoming deadline(s)`, type: "warning" });
@@ -262,20 +292,27 @@ exports.generateComplianceReport = async (req, res) => {
     if (complianceRate < 50) insights.push("Your compliance rate is low. Review pending filings immediately.");
     if (overdue > 0) insights.push("Clear overdue filings to avoid penalties.");
     if (complianceRate >= 80) insights.push("You're in good standing. Keep up timely submissions!");
+    insights.push(`Estimated monthly tax payable: ₦${taxToPay.toLocaleString()}`);
 
+    // 🔹 5️⃣ Send everything to frontend
     res.status(200).json({
       complianceRate,
       onTime,
       overdue,
       upcoming,
+      totalSales,
+      totalExpenses,
+      profit,
+      taxToPay,
       alerts,
       insights,
       lastAudit: new Date().toLocaleDateString("en-US"),
       standing: complianceRate >= 80 ? "Compliant" : "Needs Attention",
     });
   } catch (err) {
-    console.error("Error generating report:", err);
+    console.error("⚠️ Error generating report:", err);
     res.status(500).json({ message: "Error generating compliance report" });
   }
 };
+
 

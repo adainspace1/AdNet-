@@ -19,7 +19,9 @@
     <%- include ("../_topnav") %>
 
 
+<div class="container">
 
+</div>
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -35,6 +37,7 @@
         </div>
       </div>
     </header>
+    
 
     <!-- Top Stats Cards -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -136,33 +139,13 @@
   </div>
 </section>
 
+</div>
  </div>
 </div>
 
 
 
 
-<!-- 📊 Generate Report Modal -->
-<div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="bg-white rounded-lg p-6 w-full max-w-sm relative">
-    <h2 class="text-lg font-semibold mb-4">Select Company for Report</h2>
-    
-    <!-- Company dropdown (populated dynamically by JS) -->
-    <select id="companySelect" class="w-full border border-gray-300 rounded px-3 py-2 mb-4">
-      <option value="all">Loading companies...</option>
-    </select>
-
-    <div class="flex justify-end gap-2">
-      <button id="cancelReport" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-        Cancel
-      </button>
-      <button id="submitReport" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-        Generate
-      </button>
-    </div>
-  </div>
-</div>
-
 
 
 
@@ -171,164 +154,194 @@
 
 
 <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const res = await fetch("/user/statutory/summary");
+      const data = await res.json();
 
+      if (!res.ok) throw new Error(data.message || "Failed to fetch summary");
+
+      // ✅ Update UI
+      document.getElementById("complianceRate").textContent = `${data.complianceRate}%`;
+      document.querySelector("#complianceRate + p").textContent = data.complianceStatus;
+      document.getElementById("onTimeCount").textContent = data.onTime;
+      document.getElementById("overdueCount").textContent = data.overdue;
+      document.getElementById("upcomingCount").textContent = data.upcoming;
+
+      // ✅ Toast notification (if your global showToast exists)
+      if (typeof showToast === "function") showToast("Statutory summary updated!", "success");
+
+      if (window.lucide) lucide.createIcons();
+    } catch (err) {
+      console.error("⚠️ Error loading statutory summary:", err);
+      if (typeof showToast === "function") showToast("Failed to load summary", "error");
+    }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
   let complianceChart;
-let healthCircle;
+  let healthCircle;
+  let reportGenerated = false;
 
-// Modal Controls
-const reportModal = document.getElementById("reportModal");
-const generateBtn = document.getElementById("generateReport");
-const cancelBtn = document.getElementById("cancelReport");
-const submitBtn = document.getElementById("submitReport");
-const companySelect = document.getElementById("companySelect");
+  async function fetchReport(period = 'monthly') {
+    try {
+      const res = await fetch(`/user/report?period=${period}`);
+      if (!res.ok) throw new Error("Failed to fetch report");
+      const data = await res.json();
 
-generateBtn.addEventListener("click", () => {
-  reportModal.classList.remove("hidden");
-});
+      // ✅ Health Score & Standing
+      document.getElementById("healthScore").innerText = data.complianceRate ?? 0;
+      const standingEl = document.getElementById("standingStatus");
+      standingEl.innerText = data.standing || "N/A";
+      standingEl.classList.toggle("text-green-600", data.complianceRate >= 80);
+      standingEl.classList.toggle("text-red-600", data.complianceRate < 80);
 
-cancelBtn.addEventListener("click", () => {
-  reportModal.classList.add("hidden");
-});
+      // ✅ Last Audit
+      document.getElementById("lastAudit").innerText = `Last Audit: ${data.lastAudit || 'N/A'}`;
 
-submitBtn.addEventListener("click", async () => {
-  const company = companySelect.value; // selected company or 'all'
-  
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...';
-  lucide.createIcons();
+      // ✅ Alerts
+      const alertsFeed = document.getElementById("alertsFeed");
+      alertsFeed.innerHTML = (data.alerts?.length ? data.alerts.map(a => `
+        <div class="p-3 rounded-lg border ${
+          a.type === "danger"
+            ? "border-red-200 bg-red-50 text-red-700"
+            : "border-yellow-200 bg-yellow-50 text-yellow-700"
+        }">${a.message}</div>
+      `).join("") : `<div class="text-gray-500 italic">No alerts available.</div>`);
 
-  try {
-    const res = await fetch(`/user/report?company=${encodeURIComponent(company)}`, { method: 'GET' });
-    if (!res.ok) throw new Error("Failed to generate report");
-    const data = await res.json();
+      // ✅ Insights
+      const insightsList = document.getElementById("insightsList");
+      let insightsHTML = "";
 
-    // --- Update charts and UI ---
-    document.getElementById("healthScore").innerText = data.complianceRate;
-    const standingEl = document.getElementById("standingStatus");
-    standingEl.innerText = data.standing;
-    standingEl.classList.toggle("text-green-600", data.complianceRate >= 80);
-    standingEl.classList.toggle("text-red-600", data.complianceRate < 80);
+      if (data.totalSales !== undefined) {
+        insightsHTML += `
+          <div class="p-3 rounded-lg bg-purple-50 border border-purple-100 text-purple-800">
+            🛒 Total Sales: ₦${data.totalSales.toLocaleString()}
+          </div>
+        `;
+      }
 
-    document.getElementById("lastAudit").innerText = `Last Audit: ${data.lastAudit}`;
-    
-    const alertsFeed = document.getElementById("alertsFeed");
-    alertsFeed.innerHTML = data.alerts.map(a => `
-      <div class="p-3 rounded-lg border ${a.type === "danger" ? "border-red-200 bg-red-50 text-red-700" : "border-yellow-200 bg-yellow-50 text-yellow-700"}">
-        ${a.message}
-      </div>`).join("");
+      if (data.totalExpenses !== undefined) {
+        insightsHTML += `
+          <div class="p-3 rounded-lg bg-rose-50 border border-rose-100 text-rose-800">
+            💸 Total Expenses: ₦${data.totalExpenses.toLocaleString()}
+          </div>
+        `;
+      }
 
-    const insightsList = document.getElementById("insightsList");
-    insightsList.innerHTML = data.insights.map(i => `
-      <div class="p-3 rounded-lg bg-gray-50 border border-gray-100">${i}</div>`).join("");
+      if (data.profit !== undefined) {
+        insightsHTML += `
+          <div class="p-3 rounded-lg bg-blue-50 border border-blue-100 text-blue-800">
+            📈 Profit: ₦${data.profit.toLocaleString()}
+          </div>
+        `;
+      }
 
-    // Compliance Chart
-    const ctx = document.getElementById("complianceChart").getContext("2d");
-    const labels = data.labels || ['On Time', 'Overdue', 'Upcoming'];
-    const dataset = data.dataset || [data.onTime, data.overdue, data.upcoming];
+      if (data.taxToPay && data.taxToPay > 0) {
+        insightsHTML += `
+          <div class="p-3 rounded-lg bg-green-50 border border-green-100 text-green-800 font-medium">
+            💰 Estimated Tax to Pay: ₦${data.taxToPay.toLocaleString()}
+          </div>
+        `;
+      }
 
-    if (!complianceChart) {
-      complianceChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels, datasets: [{ label: 'Compliance', data: dataset, backgroundColor: ['#16a34a','#dc2626','#facc15'] }] },
-        options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: true } }, scales: { y: { beginAtZero: true } } }
-      });
-    } else {
-      complianceChart.data.labels = labels;
-      complianceChart.data.datasets[0].data = dataset;
-      complianceChart.update();
+      // Other insights
+      if (data.insights?.length) {
+        insightsHTML += data.insights.map(i => `
+          <div class="p-3 rounded-lg bg-gray-50 border border-gray-100">${i}</div>
+        `).join("");
+      }
+
+      insightsList.innerHTML = insightsHTML || `<div class="text-gray-500 italic">No insights available.</div>`;
+
+      // ✅ Compliance Chart (bar)
+      const ctx = document.getElementById("complianceChart").getContext("2d");
+      const labels = ['On Time', 'Overdue', 'Upcoming'];
+      const dataset = [data.onTime || 0, data.overdue || 0, data.upcoming || 0];
+
+      if (!complianceChart) {
+        complianceChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Compliance',
+              data: dataset,
+              backgroundColor: ['#16a34a','#dc2626','#facc15']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          }
+        });
+      } else {
+        complianceChart.data.datasets[0].data = dataset;
+        complianceChart.update();
+      }
+
+      // ✅ Health Circle (doughnut)
+      const healthCtx = document.getElementById("healthCircle").getContext("2d");
+      const rate = data.complianceRate || 0;
+
+      if (!healthCircle) {
+        healthCircle = new Chart(healthCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Compliant','Remaining'],
+            datasets: [{
+              data: [rate, 100 - rate],
+              backgroundColor:['#16a34a','#e5e7eb'],
+              borderWidth:0
+            }]
+          },
+          options: { cutout: '70%', plugins: { legend: { display: false } } }
+        });
+      } else {
+        healthCircle.data.datasets[0].data = [rate, 100 - rate];
+        healthCircle.update();
+      }
+
+    } catch (err) {
+      console.error("Error fetching report:", err);
+      alert("Failed to load report. Try again later.");
     }
+  }
 
-    // Health Circle
-    const healthCtx = document.getElementById("healthCircle").getContext("2d");
-    if (!healthCircle) {
-      healthCircle = new Chart(healthCtx, {
-        type: 'doughnut',
-        data: { labels: ['Compliant','Remaining'], datasets: [{ data: [data.complianceRate,100-data.complianceRate], backgroundColor:['#16a34a','#e5e7eb'], borderWidth:0 }] },
-        options: { cutout: '70%', plugins: { legend: { display: false } } }
-      });
-    } else {
-      healthCircle.data.datasets[0].data = [data.complianceRate, 100-data.complianceRate];
-      healthCircle.update();
-    }
+  // ✅ Generate Report Button
+  document.getElementById("generateReport").addEventListener("click", async () => {
+    const btn = document.getElementById("generateReport");
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...';
 
-    // Close modal
-    reportModal.classList.add("hidden");
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = "Generate";
+    await fetchReport();
+    reportGenerated = true;
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> <span>Generate Report</span>';
     lucide.createIcons();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to generate report for selected company.");
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = "Generate";
-  }
-});
+  });
 
+  // ✅ Toggle monthly/quarterly
+  document.getElementById("viewMonthly").addEventListener("click", () => {
+    if (!reportGenerated) return;
+    fetchReport('monthly');
+    document.getElementById("viewMonthly").classList.add('bg-blue-50','text-blue-700');
+    document.getElementById("viewQuarterly").classList.remove('bg-blue-50','text-blue-700');
+  });
+
+  document.getElementById("viewQuarterly").addEventListener("click", () => {
+    if (!reportGenerated) return;
+    fetchReport('quarterly');
+    document.getElementById("viewQuarterly").classList.add('bg-blue-50','text-blue-700');
+    document.getElementById("viewMonthly").classList.remove('bg-blue-50','text-blue-700');
+  });
 </script>
 
 
-
-<script>
-async function loadStatutorySummary() {
-  try {
-    const res = await fetch("/user/statutory/summary");
-    if (!res.ok) throw new Error("Failed to fetch statutory summary");
-    const data = await res.json();
-
-    // Update UI
-    document.getElementById("complianceRate").textContent = `${data.complianceRate}%`;
-    document.getElementById("onTimeCount").textContent = data.onTime;
-    document.getElementById("overdueCount").textContent = data.overdue;
-    document.getElementById("upcomingCount").textContent = data.upcoming;
-
-    const rateEl = document.getElementById("complianceRate");
-    rateEl.classList.remove("text-green-600", "text-red-600", "text-amber-600");
-    if (data.complianceRate >= 80) {
-      rateEl.classList.add("text-green-600");
-    } else if (data.complianceRate >= 50) {
-      rateEl.classList.add("text-amber-600");
-    } else {
-      rateEl.classList.add("text-red-600");
-    }
-
-    // Optional: Update the status text
-    const statusEl = rateEl.nextElementSibling;
-    if (statusEl) statusEl.textContent = data.complianceStatus;
-
-    lucide.createIcons();
-  } catch (err) {
-    console.error("Error loading statutory summary:", err);
-  }
-}
-
-// 🔥 Call once page loads
-document.addEventListener("DOMContentLoaded", loadStatutorySummary);
-</script>
-
-
-
-<script>
-
-
-  // Load companies dynamically when the modal opens
-generateBtn.addEventListener("click", async () => {
-  reportModal.classList.remove("hidden");
-
-  try {
-    const res = await fetch("/user/tax/companies-list"); // 👈 new endpoint
-    const companies = await res.json();
-
-    // Reset and fill select options
-    companySelect.innerHTML = `<option value="all">All Companies</option>` +
-      companies.map(c => `<option value="${c}">${c}</option>`).join('');
-  } catch (err) {
-    console.error("Failed to load companies:", err);
-    companySelect.innerHTML = `<option value="all">All Companies</option>`;
-  }
-});
-
-
-</script>
 
 </body>
 </html>
