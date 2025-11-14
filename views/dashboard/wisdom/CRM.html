@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM & Sales Pipeline</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #7c3aed;    
+            --secondary-color: #f8fafc;  
+            --accent-color: #5b21b6;     
+            --success-color: #10b981;    
+            --warning-color: #f59e0b;    
+            --danger-color: #ef4444;    
+            --info-color: #0ea5e9;        
+            --text-color: #1e293b;        
+            --light-text: #64748b;       
+            --border-radius: 10px;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-light: 300;
+            --font-regular: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+            --base-font: 0.875rem;
+            --small-gap: 12px;
+            --card-padding: 18px;
+            --form-padding: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: var(--base-font);
+            font-weight: var(--font-regular);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: white;
+            padding: 20px 15px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: var(--font-bold);
+            color: var(--primary-color);
+            letter-spacing: -0.4px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 6px;
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .nav-menu { list-style: none; }
+        .nav-item { margin-bottom: 6px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: var(--font-medium);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link i { margin-right: 10px; font-size: 1.1rem; width: 20px; text-align: center; }
+        .nav-link:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: var(--font-semibold);
+            box-shadow: 0 3px 10px rgba(124, 58, 237, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: transparent;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: var(--font-bold);
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+
+        .header p { 
+            color: var(--light-text); 
+            font-weight: var(--font-medium); 
+            font-size: 0.85rem; 
+            margin-bottom: 15px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--small-gap);
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            transform: translateY(15px);
+            opacity: 0;
+            animation: slideUp 0.5s forwards;
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-icon {
+            width: 48px; height: 48px; margin: 0 auto 10px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: var(--font-bold);
+            color: var(--text-color);
+            margin-bottom: 4px;
+            transform: scale(0);
+            animation: popIn 0.4s 0.2s forwards cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .stat-label { 
+            color: var(--light-text); 
+            font-weight: var(--font-medium); 
+            font-size: 0.75rem; 
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: var(--card-padding);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(12px);
+            opacity: 0;
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: var(--font-semibold);
+            color: var(--primary-color);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card h3 i { margin-right: 8px; color: var(--accent-color); font-size: 1.1rem; }
+
+        /* Pipeline Stages */
+        .pipeline {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 12px 0;
+            margin: 15px 0;
+        }
+
+        .stage {
+            min-width: 180px;
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        .stage-header {
+            font-weight: var(--font-semibold);
+            font-size: 0.8rem;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stage-count {
+            background: var(--primary-color);
+            color: white;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        .deal-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: grab;
+            transition: var(--transition);
+        }
+
+        .deal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .deal-name { font-weight: var(--font-semibold); font-size: 0.85rem; }
+        .deal-value { color: var(--success-color); font-weight: bold; font-size: 0.8rem; }
+        .deal-contact { font-size: 0.75rem; color: var(--light-text); }
+
+        /* Forms */
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: var(--small-gap); 
+        }
+        .form-group { display: flex; flex-direction: column; }
+        label { 
+            font-weight: var(--font-medium); 
+            color: var(--text-color); 
+            margin-bottom: 6px; 
+            font-size: 0.8rem; 
+        }
+
+        input, select, textarea {
+            padding: var(--form-padding);
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: var(--font-regular);
+            transition: var(--transition);
+            background: #fafbff;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+            background: white;
+            transform: scale(1.01);
+        }
+
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* Buttons */
+        .btn {
+            padding: 9px 18px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-weight: var(--font-semibold);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: 0.4s;
+        }
+
+        .btn:hover::before { left: 100%; }
+
+        .btn i { margin-right: 6px; font-size: 0.9rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-info { background: var(--info-color); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 15px;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.4px;
+        }
+
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; background: white; }
+        tr:hover td { background: #f8fafc; }
+
+        /* Activity Icons */
+        .activity-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; color: white; margin-right: 8px;
+        }
+
+        .call { background: var(--info-color); }
+        .email { background: var(--success-color); }
+        .meeting { background: var(--warning-color); }
+        .note { background: var(--primary-color); }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 240px;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-weight: var(--font-semibold);
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            animation: chartFadeIn 0.8s ease-out;
+        }
+
+        @keyframes chartFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: var(--font-medium);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            transform: translateX(110%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-size: 0.85rem;
+        }
+
+        .notification.show { transform: translateX(0); }
+
+        .notification i { margin-right: 10px; font-size: 1.1rem; }
+        .success { background: var(--success-color); }
+        .error { background: var(--danger-color); }
+        .warning { background: var(--warning-color); color: #333; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .main-content { padding: 18px; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 15px; }
+            .logo h1 { font-size: 1.3rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .pipeline { flex-direction: column; }
+            .stage { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+           
+            <h1>SalesFlow</h1>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="#" class="nav-link active" onclick="showSection('lead-capture')"><i class="fas fa-magnet"></i> Leads</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="showSection('pipeline')"><i class="fas fa-project-diagram"></i> Pipeline</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="showSection('activities')"><i class="fas fa-comments"></i> Activities</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="showSection('analytics')"><i class="fas fa-chart-line"></i> Analytics</a></li>
+            <li class="nav-item"><a href="#" class="nav-link" onclick="showSection('integrations')"><i class="fas fa-plug"></i> Integrations</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>CRM & Sales Pipeline</h1>
+            <p>Convert leads, close deals, grow revenue</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-container">
+            <div class="stat-card"><div class="stat-icon" style="background: var(--primary-color);"><i class="fas fa-users"></i></div><div class="stat-value" id="total-leads">0</div><div class="stat-label">Leads</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background: var(--success-color);"><i class="fas fa-dollar-sign"></i></div><div class="stat-value" id="pipeline-value">$0</div><div class="stat-label">Pipeline</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background: var(--warning-color);"><i class="fas fa-clock"></i></div><div class="stat-value" id="avg-velocity">0</div><div class="stat-label">Avg Velocity</div></div>
+            <div class="stat-card"><div class="stat-icon" style="background: var(--info-color);"><i class="fas fa-percentage"></i></div><div class="stat-value" id="conversion-rate">0%</div><div class="stat-label">Conversion</div></div>
+        </div>
+
+        <!-- Lead Capture -->
+        <section id="lead-capture" class="section active">
+            <div class="card">
+                <h3><i class="fas fa-user-plus"></i> Capture Lead</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Name *</label><input type="text" id="lead-name" placeholder="John Doe" required></div>
+                    <div class="form-group"><label>Email *</label><input type="email" id="lead-email" placeholder="john@company.com"></div>
+                    <div class="form-group"><label>Phone</label><input type="tel" id="lead-phone" placeholder="+1234567890"></div>
+                    <div class="form-group"><label>Company</label><input type="text" id="lead-company" placeholder="Acme Inc"></div>
+                    <div class="form-group"><label>Source</label><select id="lead-source"><option>Web Form</option><option>Referral</option><option>Cold Call</option><option>Social</option></select></div>
+                    <div class="form-group"><label>Score</label><input type="number" id="lead-score" min="0" max="100" value="50"></div>
+                </div>
+                <button class="btn btn-primary" onclick="addLead()"><i class="fas fa-save"></i> Save Lead</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-list-ul"></i> Lead Directory</h3>
+                <div class="table-container">
+                    <table id="lead-table">
+                        <thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Score</th><th>Act</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipeline -->
+        <section id="pipeline" class="section">
+            <div class="card">
+                <h3><i class="fas fa-project-diagram"></i> Sales Pipeline</h3>
+                <div class="pipeline" id="pipeline-stages">
+                    <!-- JS will populate -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Add Opportunity</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Lead</label><select id="opp-lead"></select></div>
+                    <div class="form-group"><label>Value *</label><input type="number" id="opp-value" placeholder="50000" min="0"></div>
+                    <div class="form-group"><label>Product</label><input type="text" id="opp-product" placeholder="Pro Plan"></div>
+                    <div class="form-group"><label>Stage</label><select id="opp-stage"><option>Qualification</option><option>Proposal</option><option>Negotiation</option><option>Closed Won</option><option>Closed Lost</option></select></div>
+                </div>
+                <button class="btn btn-success" onclick="addOpportunity()"><i class="fas fa-arrow-right"></i> Add to Pipeline</button>
+            </div>
+        </section>
+
+        <!-- Activities -->
+        <section id="activities" class="section">
+            <div class="card">
+                <h3><i class="fas fa-plus"></i> Log Activity</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Lead/Deal</label><select id="act-entity"></select></div>
+                    <div class="form-group"><label>Type</label><select id="act-type"><option>Call</option><option>Email</option><option>Meeting</option><option>Note</option></select></div>
+                    <div class="form-group"><label>Notes</label><textarea id="act-notes" placeholder="Discussed pricing..."></textarea></div>
+                </div>
+                <button class="btn btn-info" onclick="logActivity()"><i class="fas fa-check"></i> Log</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-history"></i> Communication History</h3>
+                <div id="activity-feed" style="max-height: 400px; overflow-y: auto;">
+                    <!-- JS populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics -->
+        <section id="analytics" class="section">
+            <div class="card">
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Pipeline Velocity</h3>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="velocityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="chart-title"><i class="fas fa-funnel-dollar"></i> Conversion Funnel</h3>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integrations -->
+        <section id="integrations" class="section">
+            <div class="card">
+                <h3><i class="fas fa-plug"></i> Connect Tools</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                    <div class="card" style="text-align: center; padding: 16px;">
+                        <i class="fab fa-whatsapp" style="font-size: 2rem; color: #25d366;"></i>
+                        <p style="margin: 8px 0 4px; font-weight: 600;">WhatsApp</p>
+                        <button class="btn btn-success btn-sm">Connect</button>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 16px;">
+                        <i class="fas fa-envelope" style="font-size: 2rem; color: #ea4335;"></i>
+                        <p style="margin: 8px 0 4px; font-weight: 600;">Gmail</p>
+                        <button class="btn btn-danger btn-sm">Connect</button>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 16px;">
+                        <i class="fas fa-calendar-alt" style="font-size: 2rem; color: #4285f4;"></i>
+                        <p style="margin: 8px 0 4px; font-weight: 600;">Google Calendar</p>
+                        <button class="btn btn-info btn-sm">Connect</button>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 16px;">
+                        <i class="fas fa-phone-volume" style="font-size: 2rem; color: #7c3aed;"></i>
+                        <p style="margin: 8px 0 4px; font-weight: 600;">VoIP</p>
+                        <button class="btn btn-primary btn-sm">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification -->
+    <div id="notification" class="notification success">
+        <i class="fas fa-check-circle"></i>
+        <span id="noti-message"></span>
+    </div>
+
+    <script>
+        // Data
+        let leads = [], opportunities = [], activities = [];
+        let velocityChart, funnelChart;
+
+        // Stages
+        const stages = ['Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const noti = document.getElementById('notification');
+            const msg = document.getElementById('noti-message');
+            msg.textContent = message;
+            noti.className = `notification ${type}`;
+            noti.classList.add('show');
+            setTimeout(() => { noti.classList.remove('show'); }, 3500);
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('total-leads').textContent = leads.length;
+            const totalValue = opportunities.reduce((sum, o) => o.stage !== 'Closed Lost' ? sum + o.value : sum, 0);
+            document.getElementById('pipeline-value').textContent = `$${totalValue.toLocaleString()}`;
+            const won = opportunities.filter(o => o.stage === 'Closed Won').length;
+            const lost = opportunities.filter(o => o.stage === 'Closed Lost').length;
+            const rate = opportunities.length > 0 ? Math.round((won / (won + lost)) * 100) : 0;
+            document.getElementById('conversion-rate').textContent = `${rate}%`;
+            const avgDays = activities.length > 0 ? Math.round(activities.reduce((a, b) => a + b.days, 0) / activities.length) : 0;
+            document.getElementById('avg-velocity').textContent = avgDays;
+        }
+
+        // Show Section
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector(`a[onclick="showSection('${id}')"]`).classList.add('active');
+            populateSelects();
+            if (id === 'lead-capture') renderLeads();
+            if (id === 'pipeline') renderPipeline();
+            if (id === 'activities') renderActivities();
+            if (id === 'analytics') updateCharts();
+            updateStats();
+        }
+
+        // Populate Selects
+        function populateSelects() {
+            const leadSelects = ['opp-lead', 'act-entity'];
+            leadSelects.forEach(id => {
+                const select = document.getElementById(id);
+                select.innerHTML = '<option value="">Select</option>';
+                leads.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.textContent = `${l.name} (${l.company || '—'})`;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        // Lead Capture
+        function addLead() {
+            const name = document.getElementById('lead-name').value.trim();
+            const email = document.getElementById('lead-email').value.trim();
+            if (!name || !email) return showNotification('Name & email required.', 'error');
+
+            const lead = {
+                id: Date.now(),
+                name,
+                email,
+                phone: document.getElementById('lead-phone').value,
+                company: document.getElementById('lead-company').value,
+                source: document.getElementById('lead-source').value,
+                score: parseInt(document.getElementById('lead-score').value)
+            };
+
+            leads.push(lead);
+            renderLeads();
+            populateSelects();
+            showNotification('Lead captured!', 'success');
+            document.querySelector('#lead-capture form')?.reset();
+            updateStats();
+        }
+
+        function renderLeads() {
+            const tbody = document.querySelector('#lead-table tbody');
+            tbody.innerHTML = '';
+            leads.slice(-10).reverse().forEach(l => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${l.name}</strong></td>
+                    <td>${l.email}</td>
+                    <td><span style="background: #e0e7ff; color: #6366f1; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">${l.source}</span></td>
+                    <td><div style="background: ${l.score > 70 ? '#d4edda' : l.score > 40 ? '#fff3cd' : '#f8d7da'}; color: ${l.score > 70 ? '#155724' : l.score > 40 ? '#856404' : '#721c24'}; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; display: inline-block;">${l.score}</div></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteLead(${l.id})"><i class="fas fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteLead(id) {
+            leads = leads.filter(l => l.id !== id);
+            renderLeads();
+            populateSelects();
+            showNotification('Lead deleted.', 'warning');
+            updateStats();
+        }
+
+        // Pipeline
+        function addOpportunity() {
+            const leadId = document.getElementById('opp-lead').value;
+            const value = parseFloat(document.getElementById('opp-value').value);
+            if (!leadId || !value) return showNotification('Select lead & value.', 'error');
+
+            const lead = leads.find(l => l.id == leadId);
+            const opp = {
+                id: Date.now(),
+                leadId,
+                leadName: lead.name,
+                value,
+                product: document.getElementById('opp-product').value,
+                stage: document.getElementById('opp-stage').value
+            };
+
+            opportunities.push(opp);
+            renderPipeline();
+            showNotification('Deal added to pipeline!', 'success');
+            document.querySelector('#pipeline form')?.reset();
+            updateStats();
+        }
+
+        function renderPipeline() {
+            const container = document.getElementById('pipeline-stages');
+            container.innerHTML = '';
+            stages.forEach(stage => {
+                const deals = opportunities.filter(o => o.stage === stage);
+                const stageEl = document.createElement('div');
+                stageEl.className = 'stage';
+                stageEl.innerHTML = `
+                    <div class="stage-header">${stage} <span class="stage-count">${deals.length}</span></div>
+                    <div class="deals" id="stage-${stage.replace(/ /g, '-')}"></div>
+                `;
+                container.appendChild(stageEl);
+
+                const dealsContainer = stageEl.querySelector('.deals');
+                deals.forEach(deal => {
+                    const lead = leads.find(l => l.id == deal.leadId);
+                    const card = document.createElement('div');
+                    card.className = 'deal-card';
+                    card.draggable = true;
+                    card.dataset.id = deal.id;
+                    card.innerHTML = `
+                        <div class="deal-name">${lead.name}</div>
+                        <div class="deal-value">$${deal.value.toLocaleString()}</div>
+                        <div class="deal-contact">${lead.email}</div>
+                    `;
+                    card.addEventListener('dragstart', dragStart);
+                    dealsContainer.appendChild(card);
+                });
+            });
+
+            // Make stages droppable
+            document.querySelectorAll('.deals').forEach(zone => {
+                zone.addEventListener('dragover', e => e.preventDefault());
+                zone.addEventListener('drop', drop);
+            });
+        }
+
+        let draggedDeal = null;
+        function dragStart(e) {
+            draggedDeal = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const dealId = draggedDeal.dataset.id;
+            const newStage = e.target.closest('.deals').id.replace('stage-', '').replace(/-/g, ' ');
+            const deal = opportunities.find(o => o.id == dealId);
+            deal.stage = newStage;
+            renderPipeline();
+            showNotification(`Deal moved to ${newStage}`, 'info');
+            updateStats();
+        }
+
+        // Activities
+        function logActivity() {
+            const entity = document.getElementById('act-entity').value;
+            const type = document.getElementById('act-type').value;
+            const notes = document.getElementById('act-notes').value.trim();
+            if (!entity || !notes) return showNotification('Select entity & add notes.', 'error');
+
+            const act = {
+                id: Date.now(),
+                entity,
+                type,
+                notes,
+                time: new Date().toLocaleString(),
+                days: Math.floor(Math.random() * 7) + 1
+            };
+
+            activities.push(act);
+            renderActivities();
+            showNotification(`${type} logged!`, 'success');
+            document.querySelector('#activities form')?.reset();
+            updateStats();
+        }
+
+        function renderActivities() {
+            const feed = document.getElementById('activity-feed');
+            feed.innerHTML = '';
+            activities.slice(-15).reverse().forEach(a => {
+                const entityName = leads.find(l => l.id == a.entity)?.name || 'Unknown';
+                const iconClass = a.type.toLowerCase();
+                const div = document.createElement('div');
+                div.style = 'display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f1f5f9;';
+                div.innerHTML = `
+                    <div class="activity-icon ${iconClass}"><i class="fas fa-${iconClass === 'call' ? 'phone' : iconClass === 'email' ? 'envelope' : iconClass === 'meeting' ? 'calendar' : 'sticky-note'}"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">${a.type} with ${entityName}</div>
+                        <div style="font-size: 0.8rem; color: var(--light-text); margin: 2px 0;">${a.notes}</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8;">${a.time}</div>
+                    </div>
+                `;
+                feed.appendChild(div);
+            });
+        }
+
+        // Analytics
+        function updateCharts() {
+            updateVelocityChart();
+            updateFunnelChart();
+        }
+
+        function updateVelocityChart() {
+            const ctx = document.getElementById('velocityChart').getContext('2d');
+            const data = stages.map(s => opportunities.filter(o => o.stage === s).reduce((sum, o) => sum + o.value, 0));
+
+            if (velocityChart) velocityChart.destroy();
+            velocityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stages,
+                    datasets: [{
+                        label: 'Value',
+                        data,
+                        backgroundColor: 'rgba(124, 58, 237, 0.7)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: { duration: 1800, easing: 'easeOutElastic' },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateFunnelChart() {
+            const ctx = document.getElementById('funnelChart').getContext('2d');
+            const counts = stages.map(s => opportunities.filter(o => o.stage === s).length);
+
+            if (funnelChart) funnelChart.destroy();
+            funnelChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: stages,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            '#8b5cf6', '#7c3aed', '#6d28d9', '#10b981', '#ef4444'
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    animation: { animateRotate: true, duration: 2000, easing: 'easeOutBounce' }
+                }
+            });
+        }
+
+        // Init
+        showSection('lead-capture');
+        updateStats();
+    </script>
+</body>
+</html>

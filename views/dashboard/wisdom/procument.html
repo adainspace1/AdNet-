@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProcureLogix Pro - Procurement & Logistics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3f37c9;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e8f0fe 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 4px 0 20px rgba(67, 97, 238, 0.15);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .logo {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo h2 {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .logo span {
+            color: var(--primary-dark);
+            font-size: 12px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 24px;
+            color: var(--gray);
+        }
+
+        .nav-item:hover {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-item:hover i {
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            position: relative;
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary-dark);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .page-title {
+            padding: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .container {
+            padding: 0 30px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.18);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #f8f9ff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.pending { background: #fff2cc; color: #997404; }
+        .status.approved { background: #d4edda; color: #155724; }
+        .status.rejected { background: #f8d7da; color: #721c24; }
+        .status.in-transit { background: #d1ecf1; color: #0c5460; }
+
+        .workflow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .step.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 700;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: var(--gray);
+        }
+
+        .tracking-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .tracking-progress {
+            height: 100%;
+            background: var(--success);
+            width: 65%;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .tracking-progress::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, var(--success));
+        }
+
+        .file-upload {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .topbar {
+                padding: 15px 20px;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        @media (max-width: 992px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay for mobile -->
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>ProcureLogix</h2>
+            <span>Professional Dashboard</span>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="showSection('vendor')">
+                <i class="fas fa-search-dollar"></i>
+                <span>Vendor Sourcing & RFQ</span>
+            </div>
+            <div class="nav-item" onclick="showSection('purchase')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Purchase Lifecycle</span>
+            </div>
+            <div class="nav-item" onclick="showSection('logistics')">
+                <i class="fas fa-truck"></i>
+                <span>Logistics & Delivery</span>
+            </div>
+            <div class="nav-item" onclick="showSection('returns')">
+                <i class="fas fa-undo"></i>
+                <span>Returns & RMA</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="topbar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">Procurement & Logistics Dashboard</div>
+            <div class="user-info">
+                <div>
+                    <div style="font-weight:600;">Sarah Chen</div>
+                    <div style="font-size:12px;color:#777;">Procurement Manager</div>
+                </div>
+                <div class="user-avatar">SC</div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Vendor Sourcing & RFQ -->
+            <section id="vendor" class="section active">
+                <h1 class="page-title">Vendor Sourcing & RFQ</h1>
+                
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Create New RFQ</h3>
+                            <div class="card-icon" style="background:var(--primary);">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>RFQ Title</label>
+                            <input type="text" id="rfq-title" placeholder="Enter RFQ title">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea rows="4" id="rfq-desc" placeholder="Detailed requirements..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Deadline</label>
+                            <input type="date" id="rfq-deadline">
+                        </div>
+                        <button class="btn btn-primary" onclick="createRFQ()">
+                            <i class="fas fa-paper-plane"></i> Send RFQ
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quotation Comparison</h3>
+                            <div class="card-icon" style="background:#06d6a0;">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Price</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quotes-table">
+                                <tr>
+                                    <td>Global Suppliers Inc.</td>
+                                    <td>$48,500</td>
+                                    <td>92/100</td>
+                                    <td><span class="status approved">Best</span></td>
+                                </tr>
+                                <tr>
+                                    <td>TechParts Ltd.</td>
+                                    <td>$52,000</td>
+                                    <td>85/100</td>
+                                    <td><span class="status pending">Review</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-success" style="margin-top:15px;" onclick="addQuotation()">
+                            <i class="fas fa-plus"></i> Add Quote
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Supplier Performance Scorecard</h3>
+                        <div class="card-icon" style="background:#ffd166;color:#333;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
+                        <div>
+                            <div style="font-size:14px;color:#777;">Quality</div>
+                            <div style="font-size:24px;font-weight:600;">94%</div>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;color:#777;">Delivery</div>
+                            <div style="font-size:24px;font-weight:600;">89%</div>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;color:#777;">Pricing</div>
+                            <div style="font-size:24px;font-weight:600;">87%</div>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;color:#777;">Support</div>
+                            <div style="font-size:24px;font-weight:600;">91%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Purchase Lifecycle -->
+            <section id="purchase" class="section">
+                <h1 class="page-title">Purchase Lifecycle Management</h1>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Current Workflow Status</h3>
+                    </div>
+                    <div class="workflow">
+                        <div class="step completed">
+                            <div class="step-number">1</div>
+                            <div>Purchase Order</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step completed">
+                            <div class="step-number">2</div>
+                            <div>GRN</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step active">
+                            <div class="step-number">3</div>
+                            <div>Invoice</div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>Payment</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Exception Workflows</h3>
+                            <div class="card-icon" style="background:#ef476f;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <ul style="list-style:none;">
+                            <li style="padding:10px 0;border-bottom:1px solid #eee;">
+                                <strong>PO #10234</strong> - Quantity mismatch (Received 480 vs 500)
+                                <span class="status rejected" style="float:right;">Pending Approval</span>
+                            </li>
+                            <li style="padding:10px 0;">
+                                <strong>Invoice #INV-8891</strong> - Price variance detected
+                                <span class="status pending" style="float:right;">Under Review</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
+                        </div>
+                        <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="approvePO()">
+                                <i class="fas fa-check"></i> Approve PO
+                            </button>
+                            <button class="btn btn-warning" onclick="raiseException()">
+                                <i class="fas fa-flag"></i> Raise Exception
+                            </button>
+                            <button class="btn btn-success" onclick="processPayment()">
+                                <i class="fas fa-dollar-sign"></i> Process Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Logistics & Delivery -->
+            <section id="logistics" class="section">
+                <h1 class="page-title">Logistics & Delivery Management</h1>
+                
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Live Shipment Tracking</h3>
+                            <div class="card-icon" style="background:#4361ee;">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tracking Number</label>
+                            <input type="text" id="tracking-input" placeholder="Enter tracking number">
+                        </div>
+                        <button class="btn btn-primary" onclick="trackShipment()">
+                            <i class="fas fa-search"></i> Track Package
+                        </button>
+                        <div id="tracking-result" style="margin-top:20px;"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Delivery Progress</h3>
+                        </div>
+                        <div style="padding:20px 0;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                                <span>Shanghai → Los Angeles → Chicago</span>
+                                <span style="font-weight:600;color:var(--success);">65% Complete</span>
+                            </div>
+                            <div class="tracking-bar">
+                                <div class="tracking-progress"></div>
+                            </div>
+                            <div style="margin-top:15px;font-size:14px;color:#777;">
+                                Estimated Delivery: <strong>Nov 18, 2025</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Proof of Delivery</h3>
+                        <div class="card-icon" style="background:#06d6a0;">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                    </div>
+                    <div class="file-upload" onclick="document.getElementById('pod-file').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#ccc;margin-bottom:15px;"></i>
+                        <p>Click to upload POD document</p>
+                        <input type="file" id="pod-file" style="display:none;" onchange="uploadPOD(this)">
+                    </div>
+                    <div id="pod-status" style="margin-top:15px;"></div>
+                </div>
+            </section>
+
+            <!-- Returns & RMA -->
+            <section id="returns" class="section">
+                <h1 class="page-title">Returns & RMA Management</h1>
+                
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Request Return Authorization</h3>
+                            <div class="card-icon" style="background:#ef476f;">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Order Number</label>
+                            <input type="text" id="rma-order" placeholder="ORD-2025-XXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Reason for Return</label>
+                            <select id="rma-reason">
+                                <option>Defective Product</option>
+                                <option>Wrong Item Received</option>
+                                <option>Damaged in Transit</option>
+                                <option>Ordered by Mistake</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Notes</label>
+                            <textarea rows="3" id="rma-notes"></textarea>
+                        </div>
+                        <button class="btn btn-danger" onclick="submitRMA()">
+                            <i class="fas fa-paper-plane"></i> Submit RMA Request
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Active RMAs</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>RMA #</th>
+                                    <th>Order</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>RMA-2025-001</td>
+                                    <td>ORD-2025-445</td>
+                                    <td><span class="status in-transit">In Transit</span></td>
+                                    <td><button class="btn btn-success btn-sm" onclick="issueCredit(this)">Issue Credit</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Reverse Logistics</h3>
+                        <div class="card-icon" style="background:#4361ee;">
+                            <i class="fas fa-truck-loading"></i>
+                        </div>
+                    </div>
+                    <p>Return pickup scheduled for <strong>Nov 15, 2025</strong> with UPS</p>
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-primary" onclick="printLabel()">
+                            <i class="fas fa-print"></i> Print Return Label
+                        </button>
+                        <button class="btn btn-success" style="margin-left:10px;" onclick="trackReturn()">
+                            <i class="fas fa-search"></i> Track Return
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll(`.nav-item[onclick="showSection('${sectionId}')"]`).forEach(item => item.classList.add('active'));
+        }
+
+        // Mobile sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        // Vendor RFQ
+        function createRFQ() {
+            const title = document.getElementById('rfq-title').value;
+            if (title) {
+                alert(`RFQ "${title}" sent to 12 suppliers successfully!`);
+                document.getElementById('rfq-title').value = '';
+                document.getElementById('rfq-desc').value = '';
+            } else {
+                alert('Please enter RFQ title');
+ retailer           }
+        }
+
+        function addQuotation() {
+            const supplier = prompt('Supplier Name:');
+            const price = prompt('Price:');
+            const score = prompt('Score (0-100):');
+            if (supplier && price && score) {
+                const table = document.getElementById('quotes-table');
+                const row = table.insertRow();
+                row.innerHTML = `<td>${supplier}</td><td>${price}</td><td>${score}/100</td><td><span class="status pending">New</span></td>`;
+            }
+        }
+
+        // Purchase
+        function approvePO() {
+            alert('Purchase Order approved successfully!');
+        }
+
+        function raiseException() {
+            alert('Exception raised and notified to finance team.');
+        }
+
+        function processPayment() {
+            alert('Payment processed via ACH. Confirmation sent.');
+        }
+
+        // Logistics
+        function trackShipment() {
+            const num = document.getElementById('tracking-input').value;
+            if (num) {
+                document.getElementById('tracking-result').innerHTML = `
+                    <div style="background:#d4edda;padding:15px;border-radius:10px;margin-top:10px;">
+                        <strong>Package ${num}</strong><br>
+                        Status: <strong>In Transit</strong><br>
+                        Location: Memphis, TN<br>
+                        ETA: Nov 18, 2025 10:30 AM
+                    </div>`;
+            }
+        }
+
+        function uploadPOD(input) {
+            if (input.files[0]) {
+                document.getElementById('pod-status').innerHTML = `
+                    <div style="background:#d4edda;padding:15px;border-radius:10px;color:#155724;">
+                        <i class="fas fa-check-circle"></i> POD Uploaded: ${input.files[0].name}
+                    </div>`;
+            }
+        }
+
+        // Returns
+        function submitRMA() {
+            alert('RMA Request Submitted! You will receive confirmation within 2 hours.');
+        }
+
+        function issueCredit(btn) {
+            btn.innerHTML = '<i class="fas fa-check"></i> Credit Issued';
+            btn.style.background = '#06d6a0';
+        }
+
+        function printLabel() {
+            alert('Return label sent to printer...');
+        }
+
+        function trackReturn() {
+            alert('Return package is en route to warehouse. ETA: 3 days');
+        }
+    </script>
+</body>
+</html>

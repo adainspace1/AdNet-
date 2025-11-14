@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit & Assurance Vault</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="/css/audit.css">
+
+</head>
+<body>
+
+    <div  class="all">
+
+        <%- include ("../_sidebar1") %>
+
+                <div class="main-content">
+                    <%- include ("../_topnav") %>
+
+                        <div class="container">
+
+
+
+                            <div class="headerr">
+                                <h1>Auditing & Assurance Vault</h1>
+                                <p>Immutable logs, evidence, and audit-ready reporting</p>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="stats-grid" id="stats-container">
+                                <div class="stat-card"><div class="stat-icon" style="background: var(--primary-color);"><i class="fas fa-history"></i></div><div class="stat-value" id="total-logs">0</div><div class="stat-label">Audit Logs</div></div>
+                                <div class="stat-card"><div class="stat-icon" style="background: var(--success-color);"><i class="fas fa-check-double"></i></div><div class="stat-value" id="verified-docs">0</div><div class="stat-label">Verified</div></div>
+                                <div class="stat-card"><div class="stat-icon" style="background: var(--warning-color);"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-value" id="red-flags">0</div><div class="stat-label">Red Flags</div></div>
+                                <div class="stat-card"><div class="stat-icon" style="background: var(--info-color);"><i class="fas fa-clock"></i></div><div class="stat-value" id="active-tokens">0</div><div class="stat-label">Active Tokens</div></div>
+                            </div>
+
+                            <!-- Audit Trail -->
+                            <section id="audit-trail" class="section active">
+                                <div class="card">
+                                    <h3><i class="fas fa-plus-circle"></i> Log Action</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>User</label><input type="text" id="log-user" value="admin" readonly></div>
+                                        <div class="form-group"><label>Action</label><select id="log-action"><option>Created</option><option>Updated</option><option>Deleted</option><option>Approved</option></select></div>
+                                        <div class="form-group"><label>Entity</label><input type="text" id="log-entity" placeholder="Invoice #123"></div>
+                                        <div class="form-group"><label>Changes</label><textarea id="log-changes" placeholder="Old: $100 → New: $150"></textarea></div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="appendLog()"><i class="fas fa-lock"></i> Append Log</button>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-list-ul"></i> Immutable Audit Trail</h3>
+                                    <div class="table-container">
+                                        <table id="audit-table">
+                                            <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Hash</th></tr></thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Audit Integrity Chart -->
+                                <div class="card">
+                                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Log Integrity Over Time</h3>
+                                    <div class="chart-container">
+                                        <div class="chart-wrapper">
+                                            <canvas id="integrityChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Auditor Portal -->
+                            <section id="auditor-portal" class="section">
+                                <div class="card">
+                                    <h3><i class="fas fa-user-plus"></i> Issue Auditor Token</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>Auditor Name</label><input type="text" id="auditor-name" placeholder="Jane Doe"></div>
+                                        <div class="form-group"><label>Scope</label><select id="auditor-scope"><option>Read-Only</option><option>Evidence Review</option><option>Full Audit</option></select></div>
+                                        <div class="form-group"><label>Expires In</label><select id="token-expiry"><option>1 day</option><option>3 days</option><option>1 week</option></select></div>
+                                    </div>
+                                    <button class="btn btn-info" onclick="issueToken()"><i class="fas fa-key"></i> Generate Token</button>
+
+                                    <div id="token-output" style="margin-top: 15px; display: none;">
+                                        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; font-family: monospace; word-break: break-all;">
+                                            <strong>Token:</strong> <span id="generated-token"></span>
+                                        </div>
+                                        <button class="btn btn-sm btn-success" onclick="copyToken()" style="margin-top: 8px;"><i class="fas fa-copy"></i> Copy</button>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-clipboard-list"></i> Active Auditor Tokens</h3>
+                                    <div class="table-container">
+                                        <table id="token-table">
+                                            <thead><tr><th>Auditor</th><th>Scope</th><th>Expires</th><th>Status</th><th>Act</th></tr></thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Evidence Vault -->
+                            <section id="evidence-vault" class="section">
+                                <div class="card">
+                                    <h3><i class="fas fa-upload"></i> Upload Evidence</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>Document Type</label><select id="doc-type"><option>Invoice</option><option>Bank Statement</option><option>Contract</option><option>Receipt</option></select></div>
+                                        <div class="form-group"><label>Reference #</label><input type="text" id="doc-ref" placeholder="INV-2025-001"></div>
+                                        <div class="form-group"><label>File</label><input type="file" id="doc-file" accept=".pdf,.jpg,.png"></div>
+                                        <div class="form-group"><label>Tickmarks</label>
+                                            <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                                <span class="tickmark tick-check">Check</span>
+                                                <span class="tickmark tick-cross">Cross</span>
+                                                <span class="tickmark tick-question">Question</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success" onclick="uploadEvidence()"><i class="fas fa-cloud-upload-alt"></i> Upload & Hash</button>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-folder-open"></i> Evidence Repository</h3>
+                                    <div class="table-container">
+                                        <table id="evidence-table">
+                                            <thead><tr><th>Type</th><th>Ref</th><th>Uploaded</th><th>Hash</th><th>Tickmarks</th><th>Act</th></tr></thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Assurance Reports -->
+                            <section id="assurance-reports" class="section">
+                                <div class="card">
+                                    <h3><i class="fas fa-cog"></i> Generate Report</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>Report Type</label><select id="report-type"><option>Management Letter</option><option>Assurance Summary</option><option>Red Flag Report</option></select></div>
+                                        <div class="form-group"><label>Period</label><input type="text" id="report-period" placeholder="Q4 2025"></div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-file-export"></i> Generate</button>
+
+                                    <div id="report-output" class="card" style="display: none; margin-top: 15px;">
+                                        <h3><i class="fas fa-file-alt"></i> Report Preview</h3>
+                                        <div id="report-content" style="line-height: 1.6; font-size: 0.9rem;"></div>
+                                        <button class="btn btn-success btn-sm" onclick="exportReport()"><i class="fas fa-download"></i> Export PDF</button>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-history"></i> Report History</h3>
+                                    <div class="table-container">
+                                        <table id="report-history">
+                                            <thead><tr><th>Type</th><th>Period</th><th>Generated</th><th>Act</th></tr></thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Version Control -->
+                            <section id="version-control" class="section">
+                                <div class="card">
+                                    <h3><i class="fas fa-camera"></i> Create Snapshot</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group"><label>Period</label><input type="text" id="snap-period" placeholder="Dec 2025"></div>
+                                        <div class="form-group"><label>Justification</label><textarea id="snap-just" placeholder="Year-end close"></textarea></div>
+                                    </div>
+                                    <button class="btn btn-info" onclick="createSnapshot()"><i class="fas fa-save"></i> Save Snapshot</button>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-code-branch"></i> Financial Snapshots</h3>
+                                    <div class="table-container">
+                                        <table id="snapshot-table">
+                                            <thead><tr><th>Period</th><th>Created</th><th>Hash</th><th>Act</th></tr></thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Snapshot Comparison Chart -->
+                                <div class="card">
+                                    <h3 class="chart-title"><i class="fas fa-balance-scale"></i> Snapshot Comparison</h3>
+                                    <div class="chart-container">
+                                        <div class="chart-wrapper">
+                                            <canvas id="snapshotChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+
+                </div>
+    </div>
+
+
+</body>
+</html>

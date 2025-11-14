@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProcureLogix Analytics – BI & Reporting Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3f37c9;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --sidebar-width: 280px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --card-bg: #ffffff;
+            --bg: #f4f7fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 8px 0 40px rgba(67, 97, 238, 0.12);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+            border-right: 1px solid #eee;
+        }
+
+        .logo {
+            padding: 40px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-weight: 700;
+            font-size: 28px;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            font-size: 13px;
+            opacity: 0.9;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .nav-menu .nav-item {
+            padding: 16px 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 500;
+            color: #555;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-item:hover { 
+            background: rgba(67,97,238,0.08); 
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: rgba(67,97,238,0.12);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 19px;
+            width: 26px;
+            color: #777;
+            transition: var(--transition);
+        }
+
+        .nav-item.active i,
+        .nav-item:hover i {
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px 35px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(67,97,238,0.3);
+        }
+
+        .page-title {
+            padding: 40px 35px 20px;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .container {
+            padding: 0 35px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            border: 1px solid #eee;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(67,97,238,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 6px 20px rgba(67,97,238,0.3);
+        }
+
+        .kpi {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: var(--dark);
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .trend {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+        }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: var(--dark); }
+        .btn-export { background: #f1f3f5; color: #555; }
+
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.18); }
+
+        .query-builder {
+            background: #f9fbfd;
+            border: 2px dashed #ddd;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 120px;
+        }
+
+        .drag-item {
+            background: #eef2ff;
+            color: var(--primary);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 8px 0;
+            cursor: grab;
+            transition: var(--transition);
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .drag-item:hover { background: #dde5ff; }
+
+        .forecast-scenario {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .scenario-btn {
+            background: #f1f3f5;
+            border: 1px solid #ddd;
+            color: #555;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .scenario-btn.active {
+            background: var(--warning);
+            color: var(--dark);
+            font-weight: 600;
+            border-color: #e0b800;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.scheduled { background: #d4edda; color: #155724; }
+        .status.running { background: #fff3cd; color: #997404; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-menu-btn { display: block; }
+            .page-title { font-size: 28px; padding: 30px 20px 15px; }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>ProcureLogix</h2>
+            <span>Analytics & BI Suite</span>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="showSection('financial')">
+                <i class="fas fa-chart-line"></i>
+                <span>Financial Dashboards</span>
+            </div>
+            <div class="nav-item" onclick="showSection('operational')">
+                <i class="fas fa-cogs"></i>
+                <span>Operational Dashboards</span>
+            </div>
+            <div class="nav-item" onclick="showSection('reports')">
+                <i class="fas fa-file-export"></i>
+                <span>Scheduled Reports</span>
+            </div>
+            <div class="nav-item" onclick="showSection('query')">
+                <i class="fas fa-search-plus"></i>
+                <span>Ad-hoc Query Builder</span>
+            </div>
+            <div class="nav-item" onclick="showSection('forecast')">
+                <i class="fas fa-crystal-ball"></i>
+                <span>Forecasting & Modeling</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="topbar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">Analytics, BI & Reporting</div>
+            <div class="user-info">
+                <div>
+                    <div style="font-weight:600;">Alex Rivera</div>
+                    <div style="font-size:13px;color:#777;">Chief Data Officer</div>
+                </div>
+                <div class="user-avatar">AR</div>
+            </div>
+        </header>
+
+        <div class="container">
+
+            <!-- Financial Dashboards -->
+            <section id="financial" class="section active">
+                <h1 class="page-title">Financial Performance Overview</h1>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Net Profit Margin</h3>
+                            <div class="card-icon"><i class="fas fa-percentage"></i></div>
+                        </div>
+                        <div class="kpi">18.4%</div>
+                        <div class="kpi-label">vs 16.2% last quarter</div>
+                        <div class="trend up"><i class="fas fa-arrow-up"></i> +13.6%</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">AR Days</h3>
+                            <div class="card-icon"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <div class="kpi">42</div>
+                        <div class="kpi-label">Days to Collect</div>
+                        <div class="trend down"><i class="fas fa-arrow-down"></i> -5 days</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">AP Days</h3>
+                            <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+                        </div>
+                        <div class="kpi">38</div>
+                        <div class="kpi-label">Days to Pay</div>
+                        <div class="trend up"><i class="fas fa-arrow-up"></i> +2 days</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Cashflow</h3>
+                            <div class="card-icon"><i class="fas fa-dollar-sign"></i></div>
+                        </div>
+                        <div class="kpi">$2.8M</div>
+                        <div class="kpi-label">Operating Cash</div>
+                        <div class="trend up"><i class="fas fa-arrow-up"></i> +$420K</div>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">P&L Trend (Last 12 Months)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pnlChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">Balance Sheet Snapshot</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="balanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Operational Dashboards -->
+            <section id="operational" class="section">
+                <h1 class="page-title">Operational Efficiency Metrics</h1>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Inventory Turnover</h3>
+                            <div class="card-icon"><i class="fas fa-sync"></i></div>
+                        </div>
+                        <div class="kpi">8.2x</div>
+                        <div class="kpi-label">Annual</div>
+                        <div class="trend up"><i class="fas fa-arrow-up"></i> +0.8x</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Procurement Lead Time</h3>
+                            <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
+                        </div>
+                        <div class="kpi">14.3</div>
+                        <div class="kpi-label">Days</div>
+                        <div class="trend down"><i class="fas fa-arrow-down"></i> -2.1 days</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Sales per Channel</h3>
+                            <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+                        </div>
+                        <div class="kpi">$4.2M</div>
+                        <div class="kpi-label">Online</div>
+                        <div class="trend up"><i class="fas fa-arrow-up"></i> +28%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Sales by Channel (YTD)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scheduled Reports -->
+            <section id="reports" class="section">
+                <h1 class="page-title">Scheduled Reports & Exports</h1>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Monthly P&L Report</h3>
+                            <div class="card-icon"><i class="fas fa-file-pdf"></i></div>
+                        </div>
+                        <p><strong>Schedule:</strong> 1st of every month @ 6:00 AM</p>
+                        <p><strong>Recipients:</strong> finance@company.com</p>
+                        <div style="margin-top:15px;">
+                            <span class="status scheduled">Scheduled</span>
+                        </div>
+                        <button class="btn btn-export" style="margin-top:15px;" onclick="exportPDF('Monthly P&L')">
+                            <i class="fas fa-download"></i> Export PDF
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Vendor Performance</h3>
+                            <div class="card-icon"><i class="fas fa-file-excel"></i></div>
+                        </div>
+                        <p><strong>Schedule:</strong> Weekly on Mondays @ 9:00 AM</p>
+                        <p><strong>Format:</strong> Excel (.xlsx)</p>
+                        <div style="margin-top:15px;">
+                            <span class="status running">Last Run: 2h ago</span>
+                        </div>
+                        <button class="btn btn-success" style="margin-top:15px;" onclick="exportExcel('Vendor Performance')">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">API Data Endpoint</h3>
+                            <div class="card-icon"><i class="fas fa-code"></i></div>
+                        </div>
+                        <code style="background:#f1f3f5;padding:12px;border-radius:10px;display:block;margin:15px 0;font-size:13px;">
+                            GET https://api.procurelogix.com/v1/kpis
+                        </code>
+                        <button class="btn btn-primary" onclick="copyAPI()">
+                            <i class="fas fa-copy"></i> Copy Endpoint
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ad-hoc Query Builder -->
+            <section id="query" class="section">
+                <h1 class="page-title">Ad-hoc Query Builder</h1>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Drag & Drop Query Builder</h3>
+                        <div class="card-icon"><i class="fas fa-cube"></i></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;">
+                        <div>
+                            <h4 style="margin-bottom:15px;color:#555;">Available Fields</h4>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">PO Number</div>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">Supplier Name</div>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">Amount</div>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">Status</div>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">Date</div>
+                            <div class="drag-item" draggable="true" ondragstart="drag(event)">Category</div>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:15px;color:#555;">Your Query</h4>
+                            <div id="drop-zone" class="query-builder" ondrop="drop(event)" ondragover="allowDrop(event)">
+                                <p style="color:#aaa;text-align:center;margin-top:30px;">Drop fields here to build your query</p>
+                            </div>
+                            <div style="margin-top:15px;">
+                                <button class="btn btn-primary" onclick="runQuery()">
+                                    <i class="fas fa-play"></i> Run Query
+                                </button>
+                                <button class="btn btn-success" style="margin-left:10px;" onclick="saveQuery()">
+                                    <i class="fas fa-save"></i> Save View
+                                </button>
+                                <button class="btn btn-warning" style="margin-left:10px;" onclick="shareQuery()">
+                                    <i class="fas fa-share-alt"></i> Share
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forecasting -->
+            <section id="forecast" class="section">
+                <h1 class="page-title">Forecasting & Scenario Modeling</h1>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Cashflow Forecast (Next 6 Months)</h3>
+                        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">What-If Scenario Modeling</h3>
+                        <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
+                    </div>
+                    <div class="forecast-scenario">
+                        <div class="scenario-btn active" onclick="selectScenario(this, 'base')">Base Case</div>
+                        <div class="scenario-btn" onclick="selectScenario(this, 'optimistic')">Optimistic (+15% Sales)</div>
+                        <div class="scenario-btn" onclick="selectScenario(this, 'pessimistic')">Pessimistic (-10% Sales)</div>
+                        <div class="scenario-btn" onclick="selectScenario(this, 'delay')">Delayed Payments (+7 days)</div>
+                    </div>
+                    <div id="scenario-result" style="margin-top:20px;padding:18px;background:#f8f9fa;border-radius:12px;font-size:15px;">
+                        <strong>Base Case:</strong> Projected cash balance: <span style="color:var(--success);font-weight:600;">$3.4M</span> by May 2026
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Budget vs Actual (YTD)</h3>
+                        <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll(`.nav-item[onclick="showSection('${id}')"]`)[0].classList.add('active');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        // Charts
+        const ctx1 = document.getElementById('pnlChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [2.1,2.3,2.5,2.8,3.0,3.2,3.1,3.4,3.6,3.8,4.0,4.2],
+                    borderColor: '#06d6a0',
+                    backgroundColor: 'rgba(6,214,160,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Expenses',
+                    data: [1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9],
+                    borderColor: '#ef476f',
+                    backgroundColor: 'rgba(239,71,111,0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx2 = document.getElementById('balanceChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Assets', 'Liabilities', 'Equity'],
+                datasets: [{
+                    data: [65, 22, 13],
+                    backgroundColor: ['#4361ee', '#ef476f', '#ffd166'],
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx3 = document.getElementById('channelChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Online', 'Retail', 'Wholesale', 'Direct'],
+                datasets: [{
+                    label: 'Sales ($M)',
+                    data: [4.2, 2.8, 1.9, 1.1],
+                    backgroundColor: ['#06d6a0', '#4361ee', '#ffd166', '#ef476f']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx4 = document.getElementById('forecastChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'line',
+            data: {
+                labels: ['Dec 25', 'Jan 26', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Forecasted Cash',
+                    data: [2.8, 3.1, 3.0, 3.4, 3.2, 3.4],
+                    borderColor: '#ffd166',
+                    backgroundColor: 'rgba(255,209,102,0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx5 = document.getElementById('budgetChart').getContext('2d');
+        new Chart(ctx5, {
+            type: 'bar',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [
+                    { label: 'Budget', data: [5.0, 5.5, 6.0, 6.5], backgroundColor: '#4361ee' },
+                    { label: 'Actual', data: [4.8, 5.7, 5.9, 6.3], backgroundColor: '#06d6a0' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Export Functions
+        function exportPDF(name) {
+            alert(`${name} Report exported as PDF!`);
+        }
+
+        function exportExcel(name) {
+            alert(`${name} Data exported to Excel!`);
+        }
+
+        function copyAPI() {
+            navigator.clipboard.writeText('GET https://api.procurelogix.com/v1/kpis');
+            alert('API Endpoint copied to clipboard!');
+        }
+
+        // Query Builder
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.innerText); }
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const zone = document.getElementById('drop-zone');
+            if (!zone.querySelector(`[data-field="${data}"]`)) {
+                zone.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = 'drag-item';
+                item.innerText = data;
+                item.dataset.field = data;
+                zone.appendChild(item);
+            }
+        }
+
+        function runQuery() {
+            alert('Query executed! 1,248 rows returned. Preview available.');
+        }
+
+        function saveQuery() {
+            alert('Query saved as "High-Value POs > $50K"');
+        }
+
+        function shareQuery() {
+            alert('Shareable link generated: https://procurelogix.com/query/8f3k9d');
+        }
+
+        // Scenario Modeling
+        function selectScenario(btn, scenario) {
+            document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const results = {
+                base: '$3.4M by May 2026',
+                optimistic: '$4.1M by May 2026',
+                pessimistic: '$2.7M by May 2026',
+                delay: '$3.1M by May 2026'
+            };
+            const colors = {
+                base: '#06d6a0',
+                optimistic: '#06d6a0',
+                pessimistic: '#ef476f',
+                delay: '#ffd166'
+            };
+            document.getElementById('scenario-result').innerHTML = 
+                `<strong>${btn.innerText}:</strong> Projected cash balance: <span style="color:${colors[scenario]};font-weight:600;">${results[scenario]}</span>`;
+        }
+    </script>
+</body>
+</html>
