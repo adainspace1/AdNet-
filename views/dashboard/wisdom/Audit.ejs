@@ -1,204 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit & Assurance Vault</title>
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <link rel="stylesheet" href="/css/audit.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Easy Audit – Auto & Manual</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" rel="stylesheet">
+  <style>
+    .match-green { @apply bg-green-100 text-green-800; }
+    .match-yellow { @apply bg-yellow-100 text-yellow-800; }
+    .match-red { @apply bg-red-100 text-red-800; }
+    .tab-active { @apply bg-blue-600 text-white; }
+  </style>
 </head>
 <body>
+
+
 
     <div  class="all">
 
         <%- include ("../_sidebar1") %>
 
-                <div class="main-content">
+            <div class="main-content">
                     <%- include ("../_topnav") %>
 
-                        <div class="container">
+                <div class="container mx-auto p-4 max-w-7xl">
 
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-300">Easy Audit Dashboard</h1>
+                    <button id="export-report" class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i class="ti ti-download"></i> Export Report
+                    </button>
+                </div>
 
+                <!-- Tabs: Auto vs Manual -->
+                <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+                    <button id="tab-auto" class="tab-active px-6 py-2 rounded-md font-medium">Automatic Audit</button>
+                    <button id="tab-manual" class="px-6 py-2 rounded-md font-medium text-gray-600 hover:bg-gray-200">Manual Audit</button>
+                </div>
 
-                            <div class="headerr">
-                                <h1>Auditing & Assurance Vault</h1>
-                                <p>Immutable logs, evidence, and audit-ready reporting</p>
-                            </div>
+                <!-- DASHBOARD WIDGETS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-blue-600" id="total-audits">0</p>
+                    <p class="text-sm text-gray-500">Audits This Month</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-red-600" id="mismatches">0</p>
+                    <p class="text-sm text-gray-500">Mismatches Found</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-orange-600" id="amount-diff">$0</p>
+                    <p class="text-sm text-gray-500">Amount Difference</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-purple-600" id="stock-diff">0</p>
+                    <p class="text-sm text-gray-500">Stock Discrepancy</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-green-600" id="approved">0</p>
+                    <p class="text-sm text-gray-500">Approved</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow text-center">
+                    <p class="text-2xl font-bold text-red-600" id="disapproved">0</p>
+                    <p class="text-sm text-gray-500">Disapproved</p>
+                    </div>
+                </div>
 
-                            <!-- Stats -->
-                            <div class="stats-grid" id="stats-container">
-                                <div class="stat-card"><div class="stat-icon" style="background: var(--primary-color);"><i class="fas fa-history"></i></div><div class="stat-value" id="total-logs">0</div><div class="stat-label">Audit Logs</div></div>
-                                <div class="stat-card"><div class="stat-icon" style="background: var(--success-color);"><i class="fas fa-check-double"></i></div><div class="stat-value" id="verified-docs">0</div><div class="stat-label">Verified</div></div>
-                                <div class="stat-card"><div class="stat-icon" style="background: var(--warning-color);"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-value" id="red-flags">0</div><div class="stat-label">Red Flags</div></div>
-                                <div class="stat-card"><div class="stat-icon" style="background: var(--info-color);"><i class="fas fa-clock"></i></div><div class="stat-value" id="active-tokens">0</div><div class="stat-label">Active Tokens</div></div>
-                            </div>
+                <!-- Filters -->
+                <div class="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-3 items-center">
+                    <input type="date" id="filter-date-from" class="px-3 py-2 border rounded-md">
+                    <input type="date" id="filter-date-to" class="px-3 py-2 border rounded-md">
+                    <select id="filter-staff" class="px-3 py-2 border rounded-md">
+                    <option>All Staff</option>
+                    </select>
+                    <select id="filter-product" class="px-3 py-2 border rounded-md">
+                    <option>All Products</option>
+                    </select>
+                    <select id="filter-type" class="px-3 py-2 border rounded-md">
+                    <option>All Types</option>
+                    <option>Automatic</option>
+                    <option>Manual</option>
+                    </select>
+                    <input type="text" id="search" placeholder="Search receipt, product..." class="flex-1 px-3 py-2 border rounded-md">
+                </div>
 
-                            <!-- Audit Trail -->
-                            <section id="audit-trail" class="section active">
-                                <div class="card">
-                                    <h3><i class="fas fa-plus-circle"></i> Log Action</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group"><label>User</label><input type="text" id="log-user" value="admin" readonly></div>
-                                        <div class="form-group"><label>Action</label><select id="log-action"><option>Created</option><option>Updated</option><option>Deleted</option><option>Approved</option></select></div>
-                                        <div class="form-group"><label>Entity</label><input type="text" id="log-entity" placeholder="Invoice #123"></div>
-                                        <div class="form-group"><label>Changes</label><textarea id="log-changes" placeholder="Old: $100 → New: $150"></textarea></div>
-                                    </div>
-                                    <button class="btn btn-primary" onclick="appendLog()"><i class="fas fa-lock"></i> Append Log</button>
-                                </div>
-
-                                <div class="card">
-                                    <h3><i class="fas fa-list-ul"></i> Immutable Audit Trail</h3>
-                                    <div class="table-container">
-                                        <table id="audit-table">
-                                            <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Hash</th></tr></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Audit Integrity Chart -->
-                                <div class="card">
-                                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Log Integrity Over Time</h3>
-                                    <div class="chart-container">
-                                        <div class="chart-wrapper">
-                                            <canvas id="integrityChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Auditor Portal -->
-                            <section id="auditor-portal" class="section">
-                                <div class="card">
-                                    <h3><i class="fas fa-user-plus"></i> Issue Auditor Token</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group"><label>Auditor Name</label><input type="text" id="auditor-name" placeholder="Jane Doe"></div>
-                                        <div class="form-group"><label>Scope</label><select id="auditor-scope"><option>Read-Only</option><option>Evidence Review</option><option>Full Audit</option></select></div>
-                                        <div class="form-group"><label>Expires In</label><select id="token-expiry"><option>1 day</option><option>3 days</option><option>1 week</option></select></div>
-                                    </div>
-                                    <button class="btn btn-info" onclick="issueToken()"><i class="fas fa-key"></i> Generate Token</button>
-
-                                    <div id="token-output" style="margin-top: 15px; display: none;">
-                                        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; font-family: monospace; word-break: break-all;">
-                                            <strong>Token:</strong> <span id="generated-token"></span>
-                                        </div>
-                                        <button class="btn btn-sm btn-success" onclick="copyToken()" style="margin-top: 8px;"><i class="fas fa-copy"></i> Copy</button>
-                                    </div>
-                                </div>
-
-                                <div class="card">
-                                    <h3><i class="fas fa-clipboard-list"></i> Active Auditor Tokens</h3>
-                                    <div class="table-container">
-                                        <table id="token-table">
-                                            <thead><tr><th>Auditor</th><th>Scope</th><th>Expires</th><th>Status</th><th>Act</th></tr></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Evidence Vault -->
-                            <section id="evidence-vault" class="section">
-                                <div class="card">
-                                    <h3><i class="fas fa-upload"></i> Upload Evidence</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group"><label>Document Type</label><select id="doc-type"><option>Invoice</option><option>Bank Statement</option><option>Contract</option><option>Receipt</option></select></div>
-                                        <div class="form-group"><label>Reference #</label><input type="text" id="doc-ref" placeholder="INV-2025-001"></div>
-                                        <div class="form-group"><label>File</label><input type="file" id="doc-file" accept=".pdf,.jpg,.png"></div>
-                                        <div class="form-group"><label>Tickmarks</label>
-                                            <div style="display: flex; gap: 8px; margin-top: 6px;">
-                                                <span class="tickmark tick-check">Check</span>
-                                                <span class="tickmark tick-cross">Cross</span>
-                                                <span class="tickmark tick-question">Question</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-success" onclick="uploadEvidence()"><i class="fas fa-cloud-upload-alt"></i> Upload & Hash</button>
-                                </div>
-
-                                <div class="card">
-                                    <h3><i class="fas fa-folder-open"></i> Evidence Repository</h3>
-                                    <div class="table-container">
-                                        <table id="evidence-table">
-                                            <thead><tr><th>Type</th><th>Ref</th><th>Uploaded</th><th>Hash</th><th>Tickmarks</th><th>Act</th></tr></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Assurance Reports -->
-                            <section id="assurance-reports" class="section">
-                                <div class="card">
-                                    <h3><i class="fas fa-cog"></i> Generate Report</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group"><label>Report Type</label><select id="report-type"><option>Management Letter</option><option>Assurance Summary</option><option>Red Flag Report</option></select></div>
-                                        <div class="form-group"><label>Period</label><input type="text" id="report-period" placeholder="Q4 2025"></div>
-                                    </div>
-                                    <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-file-export"></i> Generate</button>
-
-                                    <div id="report-output" class="card" style="display: none; margin-top: 15px;">
-                                        <h3><i class="fas fa-file-alt"></i> Report Preview</h3>
-                                        <div id="report-content" style="line-height: 1.6; font-size: 0.9rem;"></div>
-                                        <button class="btn btn-success btn-sm" onclick="exportReport()"><i class="fas fa-download"></i> Export PDF</button>
-                                    </div>
-                                </div>
-
-                                <div class="card">
-                                    <h3><i class="fas fa-history"></i> Report History</h3>
-                                    <div class="table-container">
-                                        <table id="report-history">
-                                            <thead><tr><th>Type</th><th>Period</th><th>Generated</th><th>Act</th></tr></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Version Control -->
-                            <section id="version-control" class="section">
-                                <div class="card">
-                                    <h3><i class="fas fa-camera"></i> Create Snapshot</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group"><label>Period</label><input type="text" id="snap-period" placeholder="Dec 2025"></div>
-                                        <div class="form-group"><label>Justification</label><textarea id="snap-just" placeholder="Year-end close"></textarea></div>
-                                    </div>
-                                    <button class="btn btn-info" onclick="createSnapshot()"><i class="fas fa-save"></i> Save Snapshot</button>
-                                </div>
-
-                                <div class="card">
-                                    <h3><i class="fas fa-code-branch"></i> Financial Snapshots</h3>
-                                    <div class="table-container">
-                                        <table id="snapshot-table">
-                                            <thead><tr><th>Period</th><th>Created</th><th>Hash</th><th>Act</th></tr></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Snapshot Comparison Chart -->
-                                <div class="card">
-                                    <h3 class="chart-title"><i class="fas fa-balance-scale"></i> Snapshot Comparison</h3>
-                                    <div class="chart-container">
-                                        <div class="chart-wrapper">
-                                            <canvas id="snapshotChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
+                <!-- AUTOMATIC MODE -->
+                <div id="auto-mode">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6 text-center">
+                    <h2 class="text-xl font-bold mb-4">Run Automatic Audit Scanner</h2>
+                    <p class="text-gray-600 mb-4">The system will compare your inventory, sales, and payments.</p>
+                    <button id="scan-database" class="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto">
+                        <i class="ti ti-search"></i> Scan Database Now
+                    </button>
+                    <div id="progress" class="mt-4 hidden">
+                        <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-600 h-full transition-all" style="width: 0%"></div>
                         </div>
+                        <p class="text-sm mt-2">Scanning... <span id="progress-text">0%</span></p>
+                    </div>
+                    </div>
 
+                    <div id="auto-results" class="hidden bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 border-b">
+                        <h3 class="font-semibold">Automatic Audit Results</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goods Received</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sold</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expected $</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actual $</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Difference</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auto-table-body"></tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- MANUAL MODE -->
+                <div id="manual-mode" class="hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">Manual Audit – Enter Your Records</h2>
+                    <form id="manual-form" class="grid md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Product Name" required class="px-4 py-2 border rounded-lg">
+                        <input type="number" placeholder="Quantity Received" required class="px-4 py-2 border rounded-lg">
+                        <input type="number" placeholder="Quantity Sold" required class="px-4 py-2 border rounded-lg">
+                        <input type="number" placeholder="Expected Amount ($)" required class="px-4 py-2 border rounded-lg">
+                        <input type="number" placeholder="Actual Amount Paid ($)" required class="px-4 py-2 border rounded-lg">
+                        <input type="file" multiple accept=".pdf,.jpg,.png" class="md:col-span-2">
+                        <textarea placeholder="Add notes or explain difference..." class="md:col-span-2 px-4 py-2 border rounded-lg" rows="3"></textarea>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg md:col-span-2">
+                        Compare & Save
+                        </button>
+                    </form>
+                    </div>
+
+                    <div id="manual-results" class="mt-6 hidden bg-white rounded-lg shadow p-6">
+                    <h3 class="font-bold mb-4">Your Manual Audit Result</h3>
+                    <div id="manual-result-body"></div>
+                    </div>
+                </div>
 
                 </div>
+            </div>
+
+                <!-- MODAL -->
+                <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                <div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-screen overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Audit Detail</h3>
+                    <button onclick="closeModal()" class="text-gray-500"><i class="ti ti-x"></i></button>
+                    </div>
+                    <div id="modal-content"></div>
+                </div>
+                </div>
+
     </div>
 
+<script>
+  // Tab Switching
+  document.getElementById('tab-auto').onclick = () => switchTab('auto');
+  document.getElementById('tab-manual').onclick = () => switchTab('manual');
+
+  function switchTab(mode) {
+    document.querySelectorAll('.tab-active').forEach(t => t.classList.remove('tab-active'));
+    document.getElementById(`tab-${mode}`).classList.add('tab-active');
+    document.getElementById('auto-mode').classList.toggle('hidden', mode !== 'auto');
+    document.getElementById('manual-mode').classList.toggle('hidden', mode !== 'manual');
+  }
+
+  // Auto Scan
+  document.getElementById('scan-database').onclick = async () => {
+    const progress = document.getElementById('progress');
+    const bar = progress.querySelector('div');
+    const text = document.getElementById('progress-text');
+    progress.classList.remove('hidden');
+
+    for (let i = 0; i <= 100; i += 10) {
+      bar.style.width = i + '%';
+      text.textContent = i + '%';
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    const res = await fetch('/api/audit/auto');
+    const { results, stats } = await res.json();
+    renderAutoResults(results);
+    updateDashboard(stats);
+    document.getElementById('auto-results').classList.remove('hidden');
+  };
+
+  function renderAutoResults(items) {
+    const tbody = document.getElementById('auto-table-body');
+    tbody.innerHTML = items.map(item => `
+      <tr class="border-t">
+        <td class="px-4 py-3">${item.product}</td>
+        <td class="px-4 py-3">${item.received}</td>
+        <td class="px-4 py-3">${item.sold}</td>
+        <td class="px-4 py-3">$${item.expected}</td>
+        <td class="px-4 py-3">$${item.actual}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-1 text-xs font-medium rounded-full ${getMatchClass(item.diff)}">
+            $${Math.abs(item.diff).toFixed(2)}
+          </span>
+        </td>
+        <td class="px-4 py-3">${item.status}</td>
+        <td class="px-4 py-3">
+          <button onclick="openDetail('${item._id}')" class="text-blue-600 text-sm">Review</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Manual Form
+  document.getElementById('manual-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+      product: form[0].value,
+      received: +form[1].value,
+      sold: +form[2].value,
+      expected: +form[3].value,
+      actual: +form[4].value,
+      notes: form[6].value,
+      type: 'manual'
+    };
+
+    const res = await fetch('/api/audit/manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    document.getElementById('manual-results').classList.remove('hidden');
+    document.getElementById('manual-result-body').innerHTML = `
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <p><strong>Product:</strong> ${result.product}</p>
+        <p><strong>Difference Found:</strong> 
+          <span class="${getMatchClass(result.diff)}">$${Math.abs(result.diff).toFixed(2)}</span>
+        </p>
+        <p><strong>Accuracy Score:</strong> ${result.score}%</p>
+        <div class="mt-4 flex gap-2">
+          <button onclick="approve('${result._id}')" class="bg-green-600 text-white px-4 py-1 rounded">Approve</button>
+          <button onclick="disapprove('${result._id}')" class="bg-red-600 text-white px-4 py-1 rounded">Disapprove</button>
+        </div>
+      </div>
+    `;
+  };
+
+  function getMatchClass(diff) {
+    const abs = Math.abs(diff);
+    if (abs === 0) return 'match-green';
+    if (abs <= 5) return 'match-yellow';
+    return 'match-red';
+  }
+
+  window.openDetail = (id) => {
+    // Fetch full detail + show modal
+    document.getElementById('modal-content').innerHTML = `<p>Full record for ID: ${id}</p>`;
+    document.getElementById('detail-modal').classList.remove('hidden');
+  };
+
+  window.closeModal = () => document.getElementById('detail-modal').classList.add('hidden');
+
+  window.approve = async (id) => await action(id, 'approve');
+  window.disapprove = async (id) => await action(id, 'disapprove');
+
+  async function action(id, act) {
+    await fetch(`/api/audit/action/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: act, user: 'You' })
+    });
+    alert(`Transaction ${act}d!`);
+    location.reload();
+  }
+
+  function updateDashboard(stats) {
+    document.getElementById('total-audits').textContent = stats.total;
+    document.getElementById('mismatches').textContent = stats.mismatches;
+    document.getElementById('amount-diff').textContent = `$${stats.amountDiff}`;
+    document.getElementById('stock-diff').textContent = stats.stockDiff;
+    document.getElementById('approved').textContent = stats.approved;
+    document.getElementById('disapproved').textContent = stats.disapproved;
+  }
+</script>
 
 </body>
 </html>
