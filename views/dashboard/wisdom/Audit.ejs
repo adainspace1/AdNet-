@@ -298,18 +298,19 @@
     const result = await res.json();
     document.getElementById('manual-results').classList.remove('hidden');
     document.getElementById('manual-result-body').innerHTML = `
-      <div class="p-4 bg-gray-50 rounded-lg">
-        <p><strong>Product:</strong> ${result.product}</p>
-        <p><strong>Difference Found:</strong> 
-          <span class="${getMatchClass(result.diff)}">$${Math.abs(result.diff).toFixed(2)}</span>
-        </p>
-        <p><strong>Accuracy Score:</strong> ${result.score}%</p>
-        <div class="mt-4 flex gap-2">
-          <button onclick="approve('${result._id}')" class="bg-green-600 text-white px-4 py-1 rounded">Approve</button>
-          <button onclick="disapprove('${result._id}')" class="bg-red-600 text-white px-4 py-1 rounded">Disapprove</button>
-        </div>
-      </div>
-    `;
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p><strong>Product:</strong> ${result.product}</p>
+                <p><strong>Difference Found:</strong> 
+                <span class="${getMatchClass(result.diff)}">$${Math.abs(result.diff).toFixed(2)}</span>
+                </p>
+                <p><strong>Accuracy Score:</strong> ${result.score || 'N/A'}%</p>
+                <div class="mt-4 flex gap-2">
+                <button onclick="approve('${result._id}')" class="bg-green-600 text-white px-4 py-1 rounded">Approve</button>
+                <button onclick="disapprove('${result._id}')" class="bg-red-600 text-white px-4 py-1 rounded">Disapprove</button>
+                </div>
+            </div>
+            `;
+
   };
 
   function getMatchClass(diff) {

@@ -206,38 +206,40 @@ exports.manualAudit = async (req, res) => {
 
     const fileUrl = await handleImageUpload(file);
 
-    // DIFF
-    const diff = actual - expected;
-    console.log("🧮 Calculated Diff:", diff);
+  // DIFF
+const diff = actual - expected;
 
-    const record = {
-      product,
-      received,
-      sold,
-      expected,
-      actual,
-      diff,
-      status: diff === 0 ? "Match" : diff > 0 ? "Over" : "Short",
-      notes,
-      fileUrl: fileUrl || null,
-    };
+// Accuracy Score
+const score = expected ? ((expected - Math.abs(diff)) / expected) * 100 : 0;
 
-    console.log("📝 Final Manual Record:", record);
+const record = {
+  product,
+  received,
+  sold,
+  expected,
+  actual,
+  diff,
+  status: diff === 0 ? "Match" : diff > 0 ? "Over" : "Short",
+  notes,
+  fileUrl: fileUrl || null,
+  score: score.toFixed(2) // ✅ add this
+};
 
-    await Audit.create({
-      mode: "manual",
-      items: [record],
-      stats: {
-        total: 1,
-        mismatches: diff !== 0 ? 1 : 0,
-        amountDiff: Math.abs(diff),
-        stockDiff: Math.abs(received - sold),
-      },
-    });
+// save to DB
+await Audit.create({
+  mode: "manual",
+  items: [record],
+  stats: {
+    total: 1,
+    mismatches: diff !== 0 ? 1 : 0,
+    amountDiff: Math.abs(diff),
+    stockDiff: Math.abs(received - sold),
+  },
+});
 
-    console.log("💾 Manual Audit Saved to DB");
+// return the record directly (not wrapped)
+res.json(record);
 
-    res.json({ msg: "Manual audit saved", record });
 
   } catch (err) {
     console.log("❌ MANUAL AUDIT ERROR:", err);
