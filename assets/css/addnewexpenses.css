@@ -19,7 +19,6 @@
   font-family: poppins, sans-serif;
 }
 body {
-  background-color: #031224;
   width: 100%;
   padding: 0;
   margin: 0;
@@ -41,7 +40,6 @@ body {
   justify-content: space-between;
   max-height: 100%;
   overflow: hidden;
-  background-color: #031224;
 }
 .all .bx-menu {
   display: none;
