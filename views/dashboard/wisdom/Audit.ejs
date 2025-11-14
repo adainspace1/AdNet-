@@ -54,7 +54,7 @@
                     <p class="text-sm text-gray-500">Mismatches Found</p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow text-center">
-                    <p class="text-2xl font-bold text-orange-600" id="amount-diff">$0</p>
+                    <p class="text-2xl font-bold text-orange-600" id="amount-diff">₦0</p>
                     <p class="text-sm text-gray-500">Amount Difference</p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow text-center">
@@ -134,17 +134,69 @@
                     <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-xl font-bold mb-4">Manual Audit – Enter Your Records</h2>
                     <form id="manual-form" class="grid md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="Product Name" required class="px-4 py-2 border rounded-lg">
-                        <input type="number" placeholder="Quantity Received" required class="px-4 py-2 border rounded-lg">
-                        <input type="number" placeholder="Quantity Sold" required class="px-4 py-2 border rounded-lg">
-                        <input type="number" placeholder="Expected Amount ($)" required class="px-4 py-2 border rounded-lg">
-                        <input type="number" placeholder="Actual Amount Paid ($)" required class="px-4 py-2 border rounded-lg">
-                        <input type="file" multiple accept=".pdf,.jpg,.png" class="md:col-span-2">
-                        <textarea placeholder="Add notes or explain difference..." class="md:col-span-2 px-4 py-2 border rounded-lg" rows="3"></textarea>
-                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg md:col-span-2">
-                        Compare & Save
-                        </button>
-                    </form>
+    <input 
+        type="text" 
+        name="product" 
+        placeholder="Product Name" 
+        required 
+        class="px-4 py-2 border rounded-lg"
+    >
+
+    <input 
+        type="number" 
+        name="received" 
+        placeholder="Quantity Received" 
+        required 
+        class="px-4 py-2 border rounded-lg"
+    >
+
+    <input 
+        type="number" 
+        name="sold" 
+        placeholder="Quantity Sold" 
+        required 
+        class="px-4 py-2 border rounded-lg"
+    >
+
+    <input 
+        type="number" 
+        name="expected" 
+        placeholder="Expected Amount ($)" 
+        required 
+        class="px-4 py-2 border rounded-lg"
+    >
+
+    <input 
+        type="number" 
+        name="actual" 
+        placeholder="Actual Amount Paid ($)" 
+        required 
+        class="px-4 py-2 border rounded-lg"
+    >
+
+    <input 
+        type="file" 
+        name="files" 
+        multiple 
+        accept=".pdf,.jpg,.png" 
+        class="md:col-span-2"
+    >
+
+    <textarea 
+        name="notes" 
+        placeholder="Add notes or explain difference..." 
+        class="md:col-span-2 px-4 py-2 border rounded-lg" 
+        rows="3"
+    ></textarea>
+
+    <button 
+        type="submit" 
+        class="bg-green-600 text-white px-6 py-2 rounded-lg md:col-span-2"
+    >
+        Compare & Save
+    </button>
+</form>
+
                     </div>
 
                     <div id="manual-results" class="mt-6 hidden bg-white rounded-lg shadow p-6">
@@ -194,7 +246,7 @@
       await new Promise(r => setTimeout(r, 300));
     }
 
-    const res = await fetch('/api/audit/auto');
+    const res = await fetch('/user/api/audit/auto');
     const { results, stats } = await res.json();
     renderAutoResults(results);
     updateDashboard(stats);
@@ -217,7 +269,7 @@
         </td>
         <td class="px-4 py-3">${item.status}</td>
         <td class="px-4 py-3">
-          <button onclick="openDetail('${item._id}')" class="text-blue-600 text-sm">Review</button>
+          <button onclick="openDetail('${item._id}')" class="text-blue-600 text-sm">Review ${item._id}</button>
         </td>
       </tr>
     `).join('');
@@ -237,7 +289,7 @@
       type: 'manual'
     };
 
-    const res = await fetch('/api/audit/manual', {
+    const res = await fetch('/user/api/audit/manual', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -267,35 +319,123 @@
     return 'match-red';
   }
 
-  window.openDetail = (id) => {
-    // Fetch full detail + show modal
-    document.getElementById('modal-content').innerHTML = `<p>Full record for ID: ${id}</p>`;
-    document.getElementById('detail-modal').classList.remove('hidden');
-  };
+window.openDetail = async (id) => {
+  document.getElementById('modal-content').innerHTML = `
+    <div class="text-center py-6">Loading...</div>
+  `;
+  document.getElementById('detail-modal').classList.remove('hidden');
+
+  const res = await fetch(`/user/api/audit/detail/${id}`);
+  const data = await res.json();
+  if (data.error) {
+    document.getElementById('modal-content').innerHTML = `<p class="text-red-600">${data.error}</p>`;
+    return;
+  }
+
+  const item = data.item;
+
+  // 🔥 use approvalStatus for toggle
+  const toggleAction = item.approvalStatus === "approved" ? "disapprove" : "approve";
+  const toggleLabel = toggleAction.charAt(0).toUpperCase() + toggleAction.slice(1);
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="space-y-4">
+
+      <div>
+        <h4 class="font-semibold text-lg">${item.product}</h4>
+        <p class="text-sm text-gray-500">Audit Mode: <strong>${data.mode}</strong></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+        <p><strong>Received:</strong> ${item.received}</p>
+        <p><strong>Sold:</strong> ${item.sold}</p>
+        <p><strong>Expected Value:</strong> $${item.expected}</p>
+        <p><strong>Actual Value:</strong> $${item.actual}</p>
+        <p><strong>Difference:</strong> 
+          <span class="px-2 py-1 rounded ${item.diff === 0 ? 'bg-green-100 text-green-700' : item.diff > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
+            $${Math.abs(item.diff)}
+          </span>
+        </p>
+        <p><strong>Status:</strong> <span id="audit-status">${item.approvalStatus}</span></p>
+      </div>
+
+      <div class="p-4 bg-gray-100 rounded-lg">
+        <h5 class="font-semibold mb-2">Audit Summary</h5>
+        <p><strong>Total Items:</strong> ${data.stats.total}</p>
+        <p><strong>Mismatches:</strong> ${data.stats.mismatches}</p>
+        <p><strong>Total Amount Difference:</strong> $${data.stats.amountDiff}</p>
+        <p><strong>Total Stock Difference:</strong> ${data.stats.stockDiff}</p>
+        <p><strong>Approved:</strong> ${data.stats.approved}</p>
+        <p><strong>Disapproved:</strong> ${data.stats.disapproved}</p>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button onclick="auditAction('${item._id}', '${toggleAction}')" 
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          ${toggleLabel}
+        </button>
+        <button onclick="document.getElementById('detail-modal').classList.add('hidden')" 
+          class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+          Close
+        </button>
+      </div>
+
+    </div>
+  `;
+};
 
   window.closeModal = () => document.getElementById('detail-modal').classList.add('hidden');
 
-  window.approve = async (id) => await action(id, 'approve');
-  window.disapprove = async (id) => await action(id, 'disapprove');
 
-  async function action(id, act) {
-    await fetch(`/api/audit/action/${id}`, {
+
+async function auditAction(id, act) {
+  try {
+    const res = await fetch(`/user/api/audit/action/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: act, user: 'You' })
+      body: JSON.stringify({ action: act, user: 'You' }) // replace 'You' with actual logged-in user ID if needed
     });
-    alert(`Transaction ${act}d!`);
-    location.reload();
-  }
+    const data = await res.json();
 
-  function updateDashboard(stats) {
-    document.getElementById('total-audits').textContent = stats.total;
-    document.getElementById('mismatches').textContent = stats.mismatches;
-    document.getElementById('amount-diff').textContent = `$${stats.amountDiff}`;
-    document.getElementById('stock-diff').textContent = stats.stockDiff;
-    document.getElementById('approved').textContent = stats.approved;
-    document.getElementById('disapproved').textContent = stats.disapproved;
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    // Update status on modal without reload
+    document.getElementById('audit-status').innerText = act === "approve" ? "approved" : "disapproved";
+
+    // Change button label/action
+    const btn = document.querySelector('#modal-content button:first-child');
+    const newAction = act === "approve" ? "disapprove" : "approve";
+    btn.innerText = newAction.charAt(0).toUpperCase() + newAction.slice(1);
+    btn.setAttribute('onclick', `auditAction('${id}', '${newAction}')`);
+
+    alert(`Transaction ${act}d!`);
+  } catch (err) {
+    console.error("❌ Action Failed:", err);
+    alert("Failed to perform action");
   }
+}
+
+function formatNumber(num) {
+  if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + 'B';
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + 'K';
+  return num;
+}
+
+function updateDashboard(stats) {
+  document.getElementById('total-audits').textContent = formatNumber(stats.total);
+  document.getElementById('mismatches').textContent = formatNumber(stats.mismatches);
+  document.getElementById('amount-diff').textContent = `₦${formatNumber(stats.amountDiff)}`;
+  document.getElementById('stock-diff').textContent = formatNumber(stats.stockDiff);
+  document.getElementById('approved').textContent = formatNumber(stats.approved);
+  document.getElementById('disapproved').textContent = formatNumber(stats.disapproved);
+}
+
+
+
 </script>
 
 </body>

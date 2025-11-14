@@ -42,6 +42,9 @@ const FinanceController = require('../controllers/financeController');
 const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport } = require("../controllers/taxController");
 
 
+const { autoAudit, manualAudit, auditAction, getAuditDetail } = require("../controllers/auditController");
+
+
 // ===========================================
 // AUTH MIDDLEWARE
 // ===========================================
@@ -219,6 +222,25 @@ router.get("/taxation", getFilteredTaxes);
 router.get("/tax/summary", ensureAuthenticated, getTaxSummary);
 router.get("/statutory/summary", ensureAuthenticated, getStatutorySummary);
 router.get("/report", generateComplianceReport);
+
+
+
+
+
+
+
+
+const upload3 = multer({ storage: storage }).fields([
+  { name: 'files', maxCount: 1 },
+]);
+
+
+
+router.get("/api/audit/auto", ensureAuthenticated, autoAudit);
+router.post("/api/audit/manual", ensureAuthenticated, upload3, manualAudit);
+router.post("/api/audit/action/:id", ensureAuthenticated, auditAction);
+router.get("/api/audit/detail/:id", ensureAuthenticated, getAuditDetail);
+// router.get("/api/audit/detail/:id", ensureAuthenticated, getAuditDetail);
 
 
 
