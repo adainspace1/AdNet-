@@ -236,7 +236,8 @@ const upload3 = multer({ storage: storage }).fields([
 
 
 
-router.get("/api/audit/auto", ensureAuthenticated, autoAudit);
+// change/add this
+router.post("/api/audit/auto", ensureAuthenticated, autoAudit);
 router.post("/api/audit/manual", ensureAuthenticated, upload3, manualAudit);
 router.post("/api/audit/action/:id", ensureAuthenticated, auditAction);
 router.get("/api/audit/detail/:id", ensureAuthenticated, getAuditDetail);
