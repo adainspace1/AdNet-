@@ -30,6 +30,11 @@ const Budget = require('../models/budget');
 console.log("🚀 Audit Controller Ready\n\n");
 
 
+const Production = require('../models/production');
+const Order = require("../models/Order");
+
+
+
 
 const Sale = require('../models/sale'); // this is your "Payments"
 
@@ -81,16 +86,19 @@ const handleImageUpload = (file) => {
 // AUTO AUDIT
 exports.autoAudit = async (req, res) => {
   console.log("\n🚀 AUTO AUDIT REQUEST RECEIVED");
+  console.log("🧩 Modules Selected:", req.body);
 
   try {
-    const { inventory, expense, payments, withdrawals } = req.body;
-    console.log("🧩 Modules Selected:", req.body);
+    const payload = req.body;
 
     let results = {
       inventoryResults: [],
       expenseResults: [],
       paymentResults: [],
-      withdrawalResults: []
+      withdrawalResults: [],
+      salesResults: [],
+      productionResults: [],
+      ordersResults: []
     };
 
     let stats = {
@@ -99,24 +107,23 @@ exports.autoAudit = async (req, res) => {
       inventoryStats: null,
       expenseStats: null,
       paymentStats: null,
-      withdrawalStats: null
+      withdrawalStats: null,
+      salesStats: null,
+      productionStats: null,
+      ordersStats: null
     };
 
-    // ================= 1️⃣ INVENTORY =================
-    if (inventory) {
+    // ================= INVENTORY =================
+    if (payload.inventory) {
       stats.totalModulesRun++;
 
       const items = await Inventory.find() || [];
-      console.log("📦 Inventory Count:", items.length);
-
       const cmpItems = await ComparisonItem.find({
         itemName: { $in: items.map(i => i.itemName) }
       }) || [];
 
-      const cmpMap = cmpItems.reduce((acc, c) => {
-        acc[c.itemName] = c.approvalStatus || "pending";
-        return acc;
-      }, {});
+      const cmpMap = {};
+      cmpItems.forEach(c => cmpMap[c.itemName] = c.approvalStatus || "pending");
 
       const invResults = items.map(i => {
         const received = i.quantity || 0;
@@ -142,50 +149,46 @@ exports.autoAudit = async (req, res) => {
       const invStats = {
         total: invResults.length,
         mismatches: invResults.filter(r => r.diff !== 0).length,
-        amountDiff: invResults.reduce((a, c) => a + Math.abs(c.diff || 0), 0),
-        stockDiff: invResults.reduce((a, c) => a + Math.abs((c.received||0) - (c.sold||0)), 0),
-        approved: cmpItems.filter(c => c.approvalStatus === 'approved').length,
-        disapproved: cmpItems.filter(c => c.approvalStatus === 'disapproved').length
+        amountDiff: invResults.reduce((a, c) => a + Math.abs(c.diff), 0),
+        stockDiff: invResults.reduce((a, c) => a + Math.abs(c.received - c.sold), 0),
+        approved: cmpItems.filter(c => c.approvalStatus === "approved").length,
+        disapproved: cmpItems.filter(c => c.approvalStatus === "disapproved").length
       };
 
+      results.inventoryResults = invResults;
       stats.inventoryStats = invStats;
       stats.totalIssues += invStats.mismatches;
-      results.inventoryResults = invResults;
     }
 
-    // ================= 2️⃣ EXPENSE =================
-    if (expense) {
+    // ================= EXPENSE =================
+    if (payload.expense || payload.budget) {
       stats.totalModulesRun++;
 
       const exp = await Expense.find() || [];
       const budgets = await Budget.find({ isActive: true }) || [];
 
-      // safe mapping
       const budgetMap = {};
       budgets.forEach(b => {
-        const catKey = (b.categoryName || "").trim().toLowerCase();
-        if (!budgetMap[catKey]) budgetMap[catKey] = 0;
-        budgetMap[catKey] += b.amount || 0;
+        const key = (b.categoryName || "").trim().toLowerCase();
+        budgetMap[key] = (budgetMap[key] || 0) + (b.amount || 0);
       });
 
       const spentMap = {};
       exp.forEach(e => {
-        const catKey = (e.category || "").trim().toLowerCase();
-        if (!spentMap[catKey]) spentMap[catKey] = 0;
-        spentMap[catKey] += e.amount || 0;
+        const key = (e.category || "").trim().toLowerCase();
+        spentMap[key] = (spentMap[key] || 0) + (e.amount || 0);
       });
 
-      const expResults = Object.keys(spentMap).map(catKey => {
-        const spent = spentMap[catKey] || 0;
-        const budgeted = budgetMap[catKey] || 0;
-        const remaining = Math.max(budgeted - spent, 0);
+      const expResults = Object.keys(spentMap).map(key => {
+        const spent = spentMap[key];
+        const budgeted = budgetMap[key] || 0;
         const diff = spent - budgeted;
 
         return {
-          name: catKey || "Unknown",
+          name: key,
           budget: budgeted,
           spent,
-          remaining,
+          remaining: Math.max(budgeted - spent, 0),
           diff,
           status: diff === 0 ? "Match" : diff > 0 ? "Overspent" : "Under Budget"
         };
@@ -194,28 +197,75 @@ exports.autoAudit = async (req, res) => {
       const expStats = {
         total: expResults.length,
         issues: expResults.filter(r => r.diff !== 0).length,
-        amountDiff: expResults.reduce((a, c) => a + Math.abs(c.diff || 0), 0)
+        amountDiff: expResults.reduce((a, c) => a + Math.abs(c.diff), 0)
       };
 
+      results.expenseResults = expResults;
       stats.expenseStats = expStats;
       stats.totalIssues += expStats.issues;
-      results.expenseResults = expResults;
     }
 
-    // ================= 3️⃣ PAYMENTS =================
-    if (payments) {
+    // ================= PAYMENTS =================
+    if (payload.payments || payload.receipts) {
       stats.totalModulesRun++;
 
-      const sales = await Sale.find() || [];
-      console.log("💵 Sales Records:", sales.length);
+      const pay = await Payment.find() || [];
+      const payResults = pay.map(p => ({
+        _id: p._id,
+        name: p.payer || "Unknown",
+        expected: p.expectedAmount || 0,
+        received: p.amount || 0,
+        diff: (p.amount || 0) - (p.expectedAmount || 0),
+        status: p.amount === p.expectedAmount ? "Match" : p.amount > p.expectedAmount ? "Over" : "Short"
+      }));
 
-      const payResults = sales.map(s => {
-        const received = s.totalAmount || 0;
-        const expected = (s.items || []).reduce((acc, item) => acc + (item.amount || 0), 0);
+      const payStats = {
+        total: payResults.length,
+        issues: payResults.filter(r => r.diff !== 0).length
+      };
+
+      results.paymentResults = payResults;
+      stats.paymentStats = payStats;
+      stats.totalIssues += payStats.issues;
+    }
+
+    // ================= WITHDRAWALS =================
+    if (payload.withdrawals || payload.records) {
+      stats.totalModulesRun++;
+
+      const w = await Withdrawal.find() || [];
+      const wResults = w.map(r => ({
+        _id: r._id,
+        user: r.username || "Unknown",
+        expected: r.expected || 0,
+        actual: r.amount || 0,
+        diff: (r.amount || 0) - (r.expected || 0),
+        status: r.amount === r.expected ? "Match" : r.amount > r.expected ? "Over" : "Short"
+      }));
+
+      const wStats = {
+        total: wResults.length,
+        issues: wResults.filter(r => r.diff !== 0).length
+      };
+
+      results.withdrawalResults = wResults;
+      stats.withdrawalStats = wStats;
+      stats.totalIssues += wStats.issues;
+    }
+
+    // ================= SALES =================
+    if (payload.sales || payload.receipts) {
+      stats.totalModulesRun++;
+
+      const s = await Sale.find() || [];
+      const saleResults = s.map(rec => {
+        const expected = rec.items?.reduce((a, c) => a + (c.amount || 0), 0) || 0;
+        const received = rec.totalAmount || 0;
         const diff = received - expected;
 
         return {
-          payer: s.custormername || "Unknown",
+          _id: rec._id,
+          payer: rec.customerName || "Unknown",
           expected,
           received,
           diff,
@@ -223,50 +273,68 @@ exports.autoAudit = async (req, res) => {
         };
       });
 
-      const payStats = {
-        total: payResults.length,
-        issues: payResults.filter(r => r.diff !== 0).length
+      const saleStats = {
+        total: saleResults.length,
+        issues: saleResults.filter(r => r.diff !== 0).length
       };
 
-      stats.paymentStats = payStats;
-      stats.totalIssues += payStats.issues;
-      results.paymentResults = payResults;
+      results.salesResults = saleResults;
+      stats.salesStats = saleStats;
+      stats.totalIssues += saleStats.issues;
     }
 
-    // ================= 4️⃣ WITHDRAWALS =================
-    if (withdrawals) {
+    // ================= PRODUCTION =================
+    if (payload.production) {
       stats.totalModulesRun++;
 
-      const w = await Expense.find({ category: /withdrawal/i }) || [];
+      const p = await Production.find() || [];
+      const prodResults = p.map(pr => ({
+        _id: pr._id,
+        name: pr.name || "Unknown",
+        planned: pr.planned || 0,
+        actual: pr.actual || 0,
+        diff: (pr.actual || 0) - (pr.planned || 0),
+        status: pr.actual === pr.planned ? "Match" : pr.actual > pr.planned ? "Over" : "Short"
+      }));
 
-      const withResults = w.map(wd => {
-        const budgeted = 0;
-        const actual = wd.amount || 0;
-        const diff = actual - budgeted;
-
-        return {
-          account: wd.username || "Unknown",
-          expected: budgeted,
-          actual,
-          diff,
-          status: diff === 0 ? "Match" : diff > 0 ? "Over Withdrawal" : "Short Withdrawal"
-        };
-      });
-
-      const wStats = {
-        total: withResults.length,
-        issues: withResults.filter(r => r.diff !== 0).length
+      const prodStats = {
+        total: prodResults.length,
+        issues: prodResults.filter(r => r.diff !== 0).length
       };
 
-      stats.withdrawalStats = wStats;
-      stats.totalIssues += wStats.issues;
-      results.withdrawalResults = withResults;
+      results.productionResults = prodResults;
+      stats.productionStats = prodStats;
+      stats.totalIssues += prodStats.issues;
     }
 
-    // SAVE AUDIT
+    // ================= ORDERS =================
+    if (payload.orders) {
+      stats.totalModulesRun++;
+
+      const o = await Order.find() || [];
+      const ordResults = o.map(ord => ({
+        _id: ord._id,
+        name: ord.productName,
+        expectedQty: ord.expectedQty || 0,
+        deliveredQty: ord.deliveredQty || 0,
+        diff: (ord.deliveredQty || 0) - (ord.expectedQty || 0),
+        status: ord.deliveredQty === ord.expectedQty ? "Match" : ord.deliveredQty > ord.expectedQty ? "Over" : "Short"
+      }));
+
+      const ordStats = {
+        total: ordResults.length,
+        issues: ordResults.filter(r => r.diff !== 0).length
+      };
+
+      results.ordersResults = ordResults;
+      stats.ordersStats = ordStats;
+      stats.totalIssues += ordStats.issues;
+    }
+
+    // FINAL: save
     await Audit.create({
       mode: "auto",
-      modules: req.body,
+      modules: payload,
       results,
       stats
     });
@@ -279,6 +347,7 @@ exports.autoAudit = async (req, res) => {
     return res.status(500).json({ error: "Auto audit failed" });
   }
 };
+
 
 
 // GET AUDIT DETAIL
