@@ -15,6 +15,11 @@ const dealSchema = new mongoose.Schema({
     enum: ['New Lead', 'Qualification', 'Proposal', 'Negotiation', 'Won', 'Lost', 'Closed'],
     required: true
   },
+  priority: {
+    type: String,
+    enum: ['Low', 'Medium', 'High'],
+    default: 'Medium'
+  },
   createdAt: { type: Date, default: Date.now },
   recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });

@@ -53,16 +53,8 @@ const Vendor = require("./models/vendorreg");
 const AddVendor = require("./models/AddVendor");
 
 
-const bcrypt = require("bcryptjs");
-
 
 const Driver = require("./models/Driver");
-
-const port = process.env.PORT || 3000;
-
-
-const session = require("express-session")
-const MongoStore = require("connect-mongo")
 
 
 const Wallet = require('./models/Wallet');
@@ -72,11 +64,25 @@ const Invoice = require("./models/Invoice"); // if you track mismatches
 const LinkedBank = require("./models/LinkedBank"); // if you track mismatches
 
 
-const adminroute = require("./routes/adminroutes");
-const userroute = require("./routes/userroutes");
-const crmRoutes = require('./routes/crmRoutes');
-// HR Routes
-const hrRoutes = require('./routes/hrRoutes');
+
+
+
+// services/paystackService.js
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
+
+const bcrypt = require('bcrypt');
+// Get from your env
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+
+const port = 3900
+const MongoStore = require("connect-mongo");
+const ejs = require("ejs");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/driver", driverRoutes);
+app.use("/user", userRoutes);
+app.use("/api/vendors", vendorRoutes);
 
 
 
@@ -85,39 +91,6 @@ const hrRoutes = require('./routes/hrRoutes');
 
 
 
-
-
-
-app.use(express.json());
-app.use(cors());
-
-mongoose.connect(process.env.MONGODB_CONNECTION).then(() => { console.log("Database Connected") }).catch((err) => { console.log(err) });
-
-const userRoutes = require("./routes/userroutes");
-
-app.use(session({
-  secret: "nelly",  // Change this to a strong secret key
-  resave: false,  // Prevents session from saving on every request
-  saveUninitialized: true,  // Prevents empty sessions from being stored
-  store: MongoStore.create({ mongoUrl: process.env.MONGODB_CONNECTION }),
-  cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 } // 24 hours session lifespan
-}));
-
-
-
-
-// Middleware
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-
-app.use(express.static(path.join(__dirname, 'assets')));
-app.use(cors());
-
-// Body parsers with high size limits (for videos/images)
-app.use(express.json({ limit: '100mb' }));
 
 // Proxy endpoint for Free Currency API
 app.get('/api/exchange-rate', async (req, res) => {
@@ -143,17 +116,6 @@ app.get('/api/exchange-rate', async (req, res) => {
     });
   }
 });
-
-
-
-app.use('/api/auth', adminroute);
-app.use('/user', userRoutes);
-app.use('/CRM', crmRoutes);
-app.use('/HR', hrRoutes);
-
-
-
-
 
 
 
@@ -1155,30 +1117,34 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 
 
-app.get('/sales', ensureAuthenticated, async (req, res) => {
+
+
+
+
+
+
+// --- 🧾 Sales Page (list + today's totals) ---
+app.get("/Sales", ensureAuthenticated, async (req, res) => {
   try {
-    // determine current user/worker & recipient id
-    let recipientId = null;
+    let recipientId;
     let companyinfo = null;
 
+    // 🧍 Identify user type
     if (req.session.user) {
       recipientId = req.session.user._id;
-      // assume Company schema uses 'recipientId' (fix the typo)
-      companyinfo = await Company.findOne({ recipientId });
+      companyinfo = await Company.findOne({ reciepientId: recipientId });
     } else if (req.session.worker) {
       recipientId = req.session.worker.adminId;
-      // some apps store company by userId for workers — try both safely
-      companyinfo = await Company.findOne({ userId: recipientId })
-        || await Company.findOne({ recipientId });
+      companyinfo = await Company.findOne({ userId: recipientId });
     } else {
-      return res.redirect('/login');
+      return res.redirect("/login");
     }
 
-    // fetch inventory & sales limited to this recipient
+    // 🗃️ Fetch inventory + sales
     const inventoryItems = await Inventory.find({ recipientId }).sort({ addedDate: -1 });
-    const salesItemsRaw = await Sales.find({ recipientId }).sort({ date: -1 });
+    const salesItems = await Sales.find({ recipientId }).sort({ date: -1 });
 
-    // compute today's range and daily totals
+    // 🕒 Get today's range
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
@@ -1189,45 +1155,43 @@ app.get('/sales', ensureAuthenticated, async (req, res) => {
       date: { $gte: todayStart, $lte: todayEnd },
     });
 
+    // 🧮 Daily totals
     const totalSalesToday = todaySales.length;
-    const totalAmountToday = todaySales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+    const totalAmountToday = todaySales.reduce(
+      (sum, sale) => sum + (sale.totalAmount || 0),
+      0
+    );
 
-    // map raw sales into safer display objects
-    const salesItems = salesItemsRaw.map(sale => ({
+    // 🧩 Flatten each sale’s items for display
+    // ✅ Keep sales grouped (so each sale has its array of items)
+    const groupedSales = salesItems.map((sale) => ({
       _id: sale._id,
-      customerName: sale.customerName || sale.custormername || sale.custumername || '', // try common variants
-      paymentMethod: sale.paymentMethod || '',
-      description: sale.description || sale.discription || '',
+      custormername: sale.custormername,
+      paymentMethod: sale.paymentMethod,
+      discription: sale.discription,
       date: sale.date,
-      totalAmount: sale.totalAmount || 0,
-      items: Array.isArray(sale.items) ? sale.items : []
+      totalAmount: sale.totalAmount,
+      items: sale.items || [],
     }));
 
-    // optional: build a category summary if you need it (was in original code)
-    // const categoryMap = {};
-    // inventoryItems.forEach(item => {
-    //   const name = (item.itemName || '').trim();
-    //   if (!name) return;
-    //   categoryMap[name] = (categoryMap[name] || 0) + (item.currentquantity || 0);
-    // });
+    console.log("groupedSales", groupedSales)
 
-    // render with consistent variable names for the template
-    res.render('dashboard/sales', {
+    // 🎨 Render dashboard
+    res.render("dashboard/sales", {
       user: req.session.user || req.session.worker,
       worker: req.session.worker || null,
       companyinfo,
       inventory: inventoryItems,
-      salesItems,               // <<< now consistent name
+      salesitem: groupedSales, // 👈 use this
       totalSalesToday,
       totalAmountToday,
-      // categorySummary: categoryMap  // optional if you need it in template
     });
+
   } catch (err) {
-    console.error('❌ Error loading sales page:', err);
-    res.status(500).send('Server error');
+    console.error("❌ Error loading sales page:", err);
+    res.status(500).send("Server error");
   }
 });
-
 
 
 
@@ -6536,6 +6500,38 @@ app.get("/Audit", ensureAuthenticated, async (req, res) => {
 
 
 
+app.get("/CRM", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+    const userId = recipientId;
+
+
+
+    res.render("dashboard/wisdom/CRM", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 

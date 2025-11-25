@@ -1,160 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM & Sales Pipeline</title>
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdNet CRM & Sales Pipeline</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" rel="stylesheet">
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
 
+        .kanban-card {
+            transition: all 0.2s ease;
+        }
 
-    <link rel="stylesheet" href="/css/crm.css">
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom Scrollbar for Kanban */
+        .kanban-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .kanban-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .kanban-container::-webkit-scrollbar-thumb {
+            background: #c7c7cc;
+            border-radius: 4px;
+        }
+
+        .kanban-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1aa;
+        }
+    </style>
 </head>
-<body>
 
-  <div  class="all">
+<body class="bg-gray-50 font-sans text-gray-800">
 
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
         <%- include ("../_sidebar1") %>
 
-                <div class="main-content">
-                    <%- include ("../_topnav") %>
+            <!-- Main Content Wrapper -->
+            <div class="flex-1 flex flex-col overflow-hidden relative">
+                <!-- Top Navigation -->
+                <%- include ("../_topnav") %>
 
-        <div class="headerr">
-            <h1>CRM & Sales Pipeline</h1>
-            <p>Convert leads, close deals, grow revenue</p>
-        </div>
+                    <!-- Main Content Scrollable Area -->
+                    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
 
-        <!-- Stats -->
-        <div class="stats-grid" id="stats-container">
-            <div class="stat-card"><div class="stat-icon" style="background: var(--primary-color);"><i class="fas fa-users"></i></div><div class="stat-value" id="total-leads">0</div><div class="stat-label">Leads</div></div>
-            <div class="stat-card"><div class="stat-icon" style="background: var(--success-color);"><i class="fas fa-dollar-sign"></i></div><div class="stat-value" id="pipeline-value">$0</div><div class="stat-label">Pipeline</div></div>
-            <div class="stat-card"><div class="stat-icon" style="background: var(--warning-color);"><i class="fas fa-clock"></i></div><div class="stat-value" id="avg-velocity">0</div><div class="stat-label">Avg Velocity</div></div>
-            <div class="stat-card"><div class="stat-icon" style="background: var(--info-color);"><i class="fas fa-percentage"></i></div><div class="stat-value" id="conversion-rate">0%</div><div class="stat-label">Conversion</div></div>
-        </div>
+                        <!-- 1. Header & Actions -->
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                            <div>
+                                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">CRM & Sales Pipeline
+                                </h1>
+                                <p class="text-gray-500 mt-1">Manage leads, track opportunities, and close more deals.
+                                </p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button
+                                    class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition shadow-sm">
+                                    <i class="ti ti-download"></i> Export
+                                </button>
+                                <button onclick="document.getElementById('addLeadModal').classList.remove('hidden')"
+                                    class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md shadow-indigo-200">
+                                    <i class="ti ti-plus"></i> New Lead
+                                </button>
+                            </div>
+                        </div>
 
-        <!-- Lead Capture -->
-        <section id="lead-capture" class="section active">
-            <div class="card">
-                <h3><i class="fas fa-user-plus"></i> Capture Lead</h3>
-                <div class="form-grid">
-                    <div class="form-group"><label>Name *</label><input type="text" id="lead-name" placeholder="John Doe" required></div>
-                    <div class="form-group"><label>Email *</label><input type="email" id="lead-email" placeholder="john@company.com"></div>
-                    <div class="form-group"><label>Phone</label><input type="tel" id="lead-phone" placeholder="+1234567890"></div>
-                    <div class="form-group"><label>Company</label><input type="text" id="lead-company" placeholder="Acme Inc"></div>
-                    <div class="form-group"><label>Source</label><select id="lead-source"><option>Web Form</option><option>Referral</option><option>Cold Call</option><option>Social</option></select></div>
-                    <div class="form-group"><label>Score</label><input type="number" id="lead-score" min="0" max="100" value="50"></div>
-                </div>
-                <button class="btn btn-primary" onclick="addLead()"><i class="fas fa-save"></i> Save Lead</button>
+                        <!-- 2. Pipeline Snapshot (Stats) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                            <!-- Stat Card 1 -->
+                            <div
+                                class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Leads
+                                    </p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
+                                        <%= stats.totalLeads %>
+                                    </h3>
+                                    <p class="text-xs text-green-600 flex items-center mt-1"><i
+                                            class="ti ti-arrow-up-right mr-1"></i> +12% this month</p>
+                                </div>
+                                <div class="p-3 bg-indigo-50 rounded-lg text-indigo-600">
+                                    <i class="ti ti-users text-xl"></i>
+                                </div>
+                            </div>
+                            <!-- Stat Card 2 -->
+                            <div
+                                class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Qualified</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
+                                        <%= stats.qualifiedLeads %>
+                                    </h3>
+                                    <p class="text-xs text-green-600 flex items-center mt-1"><i
+                                            class="ti ti-arrow-up-right mr-1"></i> +5% this month</p>
+                                </div>
+                                <div class="p-3 bg-blue-50 rounded-lg text-blue-600">
+                                    <i class="ti ti-check text-xl"></i>
+                                </div>
+                            </div>
+                            <!-- Stat Card 3 -->
+                            <div
+                                class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Proposals</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
+                                        <%= stats.activeProposals %>
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">Active now</p>
+                                </div>
+                                <div class="p-3 bg-yellow-50 rounded-lg text-yellow-600">
+                                    <i class="ti ti-file-description text-xl"></i>
+                                </div>
+                            </div>
+                            <!-- Stat Card 4 -->
+                            <div
+                                class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Negotiation
+                                    </p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
+                                        <%= stats.negotiationDeals %>
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">Closing soon</p>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg text-purple-600">
+                                    <i class="ti ti-messages text-xl"></i>
+                                </div>
+                            </div>
+                            <!-- Stat Card 5 -->
+                            <div
+                                class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Won Deals</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">₦<%=
+                                            stats.wonValue.toLocaleString() %>
+                                    </h3>
+                                    <p class="text-xs text-green-600 flex items-center mt-1"><i
+                                            class="ti ti-trending-up mr-1"></i> YTD</p>
+                                </div>
+                                <div class="p-3 bg-green-50 rounded-lg text-green-600">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Grid Layout -->
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+                            <!-- LEFT COLUMN: Opportunity Pipeline & Analytics (2/3) -->
+                            <div class="xl:col-span-2 space-y-8">
+
+                                <!-- 3. Opportunity Management (Kanban Preview) -->
+                                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <i class="ti ti-layout-kanban text-indigo-600"></i> Opportunity Pipeline
+                                        </h2>
+                                        <button class="text-sm text-indigo-600 font-medium hover:underline">View Full
+                                            Board</button>
+                                    </div>
+                                    <div class="p-6 overflow-x-auto kanban-container">
+                                        <div class="flex gap-4 min-w-max pb-4">
+
+                                            <!-- Helper to render stages -->
+                                            <% const stages=[ { key: 'newLeads' , label: 'New Leads' , color: 'gray' },
+                                                { key: 'qualification' , label: 'Qualification' , color: 'blue' }, {
+                                                key: 'proposal' , label: 'Proposal' , color: 'yellow' }, {
+                                                key: 'negotiation' , label: 'Negotiation' , color: 'purple' } ]; %>
+
+                                                <% stages.forEach(stage=> { %>
+                                                    <div class="w-64 flex-shrink-0 bg-gray-50 rounded-xl p-3">
+                                                        <div class="flex justify-between items-center mb-3 px-1">
+                                                            <span
+                                                                class="text-xs font-bold text-<%= stage.color %>-600 uppercase">
+                                                                <%= stage.label %>
+                                                            </span>
+                                                            <span
+                                                                class="bg-<%= stage.color %>-100 text-<%= stage.color %>-600 text-xs px-2 py-0.5 rounded-full">
+                                                                <%= pipeline[stage.key].length %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="space-y-3">
+                                                            <% pipeline[stage.key].forEach(deal=> { %>
+                                                                <div
+                                                                    class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 kanban-card cursor-pointer">
+                                                                    <div class="flex justify-between items-start mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded font-medium">
+                                                                            <%= deal.dealType %>
+                                                                        </span>
+                                                                        <i class="ti ti-dots text-gray-400"></i>
+                                                                    </div>
+                                                                    <h4 class="font-semibold text-sm text-gray-800">
+                                                                        <%= deal.dealName %>
+                                                                    </h4>
+                                                                    <p class="text-xs text-gray-500 mt-1">₦<%=
+                                                                            deal.dealValue.toLocaleString() %> • <%=
+                                                                                deal.customerName %>
+                                                                    </p>
+                                                                </div>
+                                                                <% }); %>
+                                                                    <% if(pipeline[stage.key].length===0) { %>
+                                                                        <p
+                                                                            class="text-xs text-gray-400 text-center py-2">
+                                                                            No deals</p>
+                                                                        <% } %>
+                                                        </div>
+                                                    </div>
+                                                    <% }); %>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 5. Conversion Analytics -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Chart 1 -->
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                        <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                                            <i class="ti ti-chart-bar text-indigo-500"></i> Pipeline Velocity
+                                        </h3>
+                                        <div
+                                            class="h-48 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                                            [Chart: Deal Velocity over Time]
+                                        </div>
+                                    </div>
+                                    <!-- Chart 2 -->
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                        <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                                            <i class="ti ti-filter text-indigo-500"></i> Conversion Funnel
+                                        </h3>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <div class="flex justify-between text-xs mb-1">
+                                                    <span class="text-gray-600">Lead to Qualified</span>
+                                                    <span class="font-bold text-gray-800">45%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 45%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-xs mb-1">
+                                                    <span class="text-gray-600">Qualified to Proposal</span>
+                                                    <span class="font-bold text-gray-800">60%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-xs mb-1">
+                                                    <span class="text-gray-600">Proposal to Won</span>
+                                                    <span class="font-bold text-gray-800">25%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                                    <div class="bg-green-500 h-2 rounded-full" style="width: 25%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- RIGHT COLUMN: Feeds & Integrations (1/3) -->
+                            <div class="space-y-8">
+
+                                <!-- 3. Lead Capture & Enrichment -->
+                                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="font-bold text-gray-800">Recent Leads</h3>
+                                        <button class="text-xs text-indigo-600 hover:underline">View All</button>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <% recentLeads.forEach(lead=> { %>
+                                            <div
+                                                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition cursor-pointer">
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                                    <%= lead.firstName.charAt(0) %>
+                                                        <%= lead.lastName ? lead.lastName.charAt(0) : '' %>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <h4 class="text-sm font-semibold text-gray-800">
+                                                        <%= lead.firstName %>
+                                                            <%= lead.lastName %>
+                                                    </h4>
+                                                    <p class="text-xs text-gray-500">
+                                                        <%= lead.jobTitle || 'No Title' %>, <%= lead.company
+                                                                || 'No Company' %>
+                                                    </p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span
+                                                        class="block text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                                        <%= lead.status %>
+                                                    </span>
+                                                    <span class="text-[10px] text-gray-400">
+                                                        <%= new Date(lead.createdAt).toLocaleDateString() %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <% }); %>
+                                                <% if(recentLeads.length===0) { %>
+                                                    <p class="text-sm text-gray-500 text-center">No leads found.</p>
+                                                    <% } %>
+                                    </div>
+                                    <button onclick="document.getElementById('addLeadModal').classList.remove('hidden')"
+                                        class="w-full mt-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-indigo-500 hover:text-indigo-600 transition flex items-center justify-center gap-2">
+                                        <i class="ti ti-plus"></i> Quick Add Lead
+                                    </button>
+                                </div>
+
+                                <!-- 4. Activities & Communication -->
+                                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <h3 class="font-bold text-gray-800 mb-4">Activity Feed</h3>
+                                    <div class="relative border-l-2 border-gray-100 ml-3 space-y-6">
+                                        <% recentActivities.forEach(activity=> { %>
+                                            <div class="ml-6 relative">
+                                                <span
+                                                    class="absolute -left-[31px] bg-white border-2 border-green-500 w-4 h-4 rounded-full"></span>
+                                                <p class="text-xs text-gray-400 mb-0.5">
+                                                    <%= new Date(activity.date).toLocaleString() %>
+                                                </p>
+                                                <h4 class="text-sm font-semibold text-gray-800">
+                                                    <%= activity.subject %>
+                                                </h4>
+                                                <p class="text-xs text-gray-600 mt-1">
+                                                    <%= activity.description %>
+                                                </p>
+                                                <div class="mt-2 flex gap-2">
+                                                    <span
+                                                        class="text-[10px] px-2 py-1 bg-gray-100 rounded text-gray-600"><i
+                                                            class="ti ti-user"></i>
+                                                        <%= activity.performedBy ? activity.performedBy.name : 'System'
+                                                            %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <% }); %>
+                                                <% if(recentActivities.length===0) { %>
+                                                    <p class="text-sm text-gray-500 ml-6">No recent activities.</p>
+                                                    <% } %>
+                                    </div>
+                                </div>
+
+                                <!-- 6. Integrations Status -->
+                                <div
+                                    class="bg-gradient-to-br from-indigo-900 to-purple-900 p-6 rounded-2xl shadow-lg text-white">
+                                    <h3 class="font-bold mb-4 flex items-center gap-2">
+                                        <i class="ti ti-plug"></i> Integrations Active
+                                    </h3>
+                                    <div class="space-y-3">
+                                        <div
+                                            class="flex items-center justify-between bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                            <div class="flex items-center gap-2">
+                                                <i class="ti ti-brand-whatsapp text-green-400"></i> <span
+                                                    class="text-sm">WhatsApp Business</span>
+                                            </div>
+                                            <span
+                                                class="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_5px_rgba(74,222,128,0.8)]"></span>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                            <div class="flex items-center gap-2">
+                                                <i class="ti ti-mail text-blue-400"></i> <span class="text-sm">Email
+                                                    Sync (Gmail)</span>
+                                            </div>
+                                            <span
+                                                class="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_5px_rgba(74,222,128,0.8)]"></span>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                            <div class="flex items-center gap-2">
+                                                <i class="ti ti-phone text-purple-400"></i> <span class="text-sm">VoIP
+                                                    System</span>
+                                            </div>
+                                            <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        class="w-full mt-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-medium transition">
+                                        Manage Connections
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </main>
             </div>
-
-            <div class="card">
-                <h3><i class="fas fa-list-ul"></i> Lead Directory</h3>
-                <div class="table-container">
-                    <table id="lead-table">
-                        <thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Score</th><th>Act</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pipeline -->
-        <section id="pipeline" class="section">
-            <div class="card">
-                <h3><i class="fas fa-project-diagram"></i> Sales Pipeline</h3>
-                <div class="pipeline" id="pipeline-stages">
-                    <!-- JS will populate -->
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> Add Opportunity</h3>
-                <div class="form-grid">
-                    <div class="form-group"><label>Lead</label><select id="opp-lead"></select></div>
-                    <div class="form-group"><label>Value *</label><input type="number" id="opp-value" placeholder="50000" min="0"></div>
-                    <div class="form-group"><label>Product</label><input type="text" id="opp-product" placeholder="Pro Plan"></div>
-                    <div class="form-group"><label>Stage</label><select id="opp-stage"><option>Qualification</option><option>Proposal</option><option>Negotiation</option><option>Closed Won</option><option>Closed Lost</option></select></div>
-                </div>
-                <button class="btn btn-success" onclick="addOpportunity()"><i class="fas fa-arrow-right"></i> Add to Pipeline</button>
-            </div>
-        </section>
-
-        <!-- Activities -->
-        <section id="activities" class="section">
-            <div class="card">
-                <h3><i class="fas fa-plus"></i> Log Activity</h3>
-                <div class="form-grid">
-                    <div class="form-group"><label>Lead/Deal</label><select id="act-entity"></select></div>
-                    <div class="form-group"><label>Type</label><select id="act-type"><option>Call</option><option>Email</option><option>Meeting</option><option>Note</option></select></div>
-                    <div class="form-group"><label>Notes</label><textarea id="act-notes" placeholder="Discussed pricing..."></textarea></div>
-                </div>
-                <button class="btn btn-info" onclick="logActivity()"><i class="fas fa-check"></i> Log</button>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-history"></i> Communication History</h3>
-                <div id="activity-feed" style="max-height: 400px; overflow-y: auto;">
-                    <!-- JS populated -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Analytics -->
-        <section id="analytics" class="section">
-            <div class="card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Pipeline Velocity</h3>
-                <div class="chart-container">
-                    <div class="chart-wrapper">
-                        <canvas id="velocityChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 class="chart-title"><i class="fas fa-funnel-dollar"></i> Conversion Funnel</h3>
-                <div class="chart-container">
-                    <div class="chart-wrapper">
-                        <canvas id="funnelChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Integrations -->
-        <section id="integrations" class="section">
-            <div class="card">
-                <h3><i class="fas fa-plug"></i> Connect Tools</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                    <div class="card" style="text-align: center; padding: 16px;">
-                        <i class="fab fa-whatsapp" style="font-size: 2rem; color: #25d366;"></i>
-                        <p style="margin: 8px 0 4px; font-weight: 600;">WhatsApp</p>
-                        <button class="btn btn-success btn-sm">Connect</button>
-                    </div>
-                    <div class="card" style="text-align: center; padding: 16px;">
-                        <i class="fas fa-envelope" style="font-size: 2rem; color: #ea4335;"></i>
-                        <p style="margin: 8px 0 4px; font-weight: 600;">Gmail</p>
-                        <button class="btn btn-danger btn-sm">Connect</button>
-                    </div>
-                    <div class="card" style="text-align: center; padding: 16px;">
-                        <i class="fas fa-calendar-alt" style="font-size: 2rem; color: #4285f4;"></i>
-                        <p style="margin: 8px 0 4px; font-weight: 600;">Google Calendar</p>
-                        <button class="btn btn-info btn-sm">Connect</button>
-                    </div>
-                    <div class="card" style="text-align: center; padding: 16px;">
-                        <i class="fas fa-phone-volume" style="font-size: 2rem; color: #7c3aed;"></i>
-                        <p style="margin: 8px 0 4px; font-weight: 600;">VoIP</p>
-                        <button class="btn btn-primary btn-sm">Connect</button>
-                    </div>
-                </div>
-            </div>
-        </section>
     </div>
-</div>
 
-  
+    <!-- Add Lead Modal -->
+    <div id="addLeadModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Add New Lead</h3>
+                <button onclick="document.getElementById('addLeadModal').classList.add('hidden')"
+                    class="text-gray-500 hover:text-gray-700"><i class="ti ti-x"></i></button>
+            </div>
+            <form action="/crm/lead" method="POST">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" name="firstName" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" name="lastName"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Company</label>
+                        <input type="text" name="company"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Source</label>
+                        <select name="source"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+                            <option value="Web Form">Web Form</option>
+                            <option value="Referral">Referral</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Cold Call">Cold Call</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('addLeadModal').classList.add('hidden')"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save
+                        Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
+
 </html>

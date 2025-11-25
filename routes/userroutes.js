@@ -42,7 +42,7 @@ const FinanceController = require('../controllers/financeController');
 const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport } = require("../controllers/taxController");
 
 
-const { autoAudit, manualAudit, auditAction, getAuditDetail } = require("../controllers/auditController");
+const { getAuditData, getAuditDetail, saveComparisonItem  } = require("../controllers/auditController");
 
 
 // ===========================================
@@ -236,13 +236,10 @@ const upload3 = multer({ storage: storage }).fields([
 
 
 
-// change/add this
-router.post("/api/audit/auto", ensureAuthenticated, autoAudit);
-router.post("/api/audit/manual", ensureAuthenticated, upload3, manualAudit);
-router.post("/api/audit/action/:id", ensureAuthenticated, auditAction);
-router.get("/api/audit/detail/:id", ensureAuthenticated, getAuditDetail);
-// router.get("/api/audit/detail/:id", ensureAuthenticated, getAuditDetail);
 
 
+router.post('/analyze', ensureAuthenticated, getAuditData);
+router.get('/detail/:itemName', ensureAuthenticated, getAuditDetail);
+router.post('/save-comparison', ensureAuthenticated, saveComparisonItem);
 
 module.exports = router;
