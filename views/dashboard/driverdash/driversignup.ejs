@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="/css/driversign.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
+
 <body>
     <header class="header">
         <nav class="nav container">
@@ -84,7 +86,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email <span class="required">*</span></label>
-                        <input type="email" class="form-input" id="email" name="email" placeholder="john.doe@example.com">
+                        <input type="email" class="form-input" id="email" name="email"
+                            placeholder="john.doe@example.com">
                         <div class="error-message" id="email-error">Valid email is required</div>
                     </div>
                     <div class="form-group">
@@ -103,12 +106,14 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Profile Picture <span class="required">*</span></label>
-                        <div class="upload-box" id="profilePicture-box" onclick="document.getElementById('profilePicture').click()">
+                        <div class="upload-box" id="profilePicture-box"
+                            onclick="document.getElementById('profilePicture').click()">
                             <div class="upload-icon">📷</div>
                             <div class="upload-text">Click to upload your profile picture</div>
                             <div class="upload-btn">Choose File</div>
                         </div>
-                        <input type="file" class="file-input" id="profilePicture" name="profilePicture" accept="image/*">
+                        <input type="file" class="file-input" id="profilePicture" name="profilePicture"
+                            accept="image/*">
                         <div class="preview-container" id="profilePicture-preview"></div>
                         <div class="error-message" id="profilePicture-error">Profile picture is required</div>
                     </div>
@@ -124,7 +129,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Vehicle Model <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="vehicleModel" name="vehicleModel" placeholder="Corolla 2018">
+                        <input type="text" class="form-input" id="vehicleModel" name="vehicleModel"
+                            placeholder="Corolla 2018">
                         <div class="error-message" id="vehicleModel-error">Vehicle model is required</div>
                     </div>
                     <div class="form-group">
@@ -133,7 +139,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Plate Number <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="vehiclePlate" name="vehiclePlate" placeholder="ABC-123-XY">
+                        <input type="text" class="form-input" id="vehiclePlate" name="vehiclePlate"
+                            placeholder="ABC-123-XY">
                         <div class="error-message" id="vehiclePlate-error">Plate number is required</div>
                     </div>
                     <div class="form-group">
@@ -147,7 +154,8 @@
                     <h2 class="form-title">Driver Documents</h2>
                     <div class="form-group">
                         <label class="form-label">Driver's License (Front) <span class="required">*</span></label>
-                        <div class="upload-box" id="licenseFront-box" onclick="document.getElementById('licenseFront').click()">
+                        <div class="upload-box" id="licenseFront-box"
+                            onclick="document.getElementById('licenseFront').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload license front</div>
                             <div class="upload-btn">Choose File</div>
@@ -158,7 +166,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Driver's License (Back) <span class="required">*</span></label>
-                        <div class="upload-box" id="licenseBack-box" onclick="document.getElementById('licenseBack').click()">
+                        <div class="upload-box" id="licenseBack-box"
+                            onclick="document.getElementById('licenseBack').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload license back</div>
                             <div class="upload-btn">Choose File</div>
@@ -169,18 +178,21 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Vehicle Registration Document <span class="required">*</span></label>
-                        <div class="upload-box" id="registration-box" onclick="document.getElementById('registration').click()">
+                        <div class="upload-box" id="registration-box"
+                            onclick="document.getElementById('registration').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload registration document</div>
                             <div class="upload-btn">Choose File</div>
                         </div>
-                        <input type="file" class="file-input" id="registration" name="registration" accept="image/*,.pdf">
+                        <input type="file" class="file-input" id="registration" name="registration"
+                            accept="image/*,.pdf">
                         <div class="preview-container" id="registration-preview"></div>
                         <div class="error-message" id="registration-error">Registration document is required</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Insurance Certificate <span class="required">*</span></label>
-                        <div class="upload-box" id="insurance-box" onclick="document.getElementById('insurance').click()">
+                        <div class="upload-box" id="insurance-box"
+                            onclick="document.getElementById('insurance').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload insurance certificate</div>
                             <div class="upload-btn">Choose File</div>
@@ -191,12 +203,14 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Roadworthiness Certificate</label>
-                        <div class="upload-box" id="roadworthiness-box" onclick="document.getElementById('roadworthiness').click()">
+                        <div class="upload-box" id="roadworthiness-box"
+                            onclick="document.getElementById('roadworthiness').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload roadworthiness certificate (optional)</div>
                             <div class="upload-btn">Choose File</div>
                         </div>
-                        <input type="file" class="file-input" id="roadworthiness" name="roadworthiness" accept="image/*,.pdf">
+                        <input type="file" class="file-input" id="roadworthiness" name="roadworthiness"
+                            accept="image/*,.pdf">
                         <div class="preview-container" id="roadworthiness-preview"></div>
                     </div>
                 </div>
@@ -206,23 +220,29 @@
                     <h2 class="form-title">Banking & Payout</h2>
                     <div class="form-group">
                         <label class="form-label">Bank Name <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="bankName" name="bankName" placeholder="First Bank of Nigeria">
+                        <input type="text" class="form-input" id="bankName" name="bankName"
+                            placeholder="First Bank of Nigeria">
                         <div class="error-message" id="bankName-error">Bank name is required</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Account Number <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="accountNumber" name="accountNumber" placeholder="0123456789">
+                        <input type="text" class="form-input" id="accountNumber" name="accountNumber"
+                            placeholder="0123456789">
                         <div class="error-message" id="accountNumber-error">Account number is required</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Account Holder's Name <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="accountHolder" name="accountHolder" placeholder="John Doe">
+                        <input type="text" class="form-input" id="accountHolder" name="accountHolder"
+                            placeholder="John Doe">
                         <div class="error-message" id="accountHolder-error">Account holder's name is required</div>
-                        <div style="color: #667eea; font-size: 0.85rem; margin-top: 5px;">✓ Auto-verification available</div>
+                        <div style="color: #667eea; font-size: 0.85rem; margin-top: 5px;">✓ Auto-verification available
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">KYC Document (Passport or ID Card) <span class="required">*</span></label>
-                        <div class="upload-box" id="kycDocument-box" onclick="document.getElementById('kycDocument').click()">
+                        <label class="form-label">KYC Document (Passport or ID Card) <span
+                                class="required">*</span></label>
+                        <div class="upload-box" id="kycDocument-box"
+                            onclick="document.getElementById('kycDocument').click()">
                             <div class="upload-icon">📄</div>
                             <div class="upload-text">Click to upload KYC document</div>
                             <div class="upload-btn">Choose File</div>
@@ -303,16 +323,19 @@
                         <div class="alert-icon">⚠️</div>
                         <div class="alert-content">
                             <h4>Please Review Carefully</h4>
-                            <p>Make sure all information is correct before submitting. Your application will be marked as <strong>Pending Verification</strong> until approved by our team.</p>
+                            <p>Make sure all information is correct before submitting. Your application will be marked
+                                as <strong>Pending Verification</strong> until approved by our team.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation -->
                 <div class="navigation">
-                    <button type="button" class="btn btn-back" id="backBtn" style="display: none;" onclick="previousStep()">← Back</button>
+                    <button type="button" class="btn btn-back" id="backBtn" style="display: none;"
+                        onclick="previousStep()">← Back</button>
                     <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()">Next →</button>
-                    <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">✓ Submit Application</button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">✓ Submit
+                        Application</button>
                 </div>
             </form>
 
@@ -348,7 +371,7 @@
                 `;
                 grid.appendChild(item);
 
-                document.getElementById(`carImage-${position}`).addEventListener('change', function(e) {
+                document.getElementById(`carImage-${position}`).addEventListener('change', function (e) {
                     handleFileUpload(e, `carImage-${position}`);
                 });
             });
@@ -364,7 +387,7 @@
 
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         preview.innerHTML = `
                             <img src="${e.target.result}" class="preview-image">
                             <div class="upload-success">✓ Uploaded</div>
@@ -537,7 +560,7 @@
             const form = new FormData(document.getElementById("driverForm"));
 
             try {
-                const res = await fetch("/api/driver/register-driver", {
+                const res = await fetch("/driver/register", {
                     method: "POST",
                     body: form
                 });
@@ -546,7 +569,7 @@
 
                 if (res.ok) {
                     alert("✅ Driver application submitted successfully!\nStatus: Pending Verification.");
-                    window.location.href = "/login-driver";
+                    window.location.href = "/driver/login";
                 } else {
                     alert(`❌ Failed: ${data.message || "Something went wrong"}`);
                 }
@@ -564,4 +587,5 @@
         document.getElementById("driverForm").addEventListener("submit", submitForm);
     </script>
 </body>
+
 </html>

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProcureLogix Pro - Procurement & Logistics Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Logistics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
@@ -123,7 +125,7 @@
         .topbar {
             background: white;
             padding: 20px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -255,7 +257,9 @@
             color: var(--dark);
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             width: 100%;
             padding: 12px 15px;
             border: 1.5px solid #e0e0e0;
@@ -264,7 +268,9 @@
             transition: all 0.3s;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
@@ -297,10 +303,25 @@
             font-weight: 600;
         }
 
-        .status.pending { background: #fff2cc; color: #997404; }
-        .status.approved { background: #d4edda; color: #155724; }
-        .status.rejected { background: #f8d7da; color: #721c24; }
-        .status.in-transit { background: #d1ecf1; color: #0c5460; }
+        .status.pending {
+            background: #fff2cc;
+            color: #997404;
+        }
+
+        .status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.in-transit {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
 
         .workflow {
             display: flex;
@@ -315,7 +336,7 @@
             background: white;
             padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             text-align: center;
             min-width: 120px;
             position: relative;
@@ -334,7 +355,7 @@
         .step-number {
             width: 40px;
             height: 40px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -428,7 +449,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
         }
@@ -438,6 +459,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Overlay for mobile -->
     <div class="overlay" onclick="toggleSidebar()"></div>
@@ -445,7 +467,6 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="logo">
-            <h2>ProcureLogix</h2>
             <span>Professional Dashboard</span>
         </div>
         <nav class="nav-menu">
@@ -474,7 +495,7 @@
             <button class="mobile-menu-btn" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="page-title">Procurement & Logistics Dashboard</div>
+            <div class="page-title">Logistics Dashboard</div>
             <div class="user-info">
                 <div>
                     <div style="font-weight:600;">Sarah Chen</div>
@@ -488,7 +509,7 @@
             <!-- Vendor Sourcing & RFQ -->
             <section id="vendor" class="section active">
                 <h1 class="page-title">Vendor Sourcing & RFQ</h1>
-                
+
                 <div class="grid">
                     <div class="card">
                         <div class="card-header">
@@ -582,7 +603,7 @@
             <!-- Purchase Lifecycle -->
             <section id="purchase" class="section">
                 <h1 class="page-title">Purchase Lifecycle Management</h1>
-                
+
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Current Workflow Status</h3>
@@ -644,240 +665,404 @@
                             <button class="btn btn-success" onclick="processPayment()">
                                 <i class="fas fa-dollar-sign"></i> Process Payment
                             </button>
-                        </div>
-                    </div>
-                </div>
+                            <div class="grid">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Request Return Authorization</h3>
+                                        <div class="card-icon" style="background:#ef476f;">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Order Number</label>
+                                        <input type="text" id="rma-order" placeholder="ORD-2025-XXXX">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Reason for Return</label>
+                                        <select id="rma-reason">
+                                            <option>Defective Product</option>
+                                            <option>Wrong Item Received</option>
+                                            <option>Damaged in Transit</option>
+                                            <option>Ordered by Mistake</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Additional Notes</label>
+                                        <textarea rows="3" id="rma-notes"></textarea>
+                                    </div>
+                                    <button class="btn btn-danger" onclick="submitRMA()">
+                                        <i class="fas fa-paper-plane"></i> Submit RMA Request
+                                    </button>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Active RMAs</h3>
+                                    </div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>RMA #</th>
+                                                <th>Order</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>RMA-2025-001</td>
+                                                <td>ORD-2025-445</td>
+                                                <td><span class="status in-transit">In Transit</span></td>
+                                                <td><button class="btn btn-success btn-sm"
+                                                        onclick="issueCredit(this)">Issue Credit</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Reverse Logistics</h3>
+                                    <div class="card-icon" style="background:#4361ee;">
+                                        <i class="fas fa-truck-loading"></i>
+                                    </div>
+                                </div>
+                                <p>Return pickup scheduled for <strong>Nov 15, 2025</strong> with UPS</p>
+                                <div style="margin-top:20px;">
+                                    <button class="btn btn-primary" onclick="printLabel()">
+                                        <i class="fas fa-print"></i> Print Return Label
+                                    </button>
+                                    <button class="btn btn-success" style="margin-left:10px;" onclick="trackReturn()">
+                                        <i class="fas fa-search"></i> Track Return
+                                    </button>
+                                </div>
+                            </div>
             </section>
 
             <!-- Logistics & Delivery -->
             <section id="logistics" class="section">
-                <h1 class="page-title">Logistics & Delivery Management</h1>
-                
+                <h1 class="page-title">Logistics & Delivery</h1>
+
+                <!-- Fleet Status -->
                 <div class="grid">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Live Shipment Tracking</h3>
+                            <h3 class="card-title">Fleet Status</h3>
                             <div class="card-icon" style="background:#4361ee;">
-                                <i class="fas fa-map-marker-alt"></i>
+                                <i class="fas fa-truck"></i>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Tracking Number</label>
-                            <input type="text" id="tracking-input" placeholder="Enter tracking number">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                            <div class="text-center">
+                                <h2 class="text-2xl font-bold">
+                                    <%= drivers ? drivers.length : 0 %>
+                                </h2>
+                                <p class="text-sm text-gray-500">Total Drivers</p>
+                            </div>
+                            <div class="text-center">
+                                <h2 class="text-2xl font-bold text-green-600">
+                                    <%= drivers ? drivers.filter(d=> d.isOnline).length : 0 %>
+                                </h2>
+                                <p class="text-sm text-gray-500">Online</p>
+                            </div>
+                            <div class="text-center">
+                                <h2 class="text-2xl font-bold text-blue-600">
+                                    <%= orders ? orders.filter(o=> o.status === 'in_transit').length : 0 %>
+                                </h2>
+                                <p class="text-sm text-gray-500">Active Deliveries</p>
+                            </div>
                         </div>
-                        <button class="btn btn-primary" onclick="trackShipment()">
-                            <i class="fas fa-search"></i> Track Package
-                        </button>
-                        <div id="tracking-result" style="margin-top:20px;"></div>
+
+                        <!-- Driver List -->
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <% if (drivers && drivers.length> 0) { %>
+                                <% drivers.forEach(driver=> { %>
+                                    <div
+                                        style="display:flex; align-items:center; padding: 10px 0; border-bottom: 1px solid #eee;">
+                                        <img src="<%= driver.profilePicture || 'https://via.placeholder.com/40' %>"
+                                            style="width:40px; height:40px; rounded-full; margin-right:10px; border-radius:50%;">
+                                        <div style="flex:1;">
+                                            <div style="font-weight:600;">
+                                                <%= driver.fullName %>
+                                            </div>
+                                            <div style="font-size:12px; color:#777;">
+                                                <%= driver.vehiclePlate %>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <% if (driver.isOnline) { %>
+                                                <span class="status approved">Online</span>
+                                                <% } else { %>
+                                                    <span class="status pending">Offline</span>
+                                                    <% } %>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <p class="text-gray-500 text-center">No drivers found.</p>
+                                            <% } %>
+                        </div>
                     </div>
 
+                    <!-- Live Map Placeholder -->
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Delivery Progress</h3>
-                        </div>
-                        <div style="padding:20px 0;">
-                            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                                <span>Shanghai → Los Angeles → Chicago</span>
-                                <span style="font-weight:600;color:var(--success);">65% Complete</span>
-                            </div>
-                            <div class="tracking-bar">
-                                <div class="tracking-progress"></div>
-                            </div>
-                            <div style="margin-top:15px;font-size:14px;color:#777;">
-                                Estimated Delivery: <strong>Nov 18, 2025</strong>
+                            <h3 class="card-title">Live Tracking</h3>
+                            <div class="card-icon" style="background:#06d6a0;">
+                                <i class="fas fa-map-marked-alt"></i>
                             </div>
                         </div>
+                        <div id="logisticsMap" style="height: 300px; background: #eee; border-radius: 12px;"></div>
                     </div>
                 </div>
 
+                <!-- Active Shipments Table -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Proof of Delivery</h3>
-                        <div class="card-icon" style="background:#06d6a0;">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
+                        <h3 class="card-title">Active Shipments</h3>
                     </div>
-                    <div class="file-upload" onclick="document.getElementById('pod-file').click()">
-                        <i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#ccc;margin-bottom:15px;"></i>
-                        <p>Click to upload POD document</p>
-                        <input type="file" id="pod-file" style="display:none;" onchange="uploadPOD(this)">
-                    </div>
-                    <div id="pod-status" style="margin-top:15px;"></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Type</th>
+                                <th>Destination</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (orders && orders.length> 0) { %>
+                                <% orders.forEach(order=> { %>
+                                    <tr>
+                                        <td>#<%= order._id.toString().slice(-6).toUpperCase() %>
+                                        </td>
+                                        <td>
+                                            <%= order.buyername %>
+                                        </td>
+                                        <td style="text-transform:capitalize;">
+                                            <%= order.delivery.type %>
+                                        </td>
+                                        <td>
+                                            <%= order.delivery.location %>
+                                        </td>
+                                        <td>
+                                            <% if (order.status==='pending' ) { %>
+                                                <span class="status pending">Pending</span>
+                                                <% } else if (order.status==='in_transit' ) { %>
+                                                    <span class="status in-transit">In Transit</span>
+                                                    <% } else if (order.status==='delivered' ) { %>
+                                                        <span class="status approved">Delivered</span>
+                                                        <% } else { %>
+                                                            <span class="status rejected">
+                                                                <%= order.status %>
+                                                            </span>
+                                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="viewOrder('<%= order._id %>')">View</button>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="text-center">No active shipments.</td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
             <!-- Returns & RMA -->
             <section id="returns" class="section">
-                <h1 class="page-title">Returns & RMA Management</h1>
-                
-                <div class="grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Request Return Authorization</h3>
-                            <div class="card-icon" style="background:#ef476f;">
-                                <i class="fas fa-exchange-alt"></i>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Order Number</label>
-                            <input type="text" id="rma-order" placeholder="ORD-2025-XXXX">
-                        </div>
-                        <div class="form-group">
-                            <label>Reason for Return</label>
-                            <select id="rma-reason">
-                                <option>Defective Product</option>
-                                <option>Wrong Item Received</option>
-                                <option>Damaged in Transit</option>
-                                <option>Ordered by Mistake</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Additional Notes</label>
-                            <textarea rows="3" id="rma-notes"></textarea>
-                        </div>
-                        <button class="btn btn-danger" onclick="submitRMA()">
-                            <i class="fas fa-paper-plane"></i> Submit RMA Request
-                        </button>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Active RMAs</h3>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>RMA #</th>
-                                    <th>Order</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>RMA-2025-001</td>
-                                    <td>ORD-2025-445</td>
-                                    <td><span class="status in-transit">In Transit</span></td>
-                                    <td><button class="btn btn-success btn-sm" onclick="issueCredit(this)">Issue Credit</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <h1 class="page-title">Returns & RMA</h1>
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Reverse Logistics</h3>
-                        <div class="card-icon" style="background:#4361ee;">
-                            <i class="fas fa-truck-loading"></i>
-                        </div>
+                        <h3 class="card-title">RMA Requests</h3>
                     </div>
-                    <p>Return pickup scheduled for <strong>Nov 15, 2025</strong> with UPS</p>
-                    <div style="margin-top:20px;">
-                        <button class="btn btn-primary" onclick="printLabel()">
-                            <i class="fas fa-print"></i> Print Return Label
-                        </button>
-                        <button class="btn btn-success" style="margin-left:10px;" onclick="trackReturn()">
-                            <i class="fas fa-search"></i> Track Return
-                        </button>
-                    </div>
+                    <p class="text-center text-gray-500 py-10">No active return requests.</p>
                 </div>
             </section>
         </div>
     </div>
 
-    <script>
-        // Navigation
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.querySelectorAll(`.nav-item[onclick="showSection('${sectionId}')"]`).forEach(item => item.classList.add('active'));
-        }
+<script>
+    // -----------------------------------------
+// Navigation
+// -----------------------------------------
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
 
-        // Mobile sidebar
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.querySelector('.overlay').classList.toggle('active');
-        }
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document
+        .querySelectorAll(`.nav-item[onclick="showSection('${sectionId}')"]`)
+        .forEach(item => item.classList.add('active'));
+}
 
-        // Vendor RFQ
-        function createRFQ() {
-            const title = document.getElementById('rfq-title').value;
-            if (title) {
-                alert(`RFQ "${title}" sent to 12 suppliers successfully!`);
-                document.getElementById('rfq-title').value = '';
-                document.getElementById('rfq-desc').value = '';
-            } else {
-                alert('Please enter RFQ title');
- retailer           }
-        }
+// -----------------------------------------
+// Mobile Sidebar
+// -----------------------------------------
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.querySelector('.overlay').classList.toggle('active');
+}
 
-        function addQuotation() {
-            const supplier = prompt('Supplier Name:');
-            const price = prompt('Price:');
-            const score = prompt('Score (0-100):');
-            if (supplier && price && score) {
-                const table = document.getElementById('quotes-table');
-                const row = table.insertRow();
-                row.innerHTML = `<td>${supplier}</td><td>${price}</td><td>${score}/100</td><td><span class="status pending">New</span></td>`;
-            }
-        }
+// -----------------------------------------
+// Vendor RFQ
+// -----------------------------------------
+function createRFQ() {
+    const title = document.getElementById('rfq-title').value;
 
-        // Purchase
-        function approvePO() {
-            alert('Purchase Order approved successfully!');
-        }
+    if (title) {
+        alert(`RFQ "${title}" sent to 12 suppliers successfully!`);
+        document.getElementById('rfq-title').value = '';
+        document.getElementById('rfq-desc').value = '';
+    } else {
+        alert('Please enter RFQ title');
+    }
+}
 
-        function raiseException() {
-            alert('Exception raised and notified to finance team.');
-        }
+function addQuotation() {
+    const supplier = prompt('Supplier Name:');
+    const price = prompt('Price:');
+    const score = prompt('Score (0-100):');
 
-        function processPayment() {
-            alert('Payment processed via ACH. Confirmation sent.');
-        }
+    if (supplier && price && score) {
+        const table = document.getElementById('quotes-table');
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td>${supplier}</td>
+            <td>${price}</td>
+            <td>${score}/100</td>
+            <td><span class="status pending">New</span></td>
+        `;
+    }
+}
 
-        // Logistics
-        function trackShipment() {
-            const num = document.getElementById('tracking-input').value;
-            if (num) {
-                document.getElementById('tracking-result').innerHTML = `
-                    <div style="background:#d4edda;padding:15px;border-radius:10px;margin-top:10px;">
-                        <strong>Package ${num}</strong><br>
-                        Status: <strong>In Transit</strong><br>
-                        Location: Memphis, TN<br>
-                        ETA: Nov 18, 2025 10:30 AM
-                    </div>`;
-            }
-        }
+// -----------------------------------------
+// Purchase
+// -----------------------------------------
+function approvePO() {
+    alert('Purchase Order approved successfully!');
+}
 
-        function uploadPOD(input) {
-            if (input.files[0]) {
-                document.getElementById('pod-status').innerHTML = `
-                    <div style="background:#d4edda;padding:15px;border-radius:10px;color:#155724;">
-                        <i class="fas fa-check-circle"></i> POD Uploaded: ${input.files[0].name}
-                    </div>`;
-            }
-        }
+function raiseException() {
+    alert('Exception raised and notified to finance team.');
+}
 
-        // Returns
-        function submitRMA() {
-            alert('RMA Request Submitted! You will receive confirmation within 2 hours.');
-        }
+function processPayment() {
+    alert('Payment processed via ACH. Confirmation sent.');
+}
 
-        function issueCredit(btn) {
-            btn.innerHTML = '<i class="fas fa-check"></i> Credit Issued';
-            btn.style.background = '#06d6a0';
-        }
+// -----------------------------------------
+// Logistics
+// -----------------------------------------
+function trackShipment() {
+    const num = document.getElementById('tracking-input').value;
 
-        function printLabel() {
-            alert('Return label sent to printer...');
-        }
+    if (num) {
+        document.getElementById('tracking-result').innerHTML = `
+            <div style="background:#d4edda;padding:15px;border-radius:10px;margin-top:10px;">
+                <strong>Package ${num}</strong><br>
+                Status: <strong>In Transit</strong><br>
+                Location: Memphis, TN<br>
+                ETA: Nov 18, 2025 10:30 AM
+            </div>`;
+    }
+}
 
-        function trackReturn() {
-            alert('Return package is en route to warehouse. ETA: 3 days');
+function uploadPOD(input) {
+    if (input.files[0]) {
+        document.getElementById('pod-status').innerHTML = `
+            <div style="background:#d4edda;padding:15px;border-radius:10px;color:#155724;">
+                <i class="fas fa-check-circle"></i> POD Uploaded: ${input.files[0].name}
+            </div>`;
+    }
+}
+
+// -----------------------------------------
+// Returns
+// -----------------------------------------
+function submitRMA() {
+    alert('RMA Request Submitted! You will receive confirmation within 2 hours.');
+}
+
+function issueCredit(btn) {
+    btn.innerHTML = '<i class="fas fa-check"></i> Credit Issued';
+    btn.style.background = '#06d6a0';
+}
+
+function printLabel() {
+    alert('Return label sent to printer...');
+}
+
+function trackReturn() {
+    alert('Return package is en route to warehouse. ETA: 3 days');
+}
+
+// -----------------------------------------
+// MAP INITIALIZATION
+// -----------------------------------------
+let map;
+
+function initLogisticsMap() {
+    const mapBox = document.getElementById('logisticsMap');
+    if (!mapBox) return;
+
+    map = L.map('logisticsMap').setView([6.5244, 3.3792], 11);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const drivers = <%- JSON.stringify(drivers || []) %>;
+
+    drivers.forEach(d => {
+        if (d.location?.lat && d.location?.lng) {
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                    <div style="
+                        background-color:${d.isOnline ? '#06d6a0' : '#adb5bd'};
+                        width:15px;
+                        height:15px;
+                        border-radius:50%;
+                        border:2px solid white;">
+                    </div>`,
+                iconSize: [15, 15]
+            });
+
+            L.marker([d.location.lat, d.location.lng], { icon })
+                .addTo(map)
+                .bindPopup(`<b>${d.fullName}</b><br>${d.isOnline ? 'Online' : 'Offline'}`);
         }
-    </script>
+    });
+}
+
+// -----------------------------------------
+// Re-run map when switching sections
+// -----------------------------------------
+const originalShowSection = showSection;
+
+showSection = function (sectionId) {
+    originalShowSection(sectionId);
+
+    if (sectionId === 'logistics') {
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+            else initLogisticsMap();
+        }, 100);
+    }
+};
+
+</script>
+
+
 </body>
+
 </html>

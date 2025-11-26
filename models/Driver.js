@@ -31,6 +31,15 @@ const driverSchema = new mongoose.Schema({
 
   // Meta
   status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" },
+
+  // Real-time Data
+  isOnline: { type: Boolean, default: false },
+  location: {
+    lat: { type: Number },
+    lng: { type: Number },
+    lastUpdated: { type: Date }
+  },
+  currentOrderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Driver", driverSchema);

@@ -1,18 +1,20 @@
 // Preloader
 window.addEventListener('load', () => {
   setTimeout(() => {
-    document.getElementById('preloader').style.opacity = '0';
-    setTimeout(() => {
-      document.getElementById('preloader').style.display = 'none';
-      document.getElementById('mainContent').classList.remove('hidden');
-    }, 500);
-  }, 2000);
+    const preloader = document.getElementById('preloader');
+    if(preloader) {
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+          preloader.style.display = 'none';
+          document.getElementById('mainContent').classList.remove('hidden');
+        }, 500);
+    }
+  }, 1000);
 });
 
 let map;
 let driverMarker;
 let requestMarkers = [];
-let routeLayer; // for directions polyline
 let currentCoords = null; // store user’s live location
 
 function initMap() {
@@ -63,10 +65,12 @@ function initMap() {
   locateBtn.addTo(map);
 
   // Compass control
-  L.control.compass({
-    autoActive: true,
-    showDigit: true
-  }).addTo(map);
+  if (L.control.compass) {
+      L.control.compass({
+        autoActive: true,
+        showDigit: true
+      }).addTo(map);
+  }
 }
 
 // ------------------------------
@@ -86,6 +90,8 @@ function searchLocation(query, callback) {
 // Attach autocomplete dropdown
 function attachAutocomplete(inputId, callback, suggestionBoxId = null) {
   const input = document.getElementById(inputId);
+  if (!input) return;
+
   const dropdown = suggestionBoxId 
     ? document.getElementById(suggestionBoxId) 
     : null;
@@ -142,124 +148,119 @@ function initAutocomplete() {
 }
 
 // ------------------------------
-// Mock Requests
+// Render Markers from Global Data
 // ------------------------------
-const mockRequests = [
-  {
-    id: 1,
-    pickup: "Lekki Phase 1, Lagos",
-    dropoff: "Victoria Island, Lagos",
-    fare: 3500,
-    distance: "5 km",
-    time: "12 min",
-    type: "ride",
-    coords: [6.4450, 3.4845]
-  },
-  {
-    id: 2,
-    pickup: "Ikeja City Mall, Lagos",
-    dropoff: "Maryland Mall, Lagos",
-    fare: 2500,
-    distance: "3 km",
-    time: "8 min",
-    type: "delivery",
-    coords: [6.6018, 3.3515]
-  }
-];
+function renderMarkers() {
+  const orders = window.availableOrders || [];
+  
+  // Clear existing markers
+  requestMarkers.forEach(m => map.removeLayer(m));
+  requestMarkers = [];
 
-function renderRequests() {
-  const container = document.getElementById('requestsContainer');
-  container.innerHTML = '';
-  mockRequests.forEach(req => {
-    const card = document.createElement('div');
-    card.className = "request-card bg-white rounded-xl p-4 shadow-sm border border-gray-100";
-    card.innerHTML = `
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-center space-x-2">
-          <i class="fas ${req.type === 'ride' ? 'fa-car text-blue-500' : 'fa-box text-green-500'}"></i>
-          <span class="font-medium text-gray-900 capitalize">${req.type} Request</span>
-        </div>
-        <div class="text-right">
-          <div class="text-lg font-bold text-green-600">₦${req.fare}</div>
-          <div class="text-xs text-gray-500">${req.distance} • ${req.time}</div>
-        </div>
-      </div>
-      <div class="space-y-2 mb-4">
-        <div class="flex items-center space-x-2">
-          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span class="text-sm text-gray-700">${req.pickup}</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span class="text-sm text-gray-700">${req.dropoff}</span>
-        </div>
-      </div>
-      <div class="flex space-x-3">
-        <button class="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors font-medium">Accept</button>
-        <button class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium">Decline</button>
-      </div>
-    `;
-    container.appendChild(card);
-
-    // Add marker
-    const marker = L.marker(req.coords).addTo(map)
-      .bindPopup(`<b>${req.type} request</b><br>${req.pickup} → ${req.dropoff}`);
+  orders.forEach(req => {
+    // We need coordinates. If not present, we can't plot.
+    // Assuming backend might geocode or we just skip for now if no coords.
+    // For demo, let's use random offset from center if no coords provided (just for visual)
+    // In production, you'd geocode the address.
+    
+    // Simulating coords for demo if not present (REMOVE IN PROD)
+    const lat = 9.0820 + (Math.random() - 0.5) * 0.1;
+    const lng = 8.6753 + (Math.random() - 0.5) * 0.1;
+    
+    const marker = L.marker([lat, lng]).addTo(map)
+      .bindPopup(`<b>${req.delivery.type} request</b><br>${req.delivery.collectionPoint || 'Warehouse'} → ${req.delivery.location}`);
     requestMarkers.push(marker);
   });
 }
 
 // ------------------------------
+// Accept Order
+// ------------------------------
+window.acceptOrder = async (orderId) => {
+    if(!confirm("Are you sure you want to accept this order?")) return;
+
+    try {
+        const res = await fetch('/api/driver/accept-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId })
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            alert("Order accepted! Please proceed to pickup.");
+            // Remove from UI
+            const card = document.getElementById(`order-${orderId}`);
+            if(card) card.remove();
+            // Reload page to refresh list and map
+            window.location.reload();
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch(err) {
+        console.error(err);
+        alert("Failed to accept order");
+    }
+};
+
+// ------------------------------
 // Popup for Preferred Location
 // ------------------------------
-function openPopup() {
+window.openPopup = function() {
   document.getElementById("popupOverlay").style.display = "flex";
 }
 
-function closePopup() {
+window.closePopup = function() {
   document.getElementById("popupOverlay").style.display = "none";
 }
 
 let preferredAreaSet = false;
 let workDateSet = false;
 
-document.getElementById("setPreferred").addEventListener("click", () => {
-  const area = document.getElementById("preferredArea").value.trim();
-  const date = document.getElementById("workDate").value.trim();
-
-  if (!area || !date) {
-    alert("Please fill in both Work Date and Preferred Area.");
-    return;
-  }
-
-  preferredAreaSet = true;
-  workDateSet = true;
-
-  closePopup();
-  alert("Preferred location set successfully!");
-});
+const setPreferredBtn = document.getElementById("setPreferred");
+if(setPreferredBtn) {
+    setPreferredBtn.addEventListener("click", () => {
+      const area = document.getElementById("preferredArea").value.trim();
+      const date = document.getElementById("workDate").value.trim();
+    
+      if (!area || !date) {
+        alert("Please fill in both Work Date and Preferred Area.");
+        return;
+      }
+    
+      preferredAreaSet = true;
+      workDateSet = true;
+    
+      closePopup();
+      alert("Preferred location set successfully!");
+    });
+}
 
 // ------------------------------
 // Online/Offline Toggle
 // ------------------------------
-document.getElementById('statusToggle').addEventListener('click', () => {
-  const btn = document.getElementById('statusToggle');
-  const text = document.getElementById('statusText');
-
-  if (!preferredAreaSet || !workDateSet) {
-    openPopup();
-    return;
-  }
-
-  if (btn.classList.contains('offline')) {
-    btn.classList.remove('offline');
-    btn.classList.add('online');
-    text.textContent = "Go Offline";
-  } else {
-    btn.classList.remove('online');
-    btn.classList.add('offline');
-    text.textContent = "Go Online";
-  }
-});
+const statusToggle = document.getElementById('statusToggle');
+if(statusToggle) {
+    statusToggle.addEventListener('click', () => {
+      const btn = document.getElementById('statusToggle');
+      const text = document.getElementById('statusText');
+    
+      if (!preferredAreaSet || !workDateSet) {
+        openPopup();
+        return;
+      }
+    
+      if (btn.classList.contains('offline')) {
+        btn.classList.remove('offline');
+        btn.classList.add('online');
+        text.textContent = "Go Offline";
+      } else {
+        btn.classList.remove('online');
+        btn.classList.add('offline');
+        text.textContent = "Go Online";
+      }
+    });
+}
 
 // ------------------------------
 // Init
@@ -267,5 +268,5 @@ document.getElementById('statusToggle').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   initMap();
   initAutocomplete();
-  renderRequests();
+  renderMarkers();
 });

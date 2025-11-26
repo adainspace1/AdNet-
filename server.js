@@ -58,7 +58,7 @@ const bcrypt = require("bcryptjs");
 
 const Driver = require("./models/Driver");
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 
 const session = require("express-session")
@@ -77,6 +77,10 @@ const userroute = require("./routes/userroutes");
 const crmRoutes = require('./routes/crmRoutes');
 // HR Routes
 const hrRoutes = require('./routes/hrRoutes');
+const driverRoutes = require('./routes/driverRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const orderController = require('./controllers/orderController');
+const logisticsRoutes = require('./routes/logisticsRoutes');
 
 
 
@@ -150,6 +154,9 @@ app.use('/api/auth', adminroute);
 app.use('/user', userRoutes);
 app.use('/CRM', crmRoutes);
 app.use('/HR', hrRoutes);
+app.use('/driver', driverRoutes);
+app.use('/Order', orderRoutes);
+app.use('/logistics', logisticsRoutes);
 
 
 
@@ -362,123 +369,7 @@ app.get('/email-exists', (req, res) => {
 // Usage: const ensureAuthenticated = require('./middleware/ensureAuthenticated');
 // then use: app.get('/Inventory', ensureAuthenticated, handler)
 
-// middleware/auth.js
-function ensureAuthenticated(req, res, next) {
-  try {
-    const url = req.originalUrl || '';
-    const urlLower = url.toLowerCase();
-    const now = new Date().toISOString();
 
-    // Case 1: Superadmin/Admin (full access)
-    if (req.session && req.session.user) {
-      const userId = req.session.user._id;
-      console.log(
-        `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED | userId: ${userId} | email: ${req.session.user.email || ''}`
-      );
-
-      req.recipientId = userId;
-      req.isWorker = false;
-      return next();
-    }
-
-    // Case 2: Worker (role + accessLevel check)
-    if (req.session && req.session.worker) {
-      const worker = req.session.worker;
-      const { _id: workerId, adminId, role, accessLevel } = worker;
-
-      // role → allowed paths
-      const roleAccess = {
-        inventory: {
-          basic: ["/inventory"],
-          max: ["/inventory", "/production", "/inventory/tracking", "/inventory/history"],
-        },
-        sales: {
-          basic: ["/sales"],
-          max: ["/sales", "/sales/reports", "/salehistory"],
-        },
-        production: {
-          basic: ["/production"],
-          max: ["/production", "/production/logs", "/production/history"],
-        },
-        finance: {
-          basic: ["/expenses"],
-          max: ["/expenses", "/expenses/admin", "/viewallexpenses", "/api/expenses"],
-        },
-        hr: {
-          basic: ["/hr"],
-          max: ["/hr", "/hr/reports", "/hr/history"],
-        },
-        custom: {
-          basic: [],
-          max: [],
-        },
-      };
-
-      // role → base path scope (worker admin-level must stay within scope)
-      const roleBasePath = {
-        inventory: "/inventory",
-        sales: "/sales",
-        production: "/production",
-        finance: "/expenses",
-        hr: "/hr",
-        custom: "",
-      };
-
-      const config = roleAccess[role] || roleAccess["custom"];
-      const basePath = roleBasePath[role] || "";
-
-      // Attach for downstream
-      req.recipientId = adminId;
-      req.isWorker = true;
-
-      // Role missing
-      if (!config) {
-        console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (unknown role) | workerId: ${workerId} | role: ${role}`);
-        return res.redirect("/bastard");
-      }
-
-      // Worker with admin-level: allow only within their role's base path
-      if (accessLevel === "admin") {
-        if (basePath && urlLower.startsWith(basePath)) {
-          console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED (role-admin) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
-          return next();
-        } else {
-          console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (outside role scope) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
-          return res.redirect("/bastard");
-        }
-      }
-
-      // Basic/Max check
-      const allowedPaths = config[accessLevel];
-      if (allowedPaths && allowedPaths.some((path) => urlLower.startsWith(path))) {
-        console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
-        return next();
-      }
-
-      console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (no permission) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
-      return res.redirect("/bastard");
-    }
-
-    // Nobody logged in → redirect accordingly
-    const attemptedUrl = req.originalUrl;
-    console.log(`[AUTH] ${now} | PAGE: ${attemptedUrl} | TYPE: GUEST | REDIRECT`);
-
-    if (req.session?.lastLoginOrigin === "vendor") {
-      // redirect vendor to vendorAuth
-      return res.redirect(`/vendorAuth?redirect=${encodeURIComponent(attemptedUrl)}`);
-    } else if (attemptedUrl && attemptedUrl.startsWith("/employee")) {
-      // worker redirect
-      return res.redirect(`/employee/repons/auth/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-    } else {
-      // default admin redirect
-      return res.redirect(`/login?redirect=${encodeURIComponent(attemptedUrl)}`);
-    }
-
-  } catch (err) {
-    console.error("Error in ensureAuthenticated middleware:", err);
-    res.status(500).send("Server error");
-  }
-}
 
 
 
@@ -544,6 +435,9 @@ app.get('/employee/repons/auth/login', (req, res) => {
 
 
 
+
+
+const { ensureAuthenticated } = require('./middleware/auth');
 
 app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
   try {
@@ -647,15 +541,6 @@ app.get("/Dashboard", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4585,102 +4470,7 @@ app.post("/order-placed/:buyername/:orderId", async (req, res) => {
 
 
 
-// GET signup page
-app.get("/signup-driver", (req, res) => {
-  res.render("dashboard/driverdash/driversignup", { error: null });
-});
 
-// POST signup form
-app.post("/signup-driver", async (req, res) => {
-  try {
-    const { fullName, email, password, phone, licenseNumber } = req.body;
-
-    // check if email already exists
-    const existing = await Driver.findOne({ email });
-    if (existing) {
-      return res.render("dashboard/driverdash/driversignup", { error: "❌ Email already registered" });
-    }
-
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newDriver = new Driver({
-      fullName,
-      email,
-      password: hashedPassword,
-      phone,
-      licenseNumber,
-    });
-
-    await newDriver.save();
-
-    // auto-login after signup
-    req.session.driverId = newDriver._id;
-    req.session.driverName = newDriver.fullName;
-
-    res.redirect("/driver-dash");
-  } catch (err) {
-    console.error(err);
-    res.render("dashboard/driverdash/driversignup", { error: "❌ Error creating driver account" });
-  }
-});
-
-
-
-
-app.get('/login-driver', (req, res) => {
-  res.render("dashboard/driverdash/driverlogin", { error: null });
-});
-
-
-
-
-
-
-
-
-
-
-
-// Render registration form
-function driverAuth(req, res, next) {
-  if (!req.session.driverId) {
-    return res.redirect('/login-driver');
-  }
-  next();
-}
-
-app.get('/driver-dash', driverAuth, async (req, res) => {
-  const driver = await Driver.findById(req.session.driverId);
-
-  res.render('dashboard/driverdash/dashboard', {
-    driver: {
-      name: driver.name,
-      rating: 4.8, // you can later make this dynamic
-      trips: 2341
-    },
-    mockRequests: [
-      {
-        id: 1,
-        pickup: "Lekki Phase 1, Lagos",
-        dropoff: "Victoria Island, Lagos",
-        fare: 3500,
-        distance: "5 km",
-        time: "12 min",
-        type: "ride"
-      },
-      {
-        id: 2,
-        pickup: "Ikeja City Mall, Lagos",
-        dropoff: "Maryland Mall, Lagos",
-        fare: 2500,
-        distance: "3 km",
-        time: "8 min",
-        type: "delivery"
-      }
-    ]
-  });
-});
 
 
 
@@ -6530,18 +6320,6 @@ app.get("/Audit", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
