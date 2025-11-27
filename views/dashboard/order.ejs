@@ -42,25 +42,28 @@
                 Order Management
             </h1>
             
-            <!-- KPI Cards -->
             <div class="kpi-grid">
-                <div class="kpi-card total">
-                    <div class="kpi-value" id="totalOrders">24</div>
-                    <div class="kpi-label">Total Orders This Month</div>
-                </div>
-                <div class="kpi-card on-time">
-                    <div class="kpi-value" id="onTimeOrders">21</div>
-                    <div class="kpi-label">Orders Delivered On Time</div>
-                </div>
-                <div class="kpi-card in-transit">
-                    <div class="kpi-value" id="inTransitOrders">5</div>
-                    <div class="kpi-label">In-Transit Orders</div>
-                </div>
-                <div class="kpi-card delayed">
-                    <div class="kpi-value" id="delayedOrders">2</div>
-                    <div class="kpi-label">Delayed Orders</div>
-                </div>
-            </div>
+    <div class="kpi-card total">
+        <div class="kpi-value"><%= totalOrders %></div>
+        <div class="kpi-label">Total Orders This Month</div>
+    </div>
+
+    <div class="kpi-card on-time">
+        <div class="kpi-value"><%= onTimeOrders %></div>
+        <div class="kpi-label">Orders Delivered On Time</div>
+    </div>
+
+    <div class="kpi-card in-transit">
+        <div class="kpi-value"><%= inTransitCount %></div>
+        <div class="kpi-label">In-Transit Orders</div>
+    </div>
+
+    <div class="kpi-card delayed">
+        <div class="kpi-value"><%= delayedOrders %></div>
+        <div class="kpi-label">Delayed Orders</div>
+    </div>
+</div>
+
         </div>
 
         <!-- Main Content -->
@@ -154,6 +157,12 @@
                                 <td><%= order.expectedDelivery ? order.expectedDelivery.toLocaleDateString() : "N/A" %></td>
                                         <td>
                                             <a href="/order/<%= order._id %>" class="btn btn-sm btn-primary">View</a>
+
+                                             <% if (!order.confirm) { %>
+    <form action="/Order/confirm/<%= order._id %>" method="POST" style="display:inline;">
+      <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+    </form>
+  <% } %>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -286,59 +295,126 @@
 
             </div>
 
-            <!-- In Transit Tab -->
-  <div class="tab-content" id="in-transit">
-                <div class="action-bar">
-                    <h3>In Transit Orders</h3>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Supplier</th>
-                                <th>Items</th>
-                                <th>Expected Delivery</th>
-                                <th>Days Remaining</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inTransitTableBody">
-                            <!-- In transit orders will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <!-- Delivered Tab -->
-            <div class="tab-content" id="delivered">
-                <div class="action-bar">
-                    <h3>Delivered Orders</h3>
-                    <div class="search-box">
-                        <input type="text" placeholder="Search delivered orders..." id="searchDelivered">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Supplier</th>
-                                <th>Order Date</th>
-                                <th>Delivery Date</th>
-                                <th>Total Value</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="deliveredTableBody">
-                            <!-- Delivered orders will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+
+
+<div class="tab-content" id="in-transit">
+  <div class="action-bar">
+      <h3>In Transit Orders</h3>
+  </div>
+  <div class="table-container">
+      <table>
+          <thead>
+              <tr>
+                  <th>Order ID</th>
+                  <th>Driver</th>
+                  <th>Items</th>
+                  <th>Vehicle</th>
+                  <th>Expected Delivery</th>
+                  <th>Days Remaining</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody id="inTransitTableBody">
+            <% inTransitOrders.forEach(order => { %>
+              <tr>
+                  <td><%= order._id %></td>
+
+                  <!-- Driver Name -->
+                  <td>
+                    <%= order.delivery?.drivername || "No Driver" %><br>
+                    <small><%= order.delivery?.driverPhone || "" %></small>
+                  </td>
+
+                  <!-- Items -->
+                  <td>
+                    <% order.items.forEach(item => { %>
+                      <div><%= item.productName %> x <%= item.quantity %></div>
+                    <% }) %>
+                  </td>
+
+                  <!-- Vehicle Info -->
+                  <td>
+                    <%= order.delivery?.vehicleNumber || "N/A" %><br>
+                    <small><%= order.delivery?.vehicleMake %> <%= order.delivery?.vehicleModel %></small>
+                  </td>
+
+                  <!-- Delivery Date -->
+                  <td><%= order.expectedDelivery ? order.expectedDelivery.toDateString() : 'N/A' %></td>
+
+                  <!-- Days Remaining -->
+                  <td>
+                    <% 
+                      const daysLeft = order.expectedDelivery 
+                        ? Math.ceil((new Date(order.expectedDelivery) - new Date()) / (1000*60*60*24))
+                        : 'N/A'; 
+                    %>
+                    <%= daysLeft %>
+                  </td>
+
+                  <td>
+                    <button class="view-order-btn" data-id="<%= order._id %>">View</button>
+                  </td>
+              </tr>
+            <% }) %>
+          </tbody>
+      </table>
+  </div>
 </div>
+
+
+
+
+
+<div class="tab-content" id="delivered">
+    <div class="action-bar">
+        <h3>Delivered Orders</h3>
+        <div class="search-box">
+            <input type="text" placeholder="Search delivered orders..." id="searchDelivered">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Driver</th>
+                    <th>Order Date</th>
+                    <th>Delivered On</th>
+                    <th>Total Value</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="deliveredTableBody">
+              <% deliveredOrders.forEach(order => { %>
+                <tr>
+                    <td><%= order._id %></td>
+
+                    <!-- DRIVER INFO -->
+                    <td>
+                      <%= order.delivery?.drivername || "No Driver" %><br>
+                      <small><%= order.delivery?.vehicleNumber || "" %></small>
+                    </td>
+
+                    <td><%= new Date(order.createdAt).toDateString() %></td>
+                    <td><%= order.expectedDelivery ? new Date(order.expectedDelivery).toDateString() : 'N/A' %></td>
+                    <td><%= order.grandTotal.toFixed(2) %></td>
+
+                    <td>
+                      <button class="view-order-btn" data-id="<%= order._id %>">View</button>
+                    </td>
+                </tr>
+              <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+          </div>
+        
+        </div>
 
 
 

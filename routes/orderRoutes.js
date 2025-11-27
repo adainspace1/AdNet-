@@ -10,6 +10,11 @@ router.get('/', ensureAuthenticated, orderController.getOrdersPage);
 router.post('/api/auth/createOrder', ensureAuthenticated, orderController.createOrder);
 router.get('/order/:id', ensureAuthenticated, orderController.getOrderDetails);
 
+router.get('/search-products', orderController.searchProducts);
+router.post('/api/auth/usercreateOrder',  orderController.usercreateOrder);
+router.post("/confirm/:orderId",  orderController.confirmOrder);
+
+
 
 
 module.exports = router;

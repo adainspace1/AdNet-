@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find & Order Any Product Instantly</title>
+
+  <!-- Google Fonts: Inter (clean & modern) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;        /* Blue */
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --radius: 12px;
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --transition: all 0.25s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+      color: var(--gray-900);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary), #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--gray-700);
+      margin-bottom: 3rem;
+      opacity: 0.9;
+    }
+
+    /* Search Box - Hero Style */
+    .search-box {
+      position: relative;
+      max-width: 620px;
+      margin: 0 auto 4rem;
+    }
+
+    #productSearch {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      font-size: 1.1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      outline: none;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      background: white;
+    }
+
+    #productSearch:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Dropdown Results */
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      margin-top: 8px;
+      max-height: 380px;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.25s ease;
+    }
+
+    .dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .dropdown-item:hover {
+      background: var(--gray-100);
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--gray-900);
+    }
+
+    .dropdown-item small {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .dropdown-item div small {
+      color: var(--gray-500);
+      font-size: 0.875rem;
+    }
+
+    .loading, .no-result, .error {
+      padding: 1.5rem;
+      color: var(--gray-500);
+      font-style: italic;
+    }
+
+    /* How it works section */
+    .how-it-works {
+      background: white;
+      padding: 3rem 2.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 4rem auto;
+      max-width: 760px;
+    }
+
+    .how-it-works h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: var(--primary-dark);
+    }
+
+    .how-it-works ol {
+      text-align: left;
+      max-width: 640px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+    }
+
+    .how-it-works li {
+      margin-bottom: 1.2rem;
+      padding-left: 0.5rem;
+      position: relative;
+    }
+
+    .how-it-works li::marker {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 5rem;
+      font-size: 1.1rem;
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 640px) {
+      h1 { font-size: 2.3rem; }
+      .subtitle { font-size: 1.1rem; }
+      .how-it-works { padding: 2rem 1.5rem; }
+      .how-it-works h2 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Find and Order Any Product Instantly</h1>
+    <p class="subtitle">Looking for a specific product?<br>Use the smart search below to quickly find verified items from trusted companies.</p>
+
+    <div class="search-box">
+      <input 
+        type="text" 
+        id="productSearch" 
+        placeholder="Start typing product name..." 
+        autocomplete="off"
+      />
+      <div id="searchDropdown" class="dropdown"></div>
+    </div>
+
+    <div class="how-it-works">
+      <h2>How it works:</h2>
+      <ol>
+        <li>Start typing the product name in the search bar.</li>
+        <li>A live dropdown shows available products from all companies.</li>
+        <li>Click on a product to open the order form.</li>
+        <li>Enter your quantity and payment details.</li>
+        <li>Complete payment securely.</li>
+        <li>Your order instantly appears inside the supplier company’s dashboard.</li>
+      </ol>
+    </div>
+
+    <footer>Start your order now — fast, secure, and smooth.</footer>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById("productSearch");
+    const dropdown = document.getElementById("searchDropdown");
+
+    let typingTimer;
+
+    searchInput.addEventListener("keyup", () => {
+      clearTimeout(typingTimer);
+      const query = searchInput.value.trim();
+
+      if (query.length < 2) {
+        dropdown.classList.remove("show");
+        return;
+      }
+
+      typingTimer = setTimeout(() => searchProducts(query), 300);
+    });
+
+    searchInput.addEventListener("focus", () => {
+      if (dropdown.children.length > 0) dropdown.classList.add("show");
+    });
+
+    async function searchProducts(query) {
+      dropdown.innerHTML = "<div class='loading'>Searching products...</div>";
+      dropdown.classList.add("show");
+
+      try {
+        const response = await fetch(`/Order/search-products?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error("Network error");
+
+        const data = await response.json();
+
+        dropdown.innerHTML = "";
+
+        if (!data.length) {
+          dropdown.innerHTML = "<div class='no-result'>No products found</div>";
+          return;
+        }
+
+        data.forEach(product => {
+          const item = document.createElement("div");
+          item.className = "dropdown-item";
+
+          item.innerHTML = `
+            <strong>${product.name}</strong>
+            <small>₦${Number(product.unitPrice).toLocaleString()}</small>
+            <div><small>by ${product.companyName || 'Verified Supplier'}</small></div>
+          `;
+
+          item.onclick = () => {
+            window.location.href = `/order/${product._id}`;
+          };
+
+          dropdown.appendChild(item);
+        });
+
+      } catch (err) {
+        dropdown.innerHTML = "<div class='error'>Connection error. Try again.</div>";
+      }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove("show");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complete Your Order</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --gray-100: #f8fafc;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-500: #64748b;
+      --gray-700: #334155;
+      --gray-900: #0f172a;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .container.narrow { max-width: 720px; }
+
+    h1 {
+      background: linear-gradient(90deg, var(--primary), #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2.5rem;
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      font-weight: 700;
+    }
+
+    /* Product Summary Card */
+    .product-summary {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: var(--gray-100);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin: 1.5rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    .product-summary img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .product-summary h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: var(--gray-900);
+    }
+
+    .product-summary p {
+      margin: 0.4rem 0;
+      color: var(--gray-700);
+      font-size: 0.95rem;
+    }
+
+    .product-summary strong { color: var(--primary-dark); }
+
+    /* Form Styling */
+    form {
+      padding: 0 1.5rem 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.4rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--gray-700);
+      font-size: 0.95rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      transition: var(--transition);
+      background: white;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    /* Total Section */
+    .total-section {
+      background: var(--gray-100);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin: 2rem 0;
+      border: 1px solid var(--gray-200);
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .total-row.grand-total {
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      padding-top: 1rem;
+      border-top: 2px solid var(--gray-300);
+    }
+
+    /* Submit Button */
+    .btn {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .product-summary {
+        flex-direction: column;
+        text-align: center;
+      }
+      .product-summary img {
+        width: 100px;
+        height: 100px;
+      }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container narrow">
+    <h1>Complete Your Order</h1>
+
+    <div class="product-summary">
+      <img src="<%= product.image || '/assets/img/placeholder.jpg' %>" alt="<%= product.itemName %>">
+      <div>
+        <h2><%= product.itemName %></h2>
+        <p><strong>Supplier:</strong> <%= company.companyName %> (ID: <%= company._id %>)</p>
+        <p><strong>Unit Price:</strong> ₦<%= Number(product.scost).toLocaleString() %></p>
+        <p><strong>Available:</strong> <%= product.currentquantity %> units</p>
+      </div>
+    </div>
+
+    <form class="createOrderForm" method="POST" action="/Order/api/auth/usercreateOrder">
+      <!-- Hidden Fields -->
+      <input type="hidden" name="recipientId" value="<%= user._id %>">
+      <input type="hidden" name="productId" value="<%= product._id %>">
+      <input type="hidden" name="productName" value="<%= product.itemName %>">
+      <input type="hidden" name="unitPrice" value="<%= product.scost %>">
+      <input type="hidden" name="companyId" value="<%= company._id %>">
+      <input type="hidden" name="companyName" value="<%= company.companyName %>">
+      <input type="hidden" name="itemsCost" id="itemsCostInput">
+      <input type="hidden" name="subtotal" id="subtotalInput">
+      <input type="hidden" name="grandTotal" id="grandTotalInput">
+
+      <div class="form-group">
+        <label for="buyer-name">Buyer Name <span style="color:red">*</span></label>
+        <input type="text" name="buyername" id="buyer-name" placeholder="Enter full name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="buyer-email">Buyer Email <span style="color:red">*</span></label>
+        <input type="email" name="buyeremail" id="buyer-email" placeholder="example@gmail.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="buyer-phone">Phone Number <span style="color:red">*</span></label>
+        <input type="tel" name="phone" id="buyer-phone" placeholder="08012345678" required>
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Type <span style="color:red">*</span></label>
+        <select name="type" required>
+          <option value="">Choose delivery method</option>
+          <option value="self_pickup">Self Pickup (Free)</option>
+          <option value="waybill">Waybill</option>
+          <option value="motorcycle">Motorcycle Delivery</option>
+          <option value="truck">Truck Delivery</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Address <span style="color:red">*</span></label>
+        <input type="text" name="deliverylocation" placeholder="Full delivery address with city & state" required>
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Fee (₦) <small>(Leave 0 if free)</small></label>
+        <input type="number" step="0.01" name="deliveryprice" placeholder="0.00" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>Confirmation Code <span style="color:red">*</span></label>
+        <input type="text" name="productpassword" placeholder="e.g. 1234 or MYORDER2025" required>
+      </div>
+
+      <div class="form-group">
+        <label>Expected Delivery Date</label>
+        <input type="date" name="expectedDelivery">
+      </div>
+
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" name="quantity" id="quantity" min="1" max="<%= product.currentquantity %>" value="1" required>
+      </div>
+
+      <div class="form-group">
+        <label>Additional Notes (Optional)</label>
+        <textarea name="notes" rows="3" placeholder="Any special instructions for the supplier..."></textarea>
+      </div>
+
+      <div class="total-section">
+        <div class="total-row">
+          <span>Items Cost:</span>
+          <span id="itemsCost">₦0</span>
+        </div>
+        <div class="total-row">
+          <span>Delivery Fee:</span>
+          <span id="deliveryFee">₦0</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Grand Total:</span>
+          <span id="grandTotal">₦0</span>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-lock"></i> Place Order & Pay
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const quantityInput = document.getElementById('quantity');
+      const deliveryPriceInput = document.querySelector('input[name="deliveryprice"]');
+      const unitPrice = parseFloat(<%= product.scost %>);
+
+      const itemsCostSpan = document.getElementById('itemsCost');
+      const deliveryFeeSpan = document.getElementById('deliveryFee');
+      const grandTotalSpan = document.getElementById('grandTotal');
+
+      const itemsCostInput = document.getElementById('itemsCostInput');
+      const subtotalInput = document.getElementById('subtotalInput');
+      const grandTotalInput = document.getElementById('grandTotalInput');
+
+      function updateTotals() {
+        const qty = parseInt(quantityInput.value) || 1;
+        const delivery = parseFloat(deliveryPriceInput.value) || 0;
+        const itemsTotal = unitPrice * qty;
+
+        itemsCostSpan.textContent = `₦${itemsTotal.toLocaleString()}`;
+        deliveryFeeSpan.textContent = `₦${delivery.toLocaleString()}`;
+        grandTotalSpan.textContent = `₦${(itemsTotal + delivery).toLocaleString()}`;
+
+        itemsCostInput.value = itemsTotal;
+        subtotalInput.value = itemsTotal;
+        grandTotalInput.value = itemsTotal + delivery;
+      }
+
+      quantityInput.addEventListener('input', updateTotals);
+      deliveryPriceInput.addEventListener('input', updateTotals);
+
+      // Initialize
+      updateTotals();
+    });
+  </script>
+</body>
+</html>

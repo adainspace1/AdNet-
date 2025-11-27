@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Successful! Order Confirmed</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --gray-100: #f8fafc;
+      --gray-200: #e2e8f0;
+      --gray-700: #334155;
+      --gray-900: #0f172a;
+      --radius: 16px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #ecfdf5 0%, #dcfce7 100%);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .success-container {
+      max-width: 560px;
+      width: 100%;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      text-align: center;
+      animation: floatIn 0.8s ease-out;
+    }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-header {
+      background: linear-gradient(135deg, var(--success), #34d399);
+      padding: 3rem 2rem 2rem;
+      color: white;
+    }
+
+    .success-header i {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      display: block;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .success-header h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-header p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+    }
+
+    .success-body {
+      padding: 2.5rem 2rem;
+      background: white;
+    }
+
+    .order-id {
+      background: var(--success-light);
+      color: #065f46;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 1.5rem 0;
+      border: 2px dashed #34d399;
+    }
+
+    .order-id strong {
+      font-size: 1.5rem;
+      color: var(--success);
+    }
+
+    .details {
+      background: var(--gray-100);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      text-align: left;
+      font-size: 0.95rem;
+      color: var(--gray-700);
+    }
+
+    .details strong {
+      color: var(--gray-900);
+    }
+
+    .actions {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.9rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(37,99,235,0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--gray-700);
+      border: 2px solid var(--gray-300);
+    }
+
+    .btn-outline:hover {
+      background: var(--gray-100);
+      border-color: var(--gray-400);
+    }
+
+    footer {
+      margin-top: 3rem;
+      color: var(--gray-500);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      .success-header h1 { font-size: 2.2rem; }
+      .success-header i { font-size: 4rem; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="success-container">
+    <div class="success-header">
+      <i class="fas fa-check-circle"></i>
+      <h1>Payment Successful!</h1>
+      <p>Your order has been confirmed and sent to the supplier instantly.</p>
+    </div>
+
+    <div class="success-body">
+      <div class="order-id">
+        Order ID: <strong><%= orderId %></strong>
+      </div>
+
+      <div class="details">
+        <p><strong>What's next?</strong></p>
+        <p>• The supplier has been notified<br>
+           • You’ll receive a confirmation email shortly<br>
+           • Track your order in real-time from your dashboard</p>
+      </div>
+
+      <div class="actions">
+        <a href="/" class="btn btn-primary">
+          <i class="fas fa-shopping-bag"></i> Order More Products
+        </a>
+        <a href="/my-orders" class="btn btn-outline">
+          <i class="fas fa-list"></i> View My Orders
+        </a>
+      </div>
+
+      <footer>
+        Thank you for your purchase! Need help? Contact support anytime.
+      </footer>
+    </div>
+  </div>
+
+  <!-- Optional: Add subtle confetti effect -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script>
+    // Trigger confetti on load
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }, 500);
+  </script>
+</body>
+</html>

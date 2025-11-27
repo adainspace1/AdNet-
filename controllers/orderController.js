@@ -3,6 +3,7 @@ const Driver = require("../models/Driver");
 const User = require("../models/User");
 const Company = require("../models/company"); // Assuming you might need company info
 const mongoose = require("mongoose");
+const Inventory = require('../models/inventory');
 
 // Helper to get logged-in user ID (Admin or Worker's Admin)
 const getUserId = (req) => {
@@ -48,13 +49,52 @@ exports.getOrdersPage = async (req, res) => {
         const Inventory = require("../models/inventory");
         const products = await Inventory.find({ recipientId: userId });
 
-        res.render("dashboard/order", {
-            user: req.session.user,
-            worker: req.session.worker || null,
-            companyinfo,
-            orders,
-            products
-        });
+
+        
+           // Get orders for this user/worker
+           const allOrders = await Order.find({ recipientId })
+             .populate("recipientId")
+             .lean();
+       
+           // Separate orders by status
+           const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
+           const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
+       
+
+
+
+           // KPI CALCULATIONS
+                const totalOrders = allOrders.length;
+
+                // Delivered on time (assuming you track deliveryDate & expectedDate)
+                const onTimeOrders = allOrders.filter(order => 
+                order.status === "delivered" && order.deliveredOnTime === true
+                ).length;
+
+                // In-transit
+                const inTransitCount = inTransitOrders.length;
+
+                // Delayed (any delivered but NOT on time)
+                const delayedOrders = allOrders.filter(order => 
+                order.status === "delivered" && order.deliveredOnTime === false
+                ).length;
+
+
+
+           res.render("dashboard/order", {
+             user: req.session.user,
+             worker: req.session.worker || null,
+             companyinfo,
+             inTransitOrders,
+             deliveredOrders,
+                orders,
+                products,
+                totalOrders,
+                onTimeOrders,
+                inTransitCount,
+                delayedOrders,
+
+           });
     } catch (err) {
         console.error("Error loading orders page:", err);
         res.status(500).send("Server Error");
@@ -115,10 +155,13 @@ exports.createOrder = async (req, res) => {
             grandTotal,
             notes,
             delivery,
-            status: "pending"
+            status: "pending",
+            confirm: true
         });
 
         await newOrder.save();
+
+        console.log("Order created:", newOrder);
 
         // TODO: Generate QR Code if needed and save it
         // const qrCode = await generateQRCode(newOrder._id);
@@ -234,6 +277,7 @@ exports.getAvailableOrders = async (req, res) => {
 
         const orders = await Order.find({
             status: "pending",
+            confirm: true,  // <-- only show confirmed orders
             "delivery.type": { $in: driverDeliveryTypes }
         })
             .sort({ createdAt: -1 })
@@ -261,37 +305,66 @@ exports.getAvailableOrders = async (req, res) => {
 // POST /api/driver/accept-order - Driver accepts an order
 exports.acceptOrder = async (req, res) => {
     try {
-        if (!req.session.driver) return res.status(401).json({ success: false, message: "Unauthorized" });
+        if (!req.session.driver) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
 
         const { orderId } = req.body;
         const driverId = req.session.driver.id;
 
         const driver = await Driver.findById(driverId);
+        if (!driver) {
+            return res.status(404).json({ success: false, message: "Driver not found" });
+        }
+
+        // Prevent taking multiple active orders
         if (driver.currentOrderId) {
             return res.status(400).json({ success: false, message: "You already have an active order" });
         }
 
         const order = await Order.findById(orderId);
-        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
 
+        // Only pending orders can be accepted
         if (order.status !== "pending") {
             return res.status(400).json({ success: false, message: "Order already taken" });
         }
 
-        // Assign driver
+        // 🔥 Assign driver + Save driver info into order.delivery
         order.status = "in_transit";
-        // order.driverId = driverId; // Add this to Order schema if you want strict linking
+
+        order.delivery = {
+            type: driver.vehicleMake?.toLowerCase().includes("bike") ? "motorcycle" : "truck",
+            driverId: driver._id,
+            drivername: driver.fullName,
+            driverPhone: driver.phone,
+            vehicleNumber: driver.vehiclePlate,
+            vehicleMake: driver.vehicleMake,
+            vehicleModel: driver.vehicleModel,
+            vehicleColor: driver.vehicleColor,
+            price: order.delivery?.price || 0
+        };
+
         await order.save();
 
+        // Update driver status
         driver.currentOrderId = order._id;
         await driver.save();
 
-        res.json({ success: true, message: "Order accepted", order });
+        res.json({
+            success: true,
+            message: "Order accepted successfully",
+            order
+        });
+
     } catch (err) {
         console.error("Error accepting order:", err);
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
 
 // POST /api/driver/update-status - Driver updates order status
 exports.updateOrderStatus = async (req, res) => {
@@ -324,3 +397,191 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+exports.searchProducts = async (req, res) => {
+  try {
+    const query = req.query.q || '';
+
+    // Find matching inventory items
+    const products = await Inventory.find({
+      itemName: { $regex: query, $options: "i" }
+    })
+    .select("itemName scost currentquantity recipientId") // only needed fields
+    .limit(20)
+    .lean();
+
+    // For each product, fetch the company name from Company model
+    const result = await Promise.all(products.map(async (p) => {
+      const company = await Company.findOne({ reciepientId: p.recipientId })
+        .select("companyName")
+        .lean();
+
+      return {
+        _id: p._id,
+        name: p.itemName,
+        unitPrice: p.scost,
+        available: p.currentquantity,
+        companyId: company?._id || null,
+        companyName: company?.companyName || "Unknown"
+      };
+    }));
+
+    return res.json(result);
+
+  } catch (err) {
+    console.error("Search error:", err);
+    return res.status(500).json([]);
+  }
+};
+
+
+
+
+
+exports.usercreateOrder = async (req, res) => {
+  try {
+    console.log("Incoming order data:", req.body); // <--- log everything
+
+    const {
+      recipientId,
+      buyername,
+      buyeremail,
+      phone,
+      quantity,
+      type,
+      deliverylocation,
+      deliveryprice,
+      productpassword,
+      expectedDelivery,
+      notes,
+      productId,
+      productName,
+      unitPrice,
+      companyId,
+      companyName
+    } = req.body;
+
+    // Fetch product to check stock
+    const product = await Inventory.findById(productId);
+    if (!product) return res.status(404).send("Product not found");
+
+    const qty = parseInt(quantity);
+    if (qty < 1) return res.status(400).send("Quantity must be at least 1");
+    if (qty > product.currentquantity) return res.status(400).send("Quantity exceeds available stock");
+
+    // Calculate totals
+    const itemsCost = parseFloat(unitPrice) * qty; // subtotal
+    const deliveryCharge = parseFloat(deliveryprice) || 0;
+    const subtotal = itemsCost;
+    const grandTotal = subtotal + deliveryCharge; // include delivery
+
+    // Create order
+    const newOrder = new Order({
+      recipientId,
+      buyername,
+      buyeremail,
+      phone,
+      productpassword,
+      expectedDelivery: expectedDelivery || null,
+      items: [{
+        productId,
+        productName,
+        quantity: qty,
+        unitPrice
+      }],
+      itemsCost,
+      subtotal,
+      grandTotal,
+      notes: notes || '',
+      delivery: {
+        type: type, // crucial for driver
+        price: deliveryCharge,
+        driverId: null,
+        drivername: '',
+        driverPhone: '',
+        vehicleNumber: '',
+        vehicleMake: '',
+        vehicleModel: '',
+        vehicleColor: '',
+        logisticsCompany: '',
+        location: deliverylocation || '',
+        collectionPoint: ''
+      },
+      status: 'pending',
+      confirm: false
+    });
+
+    await newOrder.save();
+
+    console.log("Order created:", newOrder);
+
+    // Deduct quantity from inventory
+    product.currentquantity -= qty;
+    await product.save();
+
+    res.redirect('/user/success-Order');
+  } catch (err) {
+    console.error('Error creating order:', err);
+    res.status(500).send("Server error");
+  }
+};
+
+
+
+
+
+
+
+
+exports.confirmOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const adminId = req.session.user?._id;
+
+    if (!adminId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Find the order and make sure the admin owns it
+    const order = await Order.findOne({ _id: orderId, recipientId: adminId });
+    if (!order) return res.status(404).json({ error: "Order not found or not yours" });
+
+    // Optional: Check stock before confirming
+    for (const item of order.items) {
+      const product = await Inventory.findById(item.productId);
+      if (!product) return res.status(404).json({ error: `Product ${item.productName} not found` });
+      if (product.currentquantity < item.quantity) {
+        return res.status(400).json({
+          error: `Insufficient stock for ${item.productName}. Available: ${product.currentquantity}, Ordered: ${item.quantity}`
+        });
+      }
+    }
+
+    // Deduct stock
+    for (const item of order.items) {
+      const product = await Inventory.findById(item.productId);
+      product.currentquantity -= item.quantity;
+      await product.save();
+    }
+
+    // Update only the confirm field without triggering full validation
+    await Order.findByIdAndUpdate(orderId, { confirm: true });
+
+    res.json({ success: true, message: "Order confirmed successfully." });
+
+  } catch (err) {
+    console.error("Error confirming order:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+

@@ -4141,8 +4141,7 @@ app.get('/charts', ensureAuthenticated, async (req, res) => {
 
 
 
-
-app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
+app.get("/user/place-Order",  async (req, res) => {
   try {
     const now = new Date();
 
@@ -4150,20 +4149,16 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
     let companyinfo = null;
 
     if (req.session.user) {
-      // ✅ Admin logged in
       recipientId = req.session.user._id;
       companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
     } else if (req.session.worker) {
-      // ✅ Worker logged in → use admin’s ID
       recipientId = req.session.worker.adminId;
       companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
     } else {
       return res.redirect("/login");
     }
-    const userId = recipientId;
 
-
-    // Update all overdue orders in one go
+    // Update overdue orders
     await Order.updateMany(
       {
         expectedDelivery: { $lt: now },
@@ -4172,15 +4167,21 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
       { $set: { status: 'overdue' } }
     );
 
-    const products = await Inventory.find();
-    const orders = await Order.find().populate("recipientId").lean();
+    // Get orders for this user/worker
+    const allOrders = await Order.find({ recipientId })
+      .populate("recipientId")
+      .lean();
 
-    res.render("dashboard/order", {
+    // Separate orders by status
+    const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
+    const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
+
+    res.render("dashboard/userOrder/home", {
       user: req.session.user,
       worker: req.session.worker || null,
       companyinfo,
-      orders,
-      products
+      inTransitOrders,
+      deliveredOrders
     });
   } catch (err) {
     console.error("Error loading Order Management page:", err);
@@ -4188,6 +4189,91 @@ app.get("/OrderManagement", ensureAuthenticated, async (req, res) => {
   }
 });
 
+
+app.get("/order/:productId",  async (req, res) => {
+  try {
+    const productId = req.params.productId;
+
+    const product = await Inventory.findById(productId).lean(); // no populate
+
+    if (!product) return res.status(404).send("Product not found");
+
+    // Get company from Company model
+    const company = await Company.findOne({ reciepientId: product.recipientId })
+      .lean();
+
+    const user = req.session.user || req.session.worker || null;
+
+    const products = await Inventory.find({
+          
+        })
+        .select("itemName scost currentquantity recipientId") // only needed fields
+        .limit(20)
+        .lean();
+
+    console.log("Rendering order page for product:", product);
+
+    res.render("dashboard/userOrder/dorder", {
+      product,
+      products,
+      company: company || { companyName: "Unknown", _id: null },
+      user
+    });
+
+  } catch (err) {
+    console.error("Error loading product order page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+app.get("/user/success-Order",  async (req, res) => {
+  try {
+    const now = new Date();
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+
+    // Update overdue orders
+    await Order.updateMany(
+      { expectedDelivery: { $lt: now }, status: { $nin: ['delivered', 'overdue'] } },
+      { $set: { status: 'overdue' } }
+    );
+
+    // Get orders for this user/worker
+    const allOrders = await Order.find({ recipientId })
+      .populate("recipientId")
+      .lean();
+
+    const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
+    const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
+
+    // Get orderId from query string
+    const orderId = req.query.orderId || null;
+
+    res.render("dashboard/userOrder/success", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+      inTransitOrders,
+      deliveredOrders,
+      orderId  // <-- pass this to EJS
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
