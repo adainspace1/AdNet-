@@ -4145,18 +4145,7 @@ app.get("/user/place-Order",  async (req, res) => {
   try {
     const now = new Date();
 
-    let recipientId = null;
-    let companyinfo = null;
-
-    if (req.session.user) {
-      recipientId = req.session.user._id;
-      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
-    } else if (req.session.worker) {
-      recipientId = req.session.worker.adminId;
-      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
-    } else {
-      return res.redirect("/login");
-    }
+    
 
     // Update overdue orders
     await Order.updateMany(
@@ -4167,21 +4156,8 @@ app.get("/user/place-Order",  async (req, res) => {
       { $set: { status: 'overdue' } }
     );
 
-    // Get orders for this user/worker
-    const allOrders = await Order.find({ recipientId })
-      .populate("recipientId")
-      .lean();
-
-    // Separate orders by status
-    const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
-    const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
 
     res.render("dashboard/userOrder/home", {
-      user: req.session.user,
-      worker: req.session.worker || null,
-      companyinfo,
-      inTransitOrders,
-      deliveredOrders
     });
   } catch (err) {
     console.error("Error loading Order Management page:", err);
