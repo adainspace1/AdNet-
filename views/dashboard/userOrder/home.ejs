@@ -246,44 +246,44 @@
       if (dropdown.children.length > 0) dropdown.classList.add("show");
     });
 
-    async function searchProducts(query) {
-      dropdown.innerHTML = "<div class='loading'>Searching products...</div>";
-      dropdown.classList.add("show");
+async function searchProducts(query) {
+  dropdown.innerHTML = "<div class='loading'>Searching companies...</div>";
+  dropdown.classList.add("show");
 
-      try {
-        const response = await fetch(`/Order/search-products?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error("Network error");
+  try {
+    const response = await fetch(`/Order/search-companies?q=${encodeURIComponent(query)}`);
+    if (!response.ok) throw new Error("Network error");
 
-        const data = await response.json();
+    const data = await response.json();
 
-        dropdown.innerHTML = "";
+    dropdown.innerHTML = "";
 
-        if (!data.length) {
-          dropdown.innerHTML = "<div class='no-result'>No products found</div>";
-          return;
-        }
-
-        data.forEach(product => {
-          const item = document.createElement("div");
-          item.className = "dropdown-item";
-
-          item.innerHTML = `
-            <strong>${product.name}</strong>
-            <small>₦${Number(product.unitPrice).toLocaleString()}</small>
-            <div><small>by ${product.companyName || 'Verified Supplier'}</small></div>
-          `;
-
-          item.onclick = () => {
-            window.location.href = `/order/${product._id}`;
-          };
-
-          dropdown.appendChild(item);
-        });
-
-      } catch (err) {
-        dropdown.innerHTML = "<div class='error'>Connection error. Try again.</div>";
-      }
+    if (!data.length) {
+      dropdown.innerHTML = "<div class='no-result'>No companies found</div>";
+      return;
     }
+
+    data.forEach(company => {
+      const item = document.createElement("div");
+      item.className = "dropdown-item";
+
+      item.innerHTML = `
+        <strong>${company.name}</strong>
+        <small>Supplier</small>
+      `;
+
+      item.onclick = () => {
+        // go to company page
+        window.location.href = `/order/company/${company.reciepientId}`;
+      };
+
+      dropdown.appendChild(item);
+    });
+
+  } catch (err) {
+    dropdown.innerHTML = "<div class='error'>Connection error. Try again.</div>";
+  }
+}
 
     // Close dropdown when clicking outside
     document.addEventListener("click", (e) => {

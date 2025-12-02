@@ -408,38 +408,28 @@ exports.updateOrderStatus = async (req, res) => {
 
 
 
-exports.searchProducts = async (req, res) => {
+exports.searchCompanies = async (req, res) => {
   try {
-    const query = req.query.q || '';
+    const query = req.query.q || "";
 
-    // Find matching inventory items
-    const products = await Inventory.find({
-      itemName: { $regex: query, $options: "i" }
+    // Find companies
+    const companies = await Company.find({
+      companyName: { $regex: query, $options: "i" }
     })
-    .select("itemName scost currentquantity recipientId") // only needed fields
-    .limit(20)
-    .lean();
+      .select("companyName reciepientId _id")
+      .limit(20)
+      .lean();
 
-    // For each product, fetch the company name from Company model
-    const result = await Promise.all(products.map(async (p) => {
-      const company = await Company.findOne({ reciepientId: p.recipientId })
-        .select("companyName")
-        .lean();
-
-      return {
-        _id: p._id,
-        name: p.itemName,
-        unitPrice: p.scost,
-        available: p.currentquantity,
-        companyId: company?._id || null,
-        companyName: company?.companyName || "Unknown"
-      };
+    const result = companies.map(c => ({
+      id: c._id,
+      name: c.companyName,
+      reciepientId: c.reciepientId
     }));
 
     return res.json(result);
 
   } catch (err) {
-    console.error("Search error:", err);
+    console.error("Company search error:", err);
     return res.status(500).json([]);
   }
 };
@@ -447,93 +437,77 @@ exports.searchProducts = async (req, res) => {
 
 
 
-
 exports.usercreateOrder = async (req, res) => {
-  try {
-    console.log("Incoming order data:", req.body); // <--- log everything
+    try {
+        const now = new Date();
 
-    const {
-      recipientId,
-      buyername,
-      buyeremail,
-      phone,
-      quantity,
-      type,
-      deliverylocation,
-      deliveryprice,
-      productpassword,
-      expectedDelivery,
-      notes,
-      productId,
-      productName,
-      unitPrice,
-      companyId,
-      companyName
-    } = req.body;
+        let recipientId = null;
+        let companyinfo = null;
 
-    // Fetch product to check stock
-    const product = await Inventory.findById(productId);
-    if (!product) return res.status(404).send("Product not found");
+        if (req.session.user) {
+            // Admin logged in
+            recipientId = req.session.user._id;
+            companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+        } else if (req.session.worker) {
+            // Worker logged in
+            recipientId = req.session.worker.adminId;
+            companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+        } else {
+            return res.redirect("/login");
+        }
 
-    const qty = parseInt(quantity);
-    if (qty < 1) return res.status(400).send("Quantity must be at least 1");
-    if (qty > product.currentquantity) return res.status(400).send("Quantity exceeds available stock");
+        const userId = recipientId;
 
-    // Calculate totals
-    const itemsCost = parseFloat(unitPrice) * qty; // subtotal
-    const deliveryCharge = parseFloat(deliveryprice) || 0;
-    const subtotal = itemsCost;
-    const grandTotal = subtotal + deliveryCharge; // include delivery
+        if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
 
-    // Create order
-    const newOrder = new Order({
-      recipientId,
-      buyername,
-      buyeremail,
-      phone,
-      productpassword,
-      expectedDelivery: expectedDelivery || null,
-      items: [{
-        productId,
-        productName,
-        quantity: qty,
-        unitPrice
-      }],
-      itemsCost,
-      subtotal,
-      grandTotal,
-      notes: notes || '',
-      delivery: {
-        type: type, // crucial for driver
-        price: deliveryCharge,
-        driverId: null,
-        drivername: '',
-        driverPhone: '',
-        vehicleNumber: '',
-        vehicleMake: '',
-        vehicleModel: '',
-        vehicleColor: '',
-        logisticsCompany: '',
-        location: deliverylocation || '',
-        collectionPoint: ''
-      },
-      status: 'pending',
-      confirm: false
-    });
+        const {
+            buyername,
+            buyeremail,
+            productpassword,
+            expectedDelivery,
+            items, // Array of { productId, productName, quantity, unitPrice }
+            itemsCost,
+            subtotal,
+            grandTotal,
+            notes,
+            delivery // { type, price, location, ... }
+        } = req.body;
 
-    await newOrder.save();
+        // Basic validation
+        if (!buyername || !items || items.length === 0) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
 
-    console.log("Order created:", newOrder);
+        const newOrder = new Order({
+            recipientId: userId,
+            buyername,
+            buyeremail,
+            productpassword,
+            expectedDelivery,
+            items,
+            itemsCost,
+            subtotal,
+            grandTotal,
+            notes,
+            delivery,
+            status: "pending",
+            confirm: false
+        });
 
-    // Deduct quantity from inventory
-    product.currentquantity -= qty;
-    await product.save();
+        await newOrder.save();
 
-    res.redirect('/user/success-Order');
-  } catch (err) {
-    console.error('Error creating order:', err);
-    res.status(500).send("Server error");
-  }
+        console.log("Order created:", newOrder);
+
+        // TODO: Generate QR Code if needed and save it
+        // const qrCode = await generateQRCode(newOrder._id);
+        // newOrder.qrCode = qrCode;
+        // await newOrder.save();
+
+        res.status(201).json({ success: true, message: "Order created successfully", order: newOrder });
+    } catch (err) {
+        console.error("Error creating order:", err);
+        res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    }
 };
 
 

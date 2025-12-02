@@ -4166,41 +4166,34 @@ app.get("/user/place-Order",  async (req, res) => {
 });
 
 
-app.get("/order/:productId",  async (req, res) => {
+app.get("/order/company/:companyId", async (req, res) => {
   try {
-    const productId = req.params.productId;
+    const companyId = req.params.companyId;
 
-    const product = await Inventory.findById(productId).lean(); // no populate
+    // Fetch company by its "reciepientId" (spelling matched to database)
+    const company = await Company.findOne({ reciepientId: companyId }).lean();
+    if (!company) return res.status(404).send("Company not found");
 
-    if (!product) return res.status(404).send("Product not found");
-
-    // Get company from Company model
-    const company = await Company.findOne({ reciepientId: product.recipientId })
+    // Fetch ALL products belonging to this company
+    const products = await Inventory.find({ recipientId: companyId })
+      .select("itemName scost currentquantity _id image category") 
       .lean();
 
     const user = req.session.user || req.session.worker || null;
 
-    const products = await Inventory.find({
-          
-        })
-        .select("itemName scost currentquantity recipientId") // only needed fields
-        .limit(20)
-        .lean();
-
-    console.log("Rendering order page for product:", product);
-
     res.render("dashboard/userOrder/dorder", {
-      product,
-      products,
-      company: company || { companyName: "Unknown", _id: null },
-      user
+      company,
+      products,   // product info now included
+      user,
+      product: null
     });
 
   } catch (err) {
-    console.error("Error loading product order page:", err);
+    console.error("Error loading company order page:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 
