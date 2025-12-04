@@ -11,7 +11,7 @@ router.post('/api/auth/createOrder', ensureAuthenticated, orderController.create
 router.get('/order/:id', ensureAuthenticated, orderController.getOrderDetails);
 
 router.get('/search-companies', orderController.searchCompanies);
-router.post('/api/auth/usercreateOrder',  orderController.usercreateOrder);
+router.post('/usercreateOrder',  orderController.usercreateOrder);
 router.post("/confirm/:orderId",  orderController.confirmOrder);
 
 

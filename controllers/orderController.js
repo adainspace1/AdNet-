@@ -5,6 +5,8 @@ const Company = require("../models/company"); // Assuming you might need company
 const mongoose = require("mongoose");
 const Inventory = require('../models/inventory');
 
+const QRCode = require('qrcode');
+
 // Helper to get logged-in user ID (Admin or Worker's Admin)
 const getUserId = (req) => {
     if (req.session.user) return req.session.user._id;
@@ -438,77 +440,74 @@ exports.searchCompanies = async (req, res) => {
 
 
 exports.usercreateOrder = async (req, res) => {
-    try {
-        const now = new Date();
+   console.log('Creating order with data:', req.body);
+  try {
+    const {
+      recipientId,
+      buyername,
+      buyeremail,
+      expectedDelivery,
+      productpassword,
+      items,
+      itemsCost,
+      subtotal,
+      grandTotal,
+      notes,
+      delivery // <--- new
+    } = req.body;
 
-        let recipientId = null;
-        let companyinfo = null;
 
-        if (req.session.user) {
-            // Admin logged in
-            recipientId = req.session.user._id;
-            companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
-        } else if (req.session.worker) {
-            // Worker logged in
-            recipientId = req.session.worker.adminId;
-            companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
-        } else {
-            return res.redirect("/login");
-        }
-
-        const userId = recipientId;
-
-        if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
-
-        const {
-            buyername,
-            buyeremail,
-            productpassword,
-            expectedDelivery,
-            items, // Array of { productId, productName, quantity, unitPrice }
-            itemsCost,
-            subtotal,
-            grandTotal,
-            notes,
-            delivery // { type, price, location, ... }
-        } = req.body;
-
-        // Basic validation
-        if (!buyername || !items || items.length === 0) {
-            return res.status(400).json({ success: false, message: "Missing required fields" });
-        }
-
-        const newOrder = new Order({
-            recipientId: userId,
-            buyername,
-            buyeremail,
-            productpassword,
-            expectedDelivery,
-            items,
-            itemsCost,
-            subtotal,
-            grandTotal,
-            notes,
-            delivery,
-            status: "pending",
-            confirm: false
-        });
-
-        await newOrder.save();
-
-        console.log("Order created:", newOrder);
-
-        // TODO: Generate QR Code if needed and save it
-        // const qrCode = await generateQRCode(newOrder._id);
-        // newOrder.qrCode = qrCode;
-        // await newOrder.save();
-
-        res.status(201).json({ success: true, message: "Order created successfully", order: newOrder });
-    } catch (err) {
-        console.error("Error creating order:", err);
-        res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    if (!recipientId) {
+      return res.status(400).json({ message: 'Recipient is required' });
     }
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'At least one item is required' });
+    }
+
+
+
+    // Create a temporary ObjectId so we can embed the correct link
+    const tempOrderId = new mongoose.Types.ObjectId();
+    const qrFinalUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
+
+    // Generate QR code base64 string
+    const qrCodeDataUrl = await QRCode.toDataURL(qrFinalUrl);
+
+    // Create the order with QR code in DB
+    const newOrder = new Order({
+      _id: tempOrderId,
+      recipientId,
+      buyername,
+      buyeremail,
+      productpassword,
+      expectedDelivery,
+      items,
+      itemsCost,
+      subtotal,
+      grandTotal,
+      notes,
+      delivery, // save delivery object
+      qrCode: qrCodeDataUrl,
+      confirm: false
+    });
+
+
+    await newOrder.save();
+    console.log('New order created:', newOrder);
+
+    // Build QR link
+    const qrUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${newOrder?._id || 'temp'}/`;
+
+   return res.json({ success: true, redirect: "/user/success-Order" });
+
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error creating order' });
+  }
 };
+
+
 
 
 
@@ -551,7 +550,7 @@ exports.confirmOrder = async (req, res) => {
     // Update only the confirm field without triggering full validation
     await Order.findByIdAndUpdate(orderId, { confirm: true });
 
-    res.json({ success: true, message: "Order confirmed successfully." });
+    res.redirect("/order")
 
   } catch (err) {
     console.error("Error confirming order:", err);

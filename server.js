@@ -4197,7 +4197,7 @@ app.get("/order/company/:companyId", async (req, res) => {
 
 
 
-app.get("/user/success-Order",  async (req, res) => {
+app.get("/order/company/user/success-Order",  async (req, res) => {
   try {
     const now = new Date();
     let recipientId = null;
