@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/css/dashall.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AdNet - Pricing Plans</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #ec4899;
+      --dark: #1e1b4b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --success: #10b981;
+      --accent: #06b6d4;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      color: #1e293b;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%);
+      color: white;
+      text-align: center;
+      padding: 120px 20px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero > .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+      animation: slideDown 0.8s ease-out;
+    }
+
+    .hero p {
+      font-size: 1.35rem;
+      max-width: 700px;
+      margin: 0 auto;
+      opacity: 0.95;
+      font-weight: 300;
+      animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Pricing Grid */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 40px;
+      margin: 100px auto;
+      padding: 0 20px;
+      max-width: 1400px;
+    }
+
+    @media (min-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .pricing-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Pricing Card Base */
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      padding: 45px 35px 25px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .card-header h3 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+    }
+
+    .card-header p {
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price {
+      text-align: center;
+      padding: 25px 0 10px;
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #94a3b8;
+      display: block;
+      margin-top: 8px;
+    }
+
+    .features {
+      padding: 30px 35px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .features ul {
+      list-style: none;
+      flex: 1;
+    }
+
+    .features li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .features li:last-child {
+      margin-bottom: 0;
+    }
+
+    .features li svg {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+      color: #10b981;
+    }
+
+    .btn {
+      display: inline-block;
+      width: calc(100% - 70px);
+      margin: 10px 35px 30px;
+      padding: 15px 24px;
+      text-align: center;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      text-transform: uppercase;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Tier Specific Styles */
+    /* Micro */
+    .tier-micro .price { 
+      color: var(--primary);
+      font-weight: 900;
+    }
+
+    .tier-micro .btn {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    }
+
+    .tier-micro .btn:hover { 
+      background: linear-gradient(135deg, var(--primary-dark), #4f46e5);
+      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    /* Macro - Most Popular */
+    .tier-macro {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%);
+      color: white;
+      transform: scale(1.08);
+      z-index: 10;
+      box-shadow: 0 20px 50px rgba(124, 58, 237, 0.3);
+    }
+
+    .tier-macro:hover {
+      transform: scale(1.08) translateY(-12px);
+      box-shadow: 0 30px 60px rgba(124, 58, 237, 0.4);
+    }
+
+    .tier-macro .card-header h3,
+    .tier-macro .card-header p,
+    .tier-macro .price,
+    .tier-macro .features li { 
+      color: white; 
+    }
+
+    .tier-macro .features li svg {
+      color: #4ade80;
+    }
+
+    .tier-macro .price span { 
+      color: rgba(255, 255, 255, 0.85); 
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ec4899, #f472b6);
+      color: white;
+      padding: 10px 28px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tier-macro .btn {
+      background: white;
+      color: #4c1d95;
+      font-weight: 900;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    .tier-macro .btn:hover {
+      background: #f1f5f9;
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Enterprise */
+    .tier-enterprise .price { 
+      color: var(--primary);
+      font-weight: 900;
+    }
+
+    .tier-enterprise .btn {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: white;
+      box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3);
+    }
+
+    .tier-enterprise .btn:hover { 
+      background: linear-gradient(135deg, #0f172a, #020617);
+      box-shadow: 0 8px 25px rgba(30, 41, 59, 0.4);
+    }
+
+    /* Custom */
+    .tier-custom {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      color: white;
+      box-shadow: 0 15px 40px rgba(220, 38, 38, 0.25);
+    }
+
+    .tier-custom:hover {
+      box-shadow: 0 25px 50px rgba(220, 38, 38, 0.35);
+    }
+
+    .tier-custom .card-header h3 { color: white; }
+
+    .tier-custom .price { 
+      color: white;
+      font-weight: 900;
+    }
+
+    .tier-custom .card-header p { 
+      color: rgba(255, 255, 255, 0.9); 
+    }
+
+    .tier-custom .features li {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .tier-custom .features li svg {
+      color: #fbbf24;
+    }
+
+    .tier-custom .btn {
+      background: rgba(255, 255, 255, 0.95);
+      color: #991b1b;
+      font-weight: 900;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    .tier-custom .btn:hover {
+      background: white;
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Bottom CTA */
+    .bottom-cta {
+      text-align: center;
+      padding: 80px 20px 60px;
+      font-size: 1.1rem;
+      color: var(--gray);
+      animation: fadeIn 1s ease-out 0.6s both;
+    }
+
+    .bottom-cta p {
+      margin-bottom: 10px;
+    }
+
+    .bottom-cta a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .bottom-cta a:hover { 
+      color: var(--primary-dark);
+      transform: translateX(4px);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .tier-macro { 
+        transform: scale(1.05);
+      }
+      .tier-macro:hover {
+        transform: scale(1.05) translateY(-12px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 80px 20px 60px;
+      }
+
+      .hero h1 { 
+        font-size: 2.4rem; 
+        margin-bottom: 16px;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .price { 
+        font-size: 2.2rem !important; 
+      }
+
+      .pricing-grid {
+        gap: 30px;
+        margin: 60px auto;
+      }
+
+      .card {
+        border-radius: 20px;
+      }
+
+      .card-header {
+        padding: 35px 25px 20px;
+      }
+
+      .card-header h3 {
+        font-size: 1.5rem;
+      }
+
+      .features {
+        padding: 20px 25px 30px;
+      }
+
+      .btn {
+        width: calc(100% - 50px);
+        margin: 10px 25px 25px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+
+      .tier-macro {
+        transform: scale(1);
+      }
+
+      .tier-macro:hover {
+        transform: translateY(-12px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .hero p {
+        font-size: 0.95rem;
+      }
+
+      .price {
+        font-size: 1.8rem !important;
+      }
+
+      .card-header h3 {
+        font-size: 1.3rem;
+      }
+
+      .features li {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Choose Your AdNet Plan</h1>
+      <p>Powerful advertising & business tools built for Nigerian businesses of all sizes.</p>
+    </div>
+  </section>
+
+  <!-- Pricing Cards -->
+  <div class="container">
+    <div class="pricing-grid">
+
+      <!-- Micro -->
+      <div class="card tier-micro">
+        <div class="card-header">
+          <h3>Micro</h3>
+          <p>Small shops & micro SMEs</p>
+        </div>
+        <div class="price">₦15k <span>– ₦40k</span></div>
+        <div class="features">
+          <ul>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 1–5 users</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Any 2 modules</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Email & chat support</li>
+          </ul>
+        </div>
+        <a href="#contact" class="btn">Get Started</a>
+      </div>
+
+      <!-- Macro (Most Popular) -->
+      <div class="card tier-macro">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="card-header">
+          <h3>Macro</h3>
+          <p>SMEs & growing firms</p>
+        </div>
+        <div class="price">₦150k <span>– ₦350k</span></div>
+        <div class="features">
+          <ul>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 6–25 users</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Any 5 modules</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Priority support</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Advanced analytics</li>
+          </ul>
+        </div>
+        <a href="#contact" class="btn">Get Started Now</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="card tier-enterprise">
+        <div class="card-header">
+          <h3>Enterprise</h3>
+          <p>Large companies</p>
+        </div>
+        <div class="price">₦850k <span>– ₦3.5m</span></div>
+        <div class="features">
+          <ul>
+            <li><svg fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 30–200+ users</li>
+            <li><svg fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Full suite access</li>
+            <li><svg fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Dedicated manager</li>
+            <li><svg fill="#10b981" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Custom integrations</li>
+          </ul>
+        </div>
+        <a href="#contact" class="btn">Contact Sales</a>
+      </div>
+
+      <!-- Custom -->
+      <div class="card tier-custom">
+        <div class="card-header">
+          <h3>Custom</h3>
+          <p>Large & regulated sectors</p>
+        </div>
+        <div class="price">₦20m – ₦150m<span>/year</span></div>
+        <div class="features">
+          <ul>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Unlimited users</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Fully custom modules</li>
+            <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> White-label & compliance</li>
+          </ul>
+        </div>
+        <a href="/subcription/custom" class="btn">Explore Custom →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="bottom-cta">
+    <p>Need help choosing the right plan? <a href="#contact">Talk to our sales team →</a></p>
+  </div>
+
+</body>
+</html>

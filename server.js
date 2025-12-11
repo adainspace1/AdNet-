@@ -6431,6 +6431,18 @@ app.get("/automationsettings", (req, res) => {
 
 
 
+app.get("/subcription", (req, res) => {
+  res.render("subcription/main_sub");
+});
+
+
+app.get("/subcription/custom", (req, res) => {
+  res.render("subcription/custom");
+});
+
+
+
+
 
 
 

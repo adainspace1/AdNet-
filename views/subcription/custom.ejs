@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AdNet - Custom Plan Builder</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #ec4899;
+      --dark: #1e1b4b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --success: #10b981;
+      --card-bg: #ffffff;
+      --selected: #4c1d95;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%);
+      color: white;
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .header h1 { font-size: 3rem; font-weight: 800; margin-bottom: 16px; }
+    .header p { font-size: 1.3rem; opacity: 0.9; max-width: 800px; margin: 0 auto; }
+
+    /* Price Bar */
+    .price-bar {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .price-bar span { color: #a78bfa; }
+
+    /* Section Styling */
+    .section {
+      padding: 80px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .section:last-of-type { border-bottom: none; }
+    .section h2 {
+      text-align: center;
+      font-size: 2.4rem;
+      margin-bottom: 50px;
+      color: var(--dark);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    .card.selected {
+      border-color: var(--selected);
+      background: #f3e8ff;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+    }
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      color: var(--dark);
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: var(--gray);
+      margin-bottom: 16px;
+    }
+    .card .price-tag {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: var(--primary);
+    }
+
+    /* Final CTA */
+    .final-cta {
+      text-align: center;
+      padding: 100px 20px;
+      background: linear-gradient(135deg, #4c1d95, #7c3aed);
+      color: white;
+      margin-top: 50px;
+    }
+    .final-cta h2 { font-size: 2.8rem; margin-bottom: 20px; }
+    .final-price { font-size: 3.5rem; font-weight: 800; margin: 30px 0; }
+    .btn-cta {
+      display: inline-block;
+      background: white;
+      color: #4c1d95;
+      padding: 18px 50px;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-decoration: none;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+    .btn-cta:hover { transform: scale(1.05); background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Price Bar -->
+  <div class="price-bar">
+    Total Estimated Cost: <span id="totalPrice">₦20,000,000</span> / year
+  </div>
+
+  <!-- Header -->
+  <section class="header">
+    <div class="container">
+      <h1>Build Your Custom AdNet Plan</h1>
+      <p>Select the exact modules, pages, and features your enterprise needs. Pay only for what you use.</p>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- Section 1: Groups -->
+    <section class="section">
+      <h2>1. Choose Your Business Groups</h2>
+      <div class="cards-grid" data-section="groups">
+        <div class="card" data-price="5000000">
+          <h3>Audit</h3>
+          <p>Full financial audit trails, compliance logs, and regulatory reporting</p>
+          <div class="price-tag">+₦5m/year</div>
+        </div>
+        <div class="card" data-price="6000000">
+          <h3>Logistics</h3>
+          <p>Supply chain, fleet management, delivery tracking & route optimization</p>
+          <div class="price-tag">+₦6m/year</div>
+        </div>
+        <div class="card" data-price="7000000">
+          <h3>Taxation</h3>
+          <p>Automated tax computation, VAT, PAYE, filings & compliance</p>
+          <div class="price-tag">+₦7m/year</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Pages / Modules -->
+    <section class="section">
+      <h2>2. Select Core Pages & Modules</h2>
+      <div class="cards-grid" data-section="pages">
+        <div class="card" data-price="3000000">
+          <h3>Sales Management</h3>
+          <p>POS, invoicing, quotes, CRM integration</p>
+          <div class="price-tag">+₦3m/year</div>
+        </div>
+        <div class="card" data-price="3500000">
+          <h3>Inventory Pro</h3>
+          <p>Multi-warehouse, stock alerts, barcode, expiry tracking</p>
+          <div class="price-tag">+₦3.5m/year</div>
+        </div>
+        <div class="card" data-price="4000000">
+          <h3>HR & Payroll</h3>
+          <p>Employee records, attendance, payroll, leave management</p>
+          <div class="price-tag">+₦4m/year</div>
+        </div>
+        <div class="card" data-price="4500000">
+          <h3>Customer Portal</h3>
+          <p>Branded client login, order history, payments</p>
+          <div class="price-tag">+₦4.5m/year</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Extra Features -->
+    <section class="section">
+      <h2>3. Add Premium Features</h2>
+      <div class="cards-grid" data-section="features">
+        <div class="card" data-price="8000000">
+          <h3>Extra Staff (1000+ users)</h3>
+          <p>Unlimited staff accounts with role-based access</p>
+          <div class="price-tag">+₦8m/year</div>
+        </div>
+        <div class="card" data-price="10000000">
+          <h3>Unlimited Storage & Backups</h3>
+          <p>Enterprise-grade cloud storage + daily encrypted backups</p>
+          <div class="price-tag">+₦10m/year</div>
+        </div>
+        <div class="card" data-price="15000000">
+          <h3>Custom Development</h3>
+          <p>Dedicated dev team for bespoke features & integrations</p>
+          <div class="price-tag">+₦15m/year</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <h2>Your Custom Plan is Ready!</h2>
+    <div class="final-price" id="finalPrice">₦20,000,OOO / year</div>
+    <p>We’ll fine-tune everything during onboarding. Starting at ₦20m/year base.</p>
+    <a href="mailto:sales@adnet.ng?subject=Custom Plan Request" class="btn-cta">
+      Request Custom Quote →
+    </a>
+  </div>
+
+  <script>
+    const basePrice = 20000000; // ₦20m base
+    let total = basePrice;
+
+    function formatPrice(num) {
+      return '₦' + (num / 1000000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ',000,000';
+    }
+
+    function updatePrice() {
+      document.getElementById('totalPrice').textContent = formatPrice(total);
+      document.getElementById('finalPrice').textContent = formatPrice(total) + ' / year';
+    }
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', function() {
+        this.classList.toggle('selected');
+        const price = parseInt(this.dataset.price);
+        if (this.classList.contains('selected')) {
+          total += price;
+        } else {
+          total -= price;
+        }
+        if (total < basePrice) total = basePrice;
+        updatePrice();
+      });
+    });
+
+    // Initialize
+    updatePrice();
+  </script>
+</body>
+</html>
