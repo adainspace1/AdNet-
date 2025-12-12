@@ -1,4 +1,6 @@
-const ensureAuthenticated = (req, res, next) => {
+const CustomPlan = require('../models/CustomPlan');
+
+const ensureAuthenticated = async (req, res, next) => {
     try {
         const url = req.originalUrl || '';
         const urlLower = url.toLowerCase();
@@ -7,12 +9,75 @@ const ensureAuthenticated = (req, res, next) => {
         // Case 1: Superadmin/Admin (full access)
         if (req.session && req.session.user) {
             const userId = req.session.user._id;
+            
+            // EXCEPTION: Dashboard is accessible without subscription check
+            if (urlLower === '/dashboard' || urlLower.startsWith('/dashboard?')) {
+                console.log(
+                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED (DASHBOARD - NO SUB REQUIRED) | userId: ${userId}`
+                );
+                req.recipientId = userId;
+                req.isWorker = false;
+                return next();
+            }
+            
             console.log(
-                `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED | userId: ${userId} | email: ${req.session.user.email || ''}`
+                `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | CHECKING SUBSCRIPTION...`
             );
+
+            // Check subscription for this user
+            const subscription = await CustomPlan.findOne({ userId });
+
+            if (!subscription) {
+                console.log(
+                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | BLOCKED - NO SUBSCRIPTION | userId: ${userId}`
+                );
+                 return res.redirect(`/not-subscribed-yet?id=${userId}`);
+            }
+
+            // Extract the page/module name from URL
+            const pageSegments = url.split('/').filter(s => s);
+            const requestedPage = pageSegments[0] || 'home';
+
+            // Check if this specific page is in their subscription items
+            const hasPageAccess = subscription.items.some(item => 
+              item.name.toLowerCase().includes(requestedPage.toLowerCase()) ||
+              requestedPage.toLowerCase().includes(item.name.toLowerCase())
+            );
+
+            // Log detailed subscription info
+            console.log(`\n[AUTH SUBSCRIPTION CHECK] ${now}`);
+            console.log(`├─ Page Requested: ${requestedPage}`);
+            console.log(`├─ Full URL: ${url}`);
+            console.log(`├─ User ID: ${userId}`);
+            console.log(`├─ User Name: ${req.session.user.name || 'Unknown'}`);
+            console.log(`├─ User Email: ${req.session.user.email || 'Unknown'}`);
+            console.log(`├─ Subscription ID: ${subscription._id}`);
+            console.log(`├─ Contract Length: ${subscription.contract} months`);
+            console.log(`├─ Number of Users: ${subscription.users}`);
+            console.log(`├─ Total Cost: ₦${subscription.total}`);
+            console.log(`├─ Subscription Status: ${subscription.status}`);
+            console.log(`├─ Created: ${subscription.createdAt}`);
+            console.log(`├─ Subscribed Items: ${subscription.items.length}`);
+            if (subscription.items.length > 0) {
+              subscription.items.forEach((item, index) => {
+                const isMatch = item.name.toLowerCase().includes(requestedPage.toLowerCase()) || requestedPage.toLowerCase().includes(item.name.toLowerCase());
+                console.log(`│  ${index + 1}. ${item.name} (₦${item.total}) ${isMatch ? '✓ MATCH' : ''}`);
+              });
+            }
+            
+            // If page not in subscription, redirect to add-subscription
+            if (!hasPageAccess) {
+              console.log(`├─ Page Access: ❌ NOT SUBSCRIBED`);
+              console.log(`└─ STATUS: DENIED - Redirecting to /add-subscription\n`);
+              return res.redirect(`/add-subscription?page=${requestedPage}&id=${userId}`);
+            }
+
+            console.log(`├─ Page Access: ✓ SUBSCRIBED`);
+            console.log(`└─ STATUS: ✓ ALLOWED\n`);
 
             req.recipientId = userId;
             req.isWorker = false;
+            req.userSubscription = subscription;
             return next();
         }
 

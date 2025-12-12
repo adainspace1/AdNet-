@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Subscribed Yet - AdNet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      max-width: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 80px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .features {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .features h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .features ul {
+      list-style: none;
+      margin: 0;
+    }
+
+    .features li {
+      color: #555;
+      padding: 12px 0;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+    }
+
+    .features li:last-child {
+      border-bottom: none;
+    }
+
+    .features li:before {
+      content: "✓";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 15px;
+      font-size: 1.3rem;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 2px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+      background: #e8e8e8;
+      border-color: #999;
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .info-box p {
+      color: #1565c0;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 40px 20px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📋</div>
+
+    <h1>No Active Subscription</h1>
+
+    <p class="subtitle">
+      You haven't subscribed to any AdNet plan yet. Choose a plan to get started and unlock powerful business management tools.
+    </p>
+
+    <div class="features">
+      <h3>Why Subscribe to AdNet?</h3>
+      <ul>
+        <li>Full access to all business modules</li>
+        <li>Custom dashboard tailored to your needs</li>
+        <li>Real-time reporting and analytics</li>
+        <li>24/7 customer support</li>
+        <li>Flexible contract terms (1 month to 10 years)</li>
+        <li>Scale with your business growth</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <p>
+        💡 <strong>Starting at ₦20m/year base</strong> with flexible add-ons. Pay only for what you need!
+      </p>
+    </div>
+
+    <div class="cta-buttons">
+      <a href="subcription?id=<%= userId %>" class="btn btn-primary">
+        Choose a Plan
+      </a>
+      <a href="/dashboard" class="btn btn-secondary">
+        Back to Home
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/css/dashall.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AdNet - Custom Plan Builder</title>
   <style>
@@ -138,7 +139,6 @@
     Total Estimated Cost: <span id="totalPrice">₦20,000,000</span> / year
   </div>
 
-  <!-- Header -->
   <section class="header">
     <div class="container">
       <h1>Build Your Custom AdNet Plan</h1>
@@ -148,95 +148,269 @@
 
   <div class="container">
 
-    <!-- Section 1: Groups -->
+    <!-- Section 1: Business Groups -->
     <section class="section">
       <h2>1. Choose Your Business Groups</h2>
       <div class="cards-grid" data-section="groups">
-        <div class="card" data-price="5000000">
-          <h3>Audit</h3>
-          <p>Full financial audit trails, compliance logs, and regulatory reporting</p>
-          <div class="price-tag">+₦5m/year</div>
-        </div>
-        <div class="card" data-price="6000000">
-          <h3>Logistics</h3>
-          <p>Supply chain, fleet management, delivery tracking & route optimization</p>
-          <div class="price-tag">+₦6m/year</div>
-        </div>
-        <div class="card" data-price="7000000">
-          <h3>Taxation</h3>
-          <p>Automated tax computation, VAT, PAYE, filings & compliance</p>
-          <div class="price-tag">+₦7m/year</div>
-        </div>
+        <div class="card" data-price="5000000"><h3>Audit</h3><p>Full financial audit trails, compliance logs, and reporting</p><div class="price-tag">+₦5m/year</div></div>
+        <div class="card" data-price="6000000"><h3>Logistics</h3><p>Fleet, delivery, route management</p><div class="price-tag">+₦6m/year</div></div>
+        <div class="card" data-price="7000000"><h3>Taxation</h3><p>Automated tax computation & compliance</p><div class="price-tag">+₦7m/year</div></div>
+        <div class="card" data-price="6500000"><h3>Procurement</h3><p>Supplier, purchase orders, payables</p><div class="price-tag">+₦6.5m/year</div></div>
+        <div class="card" data-price="7500000"><h3>HR</h3><p>Recruitment, staff management, performance</p><div class="price-tag">+₦7.5m/year</div></div>
+        <div class="card" data-price="5500000"><h3>Warehouse</h3><p>Storage, stock movement, dispatch</p><div class="price-tag">+₦5.5m/year</div></div>
       </div>
     </section>
 
-    <!-- Section 2: Pages / Modules -->
+    <!-- Section 2: All Pages & Modules -->
     <section class="section">
       <h2>2. Select Core Pages & Modules</h2>
       <div class="cards-grid" data-section="pages">
-        <div class="card" data-price="3000000">
-          <h3>Sales Management</h3>
-          <p>POS, invoicing, quotes, CRM integration</p>
-          <div class="price-tag">+₦3m/year</div>
-        </div>
-        <div class="card" data-price="3500000">
-          <h3>Inventory Pro</h3>
-          <p>Multi-warehouse, stock alerts, barcode, expiry tracking</p>
-          <div class="price-tag">+₦3.5m/year</div>
-        </div>
-        <div class="card" data-price="4000000">
-          <h3>HR & Payroll</h3>
-          <p>Employee records, attendance, payroll, leave management</p>
-          <div class="price-tag">+₦4m/year</div>
-        </div>
-        <div class="card" data-price="4500000">
-          <h3>Customer Portal</h3>
-          <p>Branded client login, order history, payments</p>
-          <div class="price-tag">+₦4.5m/year</div>
-        </div>
+        <!-- Main Dashboard Pages -->
+        <div class="card" data-price="500000"><h3>Account Payable</h3><p>Manage outgoing payments</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="500000"><h3>Account Receivable</h3><p>Incoming payments & customers</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="500000"><h3>Reconciliation</h3><p>Match ledgers & bank statements</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="500000"><h3>AP</h3><p>Advanced payables</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="800000"><h3>Asset Management</h3><p>Track company assets</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="700000"><h3>Automation Settings</h3><p>Workflows & triggers</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="600000"><h3>Balance Sheet</h3><p>Financial position</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Budget</h3><p>Planning & projections</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Cashflow</h3><p>Cash movement monitoring</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="500000"><h3>Credit Management</h3><p>Customer credit control</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="900000"><h3>CRM</h3><p>Customer relationship tools</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="900000"><h3>Dashboard</h3><p>Analytics overview</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="500000"><h3>Debt Management</h3><p>Track debts & payments</p><div class="price-tag">+₦0.5m</div></div>
+        <div class="card" data-price="400000"><h3>Expenses</h3><p>Record expenditures</p><div class="price-tag">+₦0.4m</div></div>
+        <div class="card" data-price="900000"><h3>Finance</h3><p>Financial hub</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="700000"><h3>Inventory Forecast</h3><p>Predict stock needs</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="700000"><h3>Inventory Tracking</h3><p>Monitor all inventory</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="700000"><h3>Inventory</h3><p>Inventory master</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="600000"><h3>Ledger Liquidity</h3><p>Liquidity monitoring</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="300000"><h3>Login</h3><p>User authentication page</p><div class="price-tag">+₦0.3m</div></div>
+        <div class="card" data-price="600000"><h3>Order Confirm</h3><p>Order confirmation page</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Order View</h3><p>View orders</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Orders</h3><p>Order management</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="900000"><h3>Payroll</h3><p>Staff salary management</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="600000"><h3>Price Call</h3><p>Pricing requests</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="800000"><h3>Price Determination</h3><p>Dynamic pricing tools</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="900000"><h3>Print Invoice</h3><p>Invoice printing template</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="900000"><h3>Production</h3><p>Manufacturing workflow</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="900000"><h3>Profit</h3><p>Profitability analytics</p><div class="price-tag">+₦0.9m</div></div>
+        <div class="card" data-price="800000"><h3>Reports & Analytics</h3><p>Data insights</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="600000"><h3>Sale History</h3><p>Past transactions</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Sales</h3><p>Sales dashboard</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="700000"><h3>Sales Forecasting</h3><p>Predict sales</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="700000"><h3>Sales Metric Overview</h3><p>Performance KPIs</p><div class="price-tag">+₦0.7m</div></div>
+        <div class="card" data-price="600000"><h3>Taxation</h3><p>Tax tools & filings</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Transactions</h3><p>Financial activities</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>All Expenses</h3><p>View all expenses</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="600000"><h3>Wallet</h3><p>Digital wallet</p><div class="price-tag">+₦0.6m</div></div>
+
+        <!-- Admin Pages -->
+        <div class="card" data-price="700000"><h3>Admin</h3><p>Admin control center</p><div class="price-tag">+₦0.7m</div></div>
+
+        <!-- Auditing Pages -->
+        <div class="card" data-price="800000"><h3>Audit (Automatic)</h3><p>Auto audit logs</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="800000"><h3>Audit (Manual)</h3><p>Manual audits</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="800000"><h3>Audit Planning</h3><p>Schedule & monitor audits</p><div class="price-tag">+₦0.8m</div></div>
+
+        <!-- Driver Pages -->
+        <div class="card" data-price="400000"><h3>Driver Dashboard</h3><p>Driver tools</p><div class="price-tag">+₦0.4m</div></div>
+        <div class="card" data-price="300000"><h3>Driver Login</h3><p>Login module</p><div class="price-tag">+₦0.3m</div></div>
+        <div class="card" data-price="300000"><h3>Driver Signup</h3><p>Registration</p><div class="price-tag">+₦0.3m</div></div>
+
+        <!-- Procurement -->
+        <div class="card" data-price="800000"><h3>Supplier</h3><p>Suppliers management</p><div class="price-tag">+₦0.8m</div></div>
+
+        <!-- Taxation -->
+        <div class="card" data-price="700000"><h3>Statutory</h3><p>Compliance docs</p><div class="price-tag">+₦0.7m</div></div>
+
+        <!-- User Order Pages -->
+        <div class="card" data-price="400000"><h3>User Order</h3><p>Customer order page</p><div class="price-tag">+₦0.4m</div></div>
+        <div class="card" data-price="300000"><h3>Home</h3><p>User homepage</p><div class="price-tag">+₦0.3m</div></div>
+        <div class="card" data-price="300000"><h3>Success</h3><p>Success screen</p><div class="price-tag">+₦0.3m</div></div>
+
+        <!-- Vendor Pages -->
+        <div class="card" data-price="600000"><h3>Vendor Auth</h3><p>Vendor login/registration</p><div class="price-tag">+₦0.6m</div></div>
+
+        <!-- Warehouse Pages -->
+        <div class="card" data-price="700000"><h3>Warehousing</h3><p>Storage tools</p><div class="price-tag">+₦0.7m</div></div>
+
+        <!-- Warning Pages -->
+        <div class="card" data-price="100000"><h3>Warning Page</h3><p>System alerts</p><div class="price-tag">+₦0.1m</div></div>
+
+        <!-- Worker Pages -->
+        <div class="card" data-price="500000"><h3>Worker Login</h3><p>Internal staff login</p><div class="price-tag">+₦0.5m</div></div>
+
+        <!-- Misc Folders -->
+        <div class="card" data-price="800000"><h3>Audit (Wisdom)</h3><p>Advanced audit folder</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="800000"><h3>CRM (Wisdom)</h3><p>Extra CRM features</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="800000"><h3>HR Addons</h3><p>Talent & training tools</p><div class="price-tag">+₦0.8m</div></div>
+        <div class="card" data-price="600000"><h3>Logistics (Addons)</h3><p>Extra logistics utilities</p><div class="price-tag">+₦0.6m</div></div>
+        <div class="card" data-price="700000"><h3>Reports</h3><p>Generate all reports</p><div class="price-tag">+₦0.7m</div></div>
       </div>
     </section>
 
-    <!-- Section 3: Extra Features -->
+    <!-- Section 3: Premium Features -->
     <section class="section">
       <h2>3. Add Premium Features</h2>
       <div class="cards-grid" data-section="features">
-        <div class="card" data-price="8000000">
-          <h3>Extra Staff (1000+ users)</h3>
-          <p>Unlimited staff accounts with role-based access</p>
-          <div class="price-tag">+₦8m/year</div>
-        </div>
-        <div class="card" data-price="10000000">
-          <h3>Unlimited Storage & Backups</h3>
-          <p>Enterprise-grade cloud storage + daily encrypted backups</p>
-          <div class="price-tag">+₦10m/year</div>
-        </div>
-        <div class="card" data-price="15000000">
-          <h3>Custom Development</h3>
-          <p>Dedicated dev team for bespoke features & integrations</p>
-          <div class="price-tag">+₦15m/year</div>
-        </div>
+        <div class="card" data-price="8000000"><h3>Extra Staff (1000+ users)</h3><p>Unlimited accounts</p><div class="price-tag">+₦8m/year</div></div>
+        <div class="card" data-price="10000000"><h3>Unlimited Storage</h3><p>Enterprise cloud storage</p><div class="price-tag">+₦10m/year</div></div>
+        <div class="card" data-price="15000000"><h3>Custom Development</h3><p>Dedicated engineering</p><div class="price-tag">+₦15m/year</div></div>
+
+        <!-- Additional AdNet Recommended Features -->
+        <div class="card" data-price="12000000"><h3>AI Automation Suite</h3><p>Predictive analytics, AI chatbots, anomaly detection</p><div class="price-tag">+₦12m/year</div></div>
+        <div class="card" data-price="9000000"><h3>Advanced Security</h3><p>Biometric login, threat detection, audit shielding</p><div class="price-tag">+₦9m/year</div></div>
+        <div class="card" data-price="6000000"><h3>API Integrations</h3><p>Connect to banks, ERPs, CRMs</p><div class="price-tag">+₦6m/year</div></div>
+        <div class="card" data-price="11000000"><h3>Disaster Recovery</h3><p>Data replication + failover system</p><div class="price-tag">+₦11m/year</div></div>
+        <div class="card" data-price="5000000"><h3>Mobile App Deployment</h3><p>Android + iOS versions of your system</p><div class="price-tag">+₦5m/year</div></div>
       </div>
     </section>
-
   </div>
+
+  <!-- Final Section: Dynamic Item Form -->
+  <div class="container">
+    <section class="section">
+      <h2>Build Your Selection</h2>
+      
+      <!-- Dynamic Form -->
+      <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-top: 30px;">
+        
+        <!-- Input Section for Manual Items -->
+        <div style="background: #f3f4f6; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+          <h3 style="margin-bottom: 20px; color: var(--dark);">Add Custom Items (Optional)</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Item Name</label>
+              <input type="text" id="itemName" placeholder="e.g., CRM Module" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;" />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Description</label>
+              <input type="text" id="itemDesc" placeholder="e.g., Customer Relationship Management" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;" />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Quantity</label>
+              <input type="number" id="itemQty" placeholder="1" value="1" min="1" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;" />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Unit Price (₦)</label>
+              <input type="number" id="itemPrice" placeholder="0" value="0" min="0" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;" />
+            </div>
+          </div>
+          
+          <button type="button" id="addBtn" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; padding: 12px 32px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 0.95rem;">
+            + Add Item
+          </button>
+        </div>
+
+        <!-- Items Table -->
+        <div style="overflow-x: auto;">
+          <table id="itemsTable" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f3f4f6; border-bottom: 2px solid #cbd5e1;">
+                <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Item Name</th>
+                <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Description</th>
+                <th style="padding: 16px; text-align: center; font-weight: 600; color: #475569;">Qty</th>
+                <th style="padding: 16px; text-align: right; font-weight: 600; color: #475569;">Unit Price</th>
+                <th style="padding: 16px; text-align: right; font-weight: 600; color: #475569;">Total</th>
+                <th style="padding: 16px; text-align: center; font-weight: 600; color: #475569;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Items will be added here -->
+            </tbody>
+          </table>
+          <div id="emptyMsg" style="text-align: center; padding: 40px; color: #94a3b8; font-size: 1rem;">No items selected yet. Click on plan cards above or add custom items.</div>
+        </div>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); padding: 20px; border-radius: 12px; margin-top: 20px;">
+          <div style="font-size: 0.95rem; color: #475569; margin-bottom: 12px;">
+            <strong>Items Subtotal:</strong> <span id="subtotalDisplay">₦0</span>
+          </div>
+          <div style="font-size: 0.95rem; color: #475569; margin-bottom: 12px;">
+            <strong>Service Cost:</strong> <span id="pricingInfo">₦20m / year × 10 years = ₦200m</span>
+          </div>
+          <div style="height: 1px; background: #cbd5e1; margin: 12px 0;"></div>
+          <div style="font-size: 1.5rem; color: var(--primary); font-weight: 800; text-align: right;">
+            <strong>Total:</strong> <span id="totalDisplay">₦0</span>
+          </div>
+        </div>
+
+        <!-- Order Details Form -->
+        <form id="customForm" style="margin-top: 30px;">
+          <h3 style="margin-bottom: 20px; color: var(--dark);">Order Details</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div>
+                <input type="text" name="userid" id="userId" value="<%= userId %>">
+
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Contract Length (Months) *</label>
+              <select id="contractYears" name="contract" required style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
+                <option value="">Select contract length</option>
+                <option value="1">1 Month</option>
+                <option value="3">3 Months</option>
+                <option value="6">6 Months</option>
+                <option value="12">1 Year</option>
+                <option value="24">2 Years</option>
+                <option value="36">3 Years</option>
+                <option value="48">4 Years</option>
+                <option value="60">5 Years</option>
+                <option value="72">6 Years</option>
+                <option value="84">7 Years</option>
+                <option value="96">8 Years</option>
+                <option value="108">9 Years</option>
+                <option value="120" selected>10 Years</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Number of Users/Staff *</label>
+              <input type="number" id="staffCount" name="users" min="1" value="10" required style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;" />
+              <small style="color: #94a3b8; display: block; margin-top: 4px;">Price adjusts based on staff count</small>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Notes / Special Requirements</label>
+            <textarea name="notes" rows="4" placeholder="Any special requirements, compliance needs, integrations, etc..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-family: inherit;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <button class="btn-cta" type="submit" style="background: linear-gradient(135deg, var(--primary), #6366f1); color: white; padding: 14px 40px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 1rem; text-decoration: none; display: inline-block;">
+              Submit Order
+            </button>
+            <div id="formMsg" style="color: var(--primary); font-weight: 600;"></div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
 
   <!-- Final CTA -->
   <div class="final-cta">
     <h2>Your Custom Plan is Ready!</h2>
     <div class="final-price" id="finalPrice">₦20,000,OOO / year</div>
     <p>We’ll fine-tune everything during onboarding. Starting at ₦20m/year base.</p>
-    <a href="mailto:sales@adnet.ng?subject=Custom Plan Request" class="btn-cta">
-      Request Custom Quote →
+    <a href="" class="btn-submit btn-cta">
+      Submit
     </a>
   </div>
 
   <script>
     const basePrice = 20000000; // ₦20m base
     let total = basePrice;
+    let selectedItems = []; // Track all selected items from cards
 
     function formatPrice(num) {
-      return '₦' + (num / 1000000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ',000,000';
+      return '₦' + (num / 1000000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + 'm';
     }
 
     function updatePrice() {
@@ -244,22 +418,271 @@
       document.getElementById('finalPrice').textContent = formatPrice(total) + ' / year';
     }
 
+    // Handle card selection and add to selectedItems
     document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', function() {
         this.classList.toggle('selected');
         const price = parseInt(this.dataset.price);
+        const title = this.querySelector('h3').textContent.trim();
+        const desc = this.querySelector('p').textContent.trim();
+
         if (this.classList.contains('selected')) {
           total += price;
+          // Add to selectedItems array
+          selectedItems.push({
+            id: Date.now() + Math.random(),
+            name: title,
+            desc: desc,
+            qty: 1,
+            price: price,
+            total: price
+          });
         } else {
           total -= price;
+          // Remove from selectedItems array
+          selectedItems = selectedItems.filter(item => 
+            !(item.name === title && item.price === price)
+          );
         }
         if (total < basePrice) total = basePrice;
         updatePrice();
+        // Auto-add to table
+        renderTable();
+        updateSummary();
       });
     });
 
     // Initialize
     updatePrice();
+
+    // ==================== DYNAMIC TABLE FUNCTIONALITY ====================
+    let items = [];
+
+    function formatNaira(num) {
+      return '₦' + Number(num).toLocaleString('en-NG');
+    }
+
+    function addItem() {
+      const name = document.getElementById('itemName').value.trim();
+      const desc = document.getElementById('itemDesc').value.trim();
+      const qty = parseInt(document.getElementById('itemQty').value) || 1;
+      const price = parseInt(document.getElementById('itemPrice').value) || 0;
+
+      if (!name) {
+        alert('Please enter item name');
+        return;
+      }
+
+      items.push({
+        id: Date.now(),
+        name,
+        desc,
+        qty,
+        price,
+        total: qty * price
+      });
+
+      // Clear inputs
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemDesc').value = '';
+      document.getElementById('itemQty').value = '1';
+      document.getElementById('itemPrice').value = '0';
+
+      renderTable();
+      updateSummary();
+    }
+
+    function removeItem(id) {
+      items = items.filter(item => item.id !== id);
+      renderTable();
+      updateSummary();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const emptyMsg = document.getElementById('emptyMsg');
+      
+      // Combine both selected cards items and manually added items
+      const allItems = [...selectedItems, ...items];
+
+      if (allItems.length === 0) {
+        tbody.innerHTML = '';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+
+      emptyMsg.style.display = 'none';
+      tbody.innerHTML = allItems.map(item => `
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 16px; color: #1e293b; font-weight: 600;">${item.name}</td>
+          <td style="padding: 16px; color: #64748b;">${item.desc}</td>
+          <td style="padding: 16px; text-align: center; color: #475569;">${item.qty}</td>
+          <td style="padding: 16px; text-align: right; color: #475569;">${formatNaira(item.price)}</td>
+          <td style="padding: 16px; text-align: right; font-weight: 600; color: var(--primary);">${formatNaira(item.total)}</td>
+          <td style="padding: 16px; text-align: center;">
+            <button type="button" onclick="removeItem(${item.id})" style="background: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.3s;">
+              Remove
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateSummary() {
+      const allItems = [...selectedItems, ...items];
+      const itemsSubtotal = allItems.reduce((sum, item) => sum + item.total, 0);
+      
+      // Only show service cost if items have been selected
+      let finalTotal = itemsSubtotal;
+      let pricingText = 'No service cost yet - select items first';
+      
+      if (itemsSubtotal > 0) {
+        const pricing = calculateDynamicPrice();
+        finalTotal = itemsSubtotal + pricing.totalPrice;
+        pricingText = `₦${(pricing.monthlyCost / 1000000).toFixed(2)}m / month × ${pricing.contractMonths} months = ${formatNaira(pricing.totalPrice)}`;
+      }
+
+      document.getElementById('subtotalDisplay').textContent = formatNaira(itemsSubtotal);
+      document.getElementById('pricingInfo').textContent = pricingText;
+      document.getElementById('totalDisplay').textContent = formatNaira(finalTotal);
+    }
+
+    // Event Listeners
+    document.getElementById('addBtn').addEventListener('click', addItem);
+    
+    document.getElementById('itemName').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addItem();
+    });
+
+    // Calculate pricing based on contract months and staff count
+    function calculateDynamicPrice() {
+      const contractMonths = Number(document.getElementById('contractYears').value) || 1;
+      const staffCount = Number(document.getElementById('staffCount').value) || 1;
+      
+      // Base price per year is ₦20m, so per month is ₦20m/12
+      const basePricePerMonth = 20000000 / 12;
+      
+      // Staff multiplier: ₦500k per staff member per year, so per month is ₦500k/12
+      const staffMultiplierPerMonth = 500000 / 12;
+      
+      // Calculate monthly cost
+      const monthlyCost = basePricePerMonth + (staffCount * staffMultiplierPerMonth);
+      
+      // Calculate total for contract period
+      const totalPrice = monthlyCost * contractMonths;
+      
+      return {
+        monthlyCost,
+        totalPrice,
+        contractMonths,
+        staffCount
+      };
+    }
+
+    // Update price display when contract or staff changes
+    function updateDynamicPrice() {
+      const allItems = [...selectedItems, ...items];
+      const itemsSubtotal = allItems.reduce((sum, item) => sum + item.total, 0);
+      
+      // Only apply service cost if items have been selected
+      if (itemsSubtotal === 0) {
+        document.getElementById('totalPrice').textContent = '₦0';
+        document.getElementById('finalPrice').textContent = '₦0 / contract';
+        updateSummary();
+        return;
+      }
+      
+      const pricing = calculateDynamicPrice();
+      const finalTotal = itemsSubtotal + pricing.totalPrice;
+
+      document.getElementById('totalPrice').textContent = formatNaira(pricing.totalPrice);
+      document.getElementById('finalPrice').textContent = formatNaira(finalTotal) + ' / contract';
+      
+      updateSummary();
+    }
+
+    // Add event listeners for dynamic price updates
+    document.getElementById('contractYears').addEventListener('change', updateDynamicPrice);
+    document.getElementById('staffCount').addEventListener('input', updateDynamicPrice);
+
+    // Form Submission - Send simplified payload with userId from session
+    document.getElementById('customForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const allItems = [...selectedItems, ...items];
+      if (allItems.length === 0) {
+        alert('Please select items or add custom items before submitting');
+        return;
+      }
+
+        // Grab userId from the hidden/input field
+  const userId = document.getElementById('userId').value.trim();
+
+  if (!userId) {
+    alert('No userId found!');
+    return;
+  }
+
+
+      const f = e.target;
+      const contractMonths = Number(f.contract.value) || 1;
+      const staffCount = Number(f.users.value) || 1;
+      const pricing = calculateDynamicPrice();
+
+      const formData = {
+        userId: userId,
+        items: allItems,
+        subtotal: allItems.reduce((sum, item) => sum + item.total, 0),
+        total: allItems.reduce((sum, item) => sum + item.total, 0) + pricing.totalPrice,
+        contract: contractMonths,
+        users: staffCount,
+        monthlyCost: pricing.monthlyCost,
+        notes: f.notes.value.trim()
+      };
+
+      if (!formData.contract || !formData.users) {
+        document.getElementById('formMsg').textContent = 'Please fill all required fields.';
+        return;
+      }
+
+      document.getElementById('formMsg').textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/plans/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const json = await res.json();
+if (res.ok || json.success) {
+  document.getElementById('formMsg').textContent = '✓ Order submitted successfully!';
+  f.reset();
+  selectedItems = [];
+  items = [];
+  renderTable();
+  updateSummary();
+  
+  setTimeout(() => {
+    // Use redirect from backend
+    window.location.href = json.redirect;
+  }, 2000);
+} else {
+  document.getElementById('formMsg').textContent = 'Error: ' + (json.message || res.statusText);
+}
+
+      } catch (err) {
+        console.error('Error:', err);
+        document.getElementById('formMsg').textContent = 'Network error. Try again.';
+      }
+    });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      renderTable();
+      updateSummary();
+    });
   </script>
+
 </body>
 </html>

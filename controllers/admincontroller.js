@@ -320,7 +320,7 @@ const createBankInfo = async (req, res) => {
     //   // redirect: `/Finished?id=${reciepientId}` // originally: res.redirect(...)
     // });
 
-    res.redirect(`/Finished?id=${reciepientId}`)
+    res.redirect(`/subcription?id=${reciepientId}`)
 
   } catch (error) {
     console.error("Error saving bank info:", error);

@@ -81,6 +81,7 @@ const driverRoutes = require('./routes/driverRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const orderController = require('./controllers/orderController');
 const logisticsRoutes = require('./routes/logisticsRoutes');
+const plansRoutes = require('./routes/plans');
 
 
 
@@ -157,6 +158,7 @@ app.use('/HR', hrRoutes);
 app.use('/driver', driverRoutes);
 app.use('/Order', orderRoutes);
 app.use('/logistics', logisticsRoutes);
+app.use('/api/plans', plansRoutes);
 
 
 
@@ -278,6 +280,37 @@ app.get("/Bank", async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+
+app.get("/subcription", (req, res) => {
+  const userId = req.query.id;  // get ?id=
+
+  res.render("subcription/main_sub", { userId });
+});
+
+
+
+app.get("/not-subscribed-yet", (req, res) => {
+  const userId = req.query.id;  // get ?id=
+
+  res.render("not-subscribed-yet", { userId });
+});
+
+app.get("/add-subscription", (req, res) => {
+  const userId = req.query.id;  // get ?id=
+
+  res.render("add-subscription", { userId });
+});
+
+app.get("/subcription/custom", (req, res) => {
+  const userId = req.query.id;
+
+  res.render("subcription/custom", { userId });
+});
+
+
+
 
 
 
@@ -6430,15 +6463,6 @@ app.get("/automationsettings", (req, res) => {
 
 
 
-
-app.get("/subcription", (req, res) => {
-  res.render("subcription/main_sub");
-});
-
-
-app.get("/subcription/custom", (req, res) => {
-  res.render("subcription/custom");
-});
 
 
 

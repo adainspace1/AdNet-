@@ -596,7 +596,7 @@
             <li><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> White-label & compliance</li>
           </ul>
         </div>
-        <a href="/subcription/custom" class="btn">Explore Custom →</a>
+        <a href="/subcription/custom?id=<%= userId %>" class="btn">Explore Custom →</a>
       </div>
 
     </div>
@@ -607,5 +607,68 @@
     <p>Need help choosing the right plan? <a href="#contact">Talk to our sales team →</a></p>
   </div>
 
+
+
+  <script>
+{
+id: 'micro', title: 'Micro', subtitle: 'Small shops & micro SMEs', priceMin: 15000, priceMax: 40000,
+bullets: ['1–5 users','Any 2 modules','Email & chat support'], cta: '/contact'
+},
+{
+id: 'macro', title: 'Macro', subtitle: 'SMEs & growing firms', priceMin: 150000, priceMax: 350000,
+bullets: ['6–25 users','Any 5 modules','Priority support','Advanced analytics'], cta: '/contact'
+},
+{
+id: 'enterprise', title: 'Enterprise', subtitle: 'Large companies', priceMin: 850000, priceMax: 3500000,
+bullets: ['30–200+ users','Full suite access','Dedicated manager','Custom integrations'], cta: '/contact'
+},
+{
+id: 'custom', title: 'Custom', subtitle: 'Large & regulated sectors', priceMin: 20000000, priceMax: 150000000,
+bullets: ['Unlimited users','Fully custom modules','White-label & compliance'], cta: '/subscription/custom'
+}
+];
+
+
+const plansGrid = document.getElementById('plansGrid');
+
+
+function createCard(plan, isPopular=false) {
+const div = document.createElement('div');
+div.className = 'card ' + (plan.id === 'macro' ? 'tier-macro' : (plan.id === 'custom' ? 'tier-custom' : (plan.id === 'enterprise' ? 'tier-enterprise' : 'tier-micro')));
+
+
+const header = document.createElement('div'); header.className = 'card-header';
+header.innerHTML = `<h3 style="margin:0;font-size:1.25rem">${plan.title}</h3><p class="muted" style="margin-top:6px;letter-spacing:.6px">${plan.subtitle}</p>`;
+div.appendChild(header);
+
+
+const priceEl = document.createElement('div'); priceEl.className = 'price';
+priceEl.innerHTML = `${formatNaira(plan.priceMin)} <span style="font-size:.5em;color:#6b7280;display:block;margin-top:6px">– ${formatNaira(plan.priceMax)}${plan.id==='custom' ? ' <span style="font-weight:700">/year</span>':''}</span>`;
+div.appendChild(priceEl);
+
+
+const feats = document.createElement('div'); feats.className='features';
+const ul = document.createElement('ul'); ul.style.listStyle='none'; ul.style.padding='0';
+for (const b of plan.bullets) {
+const li = document.createElement('li'); li.style.marginBottom='12px'; li.innerHTML = `✔ ${b}`; ul.appendChild(li);
+}
+feats.appendChild(ul);
+const btn = document.createElement('a'); btn.href = plan.cta; btn.className = 'btn'; btn.textContent = plan.id==='custom' ? 'Explore Custom →' : (plan.id==='enterprise'? 'Contact Sales' : 'Get Started');
+feats.appendChild(btn);
+div.appendChild(feats);
+
+
+if (isPopular) {
+const badge = document.createElement('div'); badge.className='popular-badge'; badge.textContent='MOST POPULAR'; div.style.position='relative'; div.appendChild(badge);
+}
+
+
+return div;
+}
+
+
+// render
+PLANS.forEach(p => plansGrid.appendChild(createCard(p, p.id==='macro')));
+</script>
 </body>
 </html>

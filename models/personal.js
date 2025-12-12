@@ -1,4 +1,3 @@
-// Personal Model
 const mongoose = require('mongoose');
 
 const userFormSchema = new mongoose.Schema({
@@ -11,23 +10,27 @@ const userFormSchema = new mongoose.Schema({
   // Step 2: Contact
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
-  password: { type: String }, // Add hashing if needed
+  password: { type: String },
 
   // Step 3: Address
   streetAddress: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
   country: { type: String, required: true },
-  plan: { type: String, required: true },
   zipCode: { type: String, required: true },
-    tier: {
+
+  // Plan info
+  plan: { type: String, default: '' },    // can store something like "Custom Plan - 12 months / 10 users"
+  total: { type: Number, default: 0 },   // store total cost of this plan
+
+  tier: {
     type: Number,
-    enum: [1, 2, 3], // 1=API Wallet, 2=Platform Wallet, 3=Bank & Third-Party
+    enum: [1, 2, 3],
     default: 1
   },
-    creditLimit: { type: Number, default: 500000 }, // 💰 threshold range
-  creditWarning: { type: Number, default: 300000 }, // ⚠️ warning threshold
-  usedCredit: { type: Number, default: 0 }, // 🧮 dynamic tracker
+  creditLimit: { type: Number, default: 500000 },
+  creditWarning: { type: Number, default: 300000 },
+  usedCredit: { type: Number, default: 0 },
   availableCredit: { type: Number, default: function() { return this.creditLimit; } },
 }, {
   timestamps: true

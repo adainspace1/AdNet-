@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Subscription - AdNet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      max-width: 650px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 80px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .access-info {
+      background: #fff3cd;
+      border-left: 4px solid #ff9800;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .access-info p {
+      color: #856404;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .current-subscription {
+      background: #f0f0f0;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .current-subscription h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+
+    .subscription-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subscription-item:before {
+      content: "✓";
+      color: #4caf50;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 40px 0;
+    }
+
+    .option {
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: #f5576c;
+      box-shadow: 0 5px 15px rgba(245, 87, 108, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .option-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .option h4 {
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .option p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 2px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+      background: #e8e8e8;
+      border-color: #999;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 40px 20px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔒</div>
+
+    <h1>Page Not Included</h1>
+
+    <p class="subtitle">
+      This page is not included in your current subscription. Upgrade or modify your plan to access it.
+    </p>
+
+    <div class="access-info">
+      <p>
+        ⚠️ <strong>You don't have access to this feature yet.</strong> Choose to upgrade your existing plan or start a new custom plan to include this page.
+      </p>
+    </div>
+
+    <div class="options">
+      <div class="option" onclick="location.href='subcription?id=<%= userId %>'">
+        <div class="option-icon">📝</div>
+        <h4>Create Custom Plan</h4>
+        <p>Build a new tailored plan with the features you need</p>
+      </div>
+
+      <div class="option" onclick="location.href='/dashboard'">
+        <div class="option-icon">📊</div>
+        <h4>View Dashboard</h4>
+        <p>Access your available subscribed features</p>
+      </div>
+    </div>
+
+    <div class="cta-buttons">
+      <a href="subcription?id=<%= userId %>" class="btn btn-primary">
+        Upgrade Plan
+      </a>
+      <a href="/dashboard" class="btn btn-secondary">
+        Go to Dashboard
+      </a>
+    </div>
+  </div>
+</body>
+</html>
