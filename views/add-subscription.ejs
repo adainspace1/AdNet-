@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/dashall.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>Add Subscription - AdNet</title>
   <style>
     * {
@@ -199,7 +201,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="icon">🔒</div>
+    <div class="icon"><i class="fa-solid fa-lock"></i></div>
 
     <h1>Page Not Included</h1>
 
@@ -209,19 +211,19 @@
 
     <div class="access-info">
       <p>
-        ⚠️ <strong>You don't have access to this feature yet.</strong> Choose to upgrade your existing plan or start a new custom plan to include this page.
+        <i class="fa-solid fa-ban"></i> <strong>You don't have access to this feature yet.</strong> Choose to upgrade your existing plan or start a new custom plan to include this page.
       </p>
     </div>
 
     <div class="options">
       <div class="option" onclick="location.href='subcription?id=<%= userId %>'">
-        <div class="option-icon">📝</div>
+        <div class="option-icon"><i class="fa-solid fa-note-sticky"></i></div>
         <h4>Create Custom Plan</h4>
         <p>Build a new tailored plan with the features you need</p>
       </div>
 
       <div class="option" onclick="location.href='/dashboard'">
-        <div class="option-icon">📊</div>
+        <div class="option-icon"><i class="fa-solid fa-chart-bar"></i></div>
         <h4>View Dashboard</h4>
         <p>Access your available subscribed features</p>
       </div>

@@ -82,6 +82,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const orderController = require('./controllers/orderController');
 const logisticsRoutes = require('./routes/logisticsRoutes');
 const plansRoutes = require('./routes/plans');
+const adminDashboardRoutes = require('./routes/adminDashboard');
+const userActivities = require('./routes/adminActivities');
 
 
 
@@ -108,8 +110,19 @@ app.use(session({
   cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 } // 24 hours session lifespan
 }));
 
+// Middleware to set default isVendor value
+const setDefaultVendorStatus = (req, res, next) => {
+  // Only set if not already set by vendorAuth middleware
+  if (req.isVendor === undefined) {
+    req.isVendor = false;
+  }
+  // Make isVendor available to all EJS templates
+  res.locals.isVendor = req.isVendor;
+  next();
+};
 
-
+// Apply default vendor status to all routes
+app.use(setDefaultVendorStatus);
 
 // Middleware
 app.set('view engine', 'ejs');
@@ -159,6 +172,8 @@ app.use('/driver', driverRoutes);
 app.use('/Order', orderRoutes);
 app.use('/logistics', logisticsRoutes);
 app.use('/api/plans', plansRoutes);
+app.use('/api/admin', adminDashboardRoutes);
+app.use('/api/userActivities', userActivities);
 
 
 
@@ -1075,21 +1090,28 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 app.get('/sales', ensureAuthenticated, async (req, res) => {
   try {
-    // determine current user/worker & recipient id
-    let recipientId = null;
-    let companyinfo = null;
+ let recipientId;
 
     if (req.session.user) {
+      // ✅ Superadmin / Owner
       recipientId = req.session.user._id;
-      // assume Company schema uses 'recipientId' (fix the typo)
-      companyinfo = await Company.findOne({ recipientId });
     } else if (req.session.worker) {
+      // ✅ Worker → use their admin's ID
       recipientId = req.session.worker.adminId;
-      // some apps store company by userId for workers — try both safely
-      companyinfo = await Company.findOne({ userId: recipientId })
-        || await Company.findOne({ recipientId });
     } else {
-      return res.redirect('/login');
+      return res.redirect('/login'); // fallback if no session
+    }
+
+    let companyinfo = null; // ✅ Always define this
+
+    if (req.session.user) {
+      // Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // Worker logged in, use adminId
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ userId: req.session.worker.adminId });
     }
 
     // fetch inventory & sales limited to this recipient
@@ -1128,6 +1150,7 @@ app.get('/sales', ensureAuthenticated, async (req, res) => {
     //   if (!name) return;
     //   categoryMap[name] = (categoryMap[name] || 0) + (item.currentquantity || 0);
     // });
+
 
     // render with consistent variable names for the template
     res.render('dashboard/sales', {
@@ -4613,6 +4636,11 @@ app.get("/admin", ensureAuthenticated, async (req, res) => {
   }
 });
 
+
+
+
+
+
 // Get all workers for admin
 app.get("/workers/:adminId", async (req, res) => {
   try {
@@ -4624,7 +4652,7 @@ app.get("/workers/:adminId", async (req, res) => {
 });
 
 // Get single worker
-app.get("/workers/:id", async (req, res) => {
+app.get("/get/workers/:id", async (req, res) => {
   try {
     const worker = await Worker.findById(req.params.id);
     if (!worker) return res.status(404).json({ message: "Worker not found" });
@@ -4635,7 +4663,7 @@ app.get("/workers/:id", async (req, res) => {
 });
 
 
-app.get("/api/workers/:adminId", ensureAuthenticated, async (req, res) => {
+app.get("/api/workers/:adminId",  async (req, res) => {
   try {
     const { adminId } = req.params;
 
@@ -4646,6 +4674,120 @@ app.get("/api/workers/:adminId", ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Error fetching workers:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete worker endpoint
+// Update worker endpoint
+app.put("/workers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, username, phone, password, roles, notes } = req.body;
+
+    // Find the worker
+    const worker = await Worker.findById(id);
+    if (!worker) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Worker not found" 
+      });
+    }
+
+    // Check if email is being changed and if it's already taken by another worker
+    if (email !== worker.email) {
+      const existingWorker = await Worker.findOne({ email, _id: { $ne: id } });
+      if (existingWorker) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Email already exists" 
+        });
+      }
+    }
+
+    // Check if username is being changed and if it's already taken by another worker
+    if (username !== worker.username) {
+      const existingUsername = await Worker.findOne({ username, _id: { $ne: id } });
+      if (existingUsername) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Username already exists" 
+        });
+      }
+    }
+
+    // Update worker fields
+    worker.name = name;
+    worker.email = email;
+    worker.username = username;
+    worker.phone = phone || worker.phone;
+    worker.roles = roles || [];
+    worker.notes = notes || worker.notes;
+
+    // Only update password if provided
+    if (password && password.trim() !== '') {
+      const bcrypt = require('bcryptjs');
+      worker.password = await bcrypt.hash(password, 10);
+    }
+
+    await worker.save();
+
+    console.log(`Worker updated: ${worker.name} (ID: ${id})`);
+    
+    res.json({ 
+      success: true, 
+      message: `Worker "${worker.name}" has been successfully updated`,
+      worker: {
+        _id: worker._id,
+        name: worker.name,
+        email: worker.email,
+        username: worker.username,
+        phone: worker.phone,
+        roles: worker.roles,
+        notes: worker.notes
+      }
+    });
+    
+  } catch (err) {
+    console.error("Error updating worker:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update worker. Please try again." 
+    });
+  }
+});
+
+app.delete("/delete/workers/:id",  async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find and delete the worker
+    const worker = await Worker.findById(id);
+    if (!worker) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Worker not found" 
+      });
+    }
+
+    // Store worker name for response
+    const workerName = worker.name;
+    
+    // Delete the worker
+    await Worker.findByIdAndDelete(id);
+    
+    console.log(`Worker deleted: ${workerName} (ID: ${id})`);
+    
+    res.json({ 
+      success: true, 
+      message: `Worker "${workerName}" has been successfully deleted` 
+    });
+    
+  } catch (err) {
+    console.error("Error deleting worker:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete worker. Please try again." 
+    });
   }
 });
 
@@ -5361,6 +5503,7 @@ async function vendorAuth(req, res, next) {
       req.recipientId = recipientId;
       req.companyinfo = companyinfo;
       req.isVendor = false;
+      res.locals.isVendor = false; // Make available to EJS templates
       return next();
     }
 
@@ -5402,6 +5545,7 @@ async function vendorAuth(req, res, next) {
       description: vendor.description,
     };
     req.isVendor = true;
+    res.locals.isVendor = true; // Make available to EJS templates
 
     console.log(`✅ Vendor authenticated: ${vendor.companyName} (${vendor.email})`);
 

@@ -866,16 +866,39 @@ const workerlogin = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Store worker in session
-    req.session.worker = {
-      id: worker._id,
-      name: worker.name,
-      role: worker.role,
-      accessLevel: worker.accessLevel, // ✅ match DB field
-      adminId: worker.adminId
-    };
+    // ✅ pick first role (your current model supports multiple)
+    const activeRole = worker.roles?.[0];
 
-    res.json({ message: "Login successful", role: worker.role, accessLevel: worker.accessLevel });
+    if (!activeRole) {
+      return res.status(400).json({ message: "No role assigned to this worker" });
+    }
+
+    // ✅ Store NORMALIZED worker in session
+    req.session.worker = {
+      _id: worker._id,
+      username: worker.username,
+      name: worker.name,
+      adminId: worker.adminId,
+
+      // 🔥 normalized fields (THIS FIXES EVERYTHING)
+      role: activeRole.role,
+      accessLevel: activeRole.accessLevel,
+    };
+console.log("Logged in worker session:", {
+  _id: worker._id,
+  username: worker.username,
+  name: worker.name,
+  adminId: worker.adminId,
+  role: activeRole.role,
+  accessLevel: activeRole.accessLevel,
+});
+
+    res.json({
+      message: "Login successful",
+      role: activeRole.role,
+      accessLevel: activeRole.accessLevel,
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

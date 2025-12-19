@@ -1,4 +1,6 @@
 const CustomPlan = require('../models/CustomPlan');
+const logWorkerActivity = require("../utils/logWorkerActivity");
+
 
 const ensureAuthenticated = async (req, res, next) => {
     try {
@@ -6,14 +8,15 @@ const ensureAuthenticated = async (req, res, next) => {
         const urlLower = url.toLowerCase();
         const now = new Date().toISOString();
 
-        // Case 1: Superadmin/Admin (full access)
+        // Case 1: Superadmin/Admin (full access) - TYPE: USER
         if (req.session && req.session.user) {
             const userId = req.session.user._id;
             
-            // EXCEPTION: Dashboard is accessible without subscription check
-            if (urlLower === '/dashboard' || urlLower.startsWith('/dashboard?')) {
+            // EXCEPTION: Dashboard and Admin pages are accessible without subscription check
+            if (urlLower === '/dashboard' || urlLower.startsWith('/dashboard?') || 
+                urlLower === '/admin' || urlLower.startsWith('/admin/') || urlLower.startsWith('/admin?')) {
                 console.log(
-                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED (DASHBOARD - NO SUB REQUIRED) | userId: ${userId}`
+                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED (ADMIN AREA - NO SUB REQUIRED) | userId: ${userId}`
                 );
                 req.recipientId = userId;
                 req.isWorker = false;
@@ -38,16 +41,79 @@ const ensureAuthenticated = async (req, res, next) => {
             const pageSegments = url.split('/').filter(s => s);
             const requestedPage = pageSegments[0] || 'home';
 
-            // Check if this specific page is in their subscription items
-            const hasPageAccess = subscription.items.some(item => 
-              item.name.toLowerCase().includes(requestedPage.toLowerCase()) ||
-              requestedPage.toLowerCase().includes(item.name.toLowerCase())
-            );
+            // ========== API ROUTES HANDLING ==========
+            // If this is an API route, check if user has access to the parent module
+            const isApiRoute = requestedPage === 'api' || url.startsWith('/api/');
+            let hasPageAccess = false;
+
+            if (isApiRoute) {
+                // For API routes, extract the actual module from the API path
+                // e.g., /api/userActivities/activities -> check for 'activities' or 'user' access
+                const apiSegments = url.split('/').filter(s => s);
+                const apiModule = apiSegments[1] || apiSegments[2] || 'dashboard'; // fallback to dashboard
+                
+                // Always allowed API routes for any subscribed user (basic dashboard functionality)
+                const alwaysAllowedApiRoutes = [
+                    '/api/userActivities',
+                    '/api/activities', 
+                    '/api/dashboard',
+                    '/api/profile',
+                    '/api/notifications',
+                    '/api/settings'
+                ];
+
+                // Check if this is an always allowed API route
+                const isAlwaysAllowed = alwaysAllowedApiRoutes.some(route => url.startsWith(route));
+                
+                if (isAlwaysAllowed && subscription.items.length > 0) {
+                    hasPageAccess = true;
+                    console.log(`├─ API Route: ${url} - ALWAYS ALLOWED for subscribed users`);
+                } else {
+                    // Common API route mappings to subscription modules
+                    const apiModuleMapping = {
+                        'userActivities': ['dashboard', 'activities', 'user'],
+                        'admin': ['dashboard', 'admin'],
+                        'workers': ['dashboard', 'admin', 'hr'],
+                        'companies': ['dashboard', 'admin'],
+                        'kpi': ['dashboard', 'admin'],
+                        'audits': ['audit', 'dashboard'],
+                        'taxes': ['tax', 'taxation', 'dashboard'],
+                        'billing': ['finance', 'billing', 'dashboard'],
+                        'logistics': ['logistics', 'dashboard'],
+                        'activities': ['dashboard', 'activities'],
+                        'expenses': ['finance', 'expenses'],
+                        'inventory': ['inventory'],
+                        'sales': ['sales'],
+                        'production': ['production']
+                    };
+
+                    const possibleModules = apiModuleMapping[apiModule] || [apiModule, 'dashboard'];
+                    
+                    // Check if user has access to any of the possible modules
+                    hasPageAccess = subscription.items.some(item => 
+                        possibleModules.some(module => 
+                            item.name.toLowerCase().includes(module.toLowerCase()) ||
+                            module.toLowerCase().includes(item.name.toLowerCase())
+                        )
+                    );
+
+                    console.log(`├─ API Route Detected: ${url}`);
+                    console.log(`├─ API Module: ${apiModule}`);
+                    console.log(`├─ Checking Modules: ${possibleModules.join(', ')}`);
+                }
+            } else {
+                // Regular page access check
+                hasPageAccess = subscription.items.some(item => 
+                  item.name.toLowerCase().includes(requestedPage.toLowerCase()) ||
+                  requestedPage.toLowerCase().includes(item.name.toLowerCase())
+                );
+            }
 
             // Log detailed subscription info
             console.log(`\n[AUTH SUBSCRIPTION CHECK] ${now}`);
             console.log(`├─ Page Requested: ${requestedPage}`);
             console.log(`├─ Full URL: ${url}`);
+            console.log(`├─ Route Type: ${isApiRoute ? 'API Route' : 'Page Route'}`);
             console.log(`├─ User ID: ${userId}`);
             console.log(`├─ User Name: ${req.session.user.name || 'Unknown'}`);
             console.log(`├─ User Email: ${req.session.user.email || 'Unknown'}`);
@@ -84,29 +150,49 @@ const ensureAuthenticated = async (req, res, next) => {
         // Case 2: Worker (role + accessLevel check)
         if (req.session && req.session.worker) {
             const worker = req.session.worker;
-            const { _id: workerId, adminId, role, accessLevel } = worker;
+            const { _id: workerId, adminId, username } = worker;
+
+            // ✅ normalized role from session
+            const role = worker.role;
+            const accessLevel = worker.accessLevel;
+
+
+            // CHECK: Workers cannot access /admin
+            if (urlLower === '/admin' || urlLower.startsWith('/admin/') || urlLower.startsWith('/admin?')) {
+
+                    await logWorkerActivity({
+                        req,
+                        worker,
+                        page: url,
+                        action: "BLOCKED",
+                    });
+
+                    console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (admin area) | workerId: ${workerId} | adminId: ${adminId} | role: ${role}`);
+                    return res.redirect("/bastard");
+                }
+
 
             // role → allowed paths
             const roleAccess = {
                 inventory: {
-                    basic: ["/inventory"],
-                    max: ["/inventory", "/production", "/inventory/tracking", "/inventory/history"],
+                    basic: ["/inventory", "/api/inventory"],
+                    max: ["/inventory", "/production", "/inventory/tracking", "/inventory/history", "/api/inventory", "/api/production"],
                 },
                 sales: {
-                    basic: ["/sales"],
-                    max: ["/sales", "/sales/reports", "/salehistory"],
+                    basic: ["/sales", "/api/sales"],
+                    max: ["/sales", "/sales/reports", "/salehistory", "/api/sales", "/api/reports"],
                 },
                 production: {
-                    basic: ["/production"],
-                    max: ["/production", "/production/logs", "/production/history"],
+                    basic: ["/production", "/api/production"],
+                    max: ["/production", "/production/logs", "/production/history", "/api/production"],
                 },
                 finance: {
-                    basic: ["/expenses"],
-                    max: ["/expenses", "/expenses/admin", "/viewallexpenses", "/api/expenses"],
+                    basic: ["/expenses", "/api/expenses"],
+                    max: ["/expenses", "/expenses/admin", "/viewallexpenses", "/api/expenses", "/api/finance"],
                 },
                 hr: {
-                    basic: ["/hr"],
-                    max: ["/hr", "/hr/reports", "/hr/history"],
+                    basic: ["/hr", "/api/hr"],
+                    max: ["/hr", "/hr/reports", "/hr/history", "/api/hr", "/api/workers"],
                 },
                 custom: {
                     basic: [],
@@ -140,23 +226,56 @@ const ensureAuthenticated = async (req, res, next) => {
             // Worker with admin-level: allow only within their role's base path
             if (accessLevel === "admin") {
                 if (basePath && urlLower.startsWith(basePath)) {
+
+                    await logWorkerActivity({
+                        req,
+                        worker,
+                        page: url,
+                        action: "ALLOWED",
+                    });
+
                     console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED (role-admin) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
                     return next();
                 } else {
+                    await logWorkerActivity({
+                        req,
+                        worker,
+                        page: url,
+                        action: "BLOCKED",
+                    });
+
                     console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (outside role scope) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
                     return res.redirect("/bastard");
+
                 }
             }
 
             // Basic/Max check
             const allowedPaths = config[accessLevel];
             if (allowedPaths && allowedPaths.some((path) => urlLower.startsWith(path))) {
+
+                await logWorkerActivity({
+                    req,
+                    worker,
+                    page: url,
+                    action: "ALLOWED",
+                });
+
                 console.log(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | ALLOWED | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
                 return next();
             }
 
+
+            await logWorkerActivity({
+                req,
+                worker,
+                page: url,
+                action: "BLOCKED",
+            });
+
             console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (no permission) | workerId: ${workerId} | adminId: ${adminId} | role: ${role} | accessLevel: ${accessLevel}`);
             return res.redirect("/bastard");
+
         }
 
         // Nobody logged in → redirect accordingly
