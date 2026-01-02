@@ -27,7 +27,7 @@ const authenticateAdmin = async (req, res, next) => {
     // Verify user is an admin (TYPE: USER)
     const userId = req.session.user._id;
     const adminUser = await User.findById(userId);
-    
+
     if (!adminUser || adminUser.TYPE !== 'USER') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -78,7 +78,7 @@ router.get('/companies', async (req, res) => {
     const companies = await Company.find()
       .select('name registrationNumber status subscription createdAt')
       .limit(100);
-    
+
     res.json(companies.map(c => ({
       id: c._id,
       name: c.name,
@@ -96,7 +96,7 @@ router.get('/companies', async (req, res) => {
 router.post('/companies', async (req, res) => {
   try {
     const { name, registrationNumber, status } = req.body;
-    
+
     const newCompany = new Company({
       name,
       registrationNumber,
@@ -120,7 +120,7 @@ router.get('/users', async (req, res) => {
     const users = await User.find({ TYPE: 'USER' })
       .select('firstName lastName email role status createdAt')
       .limit(100);
-    
+
     res.json(users.map(u => ({
       id: u._id,
       name: `${u.firstName} ${u.lastName}`,
@@ -144,7 +144,7 @@ router.get('/audits', async (req, res) => {
     const audits = await AuditLog.find()
       .select('auditId company status startDate assignedAuditor')
       .limit(100);
-    
+
     res.json(audits.map(a => ({
       id: a._id,
       auditId: a.auditId,
@@ -169,7 +169,7 @@ router.get('/taxes', async (req, res) => {
     const taxes = await Tax.find()
       .select('company taxType amount status dueDate')
       .limit(100);
-    
+
     const paid = taxes.filter(t => t.status === 'Paid').length;
     const pending = taxes.filter(t => t.status === 'Pending').length;
     const overdue = taxes.filter(t => t.status === 'Overdue').length;
@@ -202,13 +202,13 @@ router.get('/billing', async (req, res) => {
     const invoices = await Invoice.find()
       .select('invoiceNumber company amount status dueDate')
       .limit(100);
-    
+
     const totalRevenue = invoices
       .filter(i => i.status === 'Paid')
       .reduce((sum, i) => sum + (i.amount || 0), 0);
 
     const pendingInvoices = invoices.filter(i => i.status !== 'Paid').length;
-    
+
     const subscriptions = await CustomPlan.countDocuments({ status: 'Active' });
 
     res.json({
@@ -260,7 +260,7 @@ router.get('/activities', async (req, res) => {
     const activities = await Activity.find()
       .sort({ createdAt: -1 })
       .limit(10);
-    
+
     res.json(activities.map(a => ({
       id: a._id,
       description: a.description,
@@ -280,11 +280,11 @@ router.get('/activities', async (req, res) => {
 router.get('/staff', async (req, res) => {
   try {
     const { adminId } = req.query;
-    
+
     const workers = await Worker.find({ adminId })
       .select('name email username roles status createdAt')
       .limit(100);
-    
+
     res.json(workers.map(w => ({
       id: w._id,
       name: w.name,
@@ -306,21 +306,21 @@ router.get('/staff', async (req, res) => {
 
 router.get('/logs', async (req, res) => {
   try {
-    // Mock data - integrate with your audit logging system
-    const logs = [
-      {
-        timestamp: new Date(),
-        action: 'Login',
-        user: 'Admin User',
-        ipAddress: '192.168.1.1'
-      },
-      {
-        timestamp: new Date(Date.now() - 3600000),
-        action: 'Company Created',
-        user: 'Jane Smith',
-        ipAddress: '192.168.1.50'
-      }
-    ];
+    const UserActivity = require('../models/userActivity');
+    const adminId = req.session.user._id;
+
+    const activities = await UserActivity.find({ adminId })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    const logs = activities.map(act => ({
+      timestamp: act.createdAt,
+      action: act.action,
+      user: act.workerUsername || 'Admin',
+      ipAddress: act.ip,
+      page: act.page
+    }));
 
     res.json(logs);
   } catch (err) {

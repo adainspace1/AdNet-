@@ -1,427 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-   <title>Manual Financial Audit - AdNet</title>
+    <title>Manual Financial Audit - AdNet</title>
     <link rel="stylesheet" href="/css/dashall.css">
     <link rel="stylesheet" href="/css/auditingmanual.css">
 </head>
+
 <body>
 
 
-          <div class="all">
- <%- include ("../_sidebar1") %>
+    <div class="all">
+        <%- include ("../_sidebar1") %>
 
- <div class="main-content">
-    <%- include ("../_topnav") %>
- <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <h1 class="page-title">Manual Financial Audit</h1>
-            <nav class="breadcrumb">
-                <a href="/dashboard">Dashboard</a>
-                <span>›</span>
-                <a href="#auditing">Auditing</a>
-                <span>›</span>
-                <span>Manual Audit</span>
-            </nav>
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search transactions..." id="searchInput">
-                <span class="search-icon"><i class="fas fa-search"></i>
-</span>
+            <div class="main-content">
+                <%- include ("../_topnav") %>
+                    <div class="container">
+                        <!-- Header Section -->
+                        <div class="header">
+                            <h1 class="page-title">Manual Financial Audit</h1>
+                            <nav class="breadcrumb">
+                                <a href="/dashboard">Dashboard</a>
+                                <span>›</span>
+                                <a href="#auditing">Auditing</a>
+                                <span>›</span>
+                                <span>Manual Audit</span>
+                            </nav>
+                            <div class="search-container">
+                                <input type="text" class="search-input" placeholder="Search transactions..."
+                                    id="searchInput">
+                                <span class="search-icon"><i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="main-grid">
+                            <!-- Audit Form Section -->
+                            <div class="audit-form">
+                                <h2 class="section-title">Audit Details</h2>
+                                <div class="success-message" id="successMessage">
+                                    Audit report submitted successfully!
+                                </div>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="manualAuditId">Audit ID</label>
+                                        <div style="display: flex; gap: 10px;">
+                                            <input type="text" class="form-input" id="manualAuditId"
+                                                placeholder="e.g. AUD-2026-001">
+                                            <button class="btn btn-primary" onclick="createLoadAudit()"
+                                                style="padding: 0 15px;">Load</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="accountName">Account Name/Number</label>
+                                        <select class="form-select" id="accountName">
+                                            <option value="">Select Account</option>
+                                            <option value="Cash Account - 1001">Cash Account - 1001</option>
+                                            <option value="Revenue Account - 4001">Revenue Account (Sales)</option>
+                                            <option value="Expense Account - 5001">Expense Account</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="dateFrom">Date From</label>
+                                        <input type="date" class="form-input" id="dateFrom">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="dateTo">Date To</label>
+                                        <input type="date" class="form-input" id="dateTo">
+                                    </div>
+                                </div>
+
+                                <h3 class="section-title">Transaction Review</h3>
+                                <table class="transactions-table" id="transactionsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Transaction ID</th>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Comments</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionsBody">
+                                        <!-- Transactions will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Findings Panel -->
+                            <div class="findings-panel">
+                                <h2 class="section-title">Audit Findings</h2>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="overallComments">Overall Comments</label>
+                                    <textarea class="findings-textarea" id="overallComments"
+                                        placeholder="Enter your audit findings and recommendations..."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Supporting Files</label>
+                                    <div class="file-upload">
+                                        <input type="file" class="file-upload-input" id="supportingFiles" multiple
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+                                        <label for="supportingFiles" class="file-upload-label">
+                                            <i class="fas fa-thumbtack"></i>Click to upload files or drag & drop
+                                        </label>
+                                    </div>
+                                    <div id="fileList"></div>
+                                </div>
+
+                                <div class="checkbox-group">
+                                    <input type="checkbox" class="checkbox" id="auditCompleted">
+                                    <label for="auditCompleted">Audit Completed</label>
+                                </div>
+
+                                <div class="button-group">
+                                    <button class="btn btn-secondary" onclick="saveDraft()">
+                                        <i class="fas fa-save"></i>Save Draft
+                                    </button>
+                                    <button class="btn btn-primary" onclick="submitAudit()">
+                                        <i class="fas fa-paper-plane"></i> Submit Audit Report
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="downloadPDF()">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="downloadCSV()">
+                                        <i class="fas fa-file-csv"></i> CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Audits Section -->
+                        <div class="recent-audits">
+                            <h2 class="section-title">Recent Audit Reports</h2>
+                            <div id="recentAuditsList">
+                                <!-- Recent audits will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
             </div>
-        </div>
 
-        <div class="main-grid">
-            <!-- Audit Form Section -->
-            <div class="audit-form">
-                <h2 class="section-title">Audit Details</h2>
-                <div class="success-message" id="successMessage">
-                    Audit report submitted successfully!
-                </div>
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="auditId">Audit ID</label>
-                        <select class="form-select" id="auditId">
-                            <option value="">Select Audit ID</option>
-                            <option value="AUD-2025-001">AUD-2025-001</option>
-                            <option value="AUD-2025-002">AUD-2025-002</option>
-                            <option value="AUD-2025-003">AUD-2025-003</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="accountName">Account Name/Number</label>
-                        <select class="form-select" id="accountName">
-                            <option value="">Select Account</option>
-                            <option value="Cash Account - 1001">Cash Account - 1001</option>
-                            <option value="Revenue Account - 4001">Revenue Account - 4001</option>
-                            <option value="Expense Account - 5001">Expense Account - 5001</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="dateFrom">Date From</label>
-                        <input type="date" class="form-input" id="dateFrom" value="2025-07-01">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="dateTo">Date To</label>
-                        <input type="date" class="form-input" id="dateTo" value="2025-07-30">
-                    </div>
-                </div>
 
-                <h3 class="section-title">Transaction Review</h3>
-                <table class="transactions-table" id="transactionsTable">
-                    <thead>
-                        <tr>
-                            <th>Transaction ID</th>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Comments</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsBody">
-                        <!-- Transactions will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+            <script>
+                // Global variables
+                let currentAuditId = null;
+                let auditTransactions = [];
 
-            <!-- Findings Panel -->
-            <div class="findings-panel">
-                <h2 class="section-title">Audit Findings</h2>
-                
-                <div class="form-group">
-                    <label class="form-label" for="overallComments">Overall Comments</label>
-                    <textarea class="findings-textarea" id="overallComments" placeholder="Enter your audit findings and recommendations..."></textarea>
-                </div>
+                // Initialize the dashboard
+                function initializeDashboard() {
+                    setupDefaultDates();
+                    setupEventListeners();
+                    loadRecentAudits();
+                }
 
-                <div class="form-group">
-                    <label class="form-label">Supporting Files</label>
-                    <div class="file-upload">
-                        <input type="file" class="file-upload-input" id="supportingFiles" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
-                        <label for="supportingFiles" class="file-upload-label">
-                           <i class="fas fa-thumbtack"></i>Click to upload files or drag & drop
-                        </label>
-                    </div>
-                    <div id="fileList"></div>
-                </div>
+                function setupDefaultDates() {
+                    const today = new Date();
+                    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+                    document.getElementById('dateFrom').value = firstDay.toISOString().split('T')[0];
+                }
 
-                <div class="checkbox-group">
-                    <input type="checkbox" class="checkbox" id="auditCompleted">
-                    <label for="auditCompleted">Audit Completed</label>
-                </div>
+                // Create or Load manual audit
+                async function createLoadAudit() {
+                    const auditId = document.getElementById('manualAuditId').value.trim();
+                    const accountName = document.getElementById('accountName').value;
+                    const dateFrom = document.getElementById('dateFrom').value;
+                    const dateTo = document.getElementById('dateTo').value;
 
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="saveDraft()">
-                        <i class="fas fa-save"></i>Save Draft
-                    </button>
-                    <button class="btn btn-primary" onclick="submitAudit()">
-                          <i class="fas fa-paper-plane"></i> Submit Audit Report
-                    </button>
-                    <button class="btn btn-secondary" onclick="downloadPDF()">
-                         <i class="fas fa-file-pdf"></i> Download PDF
-                    </button>
-                </div>
-            </div>
-        </div>
+                    if (!auditId || !accountName) {
+                        showNotification('Audit ID and Account are required', 'error');
+                        return;
+                    }
 
-        <!-- Recent Audits Section -->
-        <div class="recent-audits">
-            <h2 class="section-title">Recent Audit Reports</h2>
-            <div id="recentAuditsList">
-                <!-- Recent audits will be populated by JavaScript -->
-            </div>
-        </div>
+                    try {
+                        await fetch('/api/audit/manual/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ auditId, accountName, dateFrom, dateTo })
+                        });
+
+                        currentAuditId = auditId;
+                        showNotification('Audit session active', 'success');
+                        loadTransactions(auditId);
+                    } catch (error) {
+                        showNotification('Error initializing audit', 'error');
+                    }
+                }
+
+                // Load transactions for audit
+                async function loadTransactions(auditId) {
+                    const tbody = document.getElementById('transactionsBody');
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+                    try {
+                        const response = await fetch(`/api/audit/manual/transactions/${auditId}`);
+                        const result = await response.json();
+                        if (result.success) {
+                            auditTransactions = result.transactions;
+                            populateTransactionsTable(result.transactions);
+                        } else {
+                            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No data found</td></tr>';
+                        }
+                    } catch (error) {
+                        showNotification('Error loading transactions', 'error');
+                    }
+                }
+
+                // Load recent audits
+                async function loadRecentAudits() {
+                    try {
+                        const response = await fetch('/api/audit/list');
+                        const result = await response.json();
+                        if (result.success) populateRecentAudits(result.audits);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+
+                // Notification system
+                function showNotification(message, type) {
+                    const notification = document.createElement('div');
+                    notification.className = `notification ${type}`;
+                    notification.style.cssText = `position:fixed; top:20px; right:20px; padding:15px; border-radius:8px; color:white; background:${type === 'success' ? '#10b981' : '#ef4444'}; z-index:9999;`;
+                    notification.textContent = message;
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
+                }
+
+                // Populate transactions table
+                function populateTransactionsTable(transactions) {
+                    const tbody = document.getElementById('transactionsBody');
+                    tbody.innerHTML = '';
+                    if (!transactions || transactions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No transactions found</td></tr>';
+                        return;
+                    }
+                    transactions.forEach(tx => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${tx.id.substring(0, 8)}...</td>
+                            <td>${tx.date}</td>
+                            <td>${tx.description}</td>
+                            <td class="amount ${tx.amount < 0 ? 'negative' : ''}">₦${Math.abs(tx.amount).toLocaleString()}</td>
+                            <td>
+                                <select onchange="updateRowStatus('${tx.id}', this.value)">
+                                    <option value="Match" ${tx.status === 'Match' ? 'selected' : ''}>Pass</option>
+                                    <option value="flagged" ${tx.status === 'flagged' ? 'selected' : ''}>Flagged</option>
+                                </select>
+                            </td>
+                            <td><input type="text" value="${tx.comments || ''}" onchange="updateRowComment('${tx.id}', this.value)"></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                function updateRowStatus(id, status) {
+                    const tx = auditTransactions.find(t => t.id === id);
+                    if (tx) tx.status = status;
+                }
+
+                function updateRowComment(id, comment) {
+                    const tx = auditTransactions.find(t => t.id === id);
+                    if (tx) tx.comments = comment;
+                }
+
+                // Populate recent audits
+                function populateRecentAudits(audits) {
+                    const container = document.getElementById('recentAuditsList');
+                    container.innerHTML = '';
+                    audits.forEach(audit => {
+                        const item = document.createElement('div');
+                        item.className = 'audit-item';
+                        item.innerHTML = `<h4>${audit.auditId || audit._id} - ${audit.accountName || 'Manual Audit'}</h4><small>${new Date(audit.date).toLocaleDateString()}</small>`;
+                        item.onclick = () => {
+                            document.getElementById('manualAuditId').value = audit.auditId || audit._id;
+                            document.getElementById('accountName').value = audit.accountName;
+                            createLoadAudit();
+                        };
+                        container.appendChild(item);
+                    });
+                }
+
+                function setupEventListeners() {
+                    document.getElementById('searchInput').addEventListener('input', e => {
+                        const term = e.target.value.toLowerCase();
+                        document.querySelectorAll('#transactionsBody tr').forEach(row => {
+                            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+                        });
+                    });
+                }
+
+                function saveDraft() { showNotification('Draft saved locally', 'success'); }
+
+                async function submitAudit() {
+                    const auditCompleted = document.getElementById('auditCompleted').checked;
+                    const overallComments = document.getElementById('overallComments').value;
+                    const fileInput = document.getElementById('supportingFiles');
+
+                    if (!currentAuditId || !auditCompleted) {
+                        showNotification('Mark audit as completed first', 'error');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('auditId', currentAuditId);
+                    formData.append('overallComments', overallComments);
+                    formData.append('auditCompleted', auditCompleted);
+                    formData.append('transactions', JSON.stringify(auditTransactions));
+
+                    if (fileInput.files.length > 0) {
+                        for (let i = 0; i < fileInput.files.length; i++) {
+                            formData.append('supportingFiles', fileInput.files[i]);
+                        }
+                    }
+
+                    try {
+                        const response = await fetch('/api/audit/manual/submit', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            showNotification('Audit submitted!', 'success');
+                            loadRecentAudits();
+                        } else {
+                            showNotification(result.message || 'Error submitting', 'error');
+                        }
+                    } catch (error) {
+                        showNotification('Error submitting', 'error');
+                    }
+                }
+
+                function downloadPDF() {
+                    if (currentAuditId) window.location.href = `/api/audit/download/pdf/${currentAuditId}`;
+                    else showNotification('No audit loaded', 'error');
+                }
+
+                function downloadCSV() {
+                    if (currentAuditId) window.location.href = `/api/audit/download/csv/${currentAuditId}`;
+                    else showNotification('No audit loaded', 'error');
+                }
+
+                document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+            </script>
+            <script>
+                sessionStorage.setItem('redirect', window.location.pathname);
+            </script>
     </div>
 
 
 
-
-
-
- </div>
-
-
-    <script>
-        // Sample transaction data
-        const sampleTransactions = [
-            {
-                id: 'TXN-001',
-                date: '2025-07-25',
-                description: 'Revenue from advertising campaign',
-                amount: 15000.00,
-                status: 'Pass',
-                comments: 'Verified with supporting documentation'
-            },
-            {
-                id: 'TXN-002',
-                date: '2025-07-24',
-                description: 'Office supplies purchase',
-                amount: -450.75,
-                status: 'Pass',
-                comments: 'Receipt confirmed'
-            },
-            {
-                id: 'TXN-003',
-                date: '2025-07-23',
-                description: 'Suspicious payment to unknown vendor',
-                amount: -2500.00,
-                status: 'Flagged',
-                comments: 'Requires further investigation'
-            },
-            {
-                id: 'TXN-004',
-                date: '2025-07-22',
-                description: 'Client payment received',
-                amount: 8750.00,
-                status: 'Needs Review',
-                comments: 'Payment method unclear'
-            },
-            {
-                id: 'TXN-005',
-                date: '2025-07-21',
-                description: 'Software subscription renewal',
-                amount: -299.99,
-                status: 'Pass',
-                comments: 'Annual subscription confirmed'
-            }
-        ];
-
-        // Sample recent audits data
-        const recentAudits = [
-            {
-                id: 'AUD-2025-001',
-                account: 'Cash Account - 1001',
-                date: '2025-07-15',
-                status: 'Completed',
-                auditor: 'John Smith'
-            },
-            {
-                id: 'AUD-2025-002',
-                account: 'Revenue Account - 4001',
-                date: '2025-07-10',
-                status: 'Draft',
-                auditor: 'Sarah Johnson'
-            }
-        ];
-
-        // Initialize the dashboard
-        function initializeDashboard() {
-            populateTransactionsTable();
-            populateRecentAudits();
-            setupEventListeners();
-        }
-
-        // Populate transactions table
-        function populateTransactionsTable() {
-            const tbody = document.getElementById('transactionsBody');
-            tbody.innerHTML = '';
-
-            sampleTransactions.forEach((transaction, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${transaction.id}</td>
-                    <td>${transaction.date}</td>
-                    <td>${transaction.description}</td>
-                    <td class="amount ${transaction.amount < 0 ? 'negative' : ''}">
-                        $${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td>
-                        <select class="status-select" data-transaction-id="${transaction.id}">
-                            <option value="Pass" ${transaction.status === 'Pass' ? 'selected' : ''}>Pass</option>
-                            <option value="Needs Review" ${transaction.status === 'Needs Review' ? 'selected' : ''}>Needs Review</option>
-                            <option value="Flagged" ${transaction.status === 'Flagged' ? 'selected' : ''}>Flagged</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" class="comment-input" placeholder="Add comments..." 
-                               value="${transaction.comments}" data-transaction-id="${transaction.id}">
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Populate recent audits
-        function populateRecentAudits() {
-            const container = document.getElementById('recentAuditsList');
-            container.innerHTML = '';
-
-            recentAudits.forEach(audit => {
-                const auditItem = document.createElement('div');
-                auditItem.className = 'audit-item';
-                auditItem.innerHTML = `
-                    <h4>${audit.id} - ${audit.account}</h4>
-                    <div class="audit-meta">
-                        <span>Auditor: ${audit.auditor}</span>
-                        <span>Date: ${audit.date}</span>
-                        <span class="status-badge status-${audit.status.toLowerCase().replace(' ', '')}">${audit.status}</span>
-                    </div>
-                `;
-                auditItem.onclick = () => viewAudit(audit.id);
-                container.appendChild(auditItem);
-            });
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Search functionality
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                filterTransactions(e.target.value);
-            });
-
-            // File upload handling
-            document.getElementById('supportingFiles').addEventListener('change', function(e) {
-                displaySelectedFiles(e.target.files);
-            });
-
-            // Form change tracking
-            document.querySelectorAll('.status-select, .comment-input').forEach(element => {
-                element.addEventListener('change', updateTransactionData);
-            });
-        }
-
-        // Filter transactions based on search
-        function filterTransactions(searchTerm) {
-            const rows = document.querySelectorAll('#transactionsBody tr');
-            const term = searchTerm.toLowerCase();
-
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
-            });
-        }
-
-        // Display selected files
-        function displaySelectedFiles(files) {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-
-            Array.from(files).forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.style.cssText = 'padding: 8px; background: #f1f5f9; border-radius: 6px; margin-top: 8px; font-size: 14px;';
-                fileItem.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                fileList.appendChild(fileItem);
-            });
-        }
-
-        // Update transaction data
-        function updateTransactionData(e) {
-            const transactionId = e.target.getAttribute('data-transaction-id');
-            const transaction = sampleTransactions.find(t => t.id === transactionId);
-            
-            if (transaction) {
-                if (e.target.classList.contains('status-select')) {
-                    transaction.status = e.target.value;
-                } else if (e.target.classList.contains('comment-input')) {
-                    transaction.comments = e.target.value;
-                }
-            }
-        }
-
-        // Save draft functionality
-        function saveDraft() {
-            const button = event.target;
-            button.textContent = '💾 Saving...';
-            button.classList.add('loading');
-
-            // Simulate API call
-            setTimeout(() => {
-                button.textContent = '✅ Draft Saved';
-                setTimeout(() => {
-                    button.textContent = '💾 Save Draft';
-                    button.classList.remove('loading');
-                }, 1000);
-            }, 1500);
-        }
-
-        // Submit audit functionality
-        function submitAudit() {
-            const auditCompleted = document.getElementById('auditCompleted').checked;
-            const overallComments = document.getElementById('overallComments').value;
-            
-            if (!auditCompleted) {
-                alert('Please mark the audit as completed before submitting.');
-                return;
-            }
-
-            if (!overallComments.trim()) {
-                alert('Please provide overall comments before submitting.');
-                return;
-            }
-
-            const button = event.target;
-            button.textContent = '📤 Submitting...';
-            button.classList.add('loading');
-
-            // Simulate API call
-            setTimeout(() => {
-                const successMessage = document.getElementById('successMessage');
-                successMessage.classList.add('show');
-                
-                button.textContent = '✅ Submitted';
-                
-                // Add to recent audits
-                const newAudit = {
-                    id: `AUD-2025-${String(recentAudits.length + 1).padStart(3, '0')}`,
-                    account: document.getElementById('accountName').value || 'Unknown Account',
-                    date: new Date().toISOString().split('T')[0],
-                    status: 'Completed',
-                    auditor: 'Current User'
-                };
-                recentAudits.unshift(newAudit);
-                populateRecentAudits();
-
-                setTimeout(() => {
-                    button.textContent = '📤 Submit Audit Report';
-                    button.classList.remove('loading');
-                    successMessage.classList.remove('show');
-                }, 2000);
-            }, 2000);
-        }
-
-        // Download PDF functionality
-        function downloadPDF() {
-            const button = event.target;
-            button.textContent = '📄 Generating PDF...';
-            button.classList.add('loading');
-
-            // Simulate PDF generation
-            setTimeout(() => {
-                button.textContent = '⬇️ Download Started';
-                
-                // Create a mock download
-                const link = document.createElement('a');
-                link.href = 'data:text/plain;charset=utf-8,Mock Audit Report PDF Content';
-                link.download = `Audit_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-                link.click();
-
-                setTimeout(() => {
-                    button.textContent = '📄 Download PDF';
-                    button.classList.remove('loading');
-                }, 1000);
-            }, 1500);
-        }
-
-        // View audit functionality
-        function viewAudit(auditId) {
-            alert(`Opening audit report: ${auditId}\n\nThis would typically open a detailed view or new page with the complete audit report.`);
-        }
-
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', initializeDashboard);
-    </script>
-    <script>
-      sessionStorage.setItem('redirect', window.location.pathname);
-    </script>
-</div>
-
-
-    
 </body>
+
 </html>
-
-

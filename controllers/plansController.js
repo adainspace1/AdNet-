@@ -1,80 +1,72 @@
 const CustomPlan = require('../models/CustomPlan');
 const Personal = require('../models/personal'); // adjust path
+const Subscription = require('../models/Subscription');
+
+// Helper function to calculate end date
+const calculateEndDate = (start, months) => {
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + months);
+  return end;
+};
 
 // Create a new custom plan/order
 exports.createCustomPlan = async (req, res) => {
-    console.log("Received custom plan data:", req.body);
   try {
-    // Get userId from request body instead of session
-    const { userId, items, subtotal, total, contract, users, notes, monthlyCost } = req.body;
+    const { userId, items, contract } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'userId is required'
-      });
+    if (!userId || !items?.length) {
+      return res.status(400).json({ success: false, message: 'Invalid data' });
     }
 
-    // Optional: check if Personal user exists
-    const user = await Personal.findById(userId);
-    if (!user) {
-      console.log(`No Personal record found for userId: ${userId}, proceeding anyway.`);
+    const startDate = new Date();
+
+    // Find or create the user's subscription document
+    let userSubDoc = await Subscription.findOne({ userId });
+
+    if (!userSubDoc) {
+      userSubDoc = new Subscription({ userId, subscriptions: [] });
     }
 
-    // Validation
-    if (!items || items.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least one item is required'
-      });
-    }
-    if (!contract || !users) {
-      return res.status(400).json({
-        success: false,
-        message: 'Contract length and user count are required'
-      });
-    }
+    for (const item of items) {
+      const featureKey = item.name.toLowerCase(); // inventory, sales, etc
+      const endDate = calculateEndDate(startDate, contract);
 
-    // Create the custom plan order
-    const customPlan = new CustomPlan({
-      userId,
-      items,
-      subtotal: subtotal || 0,
-      total: total || 0,
-      contract: contract || 12,
-      users: users || 1,
-      monthlyCost: monthlyCost || 0,
-      notes: notes || '',
-      status: 'pending'
-    });
+      // Check if user already has this feature active in the array
+      const existingFeatureIndex = userSubDoc.subscriptions.findIndex(sub =>
+        sub.feature === featureKey && sub.status === 'active'
+      );
 
-    await customPlan.save();
-
-    // Update the Personal model with plan info
-    if (user) {
-      user.plan = `Custom Plan - ${contract} months / ${users} users`;
-      user.total = total || 0;
-      await user.save();
+      if (existingFeatureIndex !== -1) {
+        // Update existing active subscription for this feature
+        userSubDoc.subscriptions[existingFeatureIndex].endDate = endDate;
+        userSubDoc.subscriptions[existingFeatureIndex].contractMonths = contract;
+      } else {
+        // Add new timeline to the array
+        userSubDoc.subscriptions.push({
+          feature: featureKey,
+          contractMonths: contract,
+          startDate,
+          endDate,
+          status: 'active'
+        });
+      }
     }
 
-    // Send success with redirect info
+    await userSubDoc.save();
+
     return res.status(201).json({
       success: true,
-      message: 'Order submitted successfully',
-      orderId: customPlan._id,
-      redirect: '/login', // frontend can redirect here
-      order: customPlan
+      message: 'Subscriptions added successfully',
+      subscription: userSubDoc,
+      redirect: `/Finished?id=${userId}`
     });
 
-  } catch (error) {
-    console.error('Error creating custom plan:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error processing your order',
-      error: error.message
-    });
+  } catch (err) {
+    console.error('Error creating custom plan:', err);
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 };
+
 
 
 // Get all orders (admin)

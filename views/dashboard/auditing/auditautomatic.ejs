@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,434 +9,470 @@
     <link rel="stylesheet" href="/css/dashall.css">
     <link rel="stylesheet" href="/css/auditingautomatic.css">
 </head>
+
 <body>
- <div class="all">
- <%- include ("../_sidebar1") %>
+    <div class="all">
+        <%- include ("../_sidebar1") %>
 
- <div class="main-content">
-    <%- include ("../_topnav") %>
+            <div class="main-content">
+                <%- include ("../_topnav") %>
 
-   <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <div class="breadcrumb">
-                Home <span>></span> Auditing <span>></span> Automatic Audit
-            </div>
-            <div class="header-content">
-                <h1 class="page-title">
-                    <div class="title-icon"><i class="fas fa-chart-bar"></i>
-</div>
-                    Automatic Financial Audit
-                </h1>
-                <button class="run-audit-btn" onclick="runAudit()">
-                    <div class="spinner"></div>
-                    <span><i class="fas fa-search"></i>
- Run Audit</span>
-                </button>
-            </div>
-        </div>
+                    <div class="container">
+                        <!-- Header Section -->
+                        <div class="header">
+                            <div class="breadcrumb">
+                                Home <span>></span> Auditing <span>></span> Automatic Audit
+                            </div>
+                            <div class="header-content">
+                                <h1 class="page-title">
+                                    <div class="title-icon"><i class="fas fa-chart-bar"></i>
+                                    </div>
+                                    Automatic Financial Audit
+                                </h1>
+                                <button class="run-audit-btn" onclick="runAudit()">
+                                    <div class="spinner"></div>
+                                    <span><i class="fas fa-search"></i>
+                                        Run Audit</span>
+                                </button>
+                            </div>
+                        </div>
 
-        <!-- Key Metrics -->
-        <div class="metrics-grid">
-            <div class="metric-card transactions">
-                <div class="metric-header">
-                    <div>
-                        <div class="metric-value" id="totalTransactions">-</div>
-                        <div class="metric-label">Total Transactions Audited</div>
+                        <!-- Audit Configuration Panel -->
+                        <div class="config-panel">
+                            <div class="config-grid">
+                                <div class="form-group">
+                                    <label for="primaryModule">Primary Module</label>
+                                    <select id="primaryModule" class="form-control" onchange="updateSecondaryOptions()">
+                                        <option value="inventory">Inventory</option>
+                                        <option value="sales">Sales</option>
+                                        <option value="production">Production</option>
+                                        <option value="expense">Expenses</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="secondaryModule">Secondary Module (Comparison)</label>
+                                    <select id="secondaryModule" class="form-control">
+                                        <option value="sales">Sales</option>
+                                        <option value="production">Production</option>
+                                        <option value="order">Order</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">From</label>
+                                    <input type="date" id="startDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">To</label>
+                                    <input type="date" id="endDate" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Metrics -->
+                        <div class="metrics-grid">
+                            <div class="metric-card transactions">
+                                <div class="metric-header">
+                                    <div>
+                                        <div class="metric-value" id="totalTransactions">-</div>
+                                        <div class="metric-label">Total Transactions Audited</div>
+                                    </div>
+                                    <div class="metric-icon transactions"><i class="fas fa-chart-bar"></i>
+                                    </div>
+                                </div>
+                                <div class="metric-change positive">+12% from last audit</div>
+                            </div>
+
+                            <div class="metric-card discrepancies">
+                                <div class="metric-header">
+                                    <div>
+                                        <div class="metric-value" id="discrepancies">-</div>
+                                        <div class="metric-label">Discrepancies Found</div>
+                                    </div>
+                                    <div class="metric-icon discrepancies"><i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                </div>
+                                <div class="metric-change negative">+3 from last audit</div>
+                            </div>
+
+                            <div class="metric-card balanced">
+                                <div class="metric-header">
+                                    <div>
+                                        <div class="metric-value" id="balanced">-</div>
+                                        <div class="metric-label">Accounts Balanced (%)</div>
+                                    </div>
+                                    <div class="metric-icon balanced"><i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="metric-change positive">+2.1% improvement</div>
+                            </div>
+
+                            <div class="metric-card compliance">
+                                <div class="metric-header">
+                                    <div>
+                                        <div class="metric-value" id="compliance">-</div>
+                                        <div class="metric-label">Compliance Score</div>
+                                    </div>
+                                    <div class="metric-icon compliance"><i class="fas fa-bullseye"></i>
+                                    </div>
+                                </div>
+                                <div class="metric-change positive">Excellent rating</div>
+                            </div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div class="content-grid">
+                            <!-- Audit Report -->
+                            <div class="audit-report">
+                                <h2 class="section-title">
+                                    <div class="section-icon">📋</div>
+                                    Audit Report
+                                </h2>
+
+                                <div id="noDataMessage" class="no-data">
+                                    <div class="no-data-icon"><i class="fas fa-chart-bar"></i></div>
+                                    <h3>No Audit Data Available</h3>
+                                    <p>Click "Run Audit" to start scanning financial transactions</p>
+                                </div>
+
+                                <div id="auditResults" class="hidden">
+                                    <div class="audit-table-container">
+                                        <table class="audit-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item name</th>
+                                                    <th>P. Qty</th>
+                                                    <th>S. Qty</th>
+                                                    <th>P. Amount</th>
+                                                    <th>S. Amount</th>
+                                                    <th>Diff (Amt)</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="auditTableBody">
+                                                <!-- Dynamic content will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Visualizations -->
+                            <div class="visualizations">
+                                <h2 class="section-title">
+                                    <div class="section-icon"><i class="fas fa-chart-line"></i>
+                                    </div>
+                                    Analytics
+                                </h2>
+
+                                <div id="noChartsMessage" class="no-data">
+                                    <div class="no-data-icon"><i class="fas fa-chart-line"></i>
+                                        </i></div>
+                                    <p>Charts will appear after running audit</p>
+                                </div>
+
+                                <div id="chartsContainer" class="hidden">
+                                    <h3 style="margin-bottom: 15px; color: #374151;">Discrepancy Types</h3>
+                                    <div class="chart-container chart-small">
+                                        <canvas id="discrepancyChart"></canvas>
+                                    </div>
+
+                                    <h3 style="margin-bottom: 15px; color: #374151;">Anomalies Over Time</h3>
+                                    <div class="chart-container chart-small">
+                                        <canvas id="timeChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="actions-section">
+                            <div>
+                                <h3 style="color: #374151; margin-bottom: 10px;">Audit Actions</h3>
+                                <p style="color: #64748b; font-size: 14px;">Export reports or save audit results to
+                                    database</p>
+                            </div>
+                            <div class="actions-group">
+                                <button class="action-btn export-btn" onclick="exportReport('pdf')" disabled
+                                    id="exportPdfBtn">
+                                    <i class="fas fa-file-pdf"></i>Export PDF
+                                </button>
+                                <button class="action-btn export-btn" onclick="exportReport('csv')" disabled
+                                    id="exportCsvBtn">
+                                    <i class="fas fa-download"></i>
+                                    Export CSV
+                                </button>
+                                <button class="action-btn save-btn" onclick="saveAudit()" disabled id="saveBtn">
+                                    <i class="fas fa-save"></i>Save to Database
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="metric-icon transactions"><i class="fas fa-chart-bar"></i>
-</div>
-                </div>
-                <div class="metric-change positive">+12% from last audit</div>
-            </div>
 
-            <div class="metric-card discrepancies">
-                <div class="metric-header">
-                    <div>
-                        <div class="metric-value" id="discrepancies">-</div>
-                        <div class="metric-label">Discrepancies Found</div>
-                    </div>
-                    <div class="metric-icon discrepancies"><i class="fas fa-exclamation-triangle"></i>
-</div>
-                </div>
-                <div class="metric-change negative">+3 from last audit</div>
-            </div>
 
-            <div class="metric-card balanced">
-                <div class="metric-header">
-                    <div>
-                        <div class="metric-value" id="balanced">-</div>
-                        <div class="metric-label">Accounts Balanced (%)</div>
-                    </div>
-                    <div class="metric-icon balanced"><i class="fas fa-check"></i>
-</div>
-                </div>
-                <div class="metric-change positive">+2.1% improvement</div>
-            </div>
-
-            <div class="metric-card compliance">
-                <div class="metric-header">
-                    <div>
-                        <div class="metric-value" id="compliance">-</div>
-                        <div class="metric-label">Compliance Score</div>
-                    </div>
-                    <div class="metric-icon compliance"><i class="fas fa-bullseye"></i>
-</div>
-                </div>
-                <div class="metric-change positive">Excellent rating</div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="content-grid">
-            <!-- Audit Report -->
-            <div class="audit-report">
-                <h2 class="section-title">
-                    <div class="section-icon">📋</div>
-                    Audit Report
-                </h2>
-                
-                <div id="noDataMessage" class="no-data">
-                    <div class="no-data-icon"><i class="fas fa-chart-bar"></i></div>
-                    <h3>No Audit Data Available</h3>
-                    <p>Click "Run Audit" to start scanning financial transactions</p>
-                </div>
-
-                <div id="auditResults" class="hidden">
-                    <div class="audit-table-container">
-                        <table class="audit-table">
-                            <thead>
-                                <tr>
-                                    <th>Transaction ID</th>
-                                    <th>Date</th>
-                                    <th>Account</th>
-                                    <th>Issue</th>
-                                    <th>Status</th>
-                                    <th>Suggested Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="auditTableBody">
-                                <!-- Dynamic content will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visualizations -->
-            <div class="visualizations">
-                <h2 class="section-title">
-                    <div class="section-icon"><i class="fas fa-chart-line"></i>
-</div>
-                    Analytics
-                </h2>
-
-                <div id="noChartsMessage" class="no-data">
-                    <div class="no-data-icon"><i class="fas fa-chart-line"></i>
-</i></div>
-                    <p>Charts will appear after running audit</p>
-                </div>
-
-                <div id="chartsContainer" class="hidden">
-                    <h3 style="margin-bottom: 15px; color: #374151;">Discrepancy Types</h3>
-                    <div class="chart-container chart-small">
-                        <canvas id="discrepancyChart"></canvas>
+                    <!-- Loading Overlay -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-content">
+                            <div class="loading-spinner"></div>
+                            <h3>Running Financial Audit...</h3>
+                            <p>Scanning transactions and detecting anomalies</p>
+                        </div>
                     </div>
 
-                    <h3 style="margin-bottom: 15px; color: #374151;">Anomalies Over Time</h3>
-                    <div class="chart-container chart-small">
-                        <canvas id="timeChart"></canvas>
-                    </div>
-                </div>
+
+
+
             </div>
-        </div>
 
-        <!-- Actions -->
-        <div class="actions-section">
-            <div>
-                <h3 style="color: #374151; margin-bottom: 10px;">Audit Actions</h3>
-                <p style="color: #64748b; font-size: 14px;">Export reports or save audit results to database</p>
-            </div>
-            <div class="actions-group">
-                <button class="action-btn export-btn" onclick="exportReport('pdf')" disabled id="exportPdfBtn">
-                      <i class="fas fa-file-pdf"></i>Export PDF
-                </button>
-                <button class="action-btn export-btn" onclick="exportReport('csv')" disabled id="exportCsvBtn">
-                    <i class="fas fa-download"></i>
- Export CSV
-                </button>
-                <button class="action-btn save-btn" onclick="saveAudit()" disabled id="saveBtn">
-                      <i class="fas fa-save"></i>Save to Database
-                </button>
-            </div>
-        </div>
-    </div>
+            <script>
+                // Global variables
+                let auditData = null;
+                let discrepancyChart = null;
+                let timeChart = null;
 
+                // Run audit function
+                async function runAudit() {
+                    const button = document.querySelector('.run-audit-btn');
+                    const spinner = button.querySelector('.spinner');
+                    const overlay = document.getElementById('loadingOverlay');
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3>Running Financial Audit...</h3>
-            <p>Scanning transactions and detecting anomalies</p>
-        </div>
-    </div>
+                    // Disable button and show loading
+                    button.classList.add('loading');
+                    button.disabled = true;
+                    spinner.style.display = 'inline-block';
+                    overlay.style.display = 'flex';
 
+                    try {
+                        // Call real API
+                        const response = await fetch('/api/audit/run', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                primary: document.getElementById('primaryModule').value,
+                                secondary: document.getElementById('secondaryModule').value,
+                                startDate: document.getElementById('startDate').value,
+                                endDate: document.getElementById('endDate').value || new Date().toISOString().split('T')[0]
+                            })
+                        });
 
+                        const result = await response.json();
 
+                        if (result.success) {
+                            auditData = result.results;
+                            auditData.auditId = result.auditId;
+                            auditData.totalTransactions = result.stats.totalItems;
+                            auditData.discrepancies = result.stats.mismatches;
+                            auditData.balanced = result.stats.totalItems > 0
+                                ? Math.round(((result.stats.totalItems - result.stats.mismatches) / result.stats.totalItems) * 100)
+                                : 100;
+                            auditData.compliance = Math.max(0, auditData.balanced);
 
- </div>
+                            // Update UI
+                            updateMetrics();
+                            updateAuditTable();
+                            updateCharts();
+                            enableActions();
 
-<script>
-        // Global variables
-        let auditData = null;
-        let discrepancyChart = null;
-        let timeChart = null;
-
-        // Dummy audit data
-        const generateAuditData = () => {
-            const transactions = Math.floor(Math.random() * 5000) + 10000;
-            const discrepancies = Math.floor(Math.random() * 50) + 5;
-            const balanced = Math.floor(Math.random() * 20) + 75;
-            const compliance = Math.floor(Math.random() * 15) + 85;
-
-            const issues = [
-                { id: 'TXN-2024-001', date: '2024-07-29', account: 'Cash Account', issue: 'Duplicate Entry', status: 'critical', action: 'Remove duplicate transaction' },
-                { id: 'TXN-2024-002', date: '2024-07-28', account: 'Revenue Account', issue: 'Missing Documentation', status: 'warning', action: 'Request supporting documents' },
-                { id: 'TXN-2024-003', date: '2024-07-27', account: 'Expense Account', issue: 'Amount Mismatch', status: 'critical', action: 'Verify and correct amount' },
-                { id: 'TXN-2024-004', date: '2024-07-26', account: 'Bank Account', issue: 'Reconciliation Error', status: 'warning', action: 'Re-reconcile account' },
-                { id: 'TXN-2024-005', date: '2024-07-25', account: 'Asset Account', issue: 'Classification Error', status: 'ok', action: 'Reclassify transaction' },
-                { id: 'TXN-2024-006', date: '2024-07-24', account: 'Liability Account', issue: 'Timing Issue', status: 'warning', action: 'Adjust posting date' },
-                { id: 'TXN-2024-007', date: '2024-07-23', account: 'Equity Account', issue: 'Authorization Missing', status: 'critical', action: 'Obtain proper authorization' },
-                { id: 'TXN-2024-008', date: '2024-07-22', account: 'Petty Cash', issue: 'Balance Discrepancy', status: 'warning', action: 'Count and reconcile cash' }
-            ];
-
-            return {
-                totalTransactions: transactions,
-                discrepancies: discrepancies,
-                balanced: balanced,
-                compliance: compliance,
-                issues: issues.slice(0, Math.floor(Math.random() * 6) + 3),
-                discrepancyTypes: {
-                    'Duplicate Entries': Math.floor(Math.random() * 20) + 5,
-                    'Missing Documentation': Math.floor(Math.random() * 15) + 8,
-                    'Amount Mismatches': Math.floor(Math.random() * 10) + 3,
-                    'Classification Errors': Math.floor(Math.random() * 12) + 4,
-                    'Authorization Issues': Math.floor(Math.random() * 8) + 2
-                },
-                timeData: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    anomalies: [12, 8, 15, 6]
-                }
-            };
-        };
-
-        // Run audit function
-        async function runAudit() {
-            const button = document.querySelector('.run-audit-btn');
-            const spinner = button.querySelector('.spinner');
-            const overlay = document.getElementById('loadingOverlay');
-
-            // Disable button and show loading
-            button.classList.add('loading');
-            button.disabled = true;
-            spinner.style.display = 'inline-block';
-            overlay.style.display = 'flex';
-
-            try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                // Generate audit data
-                auditData = generateAuditData();
-                
-                // Update UI
-                updateMetrics();
-                updateAuditTable();
-                updateCharts();
-                enableActions();
-                
-                // Show success message
-                showNotification('Audit completed successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Audit failed:', error);
-                showNotification('Audit failed. Please try again.', 'error');
-            } finally {
-                // Reset button state
-                button.classList.remove('loading');
-                button.disabled = false;
-                spinner.style.display = 'none';
-                overlay.style.display = 'none';
-            }
-        }
-
-        // Update metrics
-        function updateMetrics() {
-            document.getElementById('totalTransactions').textContent = auditData.totalTransactions.toLocaleString();
-            document.getElementById('discrepancies').textContent = auditData.discrepancies;
-            document.getElementById('balanced').textContent = auditData.balanced + '%';
-            document.getElementById('compliance').textContent = auditData.compliance + '/100';
-        }
-
-        // Update audit table
-        function updateAuditTable() {
-            const noDataMessage = document.getElementById('noDataMessage');
-            const auditResults = document.getElementById('auditResults');
-            const tableBody = document.getElementById('auditTableBody');
-
-            noDataMessage.classList.add('hidden');
-            auditResults.classList.remove('hidden');
-            auditResults.classList.add('fade-in');
-
-            tableBody.innerHTML = '';
-            
-            auditData.issues.forEach(issue => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${issue.id}</strong></td>
-                    <td>${issue.date}</td>
-                    <td>${issue.account}</td>
-                    <td>${issue.issue}</td>
-                    <td><span class="status-badge status-${issue.status}">${issue.status}</span></td>
-                    <td>${issue.action}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Update charts
-        function updateCharts() {
-            const noChartsMessage = document.getElementById('noChartsMessage');
-            const chartsContainer = document.getElementById('chartsContainer');
-
-            noChartsMessage.classList.add('hidden');
-            chartsContainer.classList.remove('hidden');
-            chartsContainer.classList.add('fade-in');
-
-            // Destroy existing charts
-            if (discrepancyChart) discrepancyChart.destroy();
-            if (timeChart) timeChart.destroy();
-
-            // Discrepancy types pie chart
-            const discrepancyCtx = document.getElementById('discrepancyChart').getContext('2d');
-            discrepancyChart = new Chart(discrepancyCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(auditData.discrepancyTypes),
-                    datasets: [{
-                        data: Object.values(auditData.discrepancyTypes),
-                        backgroundColor: [
-                            '#ef4444',
-                            '#f59e0b',
-                            '#3b82f6',
-                            '#10b981',
-                            '#8b5cf6'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true
-                            }
+                            showNotification('Audit completed successfully!', 'success');
+                        } else {
+                            throw new Error(result.message || 'Audit failed');
                         }
+
+                    } catch (error) {
+                        console.error('Audit failed:', error);
+                        showNotification('Audit failed. Please try again.', 'error');
+                    } finally {
+                        // Reset button state
+                        button.classList.remove('loading');
+                        button.disabled = false;
+                        spinner.style.display = 'none';
+                        overlay.style.display = 'none';
                     }
                 }
-            });
 
-            // Time series line chart
-            const timeCtx = document.getElementById('timeChart').getContext('2d');
-            timeChart = new Chart(timeCtx, {
-                type: 'line',
-                data: {
-                    labels: auditData.timeData.labels,
-                    datasets: [{
-                        label: 'Anomalies Detected',
-                        data: auditData.timeData.anomalies,
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#ef4444',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#f1f5f9'
-                            }
+                // Update metrics
+                function updateMetrics() {
+                    document.getElementById('totalTransactions').textContent = auditData.totalTransactions.toLocaleString();
+                    document.getElementById('discrepancies').textContent = auditData.discrepancies;
+                    document.getElementById('balanced').textContent = auditData.balanced + '%';
+                    document.getElementById('compliance').textContent = auditData.compliance + '/100';
+                }
+
+                // Update audit table
+                function updateAuditTable() {
+                    const noDataMessage = document.getElementById('noDataMessage');
+                    const auditResults = document.getElementById('auditResults');
+                    const tableBody = document.getElementById('auditTableBody');
+
+                    noDataMessage.classList.add('hidden');
+                    auditResults.classList.remove('hidden');
+                    auditResults.classList.add('fade-in');
+
+                    tableBody.innerHTML = '';
+
+                    auditData.forEach(item => {
+                        const row = document.createElement('tr');
+                        const diffClass = item.diffAmt < 0 ? 'text-danger' : (item.diffAmt > 0 ? 'text-warning' : '');
+
+                        row.innerHTML = `
+                            <td><strong>${item.product}</strong></td>
+                            <td>${item.primaryQty}</td>
+                            <td>${item.secondaryQty}</td>
+                            <td>₦${item.primaryAmt.toLocaleString()}</td>
+                            <td>₦${item.secondaryAmt.toLocaleString()}</td>
+                            <td class="${diffClass}">₦${item.diffAmt.toLocaleString()}</td>
+                            <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+
+                // Update charts with real results
+                function updateCharts() {
+                    const noChartsMessage = document.getElementById('noChartsMessage');
+                    const chartsContainer = document.getElementById('chartsContainer');
+
+                    noChartsMessage.classList.add('hidden');
+                    chartsContainer.classList.remove('hidden');
+                    chartsContainer.classList.add('fade-in');
+
+                    // 1. Process discrepancy types
+                    const types = { 'Matched': 0, 'Mismatched': 0 };
+                    auditData.forEach(item => {
+                        types[item.status]++;
+                    });
+
+                    if (discrepancyChart) discrepancyChart.destroy();
+                    const discrepancyCtx = document.getElementById('discrepancyChart').getContext('2d');
+                    discrepancyChart = new Chart(discrepancyCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(types),
+                            datasets: [{
+                                data: Object.values(types),
+                                backgroundColor: ['#10b981', '#ef4444'],
+                                borderWidth: 0
+                            }]
                         },
-                        x: {
-                            grid: {
-                                color: '#f1f5f9'
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        usePointStyle: true
+                                    }
+                                }
                             }
                         }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
+                    });
+
+                    // 2. Simple volume chart (Primary vs Secondary)
+                    const stats = {
+                        primary: auditData.reduce((acc, curr) => acc + curr.primaryAmt, 0),
+                        secondary: auditData.reduce((acc, curr) => acc + curr.secondaryAmt, 0)
+                    };
+
+                    if (timeChart) timeChart.destroy();
+                    const timeCtx = document.getElementById('timeChart').getContext('2d');
+                    timeChart = new Chart(timeCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Primary Volume', 'Secondary Volume'],
+                            datasets: [{
+                                label: 'Total Amount (₦)',
+                                data: [stats.primary, stats.secondary],
+                                backgroundColor: ['#3b82f6', '#8b5cf6'],
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
                         }
+                    });
+                }
+
+                // Enable action buttons
+                function enableActions() {
+                    document.getElementById('exportPdfBtn').disabled = false;
+                    document.getElementById('exportCsvBtn').disabled = false;
+                    document.getElementById('saveBtn').disabled = false;
+                }
+
+                // Export report function
+                function exportReport(format) {
+                    if (!auditData || !auditData.auditId) {
+                        showNotification('No audit data to export', 'error');
+                        return;
+                    }
+
+                    showNotification(`Downloading ${format.toUpperCase()} report...`, 'info');
+
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.href = `/api/audit/download/${format}/${auditData.auditId}`;
+                    link.download = `audit-${auditData.auditId}.${format}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showNotification(`Report downloaded successfully as ${format.toUpperCase()}`, 'success');
+                }
+
+                // Save audit function
+                async function saveAudit() {
+                    if (!auditData) {
+                        showNotification('No audit data to save', 'error');
+                        return;
+                    }
+
+                    try {
+                        showNotification('Saving audit results...', 'info');
+
+                        const response = await fetch('/api/audit/save-item', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                itemName: 'Audit Results',
+                                qtyReceived: auditData.totalTransactions,
+                                qtySold: auditData.discrepancies,
+                                variance: auditData.discrepancies,
+                                notes: `Audit completed with ${auditData.discrepancies} discrepancies found`
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification('Audit results saved successfully', 'success');
+                        } else {
+                            showNotification('Failed to save audit results', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Save error:', error);
+                        showNotification('Error saving audit results', 'error');
                     }
                 }
-            });
-        }
 
-        // Enable action buttons
-        function enableActions() {
-            document.getElementById('exportPdfBtn').disabled = false;
-            document.getElementById('exportCsvBtn').disabled = false;
-            document.getElementById('saveBtn').disabled = false;
-        }
-
-        // Export report function
-        function exportReport(format) {
-            if (!auditData) {
-                showNotification('No audit data to export', 'error');
-                return;
-            }
-
-            showNotification(`Exporting report as ${format.toUpperCase()}...`, 'info');
-            
-            // Simulate export process
-            setTimeout(() => {
-                showNotification(`Report exported successfully as ${format.toUpperCase()}`, 'success');
-            }, 1500);
-        }
-
-        // Save audit function
-        function saveAudit() {
-            if (!auditData) {
-                showNotification('No audit data to save', 'error');
-                return;
-            }
-
-            showNotification('Saving audit results to database...', 'info');
-            
-            // Simulate save process
-            setTimeout(() => {
-                showNotification('Audit results saved successfully', 'success');
-            }, 2000);
-        }
-
-        // Notification system
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
+                // Notification system
+                function showNotification(message, type) {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -450,114 +486,114 @@
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             `;
 
-            const colors = {
-                success: '#10b981',
-                error: '#ef4444',
-                info: '#3b82f6'
-            };
+                    const colors = {
+                        success: '#10b981',
+                        error: '#ef4444',
+                        info: '#3b82f6'
+                    };
 
-            notification.style.backgroundColor = colors[type] || colors.info;
-            notification.textContent = message;
+                    notification.style.backgroundColor = colors[type] || colors.info;
+                    notification.textContent = message;
 
-            document.body.appendChild(notification);
+                    document.body.appendChild(notification);
 
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Additional utility functions for enhanced functionality
-        
-        // Filter audit results
-        function filterAuditResults(status) {
-            if (!auditData) return;
-            
-            const tableBody = document.getElementById('auditTableBody');
-            const rows = tableBody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                const statusCell = row.querySelector('.status-badge');
-                if (status === 'all' || statusCell.classList.contains(`status-${status}`)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+                    setTimeout(() => {
+                        notification.style.animation = 'slideOut 0.3s ease';
+                        setTimeout(() => notification.remove(), 300);
+                    }, 3000);
                 }
-            });
-        }
 
-        // Search functionality
-        function searchAuditResults(query) {
-            if (!auditData || !query) {
-                // Show all rows if query is empty
-                document.querySelectorAll('#auditTableBody tr').forEach(row => {
-                    row.style.display = '';
-                });
-                return;
-            }
-            
-            const tableBody = document.getElementById('auditTableBody');
-            const rows = tableBody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(query.toLowerCase())) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+                // Additional utility functions for enhanced functionality
+
+                // Filter audit results
+                function filterAuditResults(status) {
+                    if (!auditData) return;
+
+                    const tableBody = document.getElementById('auditTableBody');
+                    const rows = tableBody.querySelectorAll('tr');
+
+                    rows.forEach(row => {
+                        const statusCell = row.querySelector('.status-badge');
+                        if (status === 'all' || statusCell.classList.contains(`status-${status}`)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
                 }
-            });
-        }
 
-        // Auto-refresh functionality
-        let autoRefreshInterval = null;
-        
-        function toggleAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-                showNotification('Auto-refresh disabled', 'info');
-            } else {
-                autoRefreshInterval = setInterval(() => {
-                    if (auditData) {
+                // Search functionality
+                function searchAuditResults(query) {
+                    if (!auditData || !query) {
+                        // Show all rows if query is empty
+                        document.querySelectorAll('#auditTableBody tr').forEach(row => {
+                            row.style.display = '';
+                        });
+                        return;
+                    }
+
+                    const tableBody = document.getElementById('auditTableBody');
+                    const rows = tableBody.querySelectorAll('tr');
+
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(query.toLowerCase())) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Auto-refresh functionality
+                let autoRefreshInterval = null;
+
+                function toggleAutoRefresh() {
+                    if (autoRefreshInterval) {
+                        clearInterval(autoRefreshInterval);
+                        autoRefreshInterval = null;
+                        showNotification('Auto-refresh disabled', 'info');
+                    } else {
+                        autoRefreshInterval = setInterval(() => {
+                            if (auditData) {
+                                runAudit();
+                            }
+                        }, 300000); // Refresh every 5 minutes
+                        showNotification('Auto-refresh enabled (5 min intervals)', 'success');
+                    }
+                }
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function (e) {
+                    // Ctrl/Cmd + R for Run Audit
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                        e.preventDefault();
                         runAudit();
                     }
-                }, 300000); // Refresh every 5 minutes
-                showNotification('Auto-refresh enabled (5 min intervals)', 'success');
-            }
-        }
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + R for Run Audit
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                runAudit();
-            }
-            
-            // Ctrl/Cmd + E for Export PDF
-            if ((e.ctrlKey || e.metaKey) && e.key === 'e' && auditData) {
-                e.preventDefault();
-                exportReport('pdf');
-            }
-            
-            // Ctrl/Cmd + S for Save
-            if ((e.ctrlKey || e.metaKey) && e.key === 's' && auditData) {
-                e.preventDefault();
-                saveAudit();
-            }
-        });
+                    // Ctrl/Cmd + E for Export PDF
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'e' && auditData) {
+                        e.preventDefault();
+                        exportReport('pdf');
+                    }
 
-        // Initialize tooltips for better UX
-        function initializeTooltips() {
-            const tooltipElements = document.querySelectorAll('[data-tooltip]');
-            
-            tooltipElements.forEach(element => {
-                element.addEventListener('mouseenter', function() {
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'tooltip';
-                    tooltip.textContent = this.getAttribute('data-tooltip');
-                    tooltip.style.cssText = `
+                    // Ctrl/Cmd + S for Save
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's' && auditData) {
+                        e.preventDefault();
+                        saveAudit();
+                    }
+                });
+
+                // Initialize tooltips for better UX
+                function initializeTooltips() {
+                    const tooltipElements = document.querySelectorAll('[data-tooltip]');
+
+                    tooltipElements.forEach(element => {
+                        element.addEventListener('mouseenter', function () {
+                            const tooltip = document.createElement('div');
+                            tooltip.className = 'tooltip';
+                            tooltip.textContent = this.getAttribute('data-tooltip');
+                            tooltip.style.cssText = `
                         position: absolute;
                         background: #1f2937;
                         color: white;
@@ -570,99 +606,158 @@
                         opacity: 0;
                         transition: opacity 0.2s;
                     `;
-                    
-                    document.body.appendChild(tooltip);
-                    
-                    const rect = this.getBoundingClientRect();
-                    tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
-                    tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
-                    
-                    setTimeout(() => tooltip.style.opacity = '1', 10);
-                    
-                    this._tooltip = tooltip;
-                });
-                
-                element.addEventListener('mouseleave', function() {
-                    if (this._tooltip) {
-                        this._tooltip.remove();
-                        this._tooltip = null;
-                    }
-                });
-            });
-        }
 
-        // Real-time validation for transaction data
-        function validateTransaction(transaction) {
-            const issues = [];
-            
-            // Check for required fields
-            if (!transaction.id) issues.push('Missing transaction ID');
-            if (!transaction.amount) issues.push('Missing amount');
-            if (!transaction.date) issues.push('Missing date');
-            if (!transaction.account) issues.push('Missing account');
-            
-            // Check amount validity
-            if (transaction.amount && (isNaN(transaction.amount) || transaction.amount <= 0)) {
-                issues.push('Invalid amount');
-            }
-            
-            // Check date validity
-            if (transaction.date && isNaN(new Date(transaction.date))) {
-                issues.push('Invalid date format');
-            }
-            
-            return issues;
-        }
+                            document.body.appendChild(tooltip);
 
-        // Enhanced error handling for audit process
-        function handleAuditError(error) {
-            console.error('Audit Error:', error);
-            
-            let errorMessage = 'An unexpected error occurred during the audit.';
-            
-            if (error.message) {
-                if (error.message.includes('network')) {
-                    errorMessage = 'Network error. Please check your connection and try again.';
-                } else if (error.message.includes('timeout')) {
-                    errorMessage = 'Audit timeout. The process is taking longer than expected.';
-                } else if (error.message.includes('unauthorized')) {
-                    errorMessage = 'Authorization error. Please check your permissions.';
+                            const rect = this.getBoundingClientRect();
+                            tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
+                            tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+
+                            setTimeout(() => tooltip.style.opacity = '1', 10);
+
+                            this._tooltip = tooltip;
+                        });
+
+                        element.addEventListener('mouseleave', function () {
+                            if (this._tooltip) {
+                                this._tooltip.remove();
+                                this._tooltip = null;
+                            }
+                        });
+                    });
                 }
-            }
-            
-            showNotification(errorMessage, 'error');
-            
-            // Reset UI state
-            const button = document.querySelector('.run-audit-btn');
-            const spinner = button.querySelector('.spinner');
-            const overlay = document.getElementById('loadingOverlay');
-            
-            button.classList.remove('loading');
-            button.disabled = false;
-            spinner.style.display = 'none';
-            overlay.style.display = 'none';
-        }
 
-        // Initialize the dashboard on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tooltips
-            initializeTooltips();
-            
-            // Add welcome message
-            setTimeout(() => {
-                showNotification('Financial Audit Dashboard loaded successfully', 'success');
-            }, 500);
-            
-            // Check for saved audit data (simulation)
-            const savedAuditData = null; // In real app: localStorage.getItem('lastAuditData')
-            if (savedAuditData) {
-                showNotification('Previous audit data found', 'info');
-            }
-        });
+                // Real-time validation for transaction data
+                function validateTransaction(transaction) {
+                    const issues = [];
 
-        // CSS animations for notifications
-        const style = document.createElement('style');
-        style.textContent = `
+                    // Check for required fields
+                    if (!transaction.id) issues.push('Missing transaction ID');
+                    if (!transaction.amount) issues.push('Missing amount');
+                    if (!transaction.date) issues.push('Missing date');
+                    if (!transaction.account) issues.push('Missing account');
+
+                    // Check amount validity
+                    if (transaction.amount && (isNaN(transaction.amount) || transaction.amount <= 0)) {
+                        issues.push('Invalid amount');
+                    }
+
+                    // Check date validity
+                    if (transaction.date && isNaN(new Date(transaction.date))) {
+                        issues.push('Invalid date format');
+                    }
+
+                    return issues;
+                }
+
+                // Enhanced error handling for audit process
+                function handleAuditError(error) {
+                    console.error('Audit Error:', error);
+
+                    let errorMessage = 'An unexpected error occurred during the audit.';
+
+                    if (error.message) {
+                        if (error.message.includes('network')) {
+                            errorMessage = 'Network error. Please check your connection and try again.';
+                        } else if (error.message.includes('timeout')) {
+                            errorMessage = 'Audit timeout. The process is taking longer than expected.';
+                        } else if (error.message.includes('unauthorized')) {
+                            errorMessage = 'Authorization error. Please check your permissions.';
+                        }
+                    }
+
+                    showNotification(errorMessage, 'error');
+
+                    // Reset UI state
+                    const button = document.querySelector('.run-audit-btn');
+                    const spinner = button.querySelector('.spinner');
+                    const overlay = document.getElementById('loadingOverlay');
+
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    spinner.style.display = 'none';
+                    overlay.style.display = 'none';
+                }
+
+                // Module Compatibility Logic
+                const compatibilityMap = {
+                    'inventory': ['sales', 'production', 'order'],
+                    'sales': ['inventory', 'order'],
+                    'production': ['inventory'],
+                    'expense': ['budget']
+                };
+
+                function updateSecondaryOptions() {
+                    const primary = document.getElementById('primaryModule').value;
+                    const secondarySelect = document.getElementById('secondaryModule');
+                    const compatibleOnes = compatibilityMap[primary] || [];
+
+                    secondarySelect.innerHTML = '';
+                    compatibleOnes.forEach(mod => {
+                        const option = document.createElement('option');
+                        option.value = mod;
+                        option.textContent = mod.charAt(0).toUpperCase() + mod.slice(1);
+                        secondarySelect.appendChild(option);
+                    });
+
+                    // Add 'None' option
+                    const noneOption = document.createElement('option');
+                    noneOption.value = '';
+                    noneOption.textContent = 'None (Single Module Audit)';
+                    secondarySelect.appendChild(noneOption);
+                }
+
+                // Initialize dates and options
+                document.addEventListener('DOMContentLoaded', function () {
+                    const today = new Date();
+                    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+                    document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+                    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+                    updateSecondaryOptions();
+
+                    // Existing initialization
+                    initializeTooltips();
+
+                    setTimeout(() => {
+                        showNotification('Financial Audit Dashboard loaded with module compatibility', 'success');
+                    }, 500);
+                });
+
+                // CSS for config panel
+                const configStyle = document.createElement('style');
+                configStyle.textContent = `
+            .config-panel {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 25px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .config-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+            .form-control {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                margin-top: 5px;
+            }
+            label {
+                font-weight: 600;
+                color: #475569;
+                font-size: 14px;
+            }
+        `;
+                document.head.appendChild(configStyle);
+
+                // CSS animations for notifications
+                const style = document.createElement('style');
+                style.textContent = `
             @keyframes slideIn {
                 from {
                     transform: translateX(100%);
@@ -705,15 +800,15 @@
                 }
             }
         `;
-        document.head.appendChild(style);
-    </script>
-    <script>
-      sessionStorage.setItem('redirect', window.location.pathname);
-    </script>
-</div>
+                document.head.appendChild(style);
+            </script>
+            <script>
+                sessionStorage.setItem('redirect', window.location.pathname);
+            </script>
+    </div>
 
 
-    
+
 </body>
-</html>
 
+</html>

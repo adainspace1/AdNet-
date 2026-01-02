@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
+  recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   itemName: { type: String, required: true },
   qtyReceived: { type: Number, default: 0 },
   qtySold: { type: Number, default: 0 },

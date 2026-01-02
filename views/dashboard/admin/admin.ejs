@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <link rel="stylesheet" href="/css/dashall.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <style>
         :root {
             --adnet-primary: #007bff;
@@ -39,7 +40,8 @@
             transition: background-color 0.3s;
         }
 
-        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
             color: white;
             background-color: var(--adnet-primary);
         }
@@ -59,13 +61,16 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         /* Custom attribute for conditional rendering visualization */
         [data-role-access]:not([data-role-access*="SuperAdmin"]) {
             border-left: 3px solid orange;
             opacity: 0.9;
         }
-        .hidden-module { display: none !important; }
+
+        .hidden-module {
+            display: none !important;
+        }
 
         .card-kpi .card-body {
             padding: 1.5rem;
@@ -193,8 +198,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .popup-box {
@@ -211,11 +221,12 @@
         }
 
         @keyframes slideUp {
-            from { 
+            from {
                 opacity: 0;
                 transform: translateY(30px) scale(0.95);
             }
-            to { 
+
+            to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
@@ -318,49 +329,61 @@
             border-color: var(--adnet-primary) !important;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1) !important;
         }
-       
     </style>
 </head>
+
 <body>
 
     <nav id="sidebar">
         <h3 class="text-center mb-4">Adnet Admin</h3>
         <ul class="nav flex-column px-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#overview"><i class="fas fa-home me-2"></i> Admin Overview</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#overview"><i class="fas fa-home me-2"></i> Admin
+                    Overview</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,HR">
-                <a class="nav-link" data-bs-toggle="tab" href="#users"><i class="fas fa-users me-2"></i> User & Role Mgmt</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#users"><i class="fas fa-users me-2"></i> User & Role
+                    Mgmt</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,CompanyManager">
-                <a class="nav-link" data-bs-toggle="tab" href="#companies"><i class="fas fa-building me-2"></i> Company Management</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#companies"><i class="fas fa-building me-2"></i> Company
+                    Management</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,Billing">
-                <a class="nav-link" data-bs-toggle="tab" href="#subscriptions"><i class="fas fa-credit-card me-2"></i> Subscriptions</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#subscriptions"><i class="fas fa-credit-card me-2"></i>
+                    Subscriptions</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,Auditor">
-                <a class="nav-link" data-bs-toggle="tab" href="#audits"><i class="fas fa-check-double me-2"></i> Audit Module</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#audits"><i class="fas fa-check-double me-2"></i> Audit
+                    Module</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,TaxOfficer">
-                <a class="nav-link" data-bs-toggle="tab" href="#taxation"><i class="fas fa-file-invoice-dollar me-2"></i> Taxation Module</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#taxation"><i
+                        class="fas fa-file-invoice-dollar me-2"></i> Taxation Module</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,LogisticsManager" data-plan-restriction="Enterprise">
-                <a class="nav-link" data-bs-toggle="tab" href="#logistics"><i class="fas fa-truck me-2"></i> Logistics Module (Plan Restricted)</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#logistics"><i class="fas fa-truck me-2"></i> Logistics
+                    Module (Plan Restricted)</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,HR">
-                <a class="nav-link" data-bs-toggle="tab" href="#workforce"><i class="fas fa-user-tie me-2"></i> Staff Management</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#workforce"><i class="fas fa-user-tie me-2"></i> Staff
+                    Management</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,Billing">
-                <a class="nav-link" data-bs-toggle="tab" href="#financial"><i class="fas fa-chart-line me-2"></i> Financial & Billing</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#financial"><i class="fas fa-chart-line me-2"></i>
+                    Financial & Billing</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin,Analytics">
-                <a class="nav-link" data-bs-toggle="tab" href="#reports"><i class="fas fa-chart-pie me-2"></i> Reports & Analytics</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#reports"><i class="fas fa-chart-pie me-2"></i> Reports &
+                    Analytics</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#logs"><i class="fas fa-bell me-2"></i> Notifications & Logs</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#logs"><i class="fas fa-bell me-2"></i> Notifications &
+                    Logs</a>
             </li>
             <li class="nav-item" data-role-access="SuperAdmin">
-                <a class="nav-link" data-bs-toggle="tab" href="#settings"><i class="fas fa-cogs me-2"></i> Settings & Control</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#settings"><i class="fas fa-cogs me-2"></i> Settings &
+                    Control</a>
             </li>
         </ul>
     </nav>
@@ -371,7 +394,8 @@
             <div class="d-flex align-items-center">
                 <button class="btn btn-light me-3"><i class="fas fa-search"></i> Search</button>
                 <div class="dropdown me-3">
-                    <button class="btn btn-warning" type="button" data-bs-toggle="dropdown"><i class="fas fa-bell me-1"></i> Alerts <span class="badge bg-danger">3</span></button>
+                    <button class="btn btn-warning" type="button" data-bs-toggle="dropdown"><i
+                            class="fas fa-bell me-1"></i> Alerts <span class="badge bg-danger">3</span></button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item text-danger" href="#">Overdue Tax: Acme Corp</a></li>
                         <li><a class="dropdown-item" href="#">Plan Expiring: Global Tech</a></li>
@@ -390,15 +414,35 @@
         </header>
 
         <div class="tab-content">
-            
+
             <div class="tab-pane fade show active" id="overview">
                 <h3><i class="fas fa-tachometer-alt me-2"></i> Global KPI Overview</h3>
                 <hr>
                 <div class="row mb-4">
-                    <div class="col-md-3"><div class="card card-kpi text-bg-primary"><div class="card-body">Total Companies <h2 class="card-title">1,245</h2></div></div></div>
-                    <div class="col-md-3"><div class="card card-kpi text-bg-success"><div class="card-body">Revenue (MRR) <h2 class="card-title">$450K</h2></div></div></div>
-                    <div class="col-md-3"><div class="card card-kpi text-bg-warning"><div class="card-body">Pending Audits <h2 class="card-title">24</h2></div></div></div>
-                    <div class="col-md-3"><div class="card card-kpi text-bg-danger"><div class="card-body">Overdue Tax <h2 class="card-title">11</h2></div></div></div>
+                    <div class="col-md-3">
+                        <div class="card card-kpi text-bg-primary">
+                            <div class="card-body">Total Companies <h2 class="card-title">1,245</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-kpi text-bg-success">
+                            <div class="card-body">Revenue (MRR) <h2 class="card-title">$450K</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-kpi text-bg-warning">
+                            <div class="card-body">Pending Audits <h2 class="card-title">24</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-kpi text-bg-danger">
+                            <div class="card-body">Overdue Tax <h2 class="card-title">11</h2>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -415,10 +459,14 @@
                         <div class="card">
                             <div class="card-header">Quick Actions</div>
                             <div class="card-body d-grid gap-2">
-                                <button class="btn btn-primary" id="quickAddCompanyBtn"><i class="fas fa-plus-circle me-2"></i> Register New Company</button>
-                                <button class="btn btn-secondary" id="quickAddUserBtn"><i class="fas fa-user-plus me-2"></i> Create New Admin/Staff</button>
-                                <button class="btn btn-info" id="downloadReportBtn"><i class="fas fa-file-pdf me-2"></i> Generate Monthly Financial Report</button>
-                                <button class="btn btn-outline-secondary" id="refreshDashboardBtn"><i class="fas fa-sync-alt me-2"></i> Refresh Dashboard</button>
+                                <button class="btn btn-primary" id="quickAddCompanyBtn"><i
+                                        class="fas fa-plus-circle me-2"></i> Register New Company</button>
+                                <button class="btn btn-secondary" id="quickAddUserBtn"><i
+                                        class="fas fa-user-plus me-2"></i> Create New Admin/Staff</button>
+                                <button class="btn btn-info" id="downloadReportBtn"><i class="fas fa-file-pdf me-2"></i>
+                                    Generate Monthly Financial Report</button>
+                                <button class="btn btn-outline-secondary" id="refreshDashboardBtn"><i
+                                        class="fas fa-sync-alt me-2"></i> Refresh Dashboard</button>
                             </div>
                         </div>
                     </div>
@@ -426,127 +474,124 @@
             </div>
 
             <div class="tab-pane fade" id="users">
-  <h3>
-    <i class="fas fa-users me-2"></i>
-    User & Role Management
-  </h3>
-  <hr>
+                <h3>
+                    <i class="fas fa-users me-2"></i>
+                    User & Role Management
+                </h3>
+                <hr>
 
-  <button
-    class="btn btn-primary mb-3"
-    id="addUserBtn"
-  >
-    <i class="fas fa-user-plus me-2"></i>
-    Create New User
-  </button>
+                <button class="btn btn-primary mb-3" id="addUserBtn">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Create New User
+                </button>
 
 
-  <!-- USERS TABLE -->
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Roles</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="usersTbody">
-        <!-- JS injects -->
-      </tbody>
-    </table>
-  </div>
+                <!-- USERS TABLE -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Roles</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTbody">
+                            <!-- JS injects -->
+                        </tbody>
+                    </table>
+                </div>
 
-</div>
+            </div>
 
-<!-- ADD / EDIT USER POPUP -->
-<div class="popup" id="addUserPopup">
-  <form id="addUserForm" class="popup-box">
-    <input type="hidden" name="adminId" value="<%= user._id %>">
+            <!-- ADD / EDIT USER POPUP -->
+            <div class="popup" id="addUserPopup">
+                <form id="addUserForm" class="popup-box">
+                    <input type="hidden" name="adminId" value="<%= user._id %>">
 
-    <h3>Create / Edit User</h3>
+                    <h3>Create / Edit User</h3>
 
-    <input name="name" placeholder="Full name" required />
-    <input name="email" placeholder="Email" required />
-    <input name="username" placeholder="Username" required />
-    <input name="phone" placeholder="Phone number" />
-    <input name="password" placeholder="Password (leave empty to keep)" />
-    <textarea name="notes" placeholder="Notes (optional)" rows="3"></textarea>
+                    <input name="name" placeholder="Full name" required />
+                    <input name="email" placeholder="Email" required />
+                    <input name="username" placeholder="Username" required />
+                    <input name="phone" placeholder="Phone number" />
+                    <input name="password" placeholder="Password (leave empty to keep)" />
+                    <textarea name="notes" placeholder="Notes (optional)" rows="3"></textarea>
 
-    <h4>Roles & Permissions</h4>
+                    <h4>Roles & Permissions</h4>
 
-    <div class="roles-grid">
+                    <div class="roles-grid">
 
-      <label>
-        <input type="checkbox" name="roles" value="inventory" />
-        Inventory
-      </label>
-      <select name="accessLevel[inventory]" disabled>
-        <option value="">Access</option>
-        <option value="basic">Basic</option>
-        <option value="max">Max</option>
-        <option value="admin">Admin</option>
-      </select>
+                        <label>
+                            <input type="checkbox" name="roles" value="inventory" />
+                            Inventory
+                        </label>
+                        <select name="accessLevel[inventory]" disabled>
+                            <option value="">Access</option>
+                            <option value="basic">Basic</option>
+                            <option value="max">Max</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-      <label>
-        <input type="checkbox" name="roles" value="sales" />
-        Sales
-      </label>
-      <select name="accessLevel[sales]" disabled>
-        <option value="">Access</option>
-        <option value="basic">Basic</option>
-        <option value="max">Max</option>
-        <option value="admin">Admin</option>
-      </select>
+                        <label>
+                            <input type="checkbox" name="roles" value="sales" />
+                            Sales
+                        </label>
+                        <select name="accessLevel[sales]" disabled>
+                            <option value="">Access</option>
+                            <option value="basic">Basic</option>
+                            <option value="max">Max</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-      <label>
-        <input type="checkbox" name="roles" value="finance" />
-        Finance
-      </label>
-      <select name="accessLevel[finance]" disabled>
-        <option value="">Access</option>
-        <option value="basic">Basic</option>
-        <option value="max">Max</option>
-        <option value="admin">Admin</option>
-      </select>
+                        <label>
+                            <input type="checkbox" name="roles" value="finance" />
+                            Finance
+                        </label>
+                        <select name="accessLevel[finance]" disabled>
+                            <option value="">Access</option>
+                            <option value="basic">Basic</option>
+                            <option value="max">Max</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-      <label>
-        <input type="checkbox" name="roles" value="logistics" />
-        Logistics
-      </label>
-      <select name="accessLevel[logistics]" disabled>
-        <option value="">Access</option>
-        <option value="basic">Basic</option>
-        <option value="max">Max</option>
-        <option value="admin">Admin</option>
-      </select>
+                        <label>
+                            <input type="checkbox" name="roles" value="logistics" />
+                            Logistics
+                        </label>
+                        <select name="accessLevel[logistics]" disabled>
+                            <option value="">Access</option>
+                            <option value="basic">Basic</option>
+                            <option value="max">Max</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-      <label>
-        <input type="checkbox" name="roles" value="audit" />
-        Audit
-      </label>
-      <select name="accessLevel[audit]" disabled>
-        <option value="">Access</option>
-        <option value="basic">Basic</option>
-        <option value="max">Max</option>
-        <option value="admin">Admin</option>
-      </select>
+                        <label>
+                            <input type="checkbox" name="roles" value="audit" />
+                            Audit
+                        </label>
+                        <select name="accessLevel[audit]" disabled>
+                            <option value="">Access</option>
+                            <option value="basic">Basic</option>
+                            <option value="max">Max</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-    </div>
+                    </div>
 
-    <div class="popup-actions">
-      <button type="submit" class="btn primary">Save</button>
-      <button type="button" id="closePopup" class="btn">Cancel</button>
-    </div>
+                    <div class="popup-actions">
+                        <button type="submit" class="btn primary">Save</button>
+                        <button type="button" id="closePopup" class="btn">Cancel</button>
+                    </div>
 
-    <h4 class="mt-4">Role Permissions Matrix</h4>
-    <p class="text-muted">
-      Permissions are controlled dynamically using the roles array and accessLevel.
-    </p>
-  </form>
-</div>
+                    <h4 class="mt-4">Role Permissions Matrix</h4>
+                    <p class="text-muted">
+                        Permissions are controlled dynamically using the roles array and accessLevel.
+                    </p>
+                </form>
+            </div>
 
 
             <div class="tab-pane fade" id="companies">
@@ -555,9 +600,10 @@
                 <div class="d-flex justify-content-between mb-3">
                     <input type="text" class="form-control w-25" placeholder="Search Company Name/ID">
                     <button class="btn btn-success"><i class="fas fa-plus me-2"></i> Register Company</button>
-                                <button class="btn btn-success" id="registerCompanyBtn"><i class="fas fa-plus me-2"></i> Register Company</button>
+                    <button class="btn btn-success" id="registerCompanyBtn"><i class="fas fa-plus me-2"></i> Register
+                        Company</button>
                 </div>
-                
+
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -594,8 +640,9 @@
                 <h3><i class="fas fa-credit-card me-2"></i> Subscription & Plan Management</h3>
                 <hr>
                 <button class="btn btn-primary mb-3"><i class="fas fa-plus me-2"></i> Create New Plan</button>
-                                <button class="btn btn-primary mb-3" id="createPlanBtn"><i class="fas fa-plus me-2"></i> Create New Plan</button>
-                
+                <button class="btn btn-primary mb-3" id="createPlanBtn"><i class="fas fa-plus me-2"></i> Create New
+                    Plan</button>
+
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card border-primary mb-3">
@@ -615,7 +662,8 @@
                             <div class="card-body">
                                 <p>Staff Limit: **5**</p>
                                 <p>Modules Enabled: **Audit, Tax (No Logistics)**</p>
-                                <p>Current Usage: 5/5 staff slots <span class="badge bg-danger">Limit Reached!</span></p>
+                                <p>Current Usage: 5/5 staff slots <span class="badge bg-danger">Limit Reached!</span>
+                                </p>
                                 <p>Revenue Share: 10%</p>
                                 <button class="btn btn-sm btn-warning">Edit Features/Toggles</button>
                             </div>
@@ -631,8 +679,18 @@
                 <h3><i class="fas fa-check-double me-2"></i> Audit Module</h3>
                 <hr>
                 <div class="row mb-3">
-                    <div class="col-md-3"><div class="card text-bg-info"><div class="card-body">Total Audits <h2 class="card-title">890</h2></div></div></div>
-                    <div class="col-md-3"><div class="card text-bg-warning"><div class="card-body">Pending <h2 class="card-title">12</h2></div></div></div>
+                    <div class="col-md-3">
+                        <div class="card text-bg-info">
+                            <div class="card-body">Total Audits <h2 class="card-title">890</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-bg-warning">
+                            <div class="card-body">Pending <h2 class="card-title">12</h2>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <table class="table table-bordered table-hover">
@@ -700,8 +758,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <button class="btn btn-info mt-3"><i class="fas fa-chart-bar me-2"></i> Generate Tax Compliance Report</button>
-                            <button class="btn btn-info mt-3" id="generateTaxReportBtn"><i class="fas fa-chart-bar me-2"></i> Generate Tax Compliance Report</button>
+                <button class="btn btn-info mt-3"><i class="fas fa-chart-bar me-2"></i> Generate Tax Compliance
+                    Report</button>
+                <button class="btn btn-info mt-3" id="generateTaxReportBtn"><i class="fas fa-chart-bar me-2"></i>
+                    Generate Tax Compliance Report</button>
             </div>
 
             <div class="tab-pane fade" id="logistics">
@@ -711,7 +771,7 @@
                     <button class="btn btn-primary"><i class="fas fa-car me-2"></i> Manage Vehicles</button>
                     <button class="btn btn-success"><i class="fas fa-user-plus me-2"></i> Add Driver</button>
                 </div>
-                
+
                 <h4>Active Deliveries</h4>
                 <table class="table table-bordered">
                     <thead>
@@ -738,45 +798,53 @@
             <div class="tab-pane fade" id="workforce">
                 <h3><i class="fas fa-user-tie me-2"></i> Staff & Workforce Management</h3>
                 <hr>
-                <p>Detailed view of internal staff (Auditors, Tax Officers, Admins) vs. Company Staff (managed in User Mgmt).</p>
+                <p>Detailed view of internal staff (Auditors, Tax Officers, Admins) vs. Company Staff (managed in User
+                    Mgmt).</p>
                 <table class="table table-bordered table-hover">
-                <div class="header">
-                    <i class="bx bx-receipt"></i>
-                    <h3>Registered User</h3>
-                    <i class="bx bx-plus" id="addUserBtn"></i>
-                    <i class="bx bx-filter"></i>
-                    <i class="bx bx-search"></i>
-                </div>
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Created Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTbody">
-                        <!-- Workers will be rendered dynamically -->
-                    </tbody>
-                </table>
+                    <div class="header">
+                        <i class="bx bx-receipt"></i>
+                        <h3>Registered User</h3>
+                        <i class="bx bx-plus" id="addUserBtn"></i>
+                        <i class="bx bx-filter"></i>
+                        <i class="bx bx-search"></i>
+                    </div>
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTbody">
+                            <!-- Workers will be rendered dynamically -->
+                        </tbody>
+                    </table>
 
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action">Company Performance Report (Q4 2025)</a>
-                    <a href="#" class="list-group-item list-group-item-action">Audit Completion Summary (Monthly)</a>
-                    <a href="#" class="list-group-item list-group-item-action">User Activity Log Export</a>
-                </div>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">Company Performance Report (Q4
+                            2025)</a>
+                        <a href="#" class="list-group-item list-group-item-action">Audit Completion Summary
+                            (Monthly)</a>
+                        <a href="#" class="list-group-item list-group-item-action">User Activity Log Export</a>
+                    </div>
             </div>
 
             <div class="tab-pane fade" id="logs">
                 <h3><i class="fas fa-bell me-2"></i> Notifications & System Logs</h3>
                 <hr>
+                <div class="mb-3">
+                    <a href="/api/audit/download/activity/pdf" class="btn btn-sm btn-outline-danger"><i
+                            class="fas fa-file-pdf"></i> Download PDF</a>
+                    <a href="/api/audit/download/activity/csv" class="btn btn-sm btn-outline-success"><i
+                            class="fas fa-file-csv"></i> Download CSV</a>
+                </div>
                 <h4>System Activity Logs</h4>
-                <ul class="list-group mb-4">
-                    <li class="list-group-item text-muted"><small>[2025-12-16 22:15] Security: Failed login attempt from IP 192.168.1.1 (Blocked)</small></li>
-                    <li class="list-group-item text-muted"><small>[2025-12-16 22:10] Audit: Audit A0550 status changed to 'Ongoing' by Jane Smith</small></li>
+                <ul class="list-group mb-4" id="systemLogsList">
+                    <li class="list-group-item text-muted"><small>Loading activity logs...</small></li>
                 </ul>
-                
+
                 <h4>In-App Notifications</h4>
                 <div class="alert alert-info">5 new tasks have been assigned to your queue.</div>
             </div>
@@ -798,7 +866,9 @@
                 <button class="btn btn-danger"><i class="fas fa-database me-2"></i> Initiate Full Data Backup</button>
             </div>
 
-        </div> </div> <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        </div>
+    </div>
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -849,12 +919,12 @@
         // ==========================================
 
         // ========== BUTTON EVENT HANDLERS ========== 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Quick Actions
-            document.getElementById('quickAddCompanyBtn')?.addEventListener('click', function() {
+            document.getElementById('quickAddCompanyBtn')?.addEventListener('click', function () {
                 alert('Show Register New Company popup');
             });
-            document.getElementById('quickAddUserBtn')?.addEventListener('click', function() {
+            document.getElementById('quickAddUserBtn')?.addEventListener('click', function () {
                 const addUserPopup = document.getElementById('addUserPopup');
                 addUserPopup.style.display = 'flex';
                 // Re-initialize role selection when popup opens
@@ -863,30 +933,30 @@
                     initializeRoleSelection();
                 }, 100);
             });
-            document.getElementById('downloadReportBtn')?.addEventListener('click', function() {
+            document.getElementById('downloadReportBtn')?.addEventListener('click', function () {
                 alert('Download Monthly Financial Report as PDF');
             });
-            document.getElementById('refreshDashboardBtn')?.addEventListener('click', function() {
+            document.getElementById('refreshDashboardBtn')?.addEventListener('click', function () {
                 location.reload();
             });
 
             // Company Management
-            document.getElementById('registerCompanyBtn')?.addEventListener('click', function() {
+            document.getElementById('registerCompanyBtn')?.addEventListener('click', function () {
                 alert('Show Register Company popup');
             });
 
             // Plan Management
-            document.getElementById('createPlanBtn')?.addEventListener('click', function() {
+            document.getElementById('createPlanBtn')?.addEventListener('click', function () {
                 alert('Show Create New Plan popup');
             });
 
             // Tax Report
-            document.getElementById('generateTaxReportBtn')?.addEventListener('click', function() {
+            document.getElementById('generateTaxReportBtn')?.addEventListener('click', function () {
                 alert('Generate Tax Compliance Report (PDF)');
             });
 
             // Financial Export
-            document.getElementById('exportFinancialBtn')?.addEventListener('click', function() {
+            document.getElementById('exportFinancialBtn')?.addEventListener('click', function () {
                 alert('Export Financial Reports (CSV/PDF)');
             });
 
@@ -910,9 +980,9 @@
                 const cb = event.target;
                 const role = cb.value;
                 const select = document.querySelector(`select[name="accessLevel[${role}]"]`);
-                
+
                 console.log(`Role ${role} changed to:`, cb.checked);
-                
+
                 if (select) {
                     if (cb.checked) {
                         select.disabled = false;
@@ -948,7 +1018,7 @@
             }
 
             // Close popup function
-            window.closePopup = function() {
+            window.closePopup = function () {
                 if (addUserPopup) {
                     addUserPopup.style.display = 'none';
                     // Reset form when closing
@@ -972,14 +1042,14 @@
             if (addUserForm) {
                 addUserForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    
+
                     try {
                         const formData = new FormData(addUserForm);
-                        const payload = { 
+                        const payload = {
                             roles: [],
                             adminId: '<%= user._id %>' // Add adminId for new workers
                         };
-                        
+
                         // Process form data
                         for (let [key, value] of formData.entries()) {
                             if (key === 'roles') {
@@ -989,22 +1059,22 @@
                                 payload[key] = value;
                             }
                         }
-                        
+
                         // Determine if editing or creating
                         const id = addUserForm.dataset.id;
                         const url = id ? `/workers/${id}` : '/user/users';
                         const method = id ? 'PUT' : 'POST';
-                        
+
                         console.log('Submitting worker:', { url, method, payload });
-                        
+
                         const response = await fetch(url, {
                             method,
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        
+
                         const result = await response.json();
-                        
+
                         if (response.ok && result.success !== false) {
                             console.log('Worker saved successfully:', result);
                             window.closePopup();
@@ -1013,7 +1083,7 @@
                             console.error('Error saving worker:', result);
                             alert(result.message || 'Failed to save worker. Please try again.');
                         }
-                        
+
                     } catch (error) {
                         console.error('Error submitting form:', error);
                         alert('An error occurred while saving the worker. Please try again.');
@@ -1084,11 +1154,11 @@
                 }
             });
         });
-        
+
         const userRole = '<%= user.role || "SuperAdmin" %>'; // From server-side EJS
         const userId = '<%= user._id %>';
 
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             console.log('Dashboard initializing for role:', userRole);
 
             // ========== CONDITIONAL RENDERING BASED ON ROLE ==========
@@ -1111,7 +1181,7 @@
                 try {
                     const response = await fetch('/api/admin/kpi');
                     const data = await response.json();
-                    
+
                     // Update KPI cards with real data
                     document.querySelectorAll('.card-kpi .card-title').forEach((el, idx) => {
                         const values = [data.totalCompanies, data.revenue, data.pendingAudits, data.overdueTax];
@@ -1129,7 +1199,7 @@
                 try {
                     const response = await fetch('/api/admin/companies');
                     const companies = await response.json();
-                    
+
                     const tbody = document.querySelector('#companies tbody');
                     if (!tbody) return;
 
@@ -1155,7 +1225,7 @@
                 try {
                     const response = await fetch('/api/admin/users');
                     const users = await response.json();
-                    
+
                     // Update users table in modal/panel
                     console.log('Users loaded:', users.length);
                 } catch (err) {
@@ -1168,7 +1238,7 @@
                 try {
                     const response = await fetch('/api/admin/audits');
                     const audits = await response.json();
-                    
+
                     const tbody = document.querySelector('#audits tbody');
                     if (!tbody) return;
 
@@ -1194,7 +1264,7 @@
                 try {
                     const response = await fetch('/api/admin/taxes');
                     const data = await response.json();
-                    
+
                     // Update tax status cards
                     document.querySelectorAll('.row .card-body h2').forEach((el, idx) => {
                         const values = [data.paidCount, data.pendingCount, data.overdueCount];
@@ -1227,7 +1297,7 @@
                 try {
                     const response = await fetch('/api/admin/billing');
                     const data = await response.json();
-                    
+
                     // Update billing cards
                     const billingCardsTitles = document.querySelectorAll('#financial .card h4');
                     if (billingCardsTitles.length >= 3) {
@@ -1247,7 +1317,7 @@
                 try {
                     const response = await fetch('/api/admin/logistics');
                     const data = await response.json();
-                    
+
                     console.log('Logistics data:', data);
                 } catch (err) {
                     console.error('Error loading logistics data:', err);
@@ -1259,7 +1329,7 @@
                 try {
                     const response = await fetch('/api/admin/activities');
                     const activities = await response.json();
-                    
+
                     const activitiesList = document.querySelector('.card .list-group-flush');
                     if (activitiesList) {
                         activitiesList.innerHTML = activities.map(a => `
@@ -1275,7 +1345,7 @@
 
             // ========== INITIALIZE ALL DATA LOADS ==========
             console.log('Loading dashboard data...');
-            
+
             await loadKPIData();
             await loadCompaniesData();
             await loadUsersData();
@@ -1301,63 +1371,65 @@
     </script>
 
     <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const activityList = document.getElementById("activityList");
+        document.addEventListener("DOMContentLoaded", () => {
+            const activityList = document.getElementById("activityList");
 
-  fetch("/api/userActivities/activities")
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success || data.activities.length === 0) {
-        activityList.innerHTML =
-          `<li class="list-group-item text-muted">No recent activities</li>`;
-        return;
-      }
+            fetch("/api/userActivities/activities")
+                .then(res => res.json())
+                .then(data => {
+                    const systemLogsList = document.getElementById("systemLogsList");
+                    if (!data.success || data.activities.length === 0) {
+                        activityList.innerHTML = `<li class="list-group-item text-muted">No recent activities</li>`;
+                        if (systemLogsList) systemLogsList.innerHTML = `<li class="list-group-item text-muted">No recent activities</li>`;
+                        return;
+                    }
 
-      activityList.innerHTML = "";
+                    activityList.innerHTML = "";
+                    if (systemLogsList) systemLogsList.innerHTML = "";
 
-      data.activities.forEach(act => {
-        const timeAgo = timeSince(new Date(act.createdAt));
+                    data.activities.forEach(act => {
+                        const timeAgo = timeSince(new Date(act.createdAt));
+                        const badge = act.action === "BLOCKED"
+                            ? `<span class="badge bg-danger ms-2">BLOCKED</span>`
+                            : `<span class="badge bg-success ms-2">ALLOWED</span>`;
 
-        const badge =
-          act.action === "BLOCKED"
-            ? `<span class="badge bg-danger ms-2">BLOCKED</span>`
-            : `<span class="badge bg-success ms-2">ALLOWED</span>`;
-
-        activityList.innerHTML += `
+                        const logHtml = `
           <li class="list-group-item">
-            <strong>${act.workerUsername}</strong>
-            accessed <strong>${act.page}</strong>
+            <strong>${act.workerUsername}</strong> accessed <strong>${act.page}</strong>
             ${badge}
-            <div class="text-muted small">${timeAgo}</div>
+            <div class="text-muted small">${timeAgo} - IP: ${act.ip}</div>
           </li>
         `;
-      });
-    })
-    .catch(() => {
-      activityList.innerHTML =
-        `<li class="list-group-item text-danger">Failed to load activities</li>`;
-    });
-});
+                        activityList.innerHTML += logHtml;
+                        if (systemLogsList) systemLogsList.innerHTML += logHtml;
+                    });
+                })
+                .catch(() => {
+                    activityList.innerHTML =
+                        `<li class="list-group-item text-danger">Failed to load activities</li>`;
+                });
+        });
 
-// simple time ago helper
-function timeSince(date) {
-  const seconds = Math.floor((new Date() - date) / 1000);
-  const intervals = [
-    { label: "yr", seconds: 31536000 },
-    { label: "mo", seconds: 2592000 },
-    { label: "d", seconds: 86400 },
-    { label: "hr", seconds: 3600 },
-    { label: "min", seconds: 60 },
-  ];
+        // simple time ago helper
+        function timeSince(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            const intervals = [
+                { label: "yr", seconds: 31536000 },
+                { label: "mo", seconds: 2592000 },
+                { label: "d", seconds: 86400 },
+                { label: "hr", seconds: 3600 },
+                { label: "min", seconds: 60 },
+            ];
 
-  for (const i of intervals) {
-    const count = Math.floor(seconds / i.seconds);
-    if (count > 0) return `${count} ${i.label}${count > 1 ? "s" : ""} ago`;
-  }
-  return "just now";
-}
-</script>
+            for (const i of intervals) {
+                const count = Math.floor(seconds / i.seconds);
+                if (count > 0) return `${count} ${i.label}${count > 1 ? "s" : ""} ago`;
+            }
+            return "just now";
+        }
+    </script>
 
 
-    </body>
+</body>
+
 </html>

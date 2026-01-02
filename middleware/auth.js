@@ -1,4 +1,5 @@
 const CustomPlan = require('../models/CustomPlan');
+const Subscription = require('../models/Subscription');
 const logWorkerActivity = require("../utils/logWorkerActivity");
 
 
@@ -27,12 +28,62 @@ const ensureAuthenticated = async (req, res, next) => {
                 `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | CHECKING SUBSCRIPTION...`
             );
 
-            // Check subscription for this user
-            const subscription = await CustomPlan.findOne({ userId });
+            // Check if user has any active subscriptions (new Subscription model)
+            console.log(`[SUBSCRIPTION CHECK] Searching new Subscription model for userId: ${userId}`);
+            const subscriptionDoc = await Subscription.findOne({ userId });
+            console.log(`[SUBSCRIPTION CHECK] New Subscription model result: ${subscriptionDoc ? 'Found' : 'Not found'}`);
+            
+            const nowDate = new Date();
+            let subscriptions = [];
+            
+            if (subscriptionDoc && subscriptionDoc.subscriptions) {
+                subscriptions = subscriptionDoc.subscriptions.filter(sub => 
+                    sub.status === 'active' && sub.endDate > nowDate
+                );
+                console.log(`[SUBSCRIPTION CHECK] Filtered active subscriptions: Found ${subscriptions.length} active subscriptions`);
+                subscriptions.forEach((sub, index) => {
+                    console.log(`  ${index + 1}. Feature: ${sub.feature}, Status: ${sub.status}, EndDate: ${sub.endDate}`);
+                });
+            } else {
+                console.log(`[SUBSCRIPTION CHECK] No subscription document or subscriptions array found`);
+            }
 
-            if (!subscription) {
+            let subscriptionType = 'new';
+            let customPlanSubscription = null;
+
+            // If no active subscriptions in new model, check legacy CustomPlan model
+            if (!subscriptions || subscriptions.length === 0) {
+                console.log(`[SUBSCRIPTION CHECK] No active subscriptions in new model, searching legacy CustomPlan model for userId: ${userId}`);
+                customPlanSubscription = await CustomPlan.findOne({ userId });
+                console.log(`[SUBSCRIPTION CHECK] Legacy CustomPlan model result: ${customPlanSubscription ? 'Found' : 'Not found'}`);
+                if (customPlanSubscription) {
+                    console.log(`  CustomPlan ID: ${customPlanSubscription._id}, Status: ${customPlanSubscription.status}, Contract: ${customPlanSubscription.contract} months, PlanType: ${customPlanSubscription.planType}`);
+                    console.log(`  Items array exists: ${customPlanSubscription.items ? 'Yes' : 'No'}, Is array: ${Array.isArray(customPlanSubscription.items) ? 'Yes' : 'No'}`);
+                }
+                if (customPlanSubscription && customPlanSubscription.status !== 'cancelled' && customPlanSubscription.items && Array.isArray(customPlanSubscription.items)) {
+                    console.log(`[SUBSCRIPTION CHECK] Mapping CustomPlan items to subscription format`);
+                    // Convert CustomPlan items to subscription-like format for compatibility
+                    subscriptions = customPlanSubscription.items.map(item => ({
+                        module: item.name.toLowerCase().replace(/\s+/g, ''),
+                        planType: customPlanSubscription.planType || 'custom',
+                        endDate: new Date(customPlanSubscription.createdAt.getTime() + (customPlanSubscription.contract * 30 * 24 * 60 * 60 * 1000)), // Approximate months to date
+                        _id: customPlanSubscription._id,
+                        isLegacy: true
+                    }));
+                    subscriptionType = 'legacy';
+                    console.log(`[SUBSCRIPTION CHECK] Mapped ${subscriptions.length} items from legacy CustomPlan`);
+                    subscriptions.forEach((sub, index) => {
+                        console.log(`  ${index + 1}. Module: ${sub.module}, EndDate: ${sub.endDate}, IsLegacy: ${sub.isLegacy}`);
+                    });
+                } else {
+                    console.log(`[SUBSCRIPTION CHECK] Legacy CustomPlan not usable (cancelled, no items, or not array)`);
+                }
+            }
+
+            console.log(`[SUBSCRIPTION CHECK] Final subscriptions array: ${subscriptions.length} items`);
+            if (subscriptions.length === 0) {
                 console.log(
-                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | BLOCKED - NO SUBSCRIPTION | userId: ${userId}`
+                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | BLOCKED - NO ACTIVE SUBSCRIPTIONS | userId: ${userId}`
                 );
                  return res.redirect(`/not-subscribed-yet?id=${userId}`);
             }
@@ -40,17 +91,19 @@ const ensureAuthenticated = async (req, res, next) => {
             // Extract the page/module name from URL
             const pageSegments = url.split('/').filter(s => s);
             const requestedPage = pageSegments[0] || 'home';
+            console.log(`[ACCESS CHECK] Requested page: ${requestedPage}, Full URL: ${url}`);
 
             // ========== API ROUTES HANDLING ==========
             // If this is an API route, check if user has access to the parent module
             const isApiRoute = requestedPage === 'api' || url.startsWith('/api/');
             let hasPageAccess = false;
+            console.log(`[ACCESS CHECK] Is API route: ${isApiRoute}`);
 
             if (isApiRoute) {
                 // For API routes, extract the actual module from the API path
-                // e.g., /api/userActivities/activities -> check for 'activities' or 'user' access
                 const apiSegments = url.split('/').filter(s => s);
-                const apiModule = apiSegments[1] || apiSegments[2] || 'dashboard'; // fallback to dashboard
+                const apiModule = apiSegments[1] || apiSegments[2] || 'dashboard';
+                console.log(`[ACCESS CHECK] API module extracted: ${apiModule}`);
                 
                 // Always allowed API routes for any subscribed user (basic dashboard functionality)
                 const alwaysAllowedApiRoutes = [
@@ -59,54 +112,57 @@ const ensureAuthenticated = async (req, res, next) => {
                     '/api/dashboard',
                     '/api/profile',
                     '/api/notifications',
-                    '/api/settings'
+                    '/api/settings',
+                    '/api/subscriptions'
                 ];
 
                 // Check if this is an always allowed API route
                 const isAlwaysAllowed = alwaysAllowedApiRoutes.some(route => url.startsWith(route));
+                console.log(`[ACCESS CHECK] Is always allowed API route: ${isAlwaysAllowed}`);
                 
-                if (isAlwaysAllowed && subscription.items.length > 0) {
+                if (isAlwaysAllowed && subscriptions.length > 0) {
                     hasPageAccess = true;
                     console.log(`├─ API Route: ${url} - ALWAYS ALLOWED for subscribed users`);
                 } else {
-                    // Common API route mappings to subscription modules
-                    const apiModuleMapping = {
-                        'userActivities': ['dashboard', 'activities', 'user'],
-                        'admin': ['dashboard', 'admin'],
-                        'workers': ['dashboard', 'admin', 'hr'],
-                        'companies': ['dashboard', 'admin'],
-                        'kpi': ['dashboard', 'admin'],
-                        'audits': ['audit', 'dashboard'],
-                        'taxes': ['tax', 'taxation', 'dashboard'],
-                        'billing': ['finance', 'billing', 'dashboard'],
-                        'logistics': ['logistics', 'dashboard'],
-                        'activities': ['dashboard', 'activities'],
-                        'expenses': ['finance', 'expenses'],
-                        'inventory': ['inventory'],
-                        'sales': ['sales'],
-                        'production': ['production']
-                    };
-
-                    const possibleModules = apiModuleMapping[apiModule] || [apiModule, 'dashboard'];
-                    
-                    // Check if user has access to any of the possible modules
-                    hasPageAccess = subscription.items.some(item => 
-                        possibleModules.some(module => 
-                            item.name.toLowerCase().includes(module.toLowerCase()) ||
-                            module.toLowerCase().includes(item.name.toLowerCase())
-                        )
-                    );
+                    // Check if user has subscription for this module
+                    console.log(`[ACCESS CHECK] Checking subscription for API module: ${apiModule}, Subscription type: ${subscriptionType}`);
+                    if (subscriptionType === 'new') {
+                        hasPageAccess = subscriptions.some(sub => 
+                            sub.feature.toLowerCase() === apiModule.toLowerCase() ||
+                            apiModule.toLowerCase().includes(sub.feature.toLowerCase()) ||
+                            sub.feature.toLowerCase().includes(apiModule.toLowerCase())
+                        );
+                        console.log(`[ACCESS CHECK] New subscription check result: ${hasPageAccess}`);
+                    } else {
+                        // Legacy CustomPlan - check items
+                        hasPageAccess = subscriptions.some(sub => 
+                            sub.module.toLowerCase().includes(apiModule.toLowerCase()) ||
+                            apiModule.toLowerCase().includes(sub.module.toLowerCase())
+                        );
+                        console.log(`[ACCESS CHECK] Legacy subscription check result: ${hasPageAccess}`);
+                    }
 
                     console.log(`├─ API Route Detected: ${url}`);
                     console.log(`├─ API Module: ${apiModule}`);
-                    console.log(`├─ Checking Modules: ${possibleModules.join(', ')}`);
+                    console.log(`├─ Subscription Type: ${subscriptionType}`);
                 }
             } else {
                 // Regular page access check
-                hasPageAccess = subscription.items.some(item => 
-                  item.name.toLowerCase().includes(requestedPage.toLowerCase()) ||
-                  requestedPage.toLowerCase().includes(item.name.toLowerCase())
-                );
+                console.log(`[ACCESS CHECK] Regular page access check for: ${requestedPage}, Subscription type: ${subscriptionType}`);
+                if (subscriptionType === 'new') {
+                    hasPageAccess = subscriptions.some(sub => 
+                      sub.feature.toLowerCase().includes(requestedPage.toLowerCase()) ||
+                      requestedPage.toLowerCase().includes(sub.feature.toLowerCase())
+                    );
+                    console.log(`[ACCESS CHECK] New subscription page check result: ${hasPageAccess}`);
+                } else {
+                    // Legacy CustomPlan - check items
+                    hasPageAccess = subscriptions.some(sub => 
+                      sub.module.toLowerCase().includes(requestedPage.toLowerCase()) ||
+                      requestedPage.toLowerCase().includes(sub.module.toLowerCase())
+                    );
+                    console.log(`[ACCESS CHECK] Legacy subscription page check result: ${hasPageAccess}`);
+                }
             }
 
             // Log detailed subscription info
@@ -117,18 +173,21 @@ const ensureAuthenticated = async (req, res, next) => {
             console.log(`├─ User ID: ${userId}`);
             console.log(`├─ User Name: ${req.session.user.name || 'Unknown'}`);
             console.log(`├─ User Email: ${req.session.user.email || 'Unknown'}`);
-            console.log(`├─ Subscription ID: ${subscription._id}`);
-            console.log(`├─ Contract Length: ${subscription.contract} months`);
-            console.log(`├─ Number of Users: ${subscription.users}`);
-            console.log(`├─ Total Cost: ₦${subscription.total}`);
-            console.log(`├─ Subscription Status: ${subscription.status}`);
-            console.log(`├─ Created: ${subscription.createdAt}`);
-            console.log(`├─ Subscribed Items: ${subscription.items.length}`);
-            if (subscription.items.length > 0) {
-              subscription.items.forEach((item, index) => {
-                const isMatch = item.name.toLowerCase().includes(requestedPage.toLowerCase()) || requestedPage.toLowerCase().includes(item.name.toLowerCase());
-                console.log(`│  ${index + 1}. ${item.name} (₦${item.total}) ${isMatch ? '✓ MATCH' : ''}`);
-              });
+            console.log(`├─ Subscription Type: ${subscriptionType}`);
+            
+            if (subscriptionType === 'new') {
+                console.log(`├─ Active Subscriptions: ${subscriptions.length}`);
+                subscriptions.forEach((sub, index) => {
+                  console.log(`│  ${index + 1}. ${sub.feature} - Expires: ${sub.endDate.toDateString()}`);
+                });
+            } else {
+                console.log(`├─ Legacy CustomPlan ID: ${customPlanSubscription._id}`);
+                console.log(`├─ Contract Length: ${customPlanSubscription.contract} months`);
+                console.log(`├─ Plan Type: ${customPlanSubscription.planType}`);
+                console.log(`├─ Subscribed Items: ${subscriptions.length}`);
+                subscriptions.forEach((sub, index) => {
+                  console.log(`│  ${index + 1}. ${sub.module} - Legacy Plan`);
+                });
             }
             
             // If page not in subscription, redirect to add-subscription
@@ -143,7 +202,13 @@ const ensureAuthenticated = async (req, res, next) => {
 
             req.recipientId = userId;
             req.isWorker = false;
-            req.userSubscription = subscription;
+            req.subscriptionType = subscriptionType;
+            if (subscriptionType === 'new') {
+                req.userSubscriptions = subscriptions;
+            } else {
+                req.userSubscription = customPlanSubscription;
+                req.userSubscriptions = subscriptions; // Also provide the mapped format
+            }
             return next();
         }
 

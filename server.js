@@ -84,6 +84,9 @@ const logisticsRoutes = require('./routes/logisticsRoutes');
 const plansRoutes = require('./routes/plans');
 const adminDashboardRoutes = require('./routes/adminDashboard');
 const userActivities = require('./routes/adminActivities');
+const subscriptionRoutes = require('./routes/subscriptions');
+const auditRoutes = require('./routes/auditRoutes');
+const { expireSubscriptions } = require('./utils/subscriptionManager');
 
 
 
@@ -174,6 +177,8 @@ app.use('/logistics', logisticsRoutes);
 app.use('/api/plans', plansRoutes);
 app.use('/api/admin', adminDashboardRoutes);
 app.use('/api/userActivities', userActivities);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/audit', auditRoutes);
 
 
 
@@ -1090,7 +1095,7 @@ app.post('/inventoryforecast', ensureAuthenticated, async (req, res) => {
 
 app.get('/sales', ensureAuthenticated, async (req, res) => {
   try {
- let recipientId;
+    let recipientId;
 
     if (req.session.user) {
       // ✅ Superadmin / Owner
@@ -4197,11 +4202,11 @@ app.get('/charts', ensureAuthenticated, async (req, res) => {
 
 
 
-app.get("/user/place-Order",  async (req, res) => {
+app.get("/user/place-Order", async (req, res) => {
   try {
     const now = new Date();
 
-    
+
 
     // Update overdue orders
     await Order.updateMany(
@@ -4232,7 +4237,7 @@ app.get("/order/company/:companyId", async (req, res) => {
 
     // Fetch ALL products belonging to this company
     const products = await Inventory.find({ recipientId: companyId })
-      .select("itemName scost currentquantity _id image category") 
+      .select("itemName scost currentquantity _id image category")
       .lean();
 
     const user = req.session.user || req.session.worker || null;
@@ -4253,7 +4258,7 @@ app.get("/order/company/:companyId", async (req, res) => {
 
 
 
-app.get("/order/company/user/success-Order",  async (req, res) => {
+app.get("/order/company/user/success-Order", async (req, res) => {
   try {
     const now = new Date();
     let recipientId = null;
@@ -4663,7 +4668,7 @@ app.get("/get/workers/:id", async (req, res) => {
 });
 
 
-app.get("/api/workers/:adminId",  async (req, res) => {
+app.get("/api/workers/:adminId", async (req, res) => {
   try {
     const { adminId } = req.params;
 
@@ -4687,9 +4692,9 @@ app.put("/workers/:id", async (req, res) => {
     // Find the worker
     const worker = await Worker.findById(id);
     if (!worker) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Worker not found" 
+      return res.status(404).json({
+        success: false,
+        message: "Worker not found"
       });
     }
 
@@ -4697,9 +4702,9 @@ app.put("/workers/:id", async (req, res) => {
     if (email !== worker.email) {
       const existingWorker = await Worker.findOne({ email, _id: { $ne: id } });
       if (existingWorker) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Email already exists" 
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists"
         });
       }
     }
@@ -4708,9 +4713,9 @@ app.put("/workers/:id", async (req, res) => {
     if (username !== worker.username) {
       const existingUsername = await Worker.findOne({ username, _id: { $ne: id } });
       if (existingUsername) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Username already exists" 
+        return res.status(400).json({
+          success: false,
+          message: "Username already exists"
         });
       }
     }
@@ -4732,9 +4737,9 @@ app.put("/workers/:id", async (req, res) => {
     await worker.save();
 
     console.log(`Worker updated: ${worker.name} (ID: ${id})`);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: `Worker "${worker.name}" has been successfully updated`,
       worker: {
         _id: worker._id,
@@ -4746,47 +4751,47 @@ app.put("/workers/:id", async (req, res) => {
         notes: worker.notes
       }
     });
-    
+
   } catch (err) {
     console.error("Error updating worker:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to update worker. Please try again." 
+    res.status(500).json({
+      success: false,
+      message: "Failed to update worker. Please try again."
     });
   }
 });
 
-app.delete("/delete/workers/:id",  async (req, res) => {
+app.delete("/delete/workers/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Find and delete the worker
     const worker = await Worker.findById(id);
     if (!worker) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Worker not found" 
+      return res.status(404).json({
+        success: false,
+        message: "Worker not found"
       });
     }
 
     // Store worker name for response
     const workerName = worker.name;
-    
+
     // Delete the worker
     await Worker.findByIdAndDelete(id);
-    
+
     console.log(`Worker deleted: ${workerName} (ID: ${id})`);
-    
-    res.json({ 
-      success: true, 
-      message: `Worker "${workerName}" has been successfully deleted` 
+
+    res.json({
+      success: true,
+      message: `Worker "${workerName}" has been successfully deleted`
     });
-    
+
   } catch (err) {
     console.error("Error deleting worker:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to delete worker. Please try again." 
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete worker. Please try again."
     });
   }
 });
@@ -6665,4 +6670,5 @@ app.get('/logout', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`)
+  expireSubscriptions();
 })
