@@ -5,13 +5,17 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const jwt = require('jsonwebtoken');
 const cloudinary = require("../cloudinary");
-const streamifier  = require("streamifier");
+const streamifier = require("streamifier");
 const multer = require('multer');
 const bodyparser = require('body-parser');
 
 const Business = require("../models/business");
 const Company = require("../models/company");
 const BankInfo = require("../models/bank");
+
+const SoleProprietorship = require('../models/SoleProprietorship');
+const Corporation = require('../models/Corporation');
+const PLC = require('../models/PLC');
 
 const Personal = require('../models/personal');
 
@@ -54,13 +58,8 @@ const handleImageUpload = (file) => {
 
 
 const submitForm = async (req, res) => {
-  console.log("Received personal data:", req.body);
   try {
-    const {
-      firstName, lastName, bio, portfolioUrl,
-      email, phone, password,
-      streetAddress, city, state, country, plan, zipCode
-    } = req.body;
+    const { firstName, lastName, bio, portfolioUrl, email, phone, password, streetAddress, city, state, country, zipCode, plan } = req.body;
 
     // Check if email already exists
     const existingUser = await Personal.findOne({ email });
@@ -69,15 +68,15 @@ const submitForm = async (req, res) => {
       // Check if password matches
       const isMatch = await bcrypt.compare(password, existingUser.password);
 
-     if (existingUser) {
-  const isMatch = await bcrypt.compare(password, existingUser.password);
+      if (existingUser) {
+        const isMatch = await bcrypt.compare(password, existingUser.password);
 
-  if (isMatch) {
-    return res.redirect(`/Businessinfo?id=${existingUser._id}`);
-  } else {
-    return res.redirect(`/email-exists?email=${encodeURIComponent(email)}`);
-  }
-}
+        if (isMatch) {
+          return res.redirect(`/Businessinfo?id=${existingUser._id}`);
+        } else {
+          return res.redirect(`/email-exists?email=${encodeURIComponent(email)}`);
+        }
+      }
 
     }
 
@@ -85,7 +84,7 @@ const submitForm = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newEntry = new Personal({
+    const user = new Personal({
       firstName,
       lastName,
       bio,
@@ -97,27 +96,89 @@ const submitForm = async (req, res) => {
       city,
       state,
       country,
-      plan,
-      zipCode
+      zipCode,
+      plan
     });
 
-    const savedUser = await newEntry.save();
+    await user.save();
+    console.log(`User saved with ID: ${user._id}`);
 
-    // res.status(201).json({
-    //   message: "User created successfully",
-    //   userId: savedUser._id,
-    //   // redirect: `/Businessinfo?id=${savedUser._id}` // originally: res.redirect(...)
-    // });
-
-
-    res.redirect(`/Businessinfo?id=${savedUser._id}`) 
+    // Redirect to the next step, passing the ID
+    res.redirect(`/Businessinfo?id=${user._id}`);
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      message: "Submission failed",
-      error: err.message
+    res.status(500).send("Error submitting form");
+  }
+};
+
+const submitSole = async (req, res) => {
+  try {
+    const { businessName, description, firstName, lastName, email, phone, password, streetAddress, city, state, country, zipCode } = req.body;
+
+    // Check if email already exists
+    const existing = await SoleProprietorship.findOne({ email });
+    if (existing) {
+      // You might want to handle this better (e.g. show error on page)
+      return res.status(400).send("Email already exists");
+    }
+
+    const sole = new SoleProprietorship({
+      businessName, description, firstName, lastName, email, phone, password, streetAddress, city, state, country, zipCode
     });
+
+    await sole.save();
+    console.log(`Sole Proprietorship saved: ${sole._id}`);
+
+    // For now, redirect to Business Info or Dashboard? 
+    // The original flow goes to BusinessInfo. Let's redirect to BusinessInfo for continuity, 
+    // but we might need to adjust BusinessInfo to handle different model types if it relies on 'UserForm' specifically.
+    // Given the request "all work together", presumably the next steps (Company, Bank) apply.
+    // However, 'Business' model links to 'Personal' via 'reciepientId'. 
+    // If we use different models, we might break that link unless we make 'reciepientId' dynamic ref.
+    // For now, let's redirect to /Businessinfo and pass the ID.
+    // Note: BusinessInfo route checks 'Personal' model. We might need to update that route too.
+
+    res.redirect(`/Businessinfo?id=${sole._id}&type=sole`);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error submitting Sole Proprietorship form");
+  }
+};
+
+const submitCorporation = async (req, res) => {
+  try {
+    const { corporationName, registrationNumber, incorporationDate, industry, adminFirstName, adminLastName, email, phone, password, streetAddress, city, state, country, zipCode } = req.body;
+
+    const corp = new Corporation({
+      corporationName, registrationNumber, incorporationDate, industry, adminFirstName, adminLastName, email, phone, password, streetAddress, city, state, country, zipCode
+    });
+
+    await corp.save();
+    console.log(`Corporation saved: ${corp._id}`);
+    res.redirect(`/Businessinfo?id=${corp._id}&type=corporation`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error submitting Corporation form");
+  }
+};
+
+const submitPLC = async (req, res) => {
+  try {
+    const { companyName, tickerSymbol, registrationNumber, totalShares, adminFirstName, adminLastName, email, phone, password, streetAddress, city, state, country, zipCode } = req.body;
+
+    const plc = new PLC({
+      companyName, tickerSymbol, registrationNumber, totalShares, adminFirstName, adminLastName, email, phone, password, streetAddress, city, state, country, zipCode
+    });
+
+    await plc.save();
+    console.log(`PLC saved: ${plc._id}`);
+    res.redirect(`/Businessinfo?id=${plc._id}&type=plc`);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error submitting PLC form");
   }
 };
 
@@ -241,23 +302,23 @@ const submitCompany = async (req, res) => {
     const additionalUrl = await handleImageUpload(additionalDoc);
 
     const newCompany = new Company({
-  reciepientId,
-  companyName,
-  industry,
-  address: Address,  // lowercase fix to match schema
-  businessStructure,
-  cacNumber,
-  incorporationDate,
-  taxId,
-  email,
-  phone,
-  countryCode,
-  CACDocs: cacDocUrl || null,
-  MOADocs: moaDocUrl || null,
-  FOCDocs: focDocUrl || null,
-  shareholderAgreement: shareholderUrl || null,
-  AddRegistrationDocs: additionalUrl || null
-});
+      reciepientId,
+      companyName,
+      industry,
+      address: Address,  // lowercase fix to match schema
+      businessStructure,
+      cacNumber,
+      incorporationDate,
+      taxId,
+      email,
+      phone,
+      countryCode,
+      CACDocs: cacDocUrl || null,
+      MOADocs: moaDocUrl || null,
+      FOCDocs: focDocUrl || null,
+      shareholderAgreement: shareholderUrl || null,
+      AddRegistrationDocs: additionalUrl || null
+    });
 
 
     await newCompany.save();
@@ -381,13 +442,13 @@ const login = async (req, res) => {
 
     };
 
-   // Redirect to dashboard or requested page
-const redirectPath =
-  req.body.redirect || // from hidden input in the form
-  req.query.redirect || // from query string if it survived
-  "/Dashboard";         // default
+    // Redirect to dashboard or requested page
+    const redirectPath =
+      req.body.redirect || // from hidden input in the form
+      req.query.redirect || // from query string if it survived
+      "/Dashboard";         // default
 
-return res.redirect(redirectPath);
+    return res.redirect(redirectPath);
 
   } catch (err) {
     console.error("Login error:", err);
@@ -422,13 +483,16 @@ return res.redirect(redirectPath);
 
 
 
-  module.exports =
+module.exports =
 {
 
-    login,
-        submitForm,
-        submitBusiness,
-        submitCompany,
-        createBankInfo
+  login,
+  submitForm,
+  submitSole,
+  submitCorporation,
+  submitPLC,
+  submitBusiness,
+  submitCompany,
+  createBankInfo
 
 };

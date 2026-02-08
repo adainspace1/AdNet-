@@ -8,8 +8,8 @@ const Production = require('../models/production');
 const AccountsPayable = require('../models/AccountsPayable');
 const AccountReceivable = require("../models/AccountReceivable");
 const Personal = require('../models/personal');
-    const APPayment = require('../models/APPayment');
-    const ARInvoice = require('../models/ARInvoice');
+const APPayment = require('../models/APPayment');
+const ARInvoice = require('../models/ARInvoice');
 const Budget = require('../models/budget');
 const Payroll = require('../models/Payroll');
 const Asset = require('../models/Asset');
@@ -19,7 +19,7 @@ const Forecast = require("../models/Forecast");
 const Deal = require('../models/Deal');
 
 const cloudinary = require("../cloudinary");
-const streamifier  = require("streamifier");
+const streamifier = require("streamifier");
 
 
 const Worker = require("../models/Worker");
@@ -68,57 +68,57 @@ const handleImageUpload = (file) => {
 
 // POST route
 const forgotpassword = async (req, res) => {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+  const { email } = req.body;
+  const user = await User.findOne({ email });
 
-    if (!user) {
-        return res.render("404dontex"); // Stop here if user not found
+  if (!user) {
+    return res.render("404dontex"); // Stop here if user not found
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  user.resetToken = token;
+  user.tokenExpiry = Date.now() + 3600000; // 1 hour
+  await user.save();
+
+  const resetLink = `http://localhost:4900/reset-password/${token}`;
+
+  // Send email
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
     }
+  });
 
-    const token = crypto.randomBytes(32).toString("hex");
-    user.resetToken = token;
-    user.tokenExpiry = Date.now() + 3600000; // 1 hour
-    await user.save();
+  await transporter.sendMail({
+    to: user.email,
+    subject: "Password Reset",
+    html: `Click here to reset your password: <a href="${resetLink}">${resetLink}</a>`
+  });
 
-    const resetLink = `http://localhost:4900/reset-password/${token}`;
-
-    // Send email
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    await transporter.sendMail({
-        to: user.email,
-        subject: "Password Reset",
-        html: `Click here to reset your password: <a href="${resetLink}">${resetLink}</a>`
-    });
-
-    res.render("token-sent");
+  res.render("token-sent");
 };
 
 
 const resetpassword = async (req, res) => {
-    const { token } = req.params;
-    const { password, confirmPassword } = req.body;
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-        return res.send("Passwords do not match");
-    }
+  if (password !== confirmPassword) {
+    return res.send("Passwords do not match");
+  }
 
-    const user = await User.findOne({ resetToken: token, tokenExpiry: { $gt: Date.now() } });
+  const user = await User.findOne({ resetToken: token, tokenExpiry: { $gt: Date.now() } });
 
-    if (!user) return res.send("Token expired or invalid");
+  if (!user) return res.send("Token expired or invalid");
 
-    user.password = await bcrypt.hash(password, 10);
-    user.resetToken = undefined;
-    user.tokenExpiry = undefined;
-    await user.save();
+  user.password = await bcrypt.hash(password, 10);
+  user.resetToken = undefined;
+  user.tokenExpiry = undefined;
+  await user.save();
 
-    res.render("login");
+  res.render("login");
 };
 
 
@@ -146,11 +146,24 @@ const createInventory = async (req, res) => {
     console.log("Received inventory data:", req.body);
 
     // Basic validation
-    if ( !recipientId || !username || !itemName || !quantity || !currentquantity || !category || !bcost || !scost) {
+    if (!recipientId || !username || !itemName || !quantity || !currentquantity || !category || !bcost || !scost) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields.'
       });
+    }
+
+    // Upload files to Cloudinary if they exist
+    let paymentSlipUrl = null;
+    let invoiceReceivedUrl = null;
+
+    if (req.files) {
+      if (req.files.paymentSlip) {
+        paymentSlipUrl = await handleImageUpload(req.files.paymentSlip[0]);
+      }
+      if (req.files.invoiceReceived) {
+        invoiceReceivedUrl = await handleImageUpload(req.files.invoiceReceived[0]);
+      }
     }
 
     const newItem = new Inventory({
@@ -161,6 +174,8 @@ const createInventory = async (req, res) => {
       bcost,
       scost,
       supplier,
+      paymentSlip: paymentSlipUrl,
+      invoiceReceived: invoiceReceivedUrl,
       recipientId,   // Add recipientId from logged in user
       username   // Add username from logged in user
     });
@@ -301,7 +316,7 @@ const saveExpense = async (req, res) => {
       return res.status(400).send('Category and amount are required.');
     }
 
-  // Find the matching budget by title
+    // Find the matching budget by title
     const budget = await Budget.findOne({ recipientId, title: category });
 
     console.log("the budget", budget);
@@ -321,7 +336,7 @@ const saveExpense = async (req, res) => {
     // Deduct the amount from currentamount
     budget.currentamount -= expenseAmount;
     await budget.save();
- 
+
 
     console.log("Updated budget after expense:", budget);
 
@@ -372,35 +387,35 @@ const production = async (req, res) => {
   try {
 
 
-  const { recipientId, username, category, itemName, quantity, unitPrice, amount, notes } = req.body;
-  const time = new Date().toLocaleTimeString();
-  console.log("Received production data:", req.body);
+    const { recipientId, username, category, itemName, quantity, unitPrice, amount, notes } = req.body;
+    const time = new Date().toLocaleTimeString();
+    console.log("Received production data:", req.body);
 
-  if (!category  || !itemName || !quantity || !unitPrice || !amount) {
-    return res.status(400).send('Category and amount are required.');
-  }
+    if (!category || !itemName || !quantity || !unitPrice || !amount) {
+      return res.status(400).send('Category and amount are required.');
+    }
 
-      const newProduction = new Production({
-        recipientId,
-        username,
-      category, 
+    const newProduction = new Production({
+      recipientId,
+      username,
+      category,
       itemName,
-        quantity, 
-        unitPrice, // Assuming unitPrice is not provided in the form
+      quantity,
+      unitPrice, // Assuming unitPrice is not provided in the form
       amount,
-       notes, 
-       time 
+      notes,
+      time
     });
 
 
-  await newProduction.save();
-  
+    await newProduction.save();
 
-   // ✅ 5. Redirect back
+
+    // ✅ 5. Redirect back
     const returnUrl = req.headers.referer || "/";
     return res.redirect(returnUrl);
 
-} catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).send('Server error while saving production.');
   }
@@ -420,7 +435,7 @@ const production = async (req, res) => {
 const AccountPayable = async (req, res) => {
 
   console.log("product", req.body)
-   try {
+  try {
     const { recipientId, username, vendorName, invoiceNumber, amount, ramount, dueDate, status, notes } = req.body;
 
     const newAP = new AccountsPayable({
@@ -436,8 +451,8 @@ const AccountPayable = async (req, res) => {
     });
 
     await newAP.save();
-    
-        const returnUrl = req.headers.referer || "/";
+
+    const returnUrl = req.headers.referer || "/";
     return res.redirect(returnUrl);
 
   } catch (error) {
@@ -453,7 +468,7 @@ const AccountPayable = async (req, res) => {
 
 
 const payAccountPayable = async (req, res) => {
-  console.log("Payment request body:", req.body); 
+  console.log("Payment request body:", req.body);
   try {
     const { id, amountPaid, note } = req.body;
 
@@ -479,13 +494,13 @@ const payAccountPayable = async (req, res) => {
 
     await payable.save();
 
-// inside your payAccountPayable controller
-await APPayment.create({
-  accountPayableId: payable._id,
-  amountPaid: payment,
-  note,
-  paidBy: req.user?.username || "system"
-});
+    // inside your payAccountPayable controller
+    await APPayment.create({
+      accountPayableId: payable._id,
+      amountPaid: payment,
+      note,
+      paidBy: req.user?.username || "system"
+    });
 
 
     res.redirect(req.headers.referer || "/");
@@ -582,14 +597,14 @@ const payReceivable = async (req, res) => {
 
 
 const createPayroll = async (req, res) => {
-    try {
-        const newPayroll = new Payroll(req.body);
-        await newPayroll.save();
-        res.redirect('/payroll'); // change to your desired route
-    } catch (error) {
-        console.error('Error creating payroll:', error);
-        res.status(500).send('Server Error');
-    }
+  try {
+    const newPayroll = new Payroll(req.body);
+    await newPayroll.save();
+    res.redirect('/payroll'); // change to your desired route
+  } catch (error) {
+    console.error('Error creating payroll:', error);
+    res.status(500).send('Server Error');
+  }
 };
 
 
@@ -884,14 +899,14 @@ const workerlogin = async (req, res) => {
       role: activeRole.role,
       accessLevel: activeRole.accessLevel,
     };
-console.log("Logged in worker session:", {
-  _id: worker._id,
-  username: worker.username,
-  name: worker.name,
-  adminId: worker.adminId,
-  role: activeRole.role,
-  accessLevel: activeRole.accessLevel,
-});
+    console.log("Logged in worker session:", {
+      _id: worker._id,
+      username: worker.username,
+      name: worker.name,
+      adminId: worker.adminId,
+      role: activeRole.role,
+      accessLevel: activeRole.accessLevel,
+    });
 
     res.json({
       message: "Login successful",
@@ -1077,34 +1092,34 @@ const repayCredit = async (req, res) => {
 
 
 
-  
 
-  
 
-  
 
-  module.exports =
+
+
+
+module.exports =
 {
 
 
-    resetpassword,
-    forgotpassword,
-    createInventory,
-    createSale,
-    saveExpense,
-    production,
-    AccountPayable,
-    accountreceivable,
-    payAccountPayable,
-    payReceivable,
-    createPayroll,
-    getAllExpenses,
-    editpayroll,
-    forcastsales,
-    createdeal,
-    createBudget,
-    createWorker,
-    workerlogin,
-    addCredit,
-    repayCredit
+  resetpassword,
+  forgotpassword,
+  createInventory,
+  createSale,
+  saveExpense,
+  production,
+  AccountPayable,
+  accountreceivable,
+  payAccountPayable,
+  payReceivable,
+  createPayroll,
+  getAllExpenses,
+  editpayroll,
+  forcastsales,
+  createdeal,
+  createBudget,
+  createWorker,
+  workerlogin,
+  addCredit,
+  repayCredit
 };

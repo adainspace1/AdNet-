@@ -6,48 +6,52 @@ const nodemailer = require("nodemailer");
 const bodyparser = require('body-parser')
 const mongoose = require("mongoose");
 const router = express.Router();
- const multer = require('multer');
+const multer = require('multer');
 const storage = multer.memoryStorage();
 
 
 const upload = multer({ storage: storage }).fields([
-    { name: 'directorDocs', maxCount: 1 },
-    { name: 'investorDocs', maxCount: 1 },
-      { name: 'adminDocs', maxCount: 1 },
-    { name: 'ownerDocs', maxCount: 1 },
+  { name: 'directorDocs', maxCount: 1 },
+  { name: 'investorDocs', maxCount: 1 },
+  { name: 'adminDocs', maxCount: 1 },
+  { name: 'ownerDocs', maxCount: 1 },
 ]);
 
 const upload2 = multer({ storage: storage }).fields([
-    { name: 'CACDocs', maxCount: 1 },
-    { name: 'MOADocs', maxCount: 1 },
-      { name: 'FOCDocs', maxCount: 1 },
-    { name: 'shareholderAgreement', maxCount: 1 },
-        { name: 'AddRegistrationDocs', maxCount: 1 },
+  { name: 'CACDocs', maxCount: 1 },
+  { name: 'MOADocs', maxCount: 1 },
+  { name: 'FOCDocs', maxCount: 1 },
+  { name: 'shareholderAgreement', maxCount: 1 },
+  { name: 'AddRegistrationDocs', maxCount: 1 },
 ]);
 
 
 const {
-    
-    login,
-    submitForm,
-    submitBusiness,
-    submitCompany,
-    createBankInfo
- 
 
-  } = require("../controllers/admincontroller")
- 
-
-
-
-  router.post('/login', login);
+  login,
+  submitForm,
+  submitSole,
+  submitCorporation,
+  submitPLC,
+  submitBusiness,
+  submitCompany,
+  createBankInfo
+} = require("../controllers/admincontroller")
 
 
 
-    router.post('/submitform', submitForm);
-    router.post('/submitBusiness', upload, submitBusiness);
-      router.post('/submitCompany', upload2, submitCompany);
-      router.post("/bank-info", createBankInfo);
+
+router.post('/login', login);
+
+
+
+router.post('/submitform', submitForm);
+router.post('/submitform/sole', submitSole);
+router.post('/submitform/corporation', submitCorporation);
+router.post('/submitform/plc', submitPLC);
+router.post('/submitBusiness', upload, submitBusiness);
+router.post('/submitCompany', upload2, submitCompany);
+router.post("/bank-info", createBankInfo);
 
 
 
@@ -59,5 +63,5 @@ const {
 
 
 
-  
+
 module.exports = router;

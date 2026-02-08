@@ -1,315 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
-    />
-    <link rel="stylesheet" href="/css/inventory.css">
-    <title>Inventory</title>
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+  <link rel="stylesheet" href="/css/inventory.css">
+  <title>Inventory</title>
+
 </head>
+
 <body>
-    <div class="layout">
-             <!-- Sidebar -->
-      <%- include ("_sidebar1") %>
-        
-        <!-- Main Content -->
-                <div class="main-content">
-                      <%- include ("_topnav") %>
-                            <div class="top-bar">
-                                <h1 class="page-title" style="color: white; font-weight: 450px;">Physical Goods Inventory <%= user.firstName %> <%= worker && worker.name %></h1>
-                                <div class="action-buttons" style="margin-top: 20px; color: white;">
-                                    <button class="btn btn-outline" id="importBtn" style="color: white;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="17 8 12 3 7 8"></polyline>
-                                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                                        </svg>
-                                        Import
-                                    </button>
-                                    <button class="btn btn-outline" id="exportBtn" style="color: white;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="7 10 12 15 17 10"></polyline>
-                                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                                        </svg>
-                                        Export
-                                    </button>
-                                    <button class="btn btn-primary" id="addAssetBtn" style="color: white;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        </svg>
-                                        Add Asset
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Summary Cards -->
-                           <div class="summary-cards" style="display: flex; gap: 25px; flex-wrap: wrap; justify-content: space-around; padding: 25px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
+  <div class="layout">
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
 
-    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
-         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
-         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
-        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Inventory Value</div>
-        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">₦<%= totalInventoryValue.toLocaleString() %></div>
-        <div class="card-trend" style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-            5.8% from last month
-        </div>
-    </div>
+      <!-- Main Content -->
+      <div class="main-content">
+        <%- include ("_topnav") %>
+          <div class="top-bar">
+            <h1 class="page-title" style="color: white; font-weight: 450px;">Physical Goods Inventory <%= user.firstName
+                %>
+                <%= worker && worker.name %>
+            </h1>
+            <div class="action-buttons" style="margin-top: 20px; color: white;">
+              <button class="btn btn-outline" id="importBtn" style="color: white;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Import
+              </button>
+              <button class="btn btn-outline" id="exportBtn" style="color: white;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export
+              </button>
+              <button class="btn btn-primary" id="addAssetBtn" style="color: white;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Asset
+              </button>
+            </div>
+          </div>
 
-    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
-         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
-         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
-        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Total Items Count</div>
-        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;"><%= totalItemsCount %></div>
-        <div class="card-trend" style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-            124 new items
-        </div>
-    </div>
+          <!-- Summary Cards -->
+          <div class="summary-cards"
+            style="display: flex; gap: 25px; flex-wrap: wrap; justify-content: space-around; padding: 25px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
 
-    <div class="card" style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
-         onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
-         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
-        <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">Top Selling Category</div>
-        <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;"><%= topSellingItem %></div>
-        <div class="card-trend" style="font-size: 14px; color: #16a34a;">+12.3% this quarter</div>
-    </div>
+            <div class="card"
+              style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+              onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+              <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">
+                Total Inventory Value</div>
+              <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">₦
+                <%= totalInventoryValue.toLocaleString() %>
+              </div>
+              <div class="card-trend"
+                style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+                5.8% from last month
+              </div>
+            </div>
 
-</div>
+            <div class="card"
+              style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+              onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+              <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">
+                Total Items Count</div>
+              <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">
+                <%= totalItemsCount %>
+              </div>
+              <div class="card-trend"
+                style="font-size: 14px; color: #16a34a; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+                124 new items
+              </div>
+            </div>
 
-                            <!-- Filters -->
-      <div class="filters" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
+            <div class="card"
+              style="flex: 1; min-width: 200px; background: linear-gradient(145deg, #ffffff, #e0f0ff); padding: 25px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; margin-bottom: 15px;"
+              onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.18)';"
+              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.12)';">
+              <div class="card-title" style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">
+                Top Selling Category</div>
+              <div class="card-value" style="font-size: 24px; font-weight: bold; color: #3b82f6; margin-bottom: 8px;">
+                <%= topSellingItem %>
+              </div>
+              <div class="card-trend" style="font-size: 14px; color: #16a34a;">+12.3% this quarter</div>
+            </div>
 
-    <div class="search-box" style="flex: 1; min-width: 200px; display: flex; align-items: center; background: #ffffff; padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: box-shadow 0.3s;"
-         onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.05)';">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: #3b82f6;">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" class="search-input" placeholder="Search assets..." style="flex: 1; border: none; outline: none; font-size: 14px; color: #1f2937;">
-    </div>
+          </div>
 
-    <% const itemNamesSet = new Set(); inventory.forEach(inv => itemNamesSet.add(inv.itemName)); %>
-    <select class="filter-select" id="nameFilter" style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
-            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
-            onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
-        <option value="">All Products</option>
-        <% itemNamesSet.forEach(name => { %>
-            <option value="<%= name %>"><%= name %></option>
-        <% }) %>
-    </select>
+          <!-- Filters -->
+          <div class="filters"
+            style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px;">
 
-    <select class="filter-select" id="statusFilter" style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
-            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
-            onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
-        <option value="">All Status</option>
-        <option value="In Stock">In Stock</option>
-        <option value="Low Stock">Low Stock</option>
-        <option value="Out of Stock">Out of Stock</option>
-    </select>
+            <div class="search-box"
+              style="flex: 1; min-width: 200px; display: flex; align-items: center; background: #ffffff; padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: box-shadow 0.3s;"
+              onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.1)';"
+              onmouseout="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.05)';">
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-right: 8px; color: #3b82f6;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" class="search-input" placeholder="Search assets..."
+                style="flex: 1; border: none; outline: none; font-size: 14px; color: #1f2937;">
+            </div>
 
-</div>
+            <% const itemNamesSet=new Set(); inventory.forEach(inv=> itemNamesSet.add(inv.itemName)); %>
+              <select class="filter-select" id="nameFilter"
+                style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
+                onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
+                onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
+                <option value="">All Products</option>
+                <% itemNamesSet.forEach(name=> { %>
+                  <option value="<%= name %>">
+                    <%= name %>
+                  </option>
+                  <% }) %>
+              </select>
 
-                            
-                            <!-- Data Table -->
-                         <div class="data-table" style="background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); padding: 20px; transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px; overflow-x: auto;">
+              <select class="filter-select" id="statusFilter"
+                style="flex: 1; min-width: 150px; padding: 10px 12px; border-radius: 12px; border: 1px solid #cbd5e0; font-size: 14px; outline: none; background: #ffffff; transition: border 0.3s, box-shadow 0.3s;"
+                onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 5px rgba(59,130,246,0.3)';"
+                onblur="this.style.borderColor='#cbd5e0'; this.style.boxShadow='none';">
+                <option value="">All Status</option>
+                <option value="In Stock">In Stock</option>
+                <option value="Low Stock">Low Stock</option>
+                <option value="Out of Stock">Out of Stock</option>
+              </select>
 
-    <table style="width: 100%; border-collapse: collapse; min-width: 800px; background: #ffffff; border-radius: 12px; overflow: hidden;">
-        <thead style="background: #e0f0ff;">
-            <tr>
-                <th style="padding: 12px; text-align: left;">Product</th>
-                <th style="padding: 12px; text-align: left;">Category</th>
-                <th style="padding: 12px; text-align: left;">Quantity</th>
-                <th style="padding: 12px; text-align: left;">Current Quantity</th>
-                <th style="padding: 12px; text-align: left;">Unit Price</th>
-                <th style="padding: 12px; text-align: left;">Selling Price</th>
-                <th style="padding: 12px; text-align: left;">Status</th>
-                <th style="padding: 12px; text-align: left;">Actions</th>
-            </tr>
-        </thead>
-        <tbody style="color: #1f2937;">
-            <% inventory.forEach((item, index) => { %>
-            <tr style="border-top: 1px solid #e5e7eb; transition: background 0.3s;" 
-                onmouseover="this.style.background='#f0f4f8';" onmouseout="this.style.background='transparent';">
-                <td style="padding: 12px;"><%= item.itemName %></td>
-                <td style="padding: 12px;"><%= item.category %></td>
-                <td style="padding: 12px;"><%= item.quantity %></td>
-                <td style="padding: 12px;"><%= item.currentquantity %></td>
-                <td style="padding: 12px;">$<%= item.bcost %></td>
-                <td style="padding: 12px;">$<%= item.scost %></td>
-                <td style="padding: 12px;">
-                    <% if (item.currentquantity > 10) { %>
-                        <span style="padding: 4px 8px; border-radius: 12px; background: #16a34a; color: #ffffff; font-size: 12px; font-weight: 600;">In Stock</span>
-                    <% } else if (item.currentquantity <= 10 && item.quantity > 0) { %>
-                        <span style="padding: 4px 8px; border-radius: 12px; background: #facc15; color: #1f2937; font-size: 12px; font-weight: 600;">Low Stock</span>
-                    <% } else { %>
-                        <span style="padding: 4px 8px; border-radius: 12px; background: #ef4444; color: #ffffff; font-size: 12px; font-weight: 600;">Out of Stock</span>
-                    <% } %>
-                </td>
-                <td class="action-cell" style="padding: 12px; display: flex; gap: 6px;">
-                    <button class="action-btn" style="padding: 6px 8px; border: none; border-radius: 8px; background: #3b82f6; color: #ffffff; cursor: pointer; transition: transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </div>
+
+
+          <!-- Data Table -->
+          <div class="data-table"
+            style="background: linear-gradient(145deg, #e0f4ff, #ffffff); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); padding: 20px; transform: translateY(20px); transition: transform 0.3s; margin-bottom: 30px; overflow-x: auto;">
+
+            <table
+              style="width: 100%; border-collapse: collapse; min-width: 800px; background: #ffffff; border-radius: 12px; overflow: hidden;">
+              <thead style="background: #e0f0ff;">
+                <tr>
+                  <th style="padding: 12px; text-align: left;">Product</th>
+                  <th style="padding: 12px; text-align: left;">Category</th>
+                  <th style="padding: 12px; text-align: left;">Quantity</th>
+                  <th style="padding: 12px; text-align: left;">Current Quantity</th>
+                  <th style="padding: 12px; text-align: left;">Unit Price</th>
+                  <th style="padding: 12px; text-align: left;">Selling Price</th>
+                  <th style="padding: 12px; text-align: left;">Status</th>
+                  <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+              </thead>
+              <tbody style="color: #1f2937;">
+                <% inventory.forEach((item, index)=> { %>
+                  <tr style="border-top: 1px solid #e5e7eb; transition: background 0.3s;"
+                    onmouseover="this.style.background='#f0f4f8';" onmouseout="this.style.background='transparent';">
+                    <td style="padding: 12px;">
+                      <%= item.itemName %>
+                    </td>
+                    <td style="padding: 12px;">
+                      <%= item.category %>
+                    </td>
+                    <td style="padding: 12px;">
+                      <%= item.quantity %>
+                    </td>
+                    <td style="padding: 12px;">
+                      <%= item.currentquantity %>
+                    </td>
+                    <td style="padding: 12px;">$<%= item.bcost %>
+                    </td>
+                    <td style="padding: 12px;">$<%= item.scost %>
+                    </td>
+                    <td style="padding: 12px;">
+                      <% if (item.currentquantity> 10) { %>
+                        <span
+                          style="padding: 4px 8px; border-radius: 12px; background: #16a34a; color: #ffffff; font-size: 12px; font-weight: 600;">In
+                          Stock</span>
+                        <% } else if (item.currentquantity <=10 && item.quantity> 0) { %>
+                          <span
+                            style="padding: 4px 8px; border-radius: 12px; background: #facc15; color: #1f2937; font-size: 12px; font-weight: 600;">Low
+                            Stock</span>
+                          <% } else { %>
+                            <span
+                              style="padding: 4px 8px; border-radius: 12px; background: #ef4444; color: #ffffff; font-size: 12px; font-weight: 600;">Out
+                              of Stock</span>
+                            <% } %>
+                    </td>
+                    <td class="action-cell" style="padding: 12px; display: flex; gap: 6px;">
+                      <button class="action-btn"
+                        style="padding: 6px 8px; border: none; border-radius: 8px; background: #3b82f6; color: #ffffff; cursor: pointer; transition: transform 0.2s;"
+                        onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
-                    </button>
-                    <button class="action-btn" style="padding: 6px 8px; border: none; border-radius: 8px; background: #f3f4f6; color: #1f2937; cursor: pointer; transition: transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#e5e7eb';" onmouseout="this.style.transform='scale(1)'; this.style.background='#f3f4f6';">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="19" cy="12" r="1"></circle>
-                            <circle cx="5" cy="12" r="1"></circle>
+                      </button>
+                      <button class="action-btn"
+                        style="padding: 6px 8px; border: none; border-radius: 8px; background: #f3f4f6; color: #1f2937; cursor: pointer; transition: transform 0.2s;"
+                        onmouseover="this.style.transform='scale(1.1)'; this.style.background='#e5e7eb';"
+                        onmouseout="this.style.transform='scale(1)'; this.style.background='#f3f4f6';">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="1"></circle>
+                          <circle cx="19" cy="12" r="1"></circle>
+                          <circle cx="5" cy="12" r="1"></circle>
                         </svg>
-                    </button>
-                </td>
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
-</div>
+                      </button>
+                    </td>
+                  </tr>
+                  <% }) %>
+              </tbody>
+            </table>
+          </div>
 
-                                        <!-- Popup Form -->
-                <div class="popup-overlay" id="popup-overlay"></div>
-                <div class="popup" id="popup">
-                  <form id="inventory-form" method="POST" action="/user/createinventory">
-                    <h2>Add Inventory Item</h2>
+          <!-- Popup Form -->
+          <div class="popup-overlay" id="popup-overlay"></div>
+          <div class="popup" id="popup">
+            <form id="inventory-form" method="POST" action="/user/createinventory" enctype="multipart/form-data">
+              <h2>Add Inventory Item</h2>
 
-                            <input type="hidden" name="recipientId" value="<%= user._id %>" required>
+              <input type="hidden" name="recipientId" value="<%= user._id %>" required>
 
-                            <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
-                    <label>Item Name:
-                      <input type="text" name="itemName" required>
-                    </label>
-                    <label>Item Type:
-                      <input type="text" name="category" required>
-                    </label>
-                    <label>Bought Cost:
-                      <input type="text" name="bcost" required>
-                    </label>
-                    <label>Selling Cost:
-                      <input type="text" name="scost" required>
-                    </label>
-                    <label>Quantity:
-                      <input type="text" name="quantity" id="quantity" required>
-              <input type="hidden" name="currentquantity" id="currentquantity" required>
-                    </label>
-                    <label>Supplier Name:
-                      <input type="text" name="supplier" required>
-                    </label>
-                    <button type="submit">Post</button>
-                    <button type="button" class="close-btn">Close</button>
-                  </form>
-                </div>
+              <input type="hidden" name="username" value="<%= user.firstName %> <%= user.lastName %>" required>
+              <label>Item Name:
+                <input type="text" name="itemName" required>
+              </label>
+              <label>Item Type:
+                <input type="text" name="category" required>
+              </label>
+              <label>Bought Cost:
+                <input type="text" name="bcost" required>
+              </label>
+              <label>Selling Cost:
+                <input type="text" name="scost" required>
+              </label>
+              <label>Quantity:
+                <input type="text" name="quantity" id="quantity" required>
+                <input type="hidden" name="currentquantity" id="currentquantity" required>
+              </label>
+              <label>Supplier Name:
+                <input type="text" name="supplier" required>
+              </label>
+              <label>Payment Slip:
+                <input type="file" name="paymentSlip" accept="image/*,application/pdf">
+              </label>
+              <label>Invoice Received:
+                <input type="file" name="invoiceReceived" accept="image/*,application/pdf">
+              </label>
 
-
-    </div>
-
-
-  <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const searchInput = document.getElementById("searchInput");
-  const nameFilter = document.getElementById("nameFilter");
-  const statusFilter = document.getElementById("statusFilter");
-  const tableRows = document.querySelectorAll(".data-table tbody tr");
-
-  function filterTable() {
-    const searchValue = searchInput.value.toLowerCase();
-    const nameValue = nameFilter.value;
-    const statusValue = statusFilter.value;
-
-    tableRows.forEach(row => {
-      const productName = row.cells[0].textContent.trim().toLowerCase();
-      const statusText = row.cells[6].textContent.trim(); // 7th column = status
-
-      let matchesSearch = productName.includes(searchValue);
-      let matchesName = !nameValue || productName === nameValue.toLowerCase();
-      let matchesStatus = !statusValue || statusText === statusValue;
-
-      if (matchesSearch && matchesName && matchesStatus) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  }
-
-  searchInput.addEventListener("input", filterTable);
-  nameFilter.addEventListener("change", filterTable);
-  statusFilter.addEventListener("change", filterTable);
-});
-</script>
-
-  
+              <div class="all-btn">
+                <button type="submit">Post</button>
+              <button type="button" class="close-btn">Close</button>
+              </div>
+              
+            </form>
+          </div>
 
 
-   <script>
-
-      const quantityInput = document.getElementById('quantity');
-  const currentQuantityInput = document.getElementById('currentquantity');
-
-  quantityInput.addEventListener('input', () => {
-    currentQuantityInput.value = quantityInput.value;
-  });
-
-    function showDetails(index) {
-      const sections = document.querySelectorAll('.details-section');
-      sections.forEach(section => section.classList.remove('visible'));
-
-      const target = document.getElementById('details-' + index);
-      if (target) {
-        target.classList.add('visible');
-      }
-
-      const items = document.querySelectorAll('.inventory-list-item');
-      items.forEach(item => item.classList.remove('selected'));
-      if (items[index]) {
-        items[index].classList.add('selected');
-      }
-    }
-
-    window.onload = () => {
-      showDetails(0);
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const addButton = document.getElementById('addAssetBtn');
-      const popup = document.getElementById('popup');
-      const overlay = document.getElementById('popup-overlay');
-      const closeBtn = document.querySelector('.close-btn');
-      const form = document.getElementById('inventory-form');
-
-      addButton.addEventListener('click', () => {
-        popup.classList.add('visible');
-        overlay.classList.add('visible');
-      });
-
-      const closePopup = () => {
-        popup.classList.remove('visible');
-        overlay.classList.remove('visible');
-        form.reset();
-      };
-
-      closeBtn.addEventListener('click', closePopup);
-      overlay.addEventListener('click', closePopup);
-    });
-  </script>
+      </div>
 
 
-<script src="/js/inventory.js"></script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const searchInput = document.getElementById("searchInput");
+          const nameFilter = document.getElementById("nameFilter");
+          const statusFilter = document.getElementById("statusFilter");
+          const tableRows = document.querySelectorAll(".data-table tbody tr");
+
+          function filterTable() {
+            const searchValue = searchInput.value.toLowerCase();
+            const nameValue = nameFilter.value;
+            const statusValue = statusFilter.value;
+
+            tableRows.forEach(row => {
+              const productName = row.cells[0].textContent.trim().toLowerCase();
+              const statusText = row.cells[6].textContent.trim(); // 7th column = status
+
+              let matchesSearch = productName.includes(searchValue);
+              let matchesName = !nameValue || productName === nameValue.toLowerCase();
+              let matchesStatus = !statusValue || statusText === statusValue;
+
+              if (matchesSearch && matchesName && matchesStatus) {
+                row.style.display = "";
+              } else {
+                row.style.display = "none";
+              }
+            });
+          }
+
+          searchInput.addEventListener("input", filterTable);
+          nameFilter.addEventListener("change", filterTable);
+          statusFilter.addEventListener("change", filterTable);
+        });
+      </script>
+
+
+
+
+      <script>
+
+        const quantityInput = document.getElementById('quantity');
+        const currentQuantityInput = document.getElementById('currentquantity');
+
+        quantityInput.addEventListener('input', () => {
+          currentQuantityInput.value = quantityInput.value;
+        });
+
+        function showDetails(index) {
+          const sections = document.querySelectorAll('.details-section');
+          sections.forEach(section => section.classList.remove('visible'));
+
+          const target = document.getElementById('details-' + index);
+          if (target) {
+            target.classList.add('visible');
+          }
+
+          const items = document.querySelectorAll('.inventory-list-item');
+          items.forEach(item => item.classList.remove('selected'));
+          if (items[index]) {
+            items[index].classList.add('selected');
+          }
+        }
+
+        window.onload = () => {
+          showDetails(0);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+          const addButton = document.getElementById('addAssetBtn');
+          const popup = document.getElementById('popup');
+          const overlay = document.getElementById('popup-overlay');
+          const closeBtn = document.querySelector('.close-btn');
+          const form = document.getElementById('inventory-form');
+
+          addButton.addEventListener('click', () => {
+            popup.classList.add('visible');
+            overlay.classList.add('visible');
+          });
+
+          const closePopup = () => {
+            popup.classList.remove('visible');
+            overlay.classList.remove('visible');
+            form.reset();
+          };
+
+          closeBtn.addEventListener('click', closePopup);
+          overlay.addEventListener('click', closePopup);
+        });
+      </script>
+
+
+      <script src="/js/inventory.js"></script>
 </body>
+
 </html>

@@ -889,3 +889,49 @@ exports.downloadActivityCSV = async (req, res) => {
     res.status(500).send('Error generating CSV');
   }
 };
+
+// ==========================================
+// 12. CONFIRM AUDIT
+// ==========================================
+exports.confirmAudit = async (req, res) => {
+  try {
+    const auditId = req.params.id;
+    const audit = await Audit.findById(auditId);
+
+    if (!audit) {
+      return res.status(404).json({ success: false, message: 'Audit not found' });
+    }
+
+    audit.verificationStatus = 'confirmed';
+    audit.verifiedAt = new Date();
+    await audit.save();
+
+    res.json({ success: true, message: 'Audit confirmed successfully' });
+  } catch (error) {
+    console.error('Confirm Audit Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ==========================================
+// 13. REPORT AUDIT
+// ==========================================
+exports.reportAudit = async (req, res) => {
+  try {
+    const auditId = req.params.id;
+    const audit = await Audit.findById(auditId);
+
+    if (!audit) {
+      return res.status(404).json({ success: false, message: 'Audit not found' });
+    }
+
+    audit.verificationStatus = 'reported';
+    audit.verifiedAt = new Date();
+    await audit.save();
+
+    res.json({ success: true, message: 'Audit reported successfully' });
+  } catch (error) {
+    console.error('Report Audit Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

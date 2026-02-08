@@ -24,6 +24,8 @@ router.get('/download/activity/csv', auditController.downloadActivityCSV);
 router.post('/manual/create', auditController.createManualAudit);
 router.get('/manual/transactions/:auditId', auditController.getManualAuditTransactions);
 router.post('/manual/submit', upload.array('supportingFiles'), auditController.submitManualAudit);
+router.post('/confirm/:id', auditController.confirmAudit);
+router.post('/report/:id', auditController.reportAudit);
 
 // Audit list
 router.get('/list', auditController.getAuditList);

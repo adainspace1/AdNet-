@@ -1,0 +1,183 @@
+:root {
+    --primary: #5b21b6; /* Deep Purple */
+    --primary-light: #7c3aed;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+}
+
+body {
+    background-color: var(--bg-main);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px 20px 20px 280px; /* Assuming 260px sidebar */
+}
+
+/* Dashboard Grid Layout */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    grid-column: span 4; /* Default 3-column layout */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-card.large {
+    grid-column: span 8;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Aging Analysis Styles */
+.aging-item {
+    margin-bottom: 16px;
+}
+
+.aging-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.aging-bar {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.aging-fill { height: 100%; border-radius: 4px; }
+.aging-fill.current { background: var(--success); }
+.aging-fill.moderate { background: var(--warning); }
+.aging-fill.old { background: #f97316; }
+.aging-fill.overdue { background: var(--danger); }
+
+/* Exception Management */
+.exception-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #fcfcfc;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+}
+
+.exception-severity {
+    width: 4px;
+    height: 30px;
+    border-radius: 2px;
+}
+
+.high .exception-severity { background: var(--danger); }
+.medium .exception-severity { background: var(--warning); }
+.low .exception-severity { background: var(--success); }
+
+/* Workflow Steps */
+.workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.workflow-step {
+    display: flex;
+    gap: 15px;
+    position: relative;
+}
+
+.step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    z-index: 2;
+}
+
+.completed .step-icon { background: var(--success); color: white; }
+.active .step-icon { background: var(--primary); color: white; }
+
+/* Bank Management */
+.bank-summary {
+    display: flex;
+    justify-content: space-between;
+    background: var(--primary);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.balance-amount {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.bank-stats {
+    display: flex;
+    gap: 20px;
+    text-align: right;
+}
+
+.stat-value.positive { color: #a7f3d0; }
+.stat-value.negative { color: #fecaca; }
+
+/* Buttons & Inputs */
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: pointer;
+}
+
+select, input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 5px;
+}

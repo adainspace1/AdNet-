@@ -43,6 +43,8 @@ const orderSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'in_transit', 'delivered', 'overdue'], default: 'pending' },
   qrCode: { type: String },
   delivery: deliverySchema, // <--- added
+  proofOfPayment: [{ type: String }], // Array of Cloudinary URLs
+  refNumber: { type: String, default: "" }, // Optional reference number
   createdAt: { type: Date, default: Date.now }
 });
 

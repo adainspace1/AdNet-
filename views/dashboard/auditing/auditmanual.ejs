@@ -282,7 +282,25 @@
                     audits.forEach(audit => {
                         const item = document.createElement('div');
                         item.className = 'audit-item';
-                        item.innerHTML = `<h4>${audit.auditId || audit._id} - ${audit.accountName || 'Manual Audit'}</h4><small>${new Date(audit.date).toLocaleDateString()}</small>`;
+                        item.style.borderLeft = `5px solid ${audit.verificationStatus === 'confirmed' ? '#10b981' : audit.verificationStatus === 'reported' ? '#ef4444' : '#6b7280'}`;
+
+                        let buttonsHtml = '';
+                        if (audit.verificationStatus === 'pending') {
+                            buttonsHtml = `
+                                <div class="audit-actions" style="margin-top: 10px; display: flex; gap: 5px;">
+                                    <button onclick="event.stopPropagation(); verifyAudit('${audit._id}', 'confirm')" class="btn btn-success" style="padding: 2px 8px; font-size: 12px; background: #10b981;">Confirm</button>
+                                    <button onclick="event.stopPropagation(); verifyAudit('${audit._id}', 'report')" class="btn btn-danger" style="padding: 2px 8px; font-size: 12px; background: #ef4444;">Report</button>
+                                </div>
+                            `;
+                        } else {
+                            buttonsHtml = `<div style="margin-top: 5px; font-weight: bold; font-size: 12px; color: ${audit.verificationStatus === 'confirmed' ? '#10b981' : '#ef4444'}">${audit.verificationStatus.toUpperCase()}</div>`;
+                        }
+
+                        item.innerHTML = `
+                            <h4>${audit.auditId || audit._id} - ${audit.accountName || 'Manual Audit'}</h4>
+                            <small>${new Date(audit.date).toLocaleDateString()}</small>
+                            ${buttonsHtml}
+                        `;
                         item.onclick = () => {
                             document.getElementById('manualAuditId').value = audit.auditId || audit._id;
                             document.getElementById('accountName').value = audit.accountName;
@@ -290,6 +308,22 @@
                         };
                         container.appendChild(item);
                     });
+                }
+
+                async function verifyAudit(id, action) {
+                    if (!confirm(`Are you sure you want to ${action} this audit?`)) return;
+                    try {
+                        const response = await fetch(`/api/audit/${action}/${id}`, { method: 'POST' });
+                        const result = await response.json();
+                        if (result.success) {
+                            showNotification(`Audit ${action}ed!`, 'success');
+                            loadRecentAudits();
+                        } else {
+                            showNotification(result.message, 'error');
+                        }
+                    } catch (error) {
+                        showNotification(`Error ${action}ing audit`, 'error');
+                    }
                 }
 
                 function setupEventListeners() {

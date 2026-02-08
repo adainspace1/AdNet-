@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
 const inventorySchema = new mongoose.Schema({
-    recipientId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User",
-        required: true 
-    },
-    username: {
+  recipientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  username: {
     type: String,
     required: true
   },
-    itemName: {
+  itemName: {
     type: String,
     required: true
   },
@@ -19,7 +19,7 @@ const inventorySchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-    currentquantity: {
+  currentquantity: {
     type: Number,
     required: true,
     min: 0
@@ -33,7 +33,7 @@ const inventorySchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-   scost: {
+  scost: {
     type: Number,
     required: true,
     min: 0
@@ -41,6 +41,14 @@ const inventorySchema = new mongoose.Schema({
   supplier: {
     type: String,
     default: 'Unknown'
+  },
+  paymentSlip: {
+    type: String,
+    default: null
+  },
+  invoiceReceived: {
+    type: String,
+    default: null
   },
   addedDate: {
     type: Date,

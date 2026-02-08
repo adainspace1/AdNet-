@@ -12,9 +12,9 @@ const ensureAuthenticated = async (req, res, next) => {
         // Case 1: Superadmin/Admin (full access) - TYPE: USER
         if (req.session && req.session.user) {
             const userId = req.session.user._id;
-            
+
             // EXCEPTION: Dashboard and Admin pages are accessible without subscription check
-            if (urlLower === '/dashboard' || urlLower.startsWith('/dashboard?') || 
+            if (urlLower === '/dashboard' || urlLower.startsWith('/dashboard?') ||
                 urlLower === '/admin' || urlLower.startsWith('/admin/') || urlLower.startsWith('/admin?')) {
                 console.log(
                     `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED (ADMIN AREA - NO SUB REQUIRED) | userId: ${userId}`
@@ -23,7 +23,19 @@ const ensureAuthenticated = async (req, res, next) => {
                 req.isWorker = false;
                 return next();
             }
-            
+
+            // EXCEPTION: Allowed Emails (Bypass Subscription Check)
+            const allowedEmails = ["musa@gmail.com"];
+            if (req.session.user.email && allowedEmails.includes(req.session.user.email)) {
+                console.log(
+                    `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | ALLOWED (EMAIL BYPASS) | email: ${req.session.user.email}`
+                );
+                req.recipientId = userId;
+                req.isWorker = false;
+                req.isBypass = true; // Optional flag for debugging
+                return next();
+            }
+
             console.log(
                 `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | CHECKING SUBSCRIPTION...`
             );
@@ -32,12 +44,12 @@ const ensureAuthenticated = async (req, res, next) => {
             console.log(`[SUBSCRIPTION CHECK] Searching new Subscription model for userId: ${userId}`);
             const subscriptionDoc = await Subscription.findOne({ userId });
             console.log(`[SUBSCRIPTION CHECK] New Subscription model result: ${subscriptionDoc ? 'Found' : 'Not found'}`);
-            
+
             const nowDate = new Date();
             let subscriptions = [];
-            
+
             if (subscriptionDoc && subscriptionDoc.subscriptions) {
-                subscriptions = subscriptionDoc.subscriptions.filter(sub => 
+                subscriptions = subscriptionDoc.subscriptions.filter(sub =>
                     sub.status === 'active' && sub.endDate > nowDate
                 );
                 console.log(`[SUBSCRIPTION CHECK] Filtered active subscriptions: Found ${subscriptions.length} active subscriptions`);
@@ -85,7 +97,7 @@ const ensureAuthenticated = async (req, res, next) => {
                 console.log(
                     `[AUTH] ${now} | PAGE: ${url} | TYPE: USER | BLOCKED - NO ACTIVE SUBSCRIPTIONS | userId: ${userId}`
                 );
-                 return res.redirect(`/not-subscribed-yet?id=${userId}`);
+                return res.redirect(`/not-subscribed-yet?id=${userId}`);
             }
 
             // Extract the page/module name from URL
@@ -104,11 +116,11 @@ const ensureAuthenticated = async (req, res, next) => {
                 const apiSegments = url.split('/').filter(s => s);
                 const apiModule = apiSegments[1] || apiSegments[2] || 'dashboard';
                 console.log(`[ACCESS CHECK] API module extracted: ${apiModule}`);
-                
+
                 // Always allowed API routes for any subscribed user (basic dashboard functionality)
                 const alwaysAllowedApiRoutes = [
                     '/api/userActivities',
-                    '/api/activities', 
+                    '/api/activities',
                     '/api/dashboard',
                     '/api/profile',
                     '/api/notifications',
@@ -119,7 +131,7 @@ const ensureAuthenticated = async (req, res, next) => {
                 // Check if this is an always allowed API route
                 const isAlwaysAllowed = alwaysAllowedApiRoutes.some(route => url.startsWith(route));
                 console.log(`[ACCESS CHECK] Is always allowed API route: ${isAlwaysAllowed}`);
-                
+
                 if (isAlwaysAllowed && subscriptions.length > 0) {
                     hasPageAccess = true;
                     console.log(`├─ API Route: ${url} - ALWAYS ALLOWED for subscribed users`);
@@ -127,7 +139,7 @@ const ensureAuthenticated = async (req, res, next) => {
                     // Check if user has subscription for this module
                     console.log(`[ACCESS CHECK] Checking subscription for API module: ${apiModule}, Subscription type: ${subscriptionType}`);
                     if (subscriptionType === 'new') {
-                        hasPageAccess = subscriptions.some(sub => 
+                        hasPageAccess = subscriptions.some(sub =>
                             sub.feature.toLowerCase() === apiModule.toLowerCase() ||
                             apiModule.toLowerCase().includes(sub.feature.toLowerCase()) ||
                             sub.feature.toLowerCase().includes(apiModule.toLowerCase())
@@ -135,7 +147,7 @@ const ensureAuthenticated = async (req, res, next) => {
                         console.log(`[ACCESS CHECK] New subscription check result: ${hasPageAccess}`);
                     } else {
                         // Legacy CustomPlan - check items
-                        hasPageAccess = subscriptions.some(sub => 
+                        hasPageAccess = subscriptions.some(sub =>
                             sub.module.toLowerCase().includes(apiModule.toLowerCase()) ||
                             apiModule.toLowerCase().includes(sub.module.toLowerCase())
                         );
@@ -150,16 +162,16 @@ const ensureAuthenticated = async (req, res, next) => {
                 // Regular page access check
                 console.log(`[ACCESS CHECK] Regular page access check for: ${requestedPage}, Subscription type: ${subscriptionType}`);
                 if (subscriptionType === 'new') {
-                    hasPageAccess = subscriptions.some(sub => 
-                      sub.feature.toLowerCase().includes(requestedPage.toLowerCase()) ||
-                      requestedPage.toLowerCase().includes(sub.feature.toLowerCase())
+                    hasPageAccess = subscriptions.some(sub =>
+                        sub.feature.toLowerCase().includes(requestedPage.toLowerCase()) ||
+                        requestedPage.toLowerCase().includes(sub.feature.toLowerCase())
                     );
                     console.log(`[ACCESS CHECK] New subscription page check result: ${hasPageAccess}`);
                 } else {
                     // Legacy CustomPlan - check items
-                    hasPageAccess = subscriptions.some(sub => 
-                      sub.module.toLowerCase().includes(requestedPage.toLowerCase()) ||
-                      requestedPage.toLowerCase().includes(sub.module.toLowerCase())
+                    hasPageAccess = subscriptions.some(sub =>
+                        sub.module.toLowerCase().includes(requestedPage.toLowerCase()) ||
+                        requestedPage.toLowerCase().includes(sub.module.toLowerCase())
                     );
                     console.log(`[ACCESS CHECK] Legacy subscription page check result: ${hasPageAccess}`);
                 }
@@ -174,11 +186,11 @@ const ensureAuthenticated = async (req, res, next) => {
             console.log(`├─ User Name: ${req.session.user.name || 'Unknown'}`);
             console.log(`├─ User Email: ${req.session.user.email || 'Unknown'}`);
             console.log(`├─ Subscription Type: ${subscriptionType}`);
-            
+
             if (subscriptionType === 'new') {
                 console.log(`├─ Active Subscriptions: ${subscriptions.length}`);
                 subscriptions.forEach((sub, index) => {
-                  console.log(`│  ${index + 1}. ${sub.feature} - Expires: ${sub.endDate.toDateString()}`);
+                    console.log(`│  ${index + 1}. ${sub.feature} - Expires: ${sub.endDate.toDateString()}`);
                 });
             } else {
                 console.log(`├─ Legacy CustomPlan ID: ${customPlanSubscription._id}`);
@@ -186,15 +198,15 @@ const ensureAuthenticated = async (req, res, next) => {
                 console.log(`├─ Plan Type: ${customPlanSubscription.planType}`);
                 console.log(`├─ Subscribed Items: ${subscriptions.length}`);
                 subscriptions.forEach((sub, index) => {
-                  console.log(`│  ${index + 1}. ${sub.module} - Legacy Plan`);
+                    console.log(`│  ${index + 1}. ${sub.module} - Legacy Plan`);
                 });
             }
-            
+
             // If page not in subscription, redirect to add-subscription
             if (!hasPageAccess) {
-              console.log(`├─ Page Access: ❌ NOT SUBSCRIBED`);
-              console.log(`└─ STATUS: DENIED - Redirecting to /add-subscription\n`);
-              return res.redirect(`/add-subscription?page=${requestedPage}&id=${userId}`);
+                console.log(`├─ Page Access: ❌ NOT SUBSCRIBED`);
+                console.log(`└─ STATUS: DENIED - Redirecting to /add-subscription\n`);
+                return res.redirect(`/add-subscription?page=${requestedPage}&id=${userId}`);
             }
 
             console.log(`├─ Page Access: ✓ SUBSCRIBED`);
@@ -225,16 +237,16 @@ const ensureAuthenticated = async (req, res, next) => {
             // CHECK: Workers cannot access /admin
             if (urlLower === '/admin' || urlLower.startsWith('/admin/') || urlLower.startsWith('/admin?')) {
 
-                    await logWorkerActivity({
-                        req,
-                        worker,
-                        page: url,
-                        action: "BLOCKED",
-                    });
+                await logWorkerActivity({
+                    req,
+                    worker,
+                    page: url,
+                    action: "BLOCKED",
+                });
 
-                    console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (admin area) | workerId: ${workerId} | adminId: ${adminId} | role: ${role}`);
-                    return res.redirect("/bastard");
-                }
+                console.warn(`[AUTH] ${now} | PAGE: ${url} | TYPE: WORKER | BLOCKED (admin area) | workerId: ${workerId} | adminId: ${adminId} | role: ${role}`);
+                return res.redirect("/bastard");
+            }
 
 
             // role → allowed paths

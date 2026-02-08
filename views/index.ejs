@@ -1,14 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdNet - Powering the Future of Business Management</title>
     <link rel="stylesheet" href="/css/index.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+<style>
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        margin: 10% auto;
+        padding: 40px;
+        border: 1px solid #888;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 20px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .close {
+        color: #aaa;
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .modal-header h2 {
+        text-align: center;
+        color: #1e3c72;
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .modal-header p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .signup-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .option-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .option-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-color: #667eea;
+    }
+
+    .option-icon {
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .option-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 8px;
+        text-align: center;
+        display: block;
+    }
+
+    .option-desc {
+        font-size: 0.9rem;
+        color: #777;
+        text-align: center;
+        display: block;
+        line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .modal-content {
+            margin: 20% auto;
+            width: 95%;
+            padding: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+</head>
+
 <body>
     <header>
         <nav class="container">
@@ -20,16 +168,16 @@
 
             <ul class="nav-links">
                 <div class="all-nav">
-                      <li><a href="#features">Features</a></li>
-                <li><a href="#business">Business</a></li>
-                <li><a href="#testimonials">Reviews</a></li>
-                <li><a href="#contact">Contact</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#business">Business</a></li>
+                    <li><a href="#testimonials">Reviews</a></li>
+                    <li><a href="#contact">Contact</a></li>
 
 
-                <a href="/personal"><button class="loga">Sign up</button></a>
-                <a href="/login"> <button class="loga">Log In</button></a>
+                    <a href="#" id="signupBtn"><button class="loga">Sign up</button></a>
+                    <a href="/login"> <button class="loga">Log In</button></a>
                 </div>
-                
+
             </ul>
         </nav>
     </header>
@@ -38,7 +186,8 @@
         <div class="container">
             <div class="hero-content">
                 <h1>Powering the Future of Business Management</h1>
-                <p>AdNet is your all-in-one business toolkit — accounting, forecasting, asset tracking, and personal consultancy tailored to help your business grow, thrive, and scale with confidence.</p>
+                <p>AdNet is your all-in-one business toolkit — accounting, forecasting, asset tracking, and personal
+                    consultancy tailored to help your business grow, thrive, and scale with confidence.</p>
                 <div class="cta-buttons">
                     <a href="#" class="btn btn-primary">Start Free Trial</a>
                     <a href="#" class="btn btn-secondary">Request a Demo</a>
@@ -51,52 +200,54 @@
         <div class="container">
             <div class="section-title animate-on-scroll">
                 <h2>Why AdNet?</h2>
-                <p>Your Business, Smarter. Simplify operations, gain real-time insights, and access enterprise-level tools without the enterprise price tag.</p>
+                <p>Your Business, Smarter. Simplify operations, gain real-time insights, and access enterprise-level
+                    tools without the enterprise price tag.</p>
             </div>
             <div class="features-grid">
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-chart-line"></i>
-</div>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
                     <h3>All-in-One Accounting Suite</h3>
                     <p>Comprehensive financial management with automated bookkeeping and real-time reporting.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                   <div class="feature-icon">
-  <i class="fas fa-magic"></i>
-</div>
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
 
                     <h3>Automated Sales and Price Forecasting</h3>
                     <p>Predict market trends and optimize pricing strategies with AI-powered analytics.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
-                   <div class="feature-icon">
-  <i class="fas fa-box"></i>
-</div>
+                    <div class="feature-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
 
                     <h3>Intelligent Asset Management</h3>
                     <p>Track inventory, fixed assets, and resources with smart categorization and alerts.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-sack-dollar"></i>
-</div>
+                        <i class="fas fa-sack-dollar"></i>
+                    </div>
 
                     <h3>Custom Cost of Debt & Investment Tools</h3>
                     <p>Calculate accurate financial metrics and make informed investment decisions.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-user-tie"></i>
-</div>
+                        <i class="fas fa-user-tie"></i>
+                    </div>
 
                     <h3>Personalized Business Consultancy Portal</h3>
-                    <p>Get expert advice tailored to your business needs through our integrated consultation platform.</p>
+                    <p>Get expert advice tailored to your business needs through our integrated consultation platform.
+                    </p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-clipboard-list"></i>
-</div>
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
 
                     <h3>Tax & Payroll Compliance Made Easy</h3>
                     <p>Stay compliant with automated tax calculations and streamlined payroll processing.</p>
@@ -114,43 +265,47 @@
             <div class="features-grid">
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-book"></i>
-</div>
+                        <i class="fas fa-book"></i>
+                    </div>
 
                     <h3>Smart Bookkeeping</h3>
-                    <p>Automated ledgers, mobile receipt capture, and localized tax handling for seamless financial management.</p>
+                    <p>Automated ledgers, mobile receipt capture, and localized tax handling for seamless financial
+                        management.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-bullseye"></i>
-</div>
+                        <i class="fas fa-bullseye"></i>
+                    </div>
 
                     <h3>Forecasting Engine</h3>
                     <p>Predict your sales, pricing, and ROI using local market indicators and advanced analytics.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-store"></i>
-</div>
+                        <i class="fas fa-store"></i>
+                    </div>
 
                     <h3>Asset & Inventory Hub</h3>
-                    <p>From fixed assets to fast-moving inventory, track it all in one centralized, intelligent platform.</p>
+                    <p>From fixed assets to fast-moving inventory, track it all in one centralized, intelligent
+                        platform.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-chart-line"></i>
-</div>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
 
                     <h3>CAC & Financial Tools</h3>
-                    <p>Measure cost per acquisition, payback period, and manage business debt with precision and accuracy.</p>
+                    <p>Measure cost per acquisition, payback period, and manage business debt with precision and
+                        accuracy.</p>
                 </div>
                 <div class="feature-card animate-on-scroll">
                     <div class="feature-icon">
-  <i class="fas fa-handshake"></i>
-</div>
+                        <i class="fas fa-handshake"></i>
+                    </div>
 
                     <h3>AdNet Assist (Consultancy Portal)</h3>
-                    <p>One-on-one expert support with business strategists built right into your dashboard for immediate guidance.</p>
+                    <p>One-on-one expert support with business strategists built right into your dashboard for immediate
+                        guidance.</p>
                 </div>
             </div>
         </div>
@@ -162,7 +317,9 @@
                 <h2>For Every Kind of Business</h2>
                 <p>From Startup to Scale-Up</p>
             </div>
-            <p class="animate-on-scroll" style="text-align: center; margin-bottom: 2rem; color: #666; font-size: 1.1rem;">Whether you're running a retail shop, a logistics startup, or a service-based firm — AdNet adapts to you.</p>
+            <p class="animate-on-scroll"
+                style="text-align: center; margin-bottom: 2rem; color: #666; font-size: 1.1rem;">Whether you're running
+                a retail shop, a logistics startup, or a service-based firm — AdNet adapts to you.</p>
             <div class="business-types">
                 <div class="business-type animate-on-scroll">
                     <h4>Traders & Freelancers</h4>
@@ -192,10 +349,12 @@
             </div>
             <div class="testimonials">
                 <div class="testimonial animate-on-scroll">
-                    <p>AdNet gave us clarity over our finances and confidence in decision-making. It's more than software – it's a business partner.</p>
+                    <p>AdNet gave us clarity over our finances and confidence in decision-making. It's more than
+                        software – it's a business partner.</p>
                 </div>
                 <div class="testimonial animate-on-scroll">
-                    <p>Running a small team is easier when everything is connected: payroll, inventory, and projections. AdNet makes it seamless.</p>
+                    <p>Running a small team is easier when everything is connected: payroll, inventory, and projections.
+                        AdNet makes it seamless.</p>
                 </div>
             </div>
         </div>
@@ -228,9 +387,68 @@
 
 
 
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h2>Choose Account Type</h2>
+                <p>Select the option that best describes you or your business.</p>
+            </div>
+            <div class="signup-options">
+                <a href="/signup/sole" class="option-card">
+                    <div class="option-icon"><i class="fas fa-user"></i></div>
+                    <span class="option-title">Sole Proprietorship</span>
+                    <span class="option-desc">Owned and managed by a single individual.</span>
+                </a>
+
+                <a href="/Personal" class="option-card">
+                    <div class="option-icon"><i class="fas fa-building-columns"></i></div>
+                    <span class="option-title">Limited Liability Company</span>
+                    <span class="option-desc">Owned by an individual or partners with limited liability.</span>
+                </a>
+
+                <a href="/signup/corporation" class="option-card">
+                    <div class="option-icon"><i class="fas fa-briefcase"></i></div>
+                    <span class="option-title">Corporation</span>
+                    <span class="option-desc">Separate legal entity owned by shareholders.</span>
+                </a>
+
+                <a href="/signup/plc" class="option-card">
+                    <div class="option-icon"><i class="fas fa-users-viewfinder"></i></div>
+                    <span class="option-title">Public Limited Company</span>
+                    <span class="option-desc">Owned by shareholders and publicly traded.</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Modal Logic
+        const modal = document.getElementById("signupModal");
+        const btn = document.getElementById("signupBtn");
+        const span = document.getElementsByClassName("close")[0];
+
+        btn.onclick = function (e) {
+            e.preventDefault();
+            modal.style.display = "block";
+            document.body.style.overflow = "hidden"; // Prevent scrolling
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                document.body.style.overflow = "auto";
+            }
+        }
+
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            if (anchor.getAttribute('href') === '#') return; // Skip modal trigger
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
@@ -279,16 +497,16 @@
 
         // Add button click effects
         document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
-                
+
                 // Create ripple effect
                 const ripple = document.createElement('span');
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
                 const x = e.clientX - rect.left - size / 2;
                 const y = e.clientY - rect.top - size / 2;
-                
+
                 ripple.style.cssText = `
                     position: absolute;
                     width: ${size}px;
@@ -301,9 +519,9 @@
                     animation: ripple 0.6s ease-out forwards;
                     pointer-events: none;
                 `;
-                
+
                 this.appendChild(ripple);
-                
+
                 setTimeout(() => {
                     ripple.remove();
                 }, 600);
@@ -329,4 +547,5 @@
         });
     </script>
 </body>
+
 </html>

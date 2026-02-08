@@ -247,10 +247,22 @@ th {
     .popup-overlay.visible {
       display: block;
     }
+    .popup form{
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .popup form h2{
+      width: 100%;
+    }
     .popup label {
       display: block;
       margin-bottom: 10px;
       color: #34495e;
+      width: 45%;
     }
     .popup input {
       width: 100%;
@@ -259,6 +271,9 @@ th {
       border-radius: 5px;
       font-size: 1rem;
       margin-bottom: 5px;
+    }
+    .popup .all-btn{
+      width: 100%;
     }
     .popup button {
       background: #3498db;

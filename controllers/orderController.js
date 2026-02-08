@@ -6,6 +6,28 @@ const mongoose = require("mongoose");
 const Inventory = require('../models/inventory');
 
 const QRCode = require('qrcode');
+const cloudinary = require("../cloudinary");
+const streamifier = require("streamifier");
+
+const handleImageUpload = (file) => {
+    return new Promise((resolve, reject) => {
+        const isPDF = file.mimetype === "application/pdf";
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                resource_type: isPDF ? "raw" : "auto",
+                folder: "Adnet",
+            },
+            (error, result) => {
+                if (error) {
+                    reject(new Error("Error uploading to Cloudinary: " + error.message));
+                } else {
+                    resolve(result.secure_url);
+                }
+            }
+        );
+        streamifier.createReadStream(file.buffer).pipe(stream);
+    });
+};
 
 // Helper to get logged-in user ID (Admin or Worker's Admin)
 const getUserId = (req) => {
@@ -52,51 +74,51 @@ exports.getOrdersPage = async (req, res) => {
         const products = await Inventory.find({ recipientId: userId });
 
 
-        
-           // Get orders for this user/worker
-           const allOrders = await Order.find({ recipientId })
-             .populate("recipientId")
-             .lean();
-       
-           // Separate orders by status
-           const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
-           const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
-       
+
+        // Get orders for this user/worker
+        const allOrders = await Order.find({ recipientId })
+            .populate("recipientId")
+            .lean();
+
+        // Separate orders by status
+        const inTransitOrders = allOrders.filter(order => order.status === 'in_transit');
+        const deliveredOrders = allOrders.filter(order => order.status === 'delivered');
 
 
 
-           // KPI CALCULATIONS
-                const totalOrders = allOrders.length;
 
-                // Delivered on time (assuming you track deliveryDate & expectedDate)
-                const onTimeOrders = allOrders.filter(order => 
-                order.status === "delivered" && order.deliveredOnTime === true
-                ).length;
+        // KPI CALCULATIONS
+        const totalOrders = allOrders.length;
 
-                // In-transit
-                const inTransitCount = inTransitOrders.length;
+        // Delivered on time (assuming you track deliveryDate & expectedDate)
+        const onTimeOrders = allOrders.filter(order =>
+            order.status === "delivered" && order.deliveredOnTime === true
+        ).length;
 
-                // Delayed (any delivered but NOT on time)
-                const delayedOrders = allOrders.filter(order => 
-                order.status === "delivered" && order.deliveredOnTime === false
-                ).length;
+        // In-transit
+        const inTransitCount = inTransitOrders.length;
+
+        // Delayed (any delivered but NOT on time)
+        const delayedOrders = allOrders.filter(order =>
+            order.status === "delivered" && order.deliveredOnTime === false
+        ).length;
 
 
 
-           res.render("dashboard/order", {
-             user: req.session.user,
-             worker: req.session.worker || null,
-             companyinfo,
-             inTransitOrders,
-             deliveredOrders,
-                orders,
-                products,
-                totalOrders,
-                onTimeOrders,
-                inTransitCount,
-                delayedOrders,
+        res.render("dashboard/order", {
+            user: req.session.user,
+            worker: req.session.worker || null,
+            companyinfo,
+            inTransitOrders,
+            deliveredOrders,
+            orders,
+            products,
+            totalOrders,
+            onTimeOrders,
+            inTransitCount,
+            delayedOrders,
 
-           });
+        });
     } catch (err) {
         console.error("Error loading orders page:", err);
         res.status(500).send("Server Error");
@@ -137,8 +159,16 @@ exports.createOrder = async (req, res) => {
             subtotal,
             grandTotal,
             notes,
-            delivery // { type, price, location, ... }
+            delivery, // { type, price, location, ... }
+            refNumber
         } = req.body;
+
+        // Upload proof of payment if exists
+        let proofOfPaymentUrls = [];
+        if (req.files && req.files.proofOfPayment) {
+            const uploadPromises = req.files.proofOfPayment.map(file => handleImageUpload(file));
+            proofOfPaymentUrls = await Promise.all(uploadPromises);
+        }
 
         // Basic validation
         if (!buyername || !items || items.length === 0) {
@@ -157,6 +187,8 @@ exports.createOrder = async (req, res) => {
             grandTotal,
             notes,
             delivery,
+            proofOfPayment: proofOfPaymentUrls,
+            refNumber,
             status: "pending",
             confirm: true
         });
@@ -411,100 +443,100 @@ exports.updateOrderStatus = async (req, res) => {
 
 
 exports.searchCompanies = async (req, res) => {
-  try {
-    const query = req.query.q || "";
+    try {
+        const query = req.query.q || "";
 
-    // Find companies
-    const companies = await Company.find({
-      companyName: { $regex: query, $options: "i" }
-    })
-      .select("companyName reciepientId _id")
-      .limit(20)
-      .lean();
+        // Find companies
+        const companies = await Company.find({
+            companyName: { $regex: query, $options: "i" }
+        })
+            .select("companyName reciepientId _id")
+            .limit(20)
+            .lean();
 
-    const result = companies.map(c => ({
-      id: c._id,
-      name: c.companyName,
-      reciepientId: c.reciepientId
-    }));
+        const result = companies.map(c => ({
+            id: c._id,
+            name: c.companyName,
+            reciepientId: c.reciepientId
+        }));
 
-    return res.json(result);
+        return res.json(result);
 
-  } catch (err) {
-    console.error("Company search error:", err);
-    return res.status(500).json([]);
-  }
+    } catch (err) {
+        console.error("Company search error:", err);
+        return res.status(500).json([]);
+    }
 };
 
 
 
 
 exports.usercreateOrder = async (req, res) => {
-   console.log('Creating order with data:', req.body);
-  try {
-    const {
-      recipientId,
-      buyername,
-      buyeremail,
-      expectedDelivery,
-      productpassword,
-      items,
-      itemsCost,
-      subtotal,
-      grandTotal,
-      notes,
-      delivery // <--- new
-    } = req.body;
+    console.log('Creating order with data:', req.body);
+    try {
+        const {
+            recipientId,
+            buyername,
+            buyeremail,
+            expectedDelivery,
+            productpassword,
+            items,
+            itemsCost,
+            subtotal,
+            grandTotal,
+            notes,
+            delivery // <--- new
+        } = req.body;
 
 
-    if (!recipientId) {
-      return res.status(400).json({ message: 'Recipient is required' });
+        if (!recipientId) {
+            return res.status(400).json({ message: 'Recipient is required' });
+        }
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: 'At least one item is required' });
+        }
+
+
+
+        // Create a temporary ObjectId so we can embed the correct link
+        const tempOrderId = new mongoose.Types.ObjectId();
+        const qrFinalUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
+
+        // Generate QR code base64 string
+        const qrCodeDataUrl = await QRCode.toDataURL(qrFinalUrl);
+
+        // Create the order with QR code in DB
+        const newOrder = new Order({
+            _id: tempOrderId,
+            recipientId,
+            buyername,
+            buyeremail,
+            productpassword,
+            expectedDelivery,
+            items,
+            itemsCost,
+            subtotal,
+            grandTotal,
+            notes,
+            delivery, // save delivery object
+            qrCode: qrCodeDataUrl,
+            confirm: false
+        });
+
+
+        await newOrder.save();
+        console.log('New order created:', newOrder);
+
+        // Build QR link
+        const qrUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${newOrder?._id || 'temp'}/`;
+
+        return res.json({ success: true, redirect: "/user/success-Order" });
+
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error creating order' });
     }
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ message: 'At least one item is required' });
-    }
-
-
-
-    // Create a temporary ObjectId so we can embed the correct link
-    const tempOrderId = new mongoose.Types.ObjectId();
-    const qrFinalUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${tempOrderId}/`;
-
-    // Generate QR code base64 string
-    const qrCodeDataUrl = await QRCode.toDataURL(qrFinalUrl);
-
-    // Create the order with QR code in DB
-    const newOrder = new Order({
-      _id: tempOrderId,
-      recipientId,
-      buyername,
-      buyeremail,
-      productpassword,
-      expectedDelivery,
-      items,
-      itemsCost,
-      subtotal,
-      grandTotal,
-      notes,
-      delivery, // save delivery object
-      qrCode: qrCodeDataUrl,
-      confirm: false
-    });
-
-
-    await newOrder.save();
-    console.log('New order created:', newOrder);
-
-    // Build QR link
-    const qrUrl = `https://adnet.vercel.app/order-placed/${encodeURIComponent(buyername)}/${newOrder?._id || 'temp'}/`;
-
-   return res.json({ success: true, redirect: "/user/success-Order" });
-
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error creating order' });
-  }
 };
 
 
@@ -517,44 +549,44 @@ exports.usercreateOrder = async (req, res) => {
 
 
 exports.confirmOrder = async (req, res) => {
-  try {
-    const orderId = req.params.orderId;
-    const adminId = req.session.user?._id;
+    try {
+        const orderId = req.params.orderId;
+        const adminId = req.session.user?._id;
 
-    if (!adminId) {
-      return res.status(403).json({ error: "Unauthorized" });
+        if (!adminId) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        // Find the order and make sure the admin owns it
+        const order = await Order.findOne({ _id: orderId, recipientId: adminId });
+        if (!order) return res.status(404).json({ error: "Order not found or not yours" });
+
+        // Optional: Check stock before confirming
+        for (const item of order.items) {
+            const product = await Inventory.findById(item.productId);
+            if (!product) return res.status(404).json({ error: `Product ${item.productName} not found` });
+            if (product.currentquantity < item.quantity) {
+                return res.status(400).json({
+                    error: `Insufficient stock for ${item.productName}. Available: ${product.currentquantity}, Ordered: ${item.quantity}`
+                });
+            }
+        }
+
+        // Deduct stock
+        for (const item of order.items) {
+            const product = await Inventory.findById(item.productId);
+            product.currentquantity -= item.quantity;
+            await product.save();
+        }
+
+        // Update only the confirm field without triggering full validation
+        await Order.findByIdAndUpdate(orderId, { confirm: true });
+
+        res.redirect("/order")
+
+    } catch (err) {
+        console.error("Error confirming order:", err);
+        res.status(500).json({ error: "Server error" });
     }
-
-    // Find the order and make sure the admin owns it
-    const order = await Order.findOne({ _id: orderId, recipientId: adminId });
-    if (!order) return res.status(404).json({ error: "Order not found or not yours" });
-
-    // Optional: Check stock before confirming
-    for (const item of order.items) {
-      const product = await Inventory.findById(item.productId);
-      if (!product) return res.status(404).json({ error: `Product ${item.productName} not found` });
-      if (product.currentquantity < item.quantity) {
-        return res.status(400).json({
-          error: `Insufficient stock for ${item.productName}. Available: ${product.currentquantity}, Ordered: ${item.quantity}`
-        });
-      }
-    }
-
-    // Deduct stock
-    for (const item of order.items) {
-      const product = await Inventory.findById(item.productId);
-      product.currentquantity -= item.quantity;
-      await product.save();
-    }
-
-    // Update only the confirm field without triggering full validation
-    await Order.findByIdAndUpdate(orderId, { confirm: true });
-
-    res.redirect("/order")
-
-  } catch (err) {
-    console.error("Error confirming order:", err);
-    res.status(500).json({ error: "Server error" });
-  }
 };
 

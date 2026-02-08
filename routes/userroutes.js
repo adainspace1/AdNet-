@@ -42,7 +42,7 @@ const FinanceController = require('../controllers/financeController');
 const { addTaxRecord, getAllTaxes, getFilteredTaxes, getTaxSummary, getStatutorySummary, generateComplianceReport } = require("../controllers/taxController");
 
 
-const { getAuditData, getAuditDetail, saveComparisonItem  } = require("../controllers/auditController");
+const { getAuditData, getAuditDetail, saveComparisonItem } = require("../controllers/auditController");
 
 
 // ===========================================
@@ -157,7 +157,12 @@ function ensureAuthenticated(req, res, next) {
 // PROTECTED ROUTES (require login)
 // ===========================================
 
-router.post('/createinventory', ensureAuthenticated, createInventory);
+const uploadInventory = multer({ storage: storage }).fields([
+  { name: 'paymentSlip', maxCount: 1 },
+  { name: 'invoiceReceived', maxCount: 1 },
+]);
+
+router.post('/createinventory', uploadInventory, ensureAuthenticated, createInventory);
 router.post('/createsales', ensureAuthenticated, createSale);
 router.post('/createexpenses', ensureAuthenticated, saveExpense);
 router.post('/createproduction', ensureAuthenticated, production);

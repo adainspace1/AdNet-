@@ -5,14 +5,20 @@ const { ensureAuthenticated } = require('../middleware/auth');
 
 // ================== ORDER MANAGEMENT ROUTES ==================
 
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const uploadOrder = multer({ storage: storage }).fields([
+    { name: 'proofOfPayment', maxCount: 5 }
+]);
+
 // Order Management Pages & Actions
 router.get('/', ensureAuthenticated, orderController.getOrdersPage);
-router.post('/api/auth/createOrder', ensureAuthenticated, orderController.createOrder);
+router.post('/api/auth/createOrder', uploadOrder, ensureAuthenticated, orderController.createOrder);
 router.get('/order/:id', ensureAuthenticated, orderController.getOrderDetails);
 
 router.get('/search-companies', orderController.searchCompanies);
-router.post('/usercreateOrder',  orderController.usercreateOrder);
-router.post("/confirm/:orderId",  orderController.confirmOrder);
+router.post('/usercreateOrder', orderController.usercreateOrder);
+router.post("/confirm/:orderId", orderController.confirmOrder);
 
 
 

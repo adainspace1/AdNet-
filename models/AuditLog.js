@@ -34,7 +34,9 @@ const auditSchema = new mongoose.Schema({
   dateTo: Date,
   overallComments: String,
   supportingFiles: [String],
-  auditCompleted: { type: Boolean, default: false }
+  auditCompleted: { type: Boolean, default: false },
+  verificationStatus: { type: String, enum: ['pending', 'confirmed', 'reported'], default: 'pending' },
+  verifiedAt: Date
 });
 
 module.exports = mongoose.model("Audit", auditSchema);

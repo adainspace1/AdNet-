@@ -1,420 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Order Management - Adnet IMS</title>
-    <link rel="stylesheet" href="/css/dashall.css">
-    <link rel="stylesheet" href="/css/order.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-                <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
-    />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management - Adnet IMS</title>
+  <link rel="stylesheet" href="/css/dashall.css">
+  <link rel="stylesheet" href="/css/order.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 </head>
+
 <body>
 
 
 
 
-         
-
-          <div class="all">
- <%- include ("_sidebar1") %>
-
- <div class="main-content">
-    <%- include ("_topnav") %>
 
 
+  <div class="all">
+    <%- include ("_sidebar1") %>
 
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-        
-            <h1>
+      <div class="main-content">
+        <%- include ("_topnav") %>
+
+
+
+          <div class="container">
+            <!-- Header -->
+            <div class="header">
+
+              <h1>
                 Order Management
-            </h1>
-            
-            <div class="kpi-grid">
-    <div class="kpi-card total">
-        <div class="kpi-value"><%= totalOrders %></div>
-        <div class="kpi-label">Total Orders This Month</div>
-    </div>
+              </h1>
 
-    <div class="kpi-card on-time">
-        <div class="kpi-value"><%= onTimeOrders %></div>
-        <div class="kpi-label">Orders Delivered On Time</div>
-    </div>
+              <div class="kpi-grid">
+                <div class="kpi-card total">
+                  <div class="kpi-value">
+                    <%= totalOrders %>
+                  </div>
+                  <div class="kpi-label">Total Orders This Month</div>
+                </div>
 
-    <div class="kpi-card in-transit">
-        <div class="kpi-value"><%= inTransitCount %></div>
-        <div class="kpi-label">In-Transit Orders</div>
-    </div>
+                <div class="kpi-card on-time">
+                  <div class="kpi-value">
+                    <%= onTimeOrders %>
+                  </div>
+                  <div class="kpi-label">Orders Delivered On Time</div>
+                </div>
 
-    <div class="kpi-card delayed">
-        <div class="kpi-value"><%= delayedOrders %></div>
-        <div class="kpi-label">Delayed Orders</div>
-    </div>
-</div>
+                <div class="kpi-card in-transit">
+                  <div class="kpi-value">
+                    <%= inTransitCount %>
+                  </div>
+                  <div class="kpi-label">In-Transit Orders</div>
+                </div>
 
-        </div>
+                <div class="kpi-card delayed">
+                  <div class="kpi-value">
+                    <%= delayedOrders %>
+                  </div>
+                  <div class="kpi-label">Delayed Orders</div>
+                </div>
+              </div>
 
-        <!-- Main Content -->
-        <div class="main-content1 ">
-            <!-- Tabs -->
-            <div class="tabs">
-                <button class="tab active" data-tab="all-orders">
-                    <i class="fas fa-list"></i>
-                    All Orders
-                </button>
-                <button class="tab" data-tab="create-order">
-                    <i class="fas fa-plus"></i>
-                    Create Order
-                </button>
-                <button class="tab" data-tab="in-transit">
-                    <i class="fas fa-shipping-fast"></i>
-                    In Transit
-                </button>
-                <button class="tab" data-tab="delivered">
-                    <i class="fas fa-box-check"></i>
-                    Delivered
-                </button>
             </div>
 
-            <!-- All Orders Tab -->
-            <div class="tab-content active" id="all-orders">
+            <!-- Main Content -->
+            <div class="main-content1 ">
+              <!-- Tabs -->
+              <div class="tabs">
+                <button class="tab active" data-tab="all-orders">
+                  <i class="fas fa-list"></i>
+                  All Orders
+                </button>
+                <button class="tab" data-tab="create-order">
+                  <i class="fas fa-plus"></i>
+                  Create Order
+                </button>
+                <button class="tab" data-tab="in-transit">
+                  <i class="fas fa-shipping-fast"></i>
+                  In Transit
+                </button>
+                <button class="tab" data-tab="delivered">
+                  <i class="fas fa-box-check"></i>
+                  Delivered
+                </button>
+              </div>
+
+              <!-- All Orders Tab -->
+              <div class="tab-content active" id="all-orders">
                 <div class="action-bar">
-                    <div class="search-filter">
-                        <div class="search-box">
-                            <input type="text" placeholder="Search orders..." id="searchOrders">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <select id="statusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="pending">Pending</option>
-                            <option value="transit">In Transit</option>
-                            <option value="delivered">Delivered</option>
-                        </select>
+                  <div class="search-filter">
+                    <div class="search-box">
+                      <input type="text" placeholder="Search orders..." id="searchOrders">
+                      <i class="fas fa-search"></i>
                     </div>
-                    <button class="btn btn-primary" onclick="openCreateOrderModal()">
-                        <i class="fas fa-plus"></i>
-                        New Order
-                    </button>
+                    <select id="statusFilter">
+                      <option value="">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="transit">In Transit</option>
+                      <option value="delivered">Delivered</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary" onclick="openCreateOrderModal()">
+                    <i class="fas fa-plus"></i>
+                    New Order
+                  </button>
                 </div>
 
                 <div class="table-container">
-                    <table id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th>Qrcode</th>
-                                <th>Order ID</th>
-                                <th>Receiver</th>
-                                <th>Order Date</th>
-                                <th>Items</th>
-                                <th>Total Value</th>
-                                <th>Status</th>
-                                <th>Expected Delivery</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTableBody">
-                                <% orders.forEach(order => { %>
-                                    <tr>
-                                        <td>
-                                            <% if (order.qrCode) { %>
-                                                <img src="<%= order.qrCode %>" alt="QR Code" style="width: 80px; height: 80px;">
-                                            <% } else { %>
-                                                No QR
-                                            <% } %>
-                                        </td>
-                                        <td><%= order._id %></td>
-                                        <td><%= order.buyername %></td>
-                                        <td><%= order.createdAt.toLocaleDateString() %></td>
-                                        <td>
-                                            <ul>
-                                                <% order.items.forEach(item => { %>
-                                                    <li><%= item.productName %> (x<%= item.quantity %>)</li>
-                                                <% }) %>
-                                            </ul>
-                                        </td>
-                                        <td>$<%= order.grandTotal.toFixed(2) %></td>
-                                        <td>
-                                        <% if (order.status === 'pending') { %>
-                                            <span class="status-badge status-pending">Pending</span>
-                                        <% } else if (order.status === 'in_transit') { %>
-                                            <span class="status-badge status-transit">In Transit</span>
-                                        <% } else if (order.status === 'delivered') { %>
-                                            <span class="status-badge status-delivered">Delivered</span>
-                                        <% } %>
-                                        </td>
-                                <td><%= order.expectedDelivery ? order.expectedDelivery.toLocaleDateString() : "N/A" %></td>
-                                        <td>
-                                            <a href="/order/<%= order._id %>" class="btn btn-sm btn-primary">View</a>
-
-                                             <% if (!order.confirm) { %>
-    <form action="/Order/confirm/<%= order._id %>" method="POST" style="display:inline;">
-      <button type="submit" class="btn btn-sm btn-success">Confirm</button>
-    </form>
-  <% } %>
-                                        </td>
-                                    </tr>
+                  <table id="ordersTable">
+                    <thead>
+                      <tr>
+                        <th>Qrcode</th>
+                        <th>Order ID</th>
+                        <th>Receiver</th>
+                        <th>Order Date</th>
+                        <th>Items</th>
+                        <th>Total Value</th>
+                        <th>Status</th>
+                        <th>Expected Delivery</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                      <% orders.forEach(order=> { %>
+                        <tr>
+                          <td>
+                            <% if (order.qrCode) { %>
+                              <img src="<%= order.qrCode %>" alt="QR Code" style="width: 80px; height: 80px;">
+                              <% } else { %>
+                                No QR
+                                <% } %>
+                          </td>
+                          <td>
+                            <%= order._id %>
+                          </td>
+                          <td>
+                            <%= order.buyername %>
+                          </td>
+                          <td>
+                            <%= order.createdAt.toLocaleDateString() %>
+                          </td>
+                          <td>
+                            <ul>
+                              <% order.items.forEach(item=> { %>
+                                <li>
+                                  <%= item.productName %> (x<%= item.quantity %>)
+                                </li>
                                 <% }) %>
-                            </tbody>
+                            </ul>
+                          </td>
+                          <td>$<%= order.grandTotal.toFixed(2) %>
+                          </td>
+                          <td>
+                            <% if (order.status==='pending' ) { %>
+                              <span class="status-badge status-pending">Pending</span>
+                              <% } else if (order.status==='in_transit' ) { %>
+                                <span class="status-badge status-transit">In Transit</span>
+                                <% } else if (order.status==='delivered' ) { %>
+                                  <span class="status-badge status-delivered">Delivered</span>
+                                  <% } %>
+                          </td>
+                          <td>
+                            <%= order.expectedDelivery ? order.expectedDelivery.toLocaleDateString() : "N/A" %>
+                          </td>
+                          <td>
+                            <a href="/order/<%= order._id %>" class="btn btn-sm btn-primary">View</a>
 
-                    </table>
+                            <% if (!order.confirm) { %>
+                              <form action="/Order/confirm/<%= order._id %>" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+                              </form>
+                              <% } %>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+
+                  </table>
                 </div>
-            </div>
+              </div>
 
-            <!-- Create Order Tab -->
-<div class="tab-content" id="create-order">
+              <!-- Create Order Tab -->
+              <div class="tab-content" id="create-order">
                 <h3>Create New Purchase Order</h3>
 
 
-                    
-    <form class="createOrderForm" method="POST" action="/api/auth/createOrder" enctype="application/x-www-form-urlencoded">
-  <div class="form-row">
 
-          <input type="hidden" name="recipientId" value="<%= user._id %>" >
+                <form class="createOrderForm" method="POST" action="/api/auth/createOrder"
+                  enctype="application/x-www-form-urlencoded">
+                  <div class="form-row">
 
-
-    <div class="form-group">
-      <label for="buyer-name">Buyer Name</label>
-      <input type="text" name="buyername" id="buyer-name" placeholder="Enter Buyer's Full Name" required>
-    </div>
-
-    <div class="form-group">
-      <label for="buyer-email">Buyer Email</label>
-      <input type="text" name="buyeremail" id="buyer-email" placeholder="Enter Buyer's Email" required>
-    </div>
-
-    <!-- Delivery Type Section -->
-    <div class="form-group">
-      <label for="deliveryType">Delivery Type</label>
-      <select name="delivery.type" id="deliveryType" required>
-        <option value="">Select Delivery Type</option>
-        <option value="self_pickup">Self Pickup</option>
-        <option value="waybill">Waybill</option>
-        <option value="motorcycle">Motorcycle</option>
-        <option value="truck">Truck</option>
-      </select>
-    </div>
-
-<div id="deliveryExtraFields">
-  <!-- This will be populated dynamically via JS -->
-</div>
+                    <input type="hidden" name="recipientId" value="<%= user._id %>">
 
 
-<div class="form-group">
-      <label for="buyer-name">Product Confirmation Password</label>
-      <input type="text" name="productpassword" id="buyer-name" placeholder="Enter Buyer's prefered confirmation code" required>
-    </div>
+                    <div class="form-group">
+                      <label for="buyer-name">Buyer Name</label>
+                      <input type="text" name="buyername" id="buyer-name" placeholder="Enter Buyer's Full Name"
+                        required>
+                    </div>
 
-    <div class="form-group">
-      <label for="expectedDelivery">Expected Delivery Date</label>
-      <input type="date" id="expectedDelivery" name="expectedDelivery">
-    </div>
-</div>
+                    <div class="form-group">
+                      <label for="buyer-email">Buyer Email</label>
+                      <input type="text" name="buyeremail" id="buyer-email" placeholder="Enter Buyer's Email" required>
+                    </div>
 
-  <div class="items-section ">
-    <h4>Order Items</h4>
-    <div id="orderItems">
-      <div class="item-row">
-        <div class="form-group">
-          <label>Product</label>
-          <select class="product-select" name="items[0][product]" required>
-            <option value="">Select Product</option>
-            <% products.forEach(prod => { %>
-              <option 
-                value="<%= prod._id %>" 
-                data-price="<%= prod.scost %>" 
-                data-stock="<%= prod.currentquantity %>">
-                <%= prod.itemName %> - $<%= prod.scost.toFixed(2) %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
+                    <!-- Delivery Type Section -->
+                    <div class="form-group">
+                      <label for="deliveryType">Delivery Type</label>
+                      <select name="delivery.type" id="deliveryType" required>
+                        <option value="">Select Delivery Type</option>
+                        <option value="self_pickup">Self Pickup</option>
+                        <option value="waybill">Waybill</option>
+                        <option value="motorcycle">Motorcycle</option>
+                        <option value="truck">Truck</option>
+                      </select>
+                    </div>
 
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="number" class="quantity-input" name="items[0][quantity]" min="1" value="1" required>
-          <p class="error"></p>
-        </div>
+                    <div id="deliveryExtraFields">
+                      <!-- This will be populated dynamically via JS -->
+                    </div>
 
-        <div class="form-group">
-          <label>Unit Price ($)</label>
-          <input type="number" class="price" name="items[0][unitPrice]" step="0.01" required readonly>
-        </div>
 
-        <button type="button" class="remove-item" onclick="removeItem(this)">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-    <button type="button" class="add-item" onclick="addItem()">
-      <i class="fas fa-plus"></i> Add Item
-    </button>
-  </div>
+                    <div class="form-group">
+                      <label for="buyer-name">Product Confirmation Password</label>
+                      <input type="text" name="productpassword" id="buyer-name"
+                        placeholder="Enter Buyer's prefered confirmation code" required>
+                    </div>
 
-  <div class="total-section">
-    <div class="total-row">
-      <span>Items Cost:</span>
-      <input type="hidden" name="itemsCost" id="itemsCostInput">
-      <span id="itemsCost">$0.00</span>
-    </div>
-    <div class="total-row">
-      <span>Subtotal:</span>
-      <input type="hidden" name="subtotal" id="subtotalInput">
-      <span id="subtotal">$0.00</span>
-    </div>
-    <div class="total-row grand-total">
-      <span>Grand Total:</span>
-      <input type="hidden" name="grandTotal" id="grandTotalInput">
-      <span id="grandTotal">$0.00</span>
-    </div>
-  </div>
+                    <div class="form-group">
+                      <label for="expectedDelivery">Expected Delivery Date</label>
+                      <input type="date" id="expectedDelivery" name="expectedDelivery">
+                    </div>
 
-  <div class="form-group">
-    <label for="orderNotes">Notes (Optional)</label>
-    <textarea id="orderNotes" name="notes" rows="3" placeholder="Any special instructions or notes..."></textarea>
-  </div>
+                    <div class="form-group">
+                      <label for="refNumber">Reference Number (Optional)</label>
+                      <input type="text" name="refNumber" id="refNumber" placeholder="Enter Reference Number">
+                    </div>
 
-  <div style="text-align: right; margin-top: 30px;">
-    <button type="submit" class="btn btn-primary">
-      <i class="fas fa-save"></i> Create Order
-    </button>
-  </div>
-  </form>
+                    <div class="form-group">
+                      <label for="proofOfPayment">Proof of Payment</label>
+                      <input type="file" name="proofOfPayment" id="proofOfPayment" multiple accept="image/*">
+                    </div>
+                  </div>
 
+                  <div class="items-section ">
+                    <h4>Order Items</h4>
+                    <div id="orderItems">
+                      <div class="item-row">
+                        <div class="form-group">
+                          <label>Product</label>
+                          <select class="product-select" name="items[0][product]" required>
+                            <option value="">Select Product</option>
+                            <% products.forEach(prod=> { %>
+                              <option value="<%= prod._id %>" data-price="<%= prod.scost %>"
+                                data-stock="<%= prod.currentquantity %>">
+                                <%= prod.itemName %> - $<%= prod.scost.toFixed(2) %>
+                              </option>
+                              <% }) %>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Quantity</label>
+                          <input type="number" class="quantity-input" name="items[0][quantity]" min="1" value="1"
+                            required>
+                          <p class="error"></p>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Unit Price ($)</label>
+                          <input type="number" class="price" name="items[0][unitPrice]" step="0.01" required readonly>
+                        </div>
+
+                        <button type="button" class="remove-item" onclick="removeItem(this)">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <button type="button" class="add-item" onclick="addItem()">
+                      <i class="fas fa-plus"></i> Add Item
+                    </button>
+                  </div>
+
+                  <div class="total-section">
+                    <div class="total-row">
+                      <span>Items Cost:</span>
+                      <input type="hidden" name="itemsCost" id="itemsCostInput">
+                      <span id="itemsCost">$0.00</span>
+                    </div>
+                    <div class="total-row">
+                      <span>Subtotal:</span>
+                      <input type="hidden" name="subtotal" id="subtotalInput">
+                      <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="total-row grand-total">
+                      <span>Grand Total:</span>
+                      <input type="hidden" name="grandTotal" id="grandTotalInput">
+                      <span id="grandTotal">$0.00</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="orderNotes">Notes (Optional)</label>
+                    <textarea id="orderNotes" name="notes" rows="3"
+                      placeholder="Any special instructions or notes..."></textarea>
+                  </div>
+
+                  <div style="text-align: right; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-save"></i> Create Order
+                    </button>
+                  </div>
+                </form>
+
+
+              </div>
+
+
+
+
+              <div class="tab-content" id="in-transit">
+                <div class="action-bar">
+                  <h3>In Transit Orders</h3>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Driver</th>
+                        <th>Items</th>
+                        <th>Vehicle</th>
+                        <th>Expected Delivery</th>
+                        <th>Days Remaining</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="inTransitTableBody">
+                      <% inTransitOrders.forEach(order=> { %>
+                        <tr>
+                          <td>
+                            <%= order._id %>
+                          </td>
+
+                          <!-- Driver Name -->
+                          <td>
+                            <%= order.delivery?.drivername || "No Driver" %><br>
+                              <small>
+                                <%= order.delivery?.driverPhone || "" %>
+                              </small>
+                          </td>
+
+                          <!-- Items -->
+                          <td>
+                            <% order.items.forEach(item=> { %>
+                              <div>
+                                <%= item.productName %> x <%= item.quantity %>
+                              </div>
+                              <% }) %>
+                          </td>
+
+                          <!-- Vehicle Info -->
+                          <td>
+                            <%= order.delivery?.vehicleNumber || "N/A" %><br>
+                              <small>
+                                <%= order.delivery?.vehicleMake %>
+                                  <%= order.delivery?.vehicleModel %>
+                              </small>
+                          </td>
+
+                          <!-- Delivery Date -->
+                          <td>
+                            <%= order.expectedDelivery ? order.expectedDelivery.toDateString() : 'N/A' %>
+                          </td>
+
+                          <!-- Days Remaining -->
+                          <td>
+                            <% const daysLeft=order.expectedDelivery ? Math.ceil((new Date(order.expectedDelivery) - new
+                              Date()) / (1000*60*60*24)) : 'N/A' ; %>
+                              <%= daysLeft %>
+                          </td>
+
+                          <td>
+                            <button class="view-order-btn" data-id="<%= order._id %>">View</button>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+
+
+
+
+              <div class="tab-content" id="delivered">
+                <div class="action-bar">
+                  <h3>Delivered Orders</h3>
+                  <div class="search-box">
+                    <input type="text" placeholder="Search delivered orders..." id="searchDelivered">
+                    <i class="fas fa-search"></i>
+                  </div>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Driver</th>
+                        <th>Order Date</th>
+                        <th>Delivered On</th>
+                        <th>Total Value</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="deliveredTableBody">
+                      <% deliveredOrders.forEach(order=> { %>
+                        <tr>
+                          <td>
+                            <%= order._id %>
+                          </td>
+
+                          <!-- DRIVER INFO -->
+                          <td>
+                            <%= order.delivery?.drivername || "No Driver" %><br>
+                              <small>
+                                <%= order.delivery?.vehicleNumber || "" %>
+                              </small>
+                          </td>
+
+                          <td>
+                            <%= new Date(order.createdAt).toDateString() %>
+                          </td>
+                          <td>
+                            <%= order.expectedDelivery ? new Date(order.expectedDelivery).toDateString() : 'N/A' %>
+                          </td>
+                          <td>
+                            <%= order.grandTotal.toFixed(2) %>
+                          </td>
+
+                          <td>
+                            <button class="view-order-btn" data-id="<%= order._id %>">View</button>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
             </div>
-
-
-
-
-<div class="tab-content" id="in-transit">
-  <div class="action-bar">
-      <h3>In Transit Orders</h3>
-  </div>
-  <div class="table-container">
-      <table>
-          <thead>
-              <tr>
-                  <th>Order ID</th>
-                  <th>Driver</th>
-                  <th>Items</th>
-                  <th>Vehicle</th>
-                  <th>Expected Delivery</th>
-                  <th>Days Remaining</th>
-                  <th>Actions</th>
-              </tr>
-          </thead>
-          <tbody id="inTransitTableBody">
-            <% inTransitOrders.forEach(order => { %>
-              <tr>
-                  <td><%= order._id %></td>
-
-                  <!-- Driver Name -->
-                  <td>
-                    <%= order.delivery?.drivername || "No Driver" %><br>
-                    <small><%= order.delivery?.driverPhone || "" %></small>
-                  </td>
-
-                  <!-- Items -->
-                  <td>
-                    <% order.items.forEach(item => { %>
-                      <div><%= item.productName %> x <%= item.quantity %></div>
-                    <% }) %>
-                  </td>
-
-                  <!-- Vehicle Info -->
-                  <td>
-                    <%= order.delivery?.vehicleNumber || "N/A" %><br>
-                    <small><%= order.delivery?.vehicleMake %> <%= order.delivery?.vehicleModel %></small>
-                  </td>
-
-                  <!-- Delivery Date -->
-                  <td><%= order.expectedDelivery ? order.expectedDelivery.toDateString() : 'N/A' %></td>
-
-                  <!-- Days Remaining -->
-                  <td>
-                    <% 
-                      const daysLeft = order.expectedDelivery 
-                        ? Math.ceil((new Date(order.expectedDelivery) - new Date()) / (1000*60*60*24))
-                        : 'N/A'; 
-                    %>
-                    <%= daysLeft %>
-                  </td>
-
-                  <td>
-                    <button class="view-order-btn" data-id="<%= order._id %>">View</button>
-                  </td>
-              </tr>
-            <% }) %>
-          </tbody>
-      </table>
-  </div>
-</div>
-
-
-
-
-
-<div class="tab-content" id="delivered">
-    <div class="action-bar">
-        <h3>Delivered Orders</h3>
-        <div class="search-box">
-            <input type="text" placeholder="Search delivered orders..." id="searchDelivered">
-            <i class="fas fa-search"></i>
-        </div>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Driver</th>
-                    <th>Order Date</th>
-                    <th>Delivered On</th>
-                    <th>Total Value</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody id="deliveredTableBody">
-              <% deliveredOrders.forEach(order => { %>
-                <tr>
-                    <td><%= order._id %></td>
-
-                    <!-- DRIVER INFO -->
-                    <td>
-                      <%= order.delivery?.drivername || "No Driver" %><br>
-                      <small><%= order.delivery?.vehicleNumber || "" %></small>
-                    </td>
-
-                    <td><%= new Date(order.createdAt).toDateString() %></td>
-                    <td><%= order.expectedDelivery ? new Date(order.expectedDelivery).toDateString() : 'N/A' %></td>
-                    <td><%= order.grandTotal.toFixed(2) %></td>
-
-                    <td>
-                      <button class="view-order-btn" data-id="<%= order._id %>">View</button>
-                    </td>
-                </tr>
-              <% }) %>
-            </tbody>
-        </table>
-    </div>
-</div>
 
           </div>
-        
-        </div>
 
 
 
@@ -422,70 +468,70 @@
 
 
 
-    <!-- Order Details Modal -->
-    <div class="modal" id="orderDetailsModal">
-        <div class="modal-content">
-            <div class="modal-header">
+          <!-- Order Details Modal -->
+          <div class="modal" id="orderDetailsModal">
+            <div class="modal-content">
+              <div class="modal-header">
                 <h3>Order Details</h3>
                 <button class="close-btn" onclick="closeModal('orderDetailsModal')">
-                    <i class="fas fa-times"></i>
+                  <i class="fas fa-times"></i>
                 </button>
-            </div>
-            <div class="modal-body" id="orderDetailsBody">
+              </div>
+              <div class="modal-body" id="orderDetailsBody">
                 <!-- Order details will be populated here -->
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
 
-    <!-- Create Order Modal (Alternative) -->
-    <div class="modal" id="createOrderModal">
-        <div class="modal-content">
-            <div class="modal-header">
+          <!-- Create Order Modal (Alternative) -->
+          <div class="modal" id="createOrderModal">
+            <div class="modal-content">
+              <div class="modal-header">
                 <h3>Create New Purchase Order</h3>
                 <button class="close-btn" onclick="closeModal('createOrderModal')">
-                    <i class="fas fa-times"></i>
+                  <i class="fas fa-times"></i>
                 </button>
-            </div>
-            <div class="modal-body">
+              </div>
+              <div class="modal-body">
                 <!-- Same form as in tab, but in modal -->
                 <div id="modalCreateOrderForm">
-                    <!-- Form content will be cloned here if needed -->
+                  <!-- Form content will be cloned here if needed -->
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
 
 
 
 
 
-<script>
+          <script>
 
-     // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeTabs();
-        });
-
-        function initializeTabs() {
-            const tabs = document.querySelectorAll('.tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const targetTab = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs and contents
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    
-                    // Add active class to clicked tab and corresponding content
-                    this.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
-                });
+            // Initialize the page
+            document.addEventListener('DOMContentLoaded', function () {
+              initializeTabs();
             });
-        }
 
-</script>
+            function initializeTabs() {
+              const tabs = document.querySelectorAll('.tab');
+              const tabContents = document.querySelectorAll('.tab-content');
+
+              tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                  const targetTab = this.getAttribute('data-tab');
+
+                  // Remove active class from all tabs and contents
+                  tabs.forEach(t => t.classList.remove('active'));
+                  tabContents.forEach(content => content.classList.remove('active'));
+
+                  // Add active class to clicked tab and corresponding content
+                  this.classList.add('active');
+                  document.getElementById(targetTab).classList.add('active');
+                });
+              });
+            }
+
+          </script>
 
 
 
@@ -494,30 +540,30 @@
 
 
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.querySelector(".createOrderForm");
-  const orderItems = document.getElementById("orderItems");
-  const subtotalEl = document.getElementById("subtotal");
-  const grandTotalEl = document.getElementById("grandTotal");
-  const subtotalInput = document.getElementById("subtotalInput");
-  const subitemInput = document.getElementById("itemsCostInput");
-  const subitemEl = document.getElementById("itemsCost");
-  const grandTotalInput = document.getElementById("grandTotalInput");
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              const form = document.querySelector(".createOrderForm");
+              const orderItems = document.getElementById("orderItems");
+              const subtotalEl = document.getElementById("subtotal");
+              const grandTotalEl = document.getElementById("grandTotal");
+              const subtotalInput = document.getElementById("subtotalInput");
+              const subitemInput = document.getElementById("itemsCostInput");
+              const subitemEl = document.getElementById("itemsCost");
+              const grandTotalInput = document.getElementById("grandTotalInput");
 
-  const getRowTotalInput = (row) => row.querySelector(".price");
-  const getProductSelect = (row) => row.querySelector(".product-select");
-  const getQtyInput = (row) => row.querySelector(".quantity-input");
-  const getErrorEl = (row) => row.querySelector(".error");
+              const getRowTotalInput = (row) => row.querySelector(".price");
+              const getProductSelect = (row) => row.querySelector(".product-select");
+              const getQtyInput = (row) => row.querySelector(".quantity-input");
+              const getErrorEl = (row) => row.querySelector(".error");
 
-  const deliveryTypeSelect = document.getElementById("deliveryType");
-  const deliveryExtraFields = document.getElementById("deliveryExtraFields");
+              const deliveryTypeSelect = document.getElementById("deliveryType");
+              const deliveryExtraFields = document.getElementById("deliveryExtraFields");
 
-  function renderDeliveryFields(type) {
-    deliveryExtraFields.innerHTML = ""; // Clear
+              function renderDeliveryFields(type) {
+                deliveryExtraFields.innerHTML = ""; // Clear
 
-    if (type === "self_pickup") {
-      deliveryExtraFields.innerHTML = `
+                if (type === "self_pickup") {
+                  deliveryExtraFields.innerHTML = `
         <div class="form-group">
           <label>Pickup Price</label>
           <input type="number" step="0.01" name="delivery.price" placeholder="0.00">
@@ -527,10 +573,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <input type="text" name="delivery.location" placeholder="Enter pickup location" required>
         </div>
       `;
-    }
+                }
 
-    if (type === "motorcycle" || type === "truck") {
-      deliveryExtraFields.innerHTML = `
+                if (type === "motorcycle" || type === "truck") {
+                  deliveryExtraFields.innerHTML = `
         <div class="form-group">
           <label>Price</label>
           <input type="number" step="0.01" name="delivery.price" placeholder="0.00">
@@ -544,10 +590,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <input type="text" name="delivery.location" placeholder="Enter delivery address" required>
         </div>
       `;
-    }
+                }
 
-    if (type === "waybill") {
-      deliveryExtraFields.innerHTML = `
+                if (type === "waybill") {
+                  deliveryExtraFields.innerHTML = `
         <div class="form-group">
           <label>Price</label>
           <input type="number" step="0.01" name="delivery.price" placeholder="0.00">
@@ -565,203 +611,208 @@ document.addEventListener("DOMContentLoaded", () => {
           <input type="text" name="delivery.location" placeholder="Enter delivery address" required>
         </div>
       `;
-    }
-  }
+                }
+              }
 
-  deliveryTypeSelect.addEventListener("change", (e) => {
-    renderDeliveryFields(e.target.value);
-  });
+              deliveryTypeSelect.addEventListener("change", (e) => {
+                renderDeliveryFields(e.target.value);
+              });
 
-  renderDeliveryFields(deliveryTypeSelect.value); // Initial render
+              renderDeliveryFields(deliveryTypeSelect.value); // Initial render
 
-  function unitPriceFor(row) {
-    const opt = getProductSelect(row)?.selectedOptions[0];
-    return opt ? parseFloat(opt.getAttribute("data-price")) || 0 : 0;
-  }
+              function unitPriceFor(row) {
+                const opt = getProductSelect(row)?.selectedOptions[0];
+                return opt ? parseFloat(opt.getAttribute("data-price")) || 0 : 0;
+              }
 
-  function stockFor(row) {
-    const opt = getProductSelect(row)?.selectedOptions[0];
-    return opt ? parseFloat(opt.getAttribute("data-stock")) || 0 : 0;
-  }
+              function stockFor(row) {
+                const opt = getProductSelect(row)?.selectedOptions[0];
+                return opt ? parseFloat(opt.getAttribute("data-stock")) || 0 : 0;
+              }
 
-  function updateRowTotal(row) {
-    const qty = parseFloat(getQtyInput(row)?.value) || 0;
-    const unit = unitPriceFor(row);
-    const totalInput = getRowTotalInput(row);
+              function updateRowTotal(row) {
+                const qty = parseFloat(getQtyInput(row)?.value) || 0;
+                const unit = unitPriceFor(row);
+                const totalInput = getRowTotalInput(row);
 
-    if (totalInput) totalInput.value = unit.toFixed(2);
+                if (totalInput) totalInput.value = unit.toFixed(2);
 
-    if (row === orderItems.querySelector(".item-row")) {
-      if (subitemInput) subitemInput.value = unit.toFixed(2);
-      if (subitemEl) subitemEl.textContent = `$${unit.toFixed(2)}`;
-    }
-  }
+                if (row === orderItems.querySelector(".item-row")) {
+                  if (subitemInput) subitemInput.value = unit.toFixed(2);
+                  if (subitemEl) subitemEl.textContent = `$${unit.toFixed(2)}`;
+                }
+              }
 
-  function validateStock(row) {
-    const qty = parseFloat(getQtyInput(row)?.value) || 0;
-    const stock = stockFor(row);
-    const errorEl = getErrorEl(row);
-    const qtyInput = getQtyInput(row);
+              function validateStock(row) {
+                const qty = parseFloat(getQtyInput(row)?.value) || 0;
+                const stock = stockFor(row);
+                const errorEl = getErrorEl(row);
+                const qtyInput = getQtyInput(row);
 
-    if (errorEl) errorEl.textContent = "";
-    qtyInput.style.border = "";
+                if (errorEl) errorEl.textContent = "";
+                qtyInput.style.border = "";
 
-    if (qty > stock) {
-      if (errorEl) {
-        errorEl.textContent = `Only ${stock} in stock`;
-        errorEl.style.color = "red";
-      }
-      qtyInput.style.border = "1px solid red";
-      return false;
-    }
-    return true;
-  }
+                if (qty > stock) {
+                  if (errorEl) {
+                    errorEl.textContent = `Only ${stock} in stock`;
+                    errorEl.style.color = "red";
+                  }
+                  qtyInput.style.border = "1px solid red";
+                  return false;
+                }
+                return true;
+              }
 
-  function updateTotals() {
-    let subtotal = 0;
-    orderItems.querySelectorAll(".item-row").forEach(row => {
-      const qty = parseFloat(getQtyInput(row)?.value) || 0;
-      const unit = parseFloat(getRowTotalInput(row)?.value) || 0;
-      subtotal += qty * unit;
-    });
+              function updateTotals() {
+                let subtotal = 0;
+                orderItems.querySelectorAll(".item-row").forEach(row => {
+                  const qty = parseFloat(getQtyInput(row)?.value) || 0;
+                  const unit = parseFloat(getRowTotalInput(row)?.value) || 0;
+                  subtotal += qty * unit;
+                });
 
-    const deliveryPrice = parseFloat(form.querySelector("[name='delivery.price']")?.value) || 0;
-    const grandTotal = subtotal + deliveryPrice;
+                const deliveryPrice = parseFloat(form.querySelector("[name='delivery.price']")?.value) || 0;
+                const grandTotal = subtotal + deliveryPrice;
 
-    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-    if (grandTotalEl) grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
-    if (subtotalInput) subtotalInput.value = subtotal.toFixed(2);
-    if (grandTotalInput) grandTotalInput.value = grandTotal.toFixed(2);
-  }
+                if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+                if (grandTotalEl) grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
+                if (subtotalInput) subtotalInput.value = subtotal.toFixed(2);
+                if (grandTotalInput) grandTotalInput.value = grandTotal.toFixed(2);
+              }
 
-  function bindEvents(row) {
-    getProductSelect(row)?.addEventListener("change", () => {
-      updateRowTotal(row);
-      validateStock(row);
-      updateTotals();
-    });
-    getQtyInput(row)?.addEventListener("input", () => {
-      updateRowTotal(row);
-      validateStock(row);
-      updateTotals();
-    });
-  }
+              function bindEvents(row) {
+                getProductSelect(row)?.addEventListener("change", () => {
+                  updateRowTotal(row);
+                  validateStock(row);
+                  updateTotals();
+                });
+                getQtyInput(row)?.addEventListener("input", () => {
+                  updateRowTotal(row);
+                  validateStock(row);
+                  updateTotals();
+                });
+              }
 
-  window.addItem = () => {
-    const base = orderItems.querySelector(".item-row");
-    const newRow = base.cloneNode(true);
+              window.addItem = () => {
+                const base = orderItems.querySelector(".item-row");
+                const newRow = base.cloneNode(true);
 
-    getProductSelect(newRow).value = "";
-    getQtyInput(newRow).value = 1;
-    getRowTotalInput(newRow).value = "";
-    getErrorEl(newRow).textContent = "";
+                getProductSelect(newRow).value = "";
+                getQtyInput(newRow).value = 1;
+                getRowTotalInput(newRow).value = "";
+                getErrorEl(newRow).textContent = "";
 
-    orderItems.appendChild(newRow);
-    bindEvents(newRow);
-    updateTotals();
-  };
+                orderItems.appendChild(newRow);
+                bindEvents(newRow);
+                updateTotals();
+              };
 
-  window.removeItem = (btn) => {
-    const rows = orderItems.querySelectorAll(".item-row");
-    if (rows.length > 1) {
-      btn.closest(".item-row")?.remove();
-      updateTotals();
-    }
-  };
+              window.removeItem = (btn) => {
+                const rows = orderItems.querySelectorAll(".item-row");
+                if (rows.length > 1) {
+                  btn.closest(".item-row")?.remove();
+                  updateTotals();
+                }
+              };
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+              form.addEventListener("submit", async (e) => {
+                e.preventDefault();
 
-    let valid = true;
-    orderItems.querySelectorAll(".item-row").forEach(row => {
-      if (!validateStock(row)) valid = false;
-    });
-    if (!valid) return;
+                let valid = true;
+                orderItems.querySelectorAll(".item-row").forEach(row => {
+                  if (!validateStock(row)) valid = false;
+                });
+                if (!valid) return;
 
-    try {
-      const body = {
-        recipientId: form.querySelector("[name='recipientId']").value,
-        buyername: form.querySelector("[name='buyername']").value,
-        buyeremail: form.querySelector("[name='buyeremail']").value,
-        productpassword: form.querySelector("[name='productpassword']").value,
-        expectedDelivery: form.querySelector("[name='expectedDelivery']").value,
-        items: [],
-        itemsCost: parseFloat(subitemInput.value) || 0,
-        subtotal: parseFloat(subtotalInput.value) || 0,
-        grandTotal: parseFloat(grandTotalInput.value) || 0,
-        notes: form.querySelector("[name='notes']").value,
-        delivery: {
-          type: document.getElementById("deliveryType")?.value || "",
-          price: parseFloat(form.querySelector("[name='delivery.price']")?.value) || 0,
-          vehicleNumber: form.querySelector("[name='delivery.vehicleNumber']")?.value || "",
-          logisticsCompany: form.querySelector("[name='delivery.logisticsCompany']")?.value || "",
-          collectionPoint: form.querySelector("[name='delivery.collectionPoint']")?.value || "",
-          location: form.querySelector("[name='delivery.location']")?.value || ""
-        }
-      };
+                try {
+                  const formData = new FormData();
+                  formData.append("recipientId", form.querySelector("[name='recipientId']").value);
+                  formData.append("buyername", form.querySelector("[name='buyername']").value);
+                  formData.append("buyeremail", form.querySelector("[name='buyeremail']").value);
+                  formData.append("productpassword", form.querySelector("[name='productpassword']").value);
+                  formData.append("expectedDelivery", form.querySelector("[name='expectedDelivery']").value);
+                  formData.append("refNumber", form.querySelector("[name='refNumber']").value);
+                  formData.append("notes", form.querySelector("[name='notes']").value);
+                  formData.append("itemsCost", parseFloat(subitemInput.value) || 0);
+                  formData.append("subtotal", parseFloat(subtotalInput.value) || 0);
+                  formData.append("grandTotal", parseFloat(grandTotalInput.value) || 0);
 
-      orderItems.querySelectorAll(".item-row").forEach(row => {
-        const select = getProductSelect(row);
-        const qty = parseFloat(getQtyInput(row)?.value) || 0;
-        const unitPrice = parseFloat(getRowTotalInput(row)?.value) || 0;
-        const productName = select?.selectedOptions[0]?.text || "";
+                  // Delivery fields
+                  formData.append("delivery[type]", document.getElementById("deliveryType")?.value || "");
+                  formData.append("delivery[price]", parseFloat(form.querySelector("[name='delivery.price']")?.value) || 0);
+                  formData.append("delivery[vehicleNumber]", form.querySelector("[name='delivery.vehicleNumber']")?.value || "");
+                  formData.append("delivery[logisticsCompany]", form.querySelector("[name='delivery.logisticsCompany']")?.value || "");
+                  formData.append("delivery[collectionPoint]", form.querySelector("[name='delivery.collectionPoint']")?.value || "");
+                  formData.append("delivery[location]", form.querySelector("[name='delivery.location']")?.value || "");
 
-        body.items.push({
-          productId: select?.value || "",
-          productName,
-          quantity: qty,
-          unitPrice
-        });
-      });
+                  // Items
+                  const items = [];
+                  orderItems.querySelectorAll(".item-row").forEach((row, index) => {
+                    const select = getProductSelect(row);
+                    const qty = parseFloat(getQtyInput(row)?.value) || 0;
+                    const unitPrice = parseFloat(getRowTotalInput(row)?.value) || 0;
+                    const productName = select?.selectedOptions[0]?.text || "";
 
-      const res = await fetch(form.action, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
+                    formData.append(`items[${index}][productId]`, select?.value || "");
+                    formData.append(`items[${index}][productName]`, productName);
+                    formData.append(`items[${index}][quantity]`, qty);
+                    formData.append(`items[${index}][unitPrice]`, unitPrice);
+                  });
 
-      if (!res.ok) {
-        alert("Error creating order.");
-        return;
-      }
+                  // Files
+                  const proofFiles = document.getElementById("proofOfPayment").files;
+                  for (let i = 0; i < proofFiles.length; i++) {
+                    formData.append("proofOfPayment", proofFiles[i]);
+                  }
 
-      const data = await res.json();
-      alert("Order created successfully!");
-      console.log("Response:", data);
-      form.reset();
-      renderDeliveryFields(deliveryTypeSelect.value);
-      updateTotals();
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong.");
-    }
-  });
+                  const res = await fetch(form.action, {
+                    method: "POST",
+                    body: formData
+                  });
 
-  const firstRow = orderItems.querySelector(".item-row");
-  bindEvents(firstRow);
-  updateRowTotal(firstRow);
-  updateTotals();
-});
-</script>
+                  if (!res.ok) {
+                    alert("Error creating order.");
+                    return;
+                  }
 
+                  const data = await res.json();
+                  alert("Order created successfully!");
+                  console.log("Response:", data);
+                  form.reset();
+                  renderDeliveryFields(deliveryTypeSelect.value);
+                  updateTotals();
+                } catch (err) {
+                  console.error(err);
+                  alert("Something went wrong.");
+                }
+              });
 
-
-
-
-
+              const firstRow = orderItems.querySelector(".item-row");
+              bindEvents(firstRow);
+              updateRowTotal(firstRow);
+              updateTotals();
+            });
+          </script>
 
 
 
 
- </div>
 
 
-    <script>
-      sessionStorage.setItem('redirect', window.location.pathname);
-    </script>
-</div>
 
 
-    
+
+
+      </div>
+
+
+      <script>
+        sessionStorage.setItem('redirect', window.location.pathname);
+      </script>
+  </div>
+
+
+
 </body>
+
 </html>

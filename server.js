@@ -21,6 +21,10 @@ const Personal = require('./models/personal');
 const Payroll = require('./models/Payroll');
 
 const Credit = require("./models/Credit");
+
+const SoleProprietorship = require('./models/SoleProprietorship');
+const Corporation = require('./models/Corporation');
+const PLC = require('./models/PLC');
 const WebSocket = require("ws");  // for websocket
 
 const yahooFinance = require('yahoo-finance2').default; // npm i yahoo-finance2
@@ -195,6 +199,19 @@ app.get("/Personal", (req, res) => {
   res.render("person");
 });
 
+// New Signup Routes
+app.get("/signup/sole", (req, res) => {
+  res.render("sole");
+});
+
+app.get("/signup/corporation", (req, res) => {
+  res.render("corporation");
+});
+
+app.get("/signup/plc", (req, res) => {
+  res.render("plc");
+});
+
 app.get("/Businessinfo", async (req, res) => {
   try {
     const userId = req.query.id;
@@ -205,12 +222,28 @@ app.get("/Businessinfo", async (req, res) => {
       return res.redirect("/Personal");
     }
 
-    const user = await Personal.findById(userId);
+    // Check all models
+    let user = await Personal.findById(userId);
+    let userType = 'Personal';
+
     if (!user) {
-      console.log(`No Personal user found for id: ${userId}, redirecting to /Personal`);
+      user = await SoleProprietorship.findById(userId);
+      userType = 'SoleProprietorship';
+    }
+    if (!user) {
+      user = await Corporation.findById(userId);
+      userType = 'Corporation';
+    }
+    if (!user) {
+      user = await PLC.findById(userId);
+      userType = 'PLC';
+    }
+
+    if (!user) {
+      console.log(`No user found for id: ${userId} in any model, redirecting to /Personal`);
       return res.redirect("/Personal");
     }
-    console.log(`Personal user found for id: ${userId}`);
+    console.log(`${userType} user found for id: ${userId}`);
 
     // Use correct field name here!
     const business = await Business.findOne({ reciepientId: userId });
@@ -242,12 +275,28 @@ app.get("/Company", async (req, res) => {
       return res.redirect("/Personal");
     }
 
-    const user = await Personal.findById(userId);
+    // Check all models
+    let user = await Personal.findById(userId);
+    let userType = 'Personal';
+
     if (!user) {
-      console.log(`Company step - No Personal user found for id: ${userId}, redirecting to /Personal`);
+      user = await SoleProprietorship.findById(userId);
+      userType = 'SoleProprietorship';
+    }
+    if (!user) {
+      user = await Corporation.findById(userId);
+      userType = 'Corporation';
+    }
+    if (!user) {
+      user = await PLC.findById(userId);
+      userType = 'PLC';
+    }
+
+    if (!user) {
+      console.log(`Company step - No user found for id: ${userId} in any model, redirecting to /Personal`);
       return res.redirect("/Personal");
     }
-    console.log(`Company step - Personal user found for id: ${userId}`);
+    console.log(`Company step - ${userType} user found for id: ${userId}`);
 
     // Check if company info already exists (use correct field name!)
     const company = await Company.findOne({ reciepientId: userId });
@@ -277,12 +326,28 @@ app.get("/Bank", async (req, res) => {
       return res.redirect("/Personal");
     }
 
-    const user = await Personal.findById(userId);
+    // Check all models
+    let user = await Personal.findById(userId);
+    let userType = 'Personal';
+
     if (!user) {
-      console.log(`Bank step - No Personal user found for id: ${userId}, redirecting to /Personal`);
+      user = await SoleProprietorship.findById(userId);
+      userType = 'SoleProprietorship';
+    }
+    if (!user) {
+      user = await Corporation.findById(userId);
+      userType = 'Corporation';
+    }
+    if (!user) {
+      user = await PLC.findById(userId);
+      userType = 'PLC';
+    }
+
+    if (!user) {
+      console.log(`Bank step - No user found for id: ${userId} in any model, redirecting to /Personal`);
       return res.redirect("/Personal");
     }
-    console.log(`Bank step - Personal user found for id: ${userId}`);
+    console.log(`Bank step - ${userType} user found for id: ${userId}`);
 
     // Check if bank info already exists (use correct field name!)
     const bank = await BankInfo.findOne({ reciepientId: userId });
@@ -368,7 +433,13 @@ app.get("/Review", async (req, res) => {
     const userId = req.query.id;
     if (!userId) return res.redirect("/Personal");
 
-    const user = await Personal.findById(userId);
+    // Check all models
+    let user = await Personal.findById(userId);
+
+    if (!user) user = await SoleProprietorship.findById(userId);
+    if (!user) user = await Corporation.findById(userId);
+    if (!user) user = await PLC.findById(userId);
+
     if (!user) return res.redirect("/Personal");
 
     res.render("review", { userId, user });
@@ -383,7 +454,13 @@ app.get("/Finished", async (req, res) => {
     const userId = req.query.id;
     if (!userId) return res.redirect("/Personal");
 
-    const user = await Personal.findById(userId);
+    // Check all models
+    let user = await Personal.findById(userId);
+
+    if (!user) user = await SoleProprietorship.findById(userId);
+    if (!user) user = await Corporation.findById(userId);
+    if (!user) user = await PLC.findById(userId);
+
     if (!user) return res.redirect("/Personal");
 
     res.render("finish", { userId, user });
@@ -6547,7 +6624,73 @@ app.get("/Audit", ensureAuthenticated, async (req, res) => {
 
 
 
-    res.render("dashboard/wisdom/Audit", {
+    res.render("dashboard/wisdom/audit", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.get("/Auditmanual", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+    const userId = recipientId;
+
+
+
+    res.render("dashboard/auditing/auditmanual", {
+      user: req.session.user,
+      worker: req.session.worker || null,
+      companyinfo,
+    });
+  } catch (err) {
+    console.error("Error loading Order Management page:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.get("/Auditplanning", ensureAuthenticated, async (req, res) => {
+  try {
+    const now = new Date();
+
+    let recipientId = null;
+    let companyinfo = null;
+
+    if (req.session.user) {
+      // ✅ Admin logged in
+      recipientId = req.session.user._id;
+      companyinfo = await Company.findOne({ reciepientId: req.session.user._id });
+    } else if (req.session.worker) {
+      // ✅ Worker logged in → use admin’s ID
+      recipientId = req.session.worker.adminId;
+      companyinfo = await Company.findOne({ reciepientId: req.session.worker.adminId });
+    } else {
+      return res.redirect("/login");
+    }
+    const userId = recipientId;
+
+
+
+    res.render("dashboard/auditing/auditplanning", {
       user: req.session.user,
       worker: req.session.worker || null,
       companyinfo,
@@ -6633,6 +6776,12 @@ app.get("/auditautomatic", (req, res) => {
 
 app.get("/auditmanual", (req, res) => {
   res.render("dashboard/auditing/auditmanual");
+});
+
+
+
+app.get("/land", (req, res) => {
+  res.render("land");
 });
 
 

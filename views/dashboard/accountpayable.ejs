@@ -1,477 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accounts Payable Dashboard</title>
-      <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css"
-    />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="/css/accountpayable.css">
-    <link rel="stylesheet" href="/css/dashall.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts Payable Dashboard</title>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/dashall.css">
+  <link rel="stylesheet" href="/css/accountpayable.css">
 </head>
-<body >
 
-
+<body>
 
   <div class="all">
-        <%- include ("_sidebar1") %>
+    <%- include ("_sidebar1") %>
 
-
-    <div class="main-content">
+      <div class="main-content">
         <%- include ("_topnav") %>
 
-        <div class="container" >
-         <!-- Sidebar -->
+          <div class="container">
 
-        <!-- Main Content -->
-         
-            <!-- Header -->
-            <!-- <header class="header">
-                <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                     <h1 class="page-title">Accounts Payable</h1>
-                   
+            <h1 class="page-title">Accounts Payable</h1>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+              <div class="summary-card total">
+                <h3>Total Outstanding</h3>
+                <div class="amount">₦<%= summary.totalOutstanding.toLocaleString() %>
                 </div>
-                <div class="header-right">
-                    <button class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
-                        <span style="font-size: 0.875rem; color: var(--text-secondary);"><%= user.firstName %> <%= user.lastName %></span>
-                    </div>
+                <div class="trend">
+                  <i class="fas fa-arrow-down"></i>
+                  <span>Data live from DB</span>
                 </div>
-            </header> -->
+              </div>
 
-            <!-- Content -->
-            <div class="content">
-                <!-- Summary Cards -->
-           <div class="summary-grid">
-  <div class="summary-card total">
-    <h3>Total Outstanding</h3>
-    <div class="amount">$<%= summary.totalOutstanding.toLocaleString() %></div>
-    <div class="trend">
-      <i class="fas fa-arrow-down"></i>
-      Data live from DB
-    </div>
-  </div>
-
-  <div class="summary-card overdue">
-    <h3>Overdue Amount</h3>
-    <div class="amount">$<%= summary.overdueAmount.toLocaleString() %></div>
-    <div class="trend" style="color: var(--danger-color);">
-      <i class="fas fa-arrow-up"></i>
-      <%= summary.overdueCount %> invoices overdue
-    </div>
-  </div>
-
-  <div class="summary-card pending">
-    <h3>Pending Payments</h3>
-    <div class="amount">$<%= summary.pendingAmount.toLocaleString() %></div>
-    <div class="trend" style="color: var(--warning-color);">
-      <i class="fas fa-clock"></i>
-      <%= summary.pendingCount %> invoices pending
-    </div>
-  </div>
-
-  <div class="summary-card upcoming">
-    <h3>Due This Week</h3>
-    <div class="amount">$<%= summary.dueThisWeekAmount.toLocaleString() %></div>
-    <div class="trend">
-      <i class="fas fa-calendar"></i>
-      <%= summary.dueThisWeekCount %> invoices due
-    </div>
-  </div>
-</div>
-
-
-                <!-- Filters -->
-                <div class="filters">
-                    <h3>Filter Invoices</h3>
-                    <div class="filter-grid">
-                        <div class="filter-group">
-                            <label for="dateFrom">Date From</label>
-                            <input type="date" id="dateFrom" value="2024-01-01">
-                        </div>
-                        <div class="filter-group">
-                            <label for="dateTo">Date To</label>
-                            <input type="date" id="dateTo" value="2024-12-31">
-                        </div>
-                        <div class="filter-group">
-                            <label for="vendor">Vendor</label>
-                            <select id="vendor">
-                                <option value="">All Vendors</option>
-                                <option value="acme">Acme Corp</option>
-                                <option value="techno">TechnoSoft Inc</option>
-                                <option value="global">Global Supplies</option>
-                                <option value="creative">Creative Solutions</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="status">Status</label>
-                            <select id="status">
-                                <option value="">All Status</option>
-                                <option value="paid">Paid</option>
-                                <option value="pending">Pending</option>
-                                <option value="overdue">Overdue</option>
-                            </select>
-                        </div>
-                    </div>
+              <div class="summary-card overdue">
+                <h3>Overdue Amount</h3>
+                <div class="amount">₦<%= summary.overdueAmount.toLocaleString() %>
                 </div>
-
-                <!-- Invoice Table -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>Invoice List</h3>
-
-                        <div class="oneside">
-                               <button class="add-btn" id="openApForm">
-                    <i class="fas fa-plus"></i>
-                    Add 
-                    </button>
-                        <button class="export-btn">
-                            <i class="fas fa-download"></i>
-                            Export
-                        </button>
-                        </div>
-                 
-
-
-                    </div>
-                    <div class="table-wrapper">
-                        <table id="invoiceTable">
-                            <thead>
-                                <tr>
-                                    <th>Vendor Name</th>
-                                    <th>Invoice Number</th>
-                                    <th>Due Date</th>
-                                    <th>Owning Amount</th>
-                                    <th>Remaining Amount</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-<!-- In your EJS where you list the AP table -->
-<tbody>
-  <% if (accountPayables.length > 0) { %>
-    <% accountPayables.forEach(item => {
-         const dueDate = new Date(item.dueDate);
-         const today = new Date();
-         const isOverdue = dueDate < today;
-    %>
-      <tr>
-        <td><%= item.vendorName %></td>
-        <td>#<%= item.id %></td>
-        <td>
-          <% if (isOverdue) { %>
-            <span class="status-badge status-overdue">Overdue</span>
-          <% } else { %>
-            <%= item.dueDate.toISOString().split('T')[0] %>
-          <% } %>
-        </td>
-        <td>$<%= item.amount.toLocaleString() %></td>
-        <td>$<%= item.ramount.toLocaleString() %></td>
-        <td>
-          <% if (item.status === 'paid') { %>
-            <span class="status-badge status-paid">Paid</span>
-          <% } else if (item.status === 'partial') { %>
-            <span class="status-badge status-partial">Partially Paid</span>
-          <% } else { %>
-            <span class="status-badge status-unpaid">Not Paid</span>
-          <% } %>
-        </td>
-        <td>
-          <div class="action-buttons">
-            <% if (item.status !== 'paid') { %>
-              <button class="btn btn-primary" onclick="openPayForm('<%= item._id %>', <%= item.ramount %>)">
-                <i class="fas fa-credit-card"></i>
-                Pay Now
-              </button>
-            <% } %>
-            <button class="btn btn-secondary">
-              <i class="fas fa-eye"></i>
-              View
-            </button>
-            <% if (item.status === 'paid') { %>
-              <button class="btn btn-secondary">
-                <i class="fas fa-receipt"></i>
-                Receipt
-              </button>
-            <% } %>
-          </div>
-        </td>
-      </tr>
-    <% }) %>
-  <% } else { %>
-    <tr>
-      <td colspan="6" style="text-align: center;">No records found.</td>
-    </tr>
-  <% } %>
-</tbody>
-
-
-
-                        </table>
-                    </div>
+                <div class="trend">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>
+                    <%= summary.overdueCount %> invoices overdue
+                  </span>
                 </div>
+              </div>
 
+              <div class="summary-card pending">
+                <h3>Pending Payments</h3>
+                <div class="amount">₦<%= summary.pendingAmount.toLocaleString() %>
+                </div>
+                <div class="trend">
+                  <i class="fas fa-clock"></i>
+                  <span>
+                    <%= summary.pendingCount %> invoices pending
+                  </span>
+                </div>
+              </div>
 
-
-
-
-                <!-- Popup Form Container -->
-<div id="apFormPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="popup-inner">
-    <button id="closeApForm" class="absolute top-2 right-4 text-2xl text-gray-500 hover:text-gray-700">&times;</button>
-    <h2 class="text-xl font-bold text-gray-800 mb-4">Add Accounts Payable</h2>
-    <form id="apForm" action="/user/createApayable" method="POST">
-      <div class="grid grid-cols-2 gap-4">
-
-        <input type="text" name="recipientId" id="recipientId" value="<%= user._id %>" hidden>
-
-        <input type="text" name="username" id="username" value="<%= user.firstName %> <%= user.lastName %>" hidden>
-        <div>
-          <label>Vendor Name</label>
-          <input name="vendorName" type="text" required class="w-full border px-3 py-2 rounded" />
-        </div>
-        <div>
-          <label>Invoice Number</label>
-          <input name="invoiceNumber" type="text" required class="w-full border px-3 py-2 rounded" />
-        </div>
-    <div>
-  <label>Amount (₦)</label>
-  <input name="amount" id="amount" type="number" required class="w-full border px-3 py-2 rounded" />
-</div>
-
-  <input name="ramount" id="Remainingamount" type="number" required class="w-full border px-3 py-2 rounded" hidden />
-
-        <div>
-          <label>Due Date</label>
-          <input name="dueDate" type="date" required class="w-full border px-3 py-2 rounded" />
-        </div>
-        <div>
-          <label>Payment Status</label>
-          <select name="status" required class="w-full border px-3 py-2 rounded">
-            <option value="unpaid">Unpaid</option>
-            <option value="partial">Partially Paid</option>
-            <option value="paid">Paid</option>
-          </select>
-        </div>
-        <div>
-          <label>Notes</label>
-          <input name="notes" type="text" class="w-full border px-3 py-2 rounded" />
-        </div>
-      </div>
-      <button type="submit" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Submit
-      </button>
-    </form>
-  </div>
-</div>
-
-
-
-
-<!-- Pay Now Popup Form -->
-<div id="payFormModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.3s ease;">
-  <div style="background-color: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); width: 100%; max-width: 400px; transform: scale(1); transition: transform 0.3s ease;">
-    <form action="/user/PayApayable" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
-      <input type="text" name="id" id="apId" style="display: none;" />
-
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label for="amountPaid" style="font-size: 14px; font-weight: 500; color: #333333;">Amount to Pay (₦)</label>
-        <input type="number" name="amountPaid" id="amountPaid" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: border-color 0.2s ease;" required />
-        <small id="payError" style="display: none; font-size: 12px; color: #ef4444;">Amount exceeds remaining balance.</small>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label for="note" style="font-size: 14px; font-weight: 500; color: #333333;">Payment Note</label>
-        <textarea name="note" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; height: 80px; resize: none; outline: none; transition: border-color 0.2s ease;"></textarea>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-        <button type="button" class="btn" onclick="closePayForm()" style="padding: 8px 16px; background-color: #e5e7eb; color: #4b5563; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background-color 0.2s ease;">Cancel</button>
-        <button type="submit" class="btn btn-primary" style="padding: 8px 16px; background-color: #2563eb; color: #ffffff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background-color 0.2s ease;">Submit Payment</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
+              <div class="summary-card upcoming">
+                <h3>Due This Week</h3>
+                <div class="amount">₦<%= summary.dueThisWeekAmount.toLocaleString() %>
+                </div>
+                <div class="trend">
+                  <i class="fas fa-calendar"></i>
+                  <span>
+                    <%= summary.dueThisWeekCount %> invoices due
+                  </span>
+                </div>
+              </div>
             </div>
-  
-    </div>
-    </div>
 
-  
+            <!-- Filters -->
+            <div class="filters">
+              <h3>Filter Invoices</h3>
+              <div class="filter-grid">
+                <div class="filter-group">
+                  <label for="dateFrom">Date From</label>
+                  <input type="date" id="dateFrom">
+                </div>
+                <div class="filter-group">
+                  <label for="dateTo">Date To</label>
+                  <input type="date" id="dateTo">
+                </div>
+                <div class="filter-group">
+                  <label for="vendor">Vendor</label>
+                  <input type="text" id="vendor" placeholder="Search Vendor...">
+                </div>
+                <div class="filter-group">
+                  <label for="status">Status</label>
+                  <select id="status">
+                    <option value="">All Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="partial">Partial</option>
+                    <option value="unpaid">Unpaid</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
+            <!-- Invoice Table -->
+            <div class="table-container">
+              <div class="table-header">
+                <h3>Invoice List</h3>
+                <div class="header-actions">
+                  <button class="add-btn" id="openApForm">
+                    <i class="fas fa-plus"></i> Add New
+                  </button>
+                  <button class="export-btn">
+                    <i class="fas fa-download"></i> Export
+                  </button>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table id="invoiceTable">
+                  <thead>
+                    <tr>
+                      <th>Vendor Name</th>
+                      <th>Invoice Number</th>
+                      <th>Due Date</th>
+                      <th>Amount</th>
+                      <th>Remaining</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (accountPayables.length> 0) { %>
+                      <% accountPayables.forEach(item=> {
+                        const dueDate = new Date(item.dueDate);
+                        const today = new Date();
+                        const isOverdue = dueDate < today && item.status !=='paid' ; %>
+                          <tr>
+                            <td>
+                              <%= item.vendorName %>
+                            </td>
+                            <td>#<%= item.invoiceNumber || item.id %>
+                            </td> <!-- Fallback if no invoiceNumber -->
+                            <td>
+                              <% if (isOverdue) { %>
+                                <span class="status-badge status-overdue">Overdue (<%= dueDate.toLocaleDateString() %>
+                                    )</span>
+                                <% } else { %>
+                                  <%= dueDate.toLocaleDateString() %>
+                                    <% } %>
+                            </td>
+                            <td>₦<%= item.amount.toLocaleString() %>
+                            </td>
+                            <td>₦<%= item.ramount.toLocaleString() %>
+                            </td>
+                            <td>
+                              <% if (item.status==='paid' ) { %>
+                                <span class="status-badge status-paid">Paid</span>
+                                <% } else if (item.status==='partial' ) { %>
+                                  <span class="status-badge status-partial">Partial</span>
+                                  <% } else { %>
+                                    <span class="status-badge status-unpaid">Unpaid</span>
+                                    <% } %>
+                            </td>
+                            <td>
+                              <div class="action-buttons">
+                                <% if (item.status !=='paid' ) { %>
+                                  <button class="btn btn-primary"
+                                    onclick="openPayForm('<%= item._id %>', <%= item.ramount %>)">
+                                    <i class="fas fa-credit-card"></i> Pay
+                                  </button>
+                                  <% } %>
+                                    <button class="btn btn-secondary">
+                                      <i class="fas fa-eye"></i> View
+                                    </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <% }) %>
+                            <% } else { %>
+                              <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">No invoices found.</td>
+                              </tr>
+                              <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
+          </div>
+      </div>
   </div>
-  
-    
 
-    <script>
-  let remainingAmount = 0;
+  <!-- Add AP Modal -->
+  <div id="apFormPopup" class="modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div class="popup-inner">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 700;">Add Accounts Payable</h2>
+        <button id="closeApForm"
+          style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
 
-  function openPayForm(id, ramt) {
-    document.getElementById('apId').value = id;
-    document.getElementById('amountPaid').value = '';
-    document.getElementById('payFormModal').style.display = 'flex';
-    remainingAmount = ramt;
-  }
+      <form id="apForm" action="/user/createApayable" method="POST">
+        <!-- Hidden Fields -->
+        <input type="text" name="recipientId" value="<%= user._id %>" hidden>
+        <input type="text" name="username" value="<%= user.firstName %> <%= user.lastName %>" hidden>
 
-  function closePayForm() {
-    document.getElementById('payFormModal').style.display = 'none';
-  }
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="filter-group">
+            <label>Vendor Name</label>
+            <input name="vendorName" type="text" required />
+          </div>
+          <div class="filter-group">
+            <label>Invoice Number</label>
+            <input name="invoiceNumber" type="text" required />
+          </div>
+          <div class="filter-group">
+            <label>Amount (₦)</label>
+            <input name="amount" id="amount" type="number" required />
+          </div>
+          <!-- Hidden Remaining Amount -->
+          <input name="ramount" id="Remainingamount" type="number" hidden />
 
-  document.getElementById('amountPaid').addEventListener('input', function () {
-    const val = parseFloat(this.value);
-    const error = document.getElementById('payError');
-    if (val > remainingAmount) {
-      error.classList.remove('hidden');
-    } else {
-      error.classList.add('hidden');
+          <div class="filter-group">
+            <label>Due Date</label>
+            <input name="dueDate" type="date" required />
+          </div>
+          <div class="filter-group">
+            <label>Status</label>
+            <select name="status" required>
+              <option value="unpaid">Unpaid</option>
+              <option value="partial">Partial</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+          <div class="filter-group" style="grid-column: span 2;">
+            <label>Notes</label>
+            <input name="notes" type="text" />
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button type="button" class="btn btn-secondary" id="cancelApForm"
+            style="margin-right: 0.5rem;">Cancel</button>
+          <button type="submit" class="add-btn">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pay Now Modal -->
+  <div id="payFormModal" class="modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div class="popup-inner" style="max-width: 400px;">
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Record Payment</h2>
+
+      <form action="/user/PayApayable" method="POST">
+        <input type="text" name="id" id="apId" hidden />
+
+        <div class="filter-group" style="margin-bottom: 1rem;">
+          <label>Amount to Pay (₦)</label>
+          <input type="number" name="amountPaid" id="amountPaid" required />
+          <small id="payError" style="color: var(--danger-color); display: none;">Amount exceeds balance.</small>
+        </div>
+
+        <div class="filter-group" style="margin-bottom: 1.5rem;">
+          <label>Note</label>
+          <textarea name="note" rows="3"
+            style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.5rem;"></textarea>
+        </div>
+
+        <div style="text-align: right;">
+          <button type="button" class="btn btn-secondary" onclick="closePayForm()"
+            style="margin-right: 0.5rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Toggle AP Form
+    const apModal = document.getElementById("apFormPopup");
+    document.getElementById("openApForm").addEventListener("click", () => {
+      apModal.style.display = "flex";
+    });
+    document.getElementById("closeApForm").addEventListener("click", () => {
+      apModal.style.display = "none";
+    });
+    document.getElementById("cancelApForm").addEventListener("click", () => {
+      apModal.style.display = "none";
+    });
+
+    // Sync Amount to Remaining Amount
+    const amountInput = document.getElementById("amount");
+    const remainingInput = document.getElementById("Remainingamount");
+    amountInput.addEventListener("input", () => {
+      remainingInput.value = amountInput.value;
+    });
+
+    // Pay Form Logic
+    let currentRemaining = 0;
+    function openPayForm(id, remaining) {
+      currentRemaining = remaining;
+      document.getElementById('apId').value = id;
+      document.getElementById('amountPaid').value = '';
+      document.getElementById('payFormModal').style.display = 'flex';
     }
-  });
-</script>
-
-
-    <script>
-  const amountInput = document.getElementById("amount");
-  const remainingInput = document.getElementById("Remainingamount");
-
-  amountInput.addEventListener("input", () => {
-    const value = parseFloat(amountInput.value);
-    if (!isNaN(value)) {
-      remainingInput.value = value;
-    } else {
-      remainingInput.value = '';
+    function closePayForm() {
+      document.getElementById('payFormModal').style.display = 'none';
     }
-  });
-</script>
 
-    <!-- JavaScript to toggle popup -->
-<script>
-  document.getElementById("openApForm").addEventListener("click", () => {
-    document.getElementById("apFormPopup").classList.add("active");
-  });
-  document.getElementById("closeApForm").addEventListener("click", () => {
-    document.getElementById("apFormPopup").classList.remove("active");
-  });
-</script>
+    document.getElementById('amountPaid').addEventListener('input', function () {
+      if (parseFloat(this.value) > currentRemaining) {
+        document.getElementById('payError').style.display = 'block';
+      } else {
+        document.getElementById('payError').style.display = 'none';
+      }
+    });
 
-    <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        const themeIcon = themeToggle.querySelector('i');
+    // Filter Logic (Simple Client-Side)
+    const filterInputs = document.querySelectorAll('.filters input, .filters select');
+    filterInputs.forEach(input => {
+      input.addEventListener('change', filterTable);
+      input.addEventListener('keyup', filterTable);
+    });
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            body.setAttribute('data-theme', newTheme);
-            themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        });
+    function filterTable() {
+      const vendorFilter = document.getElementById('vendor').value.toLowerCase();
+      const statusFilter = document.getElementById('status').value.toLowerCase();
+      // Date filters can be added here
 
-        // Filter functionality
-        const dateFromInput = document.getElementById('dateFrom');
-        const dateToInput = document.getElementById('dateTo');
-        const vendorSelect = document.getElementById('vendor');
-        const statusSelect = document.getElementById('status');
-        const tableBody = document.querySelector('#invoiceTable tbody');
+      const rows = document.querySelectorAll('#invoiceTable tbody tr');
+      rows.forEach(row => {
+        const vendorName = row.cells[0].textContent.toLowerCase();
+        const status = row.cells[5].textContent.toLowerCase();
 
-        // Sample data for filtering
-        const invoiceData = [
-            { vendor: 'Acme Corp', invoice: 'INV-2024-001', dueDate: '2024-06-15', amount: '$12,450.00', status: 'overdue' },
-            { vendor: 'TechnoSoft Inc', invoice: 'INV-2024-002', dueDate: '2024-07-20', amount: '$8,750.00', status: 'pending' },
-            { vendor: 'Global Supplies', invoice: 'INV-2024-003', dueDate: '2024-05-10', amount: '$3,280.00', status: 'paid' },
-            { vendor: 'Creative Solutions', invoice: 'INV-2024-004', dueDate: '2024-08-05', amount: '$15,600.00', status: 'pending' },
-            { vendor: 'Acme Corp', invoice: 'INV-2024-005', dueDate: '2024-06-01', amount: '$4,320.00', status: 'overdue' },
-            { vendor: 'Office Essentials', invoice: 'INV-2024-006', dueDate: '2024-07-30', amount: '$2,150.00', status: 'pending' }
-        ];
+        let matches = true;
+        if (vendorFilter && !vendorName.includes(vendorFilter)) matches = false;
+        if (statusFilter && !status.includes(statusFilter)) matches = false;
 
-        function filterTable() {
-            const dateFrom = new Date(dateFromInput.value);
-            const dateTo = new Date(dateToInput.value);
-            const selectedVendor = vendorSelect.value.toLowerCase();
-            const selectedStatus = statusSelect.value;
-
-            const rows = tableBody.querySelectorAll('tr');
-            
-            rows.forEach((row, index) => {
-                const data = invoiceData[index];
-                const rowDate = new Date(data.dueDate);
-                
-                let showRow = true;
-
-                // Date filter
-                if (dateFromInput.value && rowDate < dateFrom) showRow = false;
-                if (dateToInput.value && rowDate > dateTo) showRow = false;
-
-                // Vendor filter
-                if (selectedVendor && !data.vendor.toLowerCase().includes(selectedVendor)) {
-                    showRow = false;
-                }
-
-                // Status filter
-                if (selectedStatus && data.status !== selectedStatus) {
-                    showRow = false;
-                }
-
-                row.style.display = showRow ? '' : 'none';
-            });
-        }
-
-        // Add event listeners for filters
-        [dateFromInput, dateToInput, vendorSelect, statusSelect].forEach(input => {
-            input.addEventListener('change', filterTable);
-        });
-
-        // Action button handlers
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-primary')) {
-                const button = e.target.closest('.btn-primary');
-            }
-            
-            if (e.target.closest('.btn-secondary')) {
-                const button = e.target.closest('.btn-secondary');
-                if (button.textContent.includes('View')) {
-                    alert('Invoice details would be displayed here');
-                } else if (button.textContent.includes('Receipt')) {
-                    alert('Receipt would be downloaded here');
-                }
-            }
-        });
-
-        // Export functionality
-        document.querySelector('.export-btn').addEventListener('click', () => {
-            alert('Export functionality would be implemented here');
-        });
-
-    
-
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Call on initial load
-    </script>
+        row.style.display = matches ? '' : 'none';
+      });
+    }
+  </script>
 </body>
+
 </html>

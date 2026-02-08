@@ -1,441 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Reconciliation & Management</title>
     <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashall.css">
     <link rel="stylesheet" href="/css/ap.css">
 </head>
+
 <body>
-   
-    <div class="main-content">
-        <!-- [1] Your Original Header -->
-        <div class="page-header">
-            <div class="header-content">
-                <h1>Account Reconciliation & Management</h1>
-                <p>Centralized platform for AP & AR reconciliation with automated workflows</p>
+
+    </div>
+    <div class="supplier-list">
+        <div class="supplier-item">
+            <div class="supplier-info">
+                <span class="supplier-name">ABC Suppliers Ltd</span>
+                <span class="supplier-category">Office Supplies</span>
             </div>
-            <div class="header-actions">
-                <button class="btn-primary">
-                    <i class="bx bx-plus"></i> New Reconciliation
+            <span class="supplier-amount">₦1,240,000</span>
+        </div>
+        <div class="supplier-item">
+            <div class="supplier-info">
+                <span class="supplier-name">XYZ Logistics</span>
+                <span class="supplier-category">Shipping</span>
+            </div>
+            <span class="supplier-amount">₦985,500</span>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- [8] Your Original Aging Analysis -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Aging Analysis</h3>
+            <div class="period-selector">
+                <button class="period-btn active">30d</button>
+                <button class="period-btn">60d</button>
+                <button class="period-btn">90d</button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="aging-chart">
+                <div class="aging-item">
+                    <div class="aging-label">0-30 Days</div>
+                    <div class="aging-bar">
+                        <div class="aging-fill current" style="width: 65%"></div>
+                    </div>
+                    <div class="aging-amount">₦1,850,000</div>
+                </div>
+                <div class="aging-item">
+                    <div class="aging-label">31-60 Days</div>
+                    <div class="aging-bar">
+                        <div class="aging-fill moderate" style="width: 25%"></div>
+                    </div>
+                    <div class="aging-amount">₦690,000</div>
+                </div>
+                <div class="aging-item">
+                    <div class="aging-label">61-90 Days</div>
+                    <div class="aging-bar">
+                        <div class="aging-fill old" style="width: 8%"></div>
+                    </div>
+                    <div class="aging-amount">₦230,000</div>
+                </div>
+                <div class="aging-item">
+                    <div class="aging-label">90+ Days</div>
+                    <div class="aging-bar">
+                        <div class="aging-fill overdue" style="width: 2%"></div>
+                    </div>
+                    <div class="aging-amount">₦58,500</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [9] Your Original Exception Management -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Exception Management</h3>
+            <span class="badge urgent">23 Urgent</span>
+        </div>
+        <div class="card-content">
+            <div class="exception-list">
+                <div class="exception-item high">
+                    <div class="exception-severity"></div>
+                    <div class="exception-details">
+                        <div class="exception-title">Amount Mismatch</div>
+                        <div class="exception-subtitle">Invoice #INV-2024-089</div>
+                    </div>
+                    <div class="exception-action">
+                        <button class="btn-small">Resolve</button>
+                    </div>
+                </div>
+                <div class="exception-item medium">
+                    <div class="exception-severity"></div>
+                    <div class="exception-details">
+                        <div class="exception-title">Missing Payment</div>
+                        <div class="exception-subtitle">Expected payment overdue</div>
+                    </div>
+                    <div class="exception-action">
+                        <button class="btn-small">Investigate</button>
+                    </div>
+                </div>
+                <div class="exception-item low">
+                    <div class="exception-severity"></div>
+                    <div class="exception-details">
+                        <div class="exception-title">Duplicate Entry</div>
+                        <div class="exception-subtitle">Potential duplicate detected</div>
+                    </div>
+                    <div class="exception-action">
+                        <button class="btn-small">Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [10] Enhanced Workflow Status -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Workflow Status</h3>
+            <div class="workflow-toggle">
+                <button class="toggle-btn active">Auto</button>
+                <button class="toggle-btn">Manual</button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="workflow-steps">
+                <div class="workflow-step completed">
+                    <div class="step-icon">
+                        <i class="bx bx-check"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Data Import</div>
+                        <div class="step-subtitle">Completed at 9:30 AM</div>
+                    </div>
+                </div>
+                <div class="workflow-step completed">
+                    <div class="step-icon">
+                        <i class="bx bx-check"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Auto-Matching</div>
+                        <div class="step-subtitle">847 transactions matched</div>
+                    </div>
+                </div>
+                <div class="workflow-step active">
+                    <div class="step-icon">
+                        <i class="bx bx-time"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Exception Review</div>
+                        <div class="step-subtitle">23 items pending</div>
+                    </div>
+                </div>
+                <div class="workflow-step pending">
+                    <div class="step-icon">
+                        <i class="bx bx-edit"></i>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-title">Journal Entries</div>
+                        <div class="step-subtitle">3 entries pending approval</div>
+                        <div class="je-actions">
+                            <button class="btn-small">Review</button>
+                            <button class="btn-small">Approve</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [11] Your Original Bank Account Management -->
+    <div class="dashboard-card large">
+        <div class="card-header">
+            <h3>Bank Account Management</h3>
+            <div class="card-actions">
+                <button class="btn-icon" id="add-bank-account">
+                    <i class="bx bx-plus"></i>
                 </button>
-                <button class="btn-secondary">
-                    <i class="bx bx-download"></i> Export Report
+                <button class="btn-icon">
+                    <i class="bx bx-refresh"></i>
                 </button>
             </div>
         </div>
+        <div class="card-content">
+            <div class="bank-summary">
+                <div class="bank-balance">
+                    <h4>Total Balance</h4>
+                    <div class="balance-amount">₦0.00</div>
+                </div>
+                <div class="bank-stats">
+                    <div class="bank-stat">
+                        <div class="stat-label">Credits</div>
+                        <div class="stat-value positive">₦0.00</div>
+                    </div>
+                    <div class="bank-stat">
+                        <div class="stat-label">Debits</div>
+                        <div class="stat-value negative">₦0.00</div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- [2] Your Original Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon ap"><i class="bx bx-money-withdraw"></i></div>
-                <div class="stat-content">
-                    <h3>₦2,450,000</h3>
-                    <p>Total AP Outstanding</p>
-                    <span class="stat-change negative">-12.3%</span>
+            <div class="bank-accounts">
+                <h4>Your Accounts</h4>
+                <div class="accounts-list" id="accounts-list">
+                    <div class="no-accounts">
+                        <i class="bx bx-wallet"></i>
+                        <p>No bank accounts added yet</p>
+                        <button class="btn-primary" id="add-first-account">Add Bank Account</button>
+                    </div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon ar"><i class="bx bx-money"></i></div>
-                <div class="stat-content">
-                    <h3>₦3,680,500</h3>
-                    <p>Total AR Outstanding</p>
-                    <span class="stat-change positive">+8.7%</span>
+
+            <div class="bank-transactions">
+                <div class="transactions-header">
+                    <h4>Recent Transactions</h4>
+                    <a href="#" class="view-all">View All</a>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon matched"><i class="bx bx-check-double"></i></div>
-                <div class="stat-content">
-                    <h3>847</h3>
-                    <p>Auto-Matched Today</p>
-                    <span class="stat-change positive">+15.2%</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon discrepancy"><i class="bx bx-error"></i></div>
-                <div class="stat-content">
-                    <h3>23</h3>
-                    <p>Discrepancies Found</p>
-                    <span class="stat-change neutral">0%</span>
+                <div class="transactions-list" id="transactions-list">
+                    <div class="no-transactions">
+                        <i class="bx bx-list-ul"></i>
+                        <p>No transactions recorded yet</p>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- [3] Main Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- [4] Your Original Reconciliation Overview -->
-            <div class="dashboard-card large">
-                <div class="card-header">
-                    <h3>Reconciliation Overview</h3>
-                    <div class="card-actions">
-                        <button class="btn-icon"><i class="bx bx-refresh"></i></button>
-                        <button class="btn-icon"><i class="bx bx-dots-horizontal-rounded"></i></button>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <div class="reconciliation-summary">
-                        <div class="summary-item">
-                            <div class="summary-label">Accounts Payable</div>
-                            <div class="summary-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 78%"></div>
-                                </div>
-                                <span>78% Reconciled</span>
-                            </div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-label">Accounts Receivable</div>
-                            <div class="summary-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill ar-progress" style="width: 85%"></div>
-                                </div>
-                                <span>85% Reconciled</span>
-                            </div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-label">Invoice Matching</div>
-                            <div class="summary-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill matched-progress" style="width: 92%"></div>
-                                </div>
-                                <span>92% Auto-Matched</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [5] NEW: Invoice Matching Panel -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Invoice Matching</h3>
-                    <button class="btn-small">Configure Rules</button>
-                </div>
-                <div class="card-content">
-                    <div class="matching-rules">
-                        <div class="rule-item">
-                            <i class="bx bx-check-circle"></i>
-                            <span>Amount within ±₦500 tolerance</span>
-                        </div>
-                        <div class="rule-item">
-                            <i class="bx bx-check-circle"></i>
-                            <span>Same vendor + invoice #</span>
-                        </div>
-                        <div class="rule-item">
-                            <i class="bx bx-check-circle"></i>
-                            <span>Date within 5 days</span>
-                        </div>
-                    </div>
-                    <div class="match-actions">
-                        <button class="btn-primary">Run Auto-Match</button>
-                        <button class="btn-secondary">Review Suggestions</button>
-                    </div>
-                    <div class="match-summary">
-                        <div class="match-stat">
-                            <span class="stat-value">92%</span>
-                            <span class="stat-label">Auto-match rate</span>
-                        </div>
-                        <div class="match-stat">
-                            <span class="stat-value">8</span>
-                            <span class="stat-label">Needs review</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [6] Your Original Cash Flow Insights -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Cash Flow Insights</h3>
-                    <span class="badge live">Live</span>
-                </div>
-                <div class="card-content">
-                    <div class="cash-flow-metrics">
-                        <div class="metric">
-                            <div class="metric-label">Overdue Payments</div>
-                            <div class="metric-value overdue">₦485,200</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Due This Week</div>
-                            <div class="metric-value due-week">₦1,250,000</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Available Balance</div>
-                            <div class="metric-value available">₦2,890,750</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [7] NEW: Supplier Analysis -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Supplier Spend</h3>
-                    <select class="period-select">
-                        <option>Last 30 Days</option>
-                        <option>Last Quarter</option>
-                        <option>Last Year</option>
-                    </select>
-                </div>
-                <div class="card-content">
-                    <div class="supplier-chart">
-                        <div class="chart-placeholder">
-                            <i class="bx bx-pie-chart-alt"></i>
-                            <p>Supplier spend visualization</p>
-                        </div>
-                    </div>
-                    <div class="supplier-list">
-                        <div class="supplier-item">
-                            <div class="supplier-info">
-                                <span class="supplier-name">ABC Suppliers Ltd</span>
-                                <span class="supplier-category">Office Supplies</span>
-                            </div>
-                            <span class="supplier-amount">₦1,240,000</span>
-                        </div>
-                        <div class="supplier-item">
-                            <div class="supplier-info">
-                                <span class="supplier-name">XYZ Logistics</span>
-                                <span class="supplier-category">Shipping</span>
-                            </div>
-                            <span class="supplier-amount">₦985,500</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [8] Your Original Aging Analysis -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Aging Analysis</h3>
-                    <div class="period-selector">
-                        <button class="period-btn active">30d</button>
-                        <button class="period-btn">60d</button>
-                        <button class="period-btn">90d</button>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <div class="aging-chart">
-                        <div class="aging-item">
-                            <div class="aging-label">0-30 Days</div>
-                            <div class="aging-bar">
-                                <div class="aging-fill current" style="width: 65%"></div>
-                            </div>
-                            <div class="aging-amount">₦1,850,000</div>
-                        </div>
-                        <div class="aging-item">
-                            <div class="aging-label">31-60 Days</div>
-                            <div class="aging-bar">
-                                <div class="aging-fill moderate" style="width: 25%"></div>
-                            </div>
-                            <div class="aging-amount">₦690,000</div>
-                        </div>
-                        <div class="aging-item">
-                            <div class="aging-label">61-90 Days</div>
-                            <div class="aging-bar">
-                                <div class="aging-fill old" style="width: 8%"></div>
-                            </div>
-                            <div class="aging-amount">₦230,000</div>
-                        </div>
-                        <div class="aging-item">
-                            <div class="aging-label">90+ Days</div>
-                            <div class="aging-bar">
-                                <div class="aging-fill overdue" style="width: 2%"></div>
-                            </div>
-                            <div class="aging-amount">₦58,500</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [9] Your Original Exception Management -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Exception Management</h3>
-                    <span class="badge urgent">23 Urgent</span>
-                </div>
-                <div class="card-content">
-                    <div class="exception-list">
-                        <div class="exception-item high">
-                            <div class="exception-severity"></div>
-                            <div class="exception-details">
-                                <div class="exception-title">Amount Mismatch</div>
-                                <div class="exception-subtitle">Invoice #INV-2024-089</div>
-                            </div>
-                            <div class="exception-action">
-                                <button class="btn-small">Resolve</button>
-                            </div>
-                        </div>
-                        <div class="exception-item medium">
-                            <div class="exception-severity"></div>
-                            <div class="exception-details">
-                                <div class="exception-title">Missing Payment</div>
-                                <div class="exception-subtitle">Expected payment overdue</div>
-                            </div>
-                            <div class="exception-action">
-                                <button class="btn-small">Investigate</button>
-                            </div>
-                        </div>
-                        <div class="exception-item low">
-                            <div class="exception-severity"></div>
-                            <div class="exception-details">
-                                <div class="exception-title">Duplicate Entry</div>
-                                <div class="exception-subtitle">Potential duplicate detected</div>
-                            </div>
-                            <div class="exception-action">
-                                <button class="btn-small">Review</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [10] Enhanced Workflow Status -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Workflow Status</h3>
-                    <div class="workflow-toggle">
-                        <button class="toggle-btn active">Auto</button>
-                        <button class="toggle-btn">Manual</button>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <div class="workflow-steps">
-                        <div class="workflow-step completed">
-                            <div class="step-icon">
-                                <i class="bx bx-check"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Data Import</div>
-                                <div class="step-subtitle">Completed at 9:30 AM</div>
-                            </div>
-                        </div>
-                        <div class="workflow-step completed">
-                            <div class="step-icon">
-                                <i class="bx bx-check"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Auto-Matching</div>
-                                <div class="step-subtitle">847 transactions matched</div>
-                            </div>
-                        </div>
-                        <div class="workflow-step active">
-                            <div class="step-icon">
-                                <i class="bx bx-time"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Exception Review</div>
-                                <div class="step-subtitle">23 items pending</div>
-                            </div>
-                        </div>
-                        <div class="workflow-step pending">
-                            <div class="step-icon">
-                                <i class="bx bx-edit"></i>
-                            </div>
-                            <div class="step-content">
-                                <div class="step-title">Journal Entries</div>
-                                <div class="step-subtitle">3 entries pending approval</div>
-                                <div class="je-actions">
-                                    <button class="btn-small">Review</button>
-                                    <button class="btn-small">Approve</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [11] Your Original Bank Account Management -->
-            <div class="dashboard-card large">
-                <div class="card-header">
-                    <h3>Bank Account Management</h3>
-                    <div class="card-actions">
-                        <button class="btn-icon" id="add-bank-account">
-                            <i class="bx bx-plus"></i>
-                        </button>
-                        <button class="btn-icon">
-                            <i class="bx bx-refresh"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <div class="bank-summary">
-                        <div class="bank-balance">
-                            <h4>Total Balance</h4>
-                            <div class="balance-amount">₦0.00</div>
-                        </div>
-                        <div class="bank-stats">
-                            <div class="bank-stat">
-                                <div class="stat-label">Credits</div>
-                                <div class="stat-value positive">₦0.00</div>
-                            </div>
-                            <div class="bank-stat">
-                                <div class="stat-label">Debits</div>
-                                <div class="stat-value negative">₦0.00</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bank-accounts">
-                        <h4>Your Accounts</h4>
-                        <div class="accounts-list" id="accounts-list">
-                            <div class="no-accounts">
-                                <i class="bx bx-wallet"></i>
-                                <p>No bank accounts added yet</p>
-                                <button class="btn-primary" id="add-first-account">Add Bank Account</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bank-transactions">
-                        <div class="transactions-header">
-                            <h4>Recent Transactions</h4>
-                            <a href="#" class="view-all">View All</a>
-                        </div>
-                        <div class="transactions-list" id="transactions-list">
-                            <div class="no-transactions">
-                                <i class="bx bx-list-ul"></i>
-                                <p>No transactions recorded yet</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [12] NEW: Access Control -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Access Control</h3>
-                    <i class="bx bx-cog"></i>
-                </div>
-                <div class="card-content">
-                    <div class="role-selection">
-                        <label>Current Role:</label>
-                        <select id="user-role">
-                            <option value="admin">Administrator</option>
-                            <option value="approver">Approver</option>
-                            <option value="reconciler">Reconciler</option>
-                            <option value="viewer">Viewer</option>
-                        </select>
-                    </div>
-                    <div class="permissions-list">
-                        <div class="permission-item">
-                            <input type="checkbox" id="can-approve" checked>
-                            <label for="can-approve">Can approve journal entries</label>
-                        </div>
-                        <div class="permission-item">
-                            <input type="checkbox" id="can-edit" checked>
-                            <label for="can-edit">Can edit reconciliations</label>
-                        </div>
-                        <div class="permission-item">
-                            <input type="checkbox" id="can-delete">
-                            <label for="can-delete">Can delete records</label>
-                        </div>
-                    </div>
-                    <button class="btn-primary" id="save-permissions">Save Permissions</button>
-                </div>
-            </div>
+    <!-- [12] NEW: Access Control -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Access Control</h3>
+            <i class="bx bx-cog"></i>
         </div>
+        <div class="card-content">
+            <div class="role-selection">
+                <label>Current Role:</label>
+                <select id="user-role">
+                    <option value="admin">Administrator</option>
+                    <option value="approver">Approver</option>
+                    <option value="reconciler">Reconciler</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+            <div class="permissions-list">
+                <div class="permission-item">
+                    <input type="checkbox" id="can-approve" checked>
+                    <label for="can-approve">Can approve journal entries</label>
+                </div>
+                <div class="permission-item">
+                    <input type="checkbox" id="can-edit" checked>
+                    <label for="can-edit">Can edit reconciliations</label>
+                </div>
+                <div class="permission-item">
+                    <input type="checkbox" id="can-delete">
+                    <label for="can-delete">Can delete records</label>
+                </div>
+            </div>
+            <button class="btn-primary" id="save-permissions">Save Permissions</button>
+        </div>
+    </div>
+    </div>
     </div>
 
     <!-- [13] Your Original Bank Account Modal -->
@@ -545,10 +374,11 @@
             </div>
         </div>
     </div>
-     
-      <!-- Sidebar -->
-      <%- include ("_sidebar1") %>
-      
-    <script src="/js/ap.js"></script>
+
+    <!-- Sidebar -->
+    <%- include ("_sidebar1") %>
+
+        <script src="/js/ap.js"></script>
 </body>
+
 </html>
