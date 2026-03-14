@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anchor Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+    
+    <style>
+        :root {
+            --primary: #0062ff;
+            --primary-soft: #eef4ff;
+            --success: #22c55e;
+            --secondary: #64748b;
+            --bg-color: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+        *{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .all{
+          display: flexbox;
+          justify-content: space-between;
+          width: 100%;
+          display: flex;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+        }
+        .anchor-container {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .back{
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
+        .back span a{
+          color: var(--primary);
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .anchor-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .anchor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .anchor-header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .kyc-badge {
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Balance Section */
+        .balance-box {
+            background: linear-gradient(135deg, #0062ff 0%, #004dc7 100%);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle decorative circle in balance box */
+        .balance-box::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .balance-amount {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .meta-item:last-of-type { border-bottom: none; }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        .btn-primary { 
+            background: var(--primary); 
+            color: #fff; 
+            box-shadow: 0 4px 14px 0 rgba(0, 98, 255, 0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 98, 255, 0.4);
+        }
+
+        .btn-secondary { background: #f1f5f9; color: var(--text-main); }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        .btn-success { background: var(--success); color: #fff; width: 100%; }
+        
+        .muted { color: var(--text-muted); }
+
+        @media (max-width: 600px) {
+            .btn-group { flex-direction: column; }
+            .anchor-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+  <div class="all">
+
+    <div class="main-content">
+        <%- include('../../dashboard/_topnav') %>
+
+        <div class="anchor-container">
+        <div class="back">
+          <span><a href="/wallet">wallet</a></span>
+        </div>
+            <div class="anchor-card">
+                
+                <div class="anchor-header">
+                    <h2>Anchor Dashboard</h2>
+                    <% if (profile) { %>
+                        <div class="kyc-badge">
+                            <i class='bx bxs-check-shield'></i>
+                            KYC: <%= profile.kycStatus %>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (!profile) { %>
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <i class='bx bx-user-circle' style="font-size: 4rem; color: #cbd5e1;"></i>
+                        <p class="muted" style="margin: 16px 0 24px;">Your Anchor profile hasn't been set up yet.</p>
+                        <a href="/wallet/anchor/signup" class="btn btn-primary">
+                            <i class='bx bx-plus-circle'></i> Complete Signup
+                        </a>
+                    </div>
+                <% } else { %>
+                    
+                    <div class="meta">
+                        <% if (profile.anchorAccountNumber) { %>
+                            <div class="balance-box">
+                                <div class="balance-label">Total Balance</div>
+                                <div class="balance-amount">
+                                    ₦<%= balance != null ? balance.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00' %>
+                                </div>
+                            </div>
+                            
+                            <div class="meta-item">
+                                <span class="muted"><i class='bx bx-hash'></i> Account Number</span>
+                                <strong><%= profile.anchorAccountNumber %></strong>
+                            </div>
+                        <% } else { %>
+                            <div class="muted" style="text-align: center; padding: 30px 0;">
+                                <i class='bx bx-info-circle'></i> No Anchor account linked yet.
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="btn-group">
+                        <% if (profile.anchorAccountNumber) { %>
+                            <a href="/wallet/anchor/send" class="btn btn-primary">
+                                <i class='bx bx-send'></i> Send Money
+                            </a>
+                            <a href="/wallet/anchor/transactions" class="btn btn-secondary">
+                                <i class='bx bx-list-ul'></i> Transactions
+                            </a>
+                        <% } else { %>
+                            <form method="post" action="/wallet/anchor/create-account" style="width: 100%;">
+                                <button type="submit" class="btn btn-success">
+                                    <i class='bx bx-wallet-alt'></i> Create Anchor Account
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anchor Business Signup</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+    
+    <style>
+        :root {
+            --primary: #0062ff;
+            --primary-soft: #eef4ff;
+            --success: #22c55e;
+            --secondary: #64748b;
+            --bg-color: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .all {
+            display: flex;
+            width: 100%;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+        }
+
+        .anchor-container {
+            padding: 2rem;
+            max-width: 700px; /* Slimmer for forms */
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Back Link Navigation */
+        .back {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .back span a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Card Style */
+        .anchor-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .anchor-card h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        input[type="text"], 
+        input[type="email"], 
+        input[type="number"],
+        input[type="date"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+        }
+
+        input::placeholder {
+            color: #cbd5e1;
+        }
+
+        /* Button Styling */
+        .btn {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px 0 rgba(0, 98, 255, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 98, 255, 0.4);
+            opacity: 0.95;
+        }
+
+        .muted { color: var(--text-muted); font-size: 0.9rem; }
+        .kyc-text { color: var(--primary); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+  <div class="all">
+    <div class="main-content">
+        <%- include('../../dashboard/_topnav') %>
+
+        <div class="anchor-container">
+            <div class="back">
+              <span><a href="/wallet">wallet</a></span>
+              <i class='bx bx-chevron-right'></i>
+                <span>
+                    <a href="/wallet/anchor">
+                        Anchor Dashboard
+                    </a>
+                </span>
+            </div>
+
+            <div class="anchor-card">
+                <h2>Anchor Business Signup</h2>
+                
+                <div class="status-info">
+                    <% if (profile) { %>
+                        <p class="muted">
+                            <i class='bx bx-shield-quarter'></i> 
+                            Current Status: <span class="kyc-text"><%= profile.kycStatus %></span>
+                        </p>
+                    <% } else { %>
+                        <p class="muted">Register your business to start using Anchor services.</p>
+                    <% } %>
+                </div>
+
+                <form id="anchorSignup" method="post" action="/wallet/anchor/signup">
+                    <!-- Basic Detail Section -->
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Business Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label><i class='bx bx-briefcase-alt-2'></i> Business Name</label>
+                        <input type="text" name="businessName" placeholder="Enter Legal Business Name" value="<%= profile ? profile.businessName : '' %>" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class='bx bx-id-card'></i> Business BVN</label>
+                        <input type="text" name="businessBvn" placeholder="11-digit Business BVN" pattern="[0-9]{11}" value="<%= profile ? profile.businessBvn : '' %>" required />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label><i class='bx bx-category'></i> Industry</label>
+                            <select name="industry" required>
+                                <option value="">Select Industry</option>
+                                <option value="Agriculture-AgriculturalCooperatives" <%= profile && profile.industry === 'Agriculture-AgriculturalCooperatives' ? 'selected' : '' %>>Agriculture - Agricultural Cooperatives</option>
+                                <option value="Agriculture-Farming" <%= profile && profile.industry === 'Agriculture-Farming' ? 'selected' : '' %>>Agriculture - Farming</option>
+                                <option value="Arts-Entertainment" <%= profile && profile.industry === 'Arts-Entertainment' ? 'selected' : '' %>>Arts & Entertainment</option>
+                                <option value="Construction" <%= profile && profile.industry === 'Construction' ? 'selected' : '' %>>Construction</option>
+                                <option value="Education" <%= profile && profile.industry === 'Education' ? 'selected' : '' %>>Education</option>
+                                <option value="FinancialServices" <%= profile && profile.industry === 'FinancialServices' ? 'selected' : '' %>>Financial Services</option>
+                                <option value="Healthcare" <%= profile && profile.industry === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+                                <option value="InformationTechnology" <%= profile && profile.industry === 'InformationTechnology' ? 'selected' : '' %>>Information Technology</option>
+                                <option value="Manufacturing" <%= profile && profile.industry === 'Manufacturing' ? 'selected' : '' %>>Manufacturing</option>
+                                <option value="Retail" <%= profile && profile.industry === 'Retail' ? 'selected' : '' %>>Retail</option>
+                                <option value="Transportation" <%= profile && profile.industry === 'Transportation' ? 'selected' : '' %>>Transportation</option>
+                                <option value="Other" <%= profile && profile.industry === 'Other' ? 'selected' : '' %>>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-certification'></i> Registration Type</label>
+                            <select name="registrationType" required>
+                                <option value="">Select Type</option>
+                                <option value="Private_Incorporated" <%= profile && profile.registrationType === 'Private_Incorporated' ? 'selected' : '' %>>Private Incorporated</option>
+                                <option value="Public_Limited" <%= profile && profile.registrationType === 'Public_Limited' ? 'selected' : '' %>>Public Limited</option>
+                                <option value="Business_Name" <%= profile && profile.registrationType === 'Business_Name' ? 'selected' : '' %>>Business Name</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label><i class='bx bx-calendar'></i> Date of Registration</label>
+                            <input type="date" name="dateOfRegistration" value="<%= profile ? new Date(profile.dateOfRegistration).toISOString().split('T')[0] : '' %>" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-globe'></i> Website</label>
+                            <input type="url" name="website" placeholder="https://www.example.com" value="<%= profile ? profile.website : '' %>" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class='bx bx-detail'></i> Business Description</label>
+                        <textarea name="description" placeholder="Describe your business activities" rows="3"><%= profile ? profile.description : '' %></textarea>
+                    </div>
+
+                    <!-- Contact Section -->
+                    <h3 style="margin: 40px 0 20px; color: var(--primary);">Contact Information</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label><i class='bx bx-envelope'></i> General Email</label>
+                            <input type="email" name="contactEmailGeneral" placeholder="general@company.com" value="<%= profile ? profile.contactEmail?.general : '' %>" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-envelope'></i> Support Email</label>
+                            <input type="email" name="contactEmailSupport" placeholder="support@company.com" value="<%= profile ? profile.contactEmail?.support : '' %>" />
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-envelope'></i> Dispute Email</label>
+                            <input type="email" name="contactEmailDispute" placeholder="dispute@company.com" value="<%= profile ? profile.contactEmail?.dispute : '' %>" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class='bx bx-phone'></i> Phone Number</label>
+                        <input type="text" name="contactPhone" placeholder="+234..." value="<%= profile ? profile.contactPhone : '' %>" required />
+                    </div>
+
+                    <!-- Main Address -->
+                    <h4 style="margin: 20px 0 10px; color: var(--text-main);">Main Operating Address</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" name="mainCountry" value="NG" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="mainState" placeholder="e.g., Lagos" value="<%= profile ? profile.contactAddress?.main?.state : '' %>" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 1</label>
+                        <input type="text" name="mainAddressLine1" placeholder="Street address" value="<%= profile ? profile.contactAddress?.main?.addressLine_1 : '' %>" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 2</label>
+                        <input type="text" name="mainAddressLine2" placeholder="Additional address info" value="<%= profile ? profile.contactAddress?.main?.addressLine_2 : '' %>" />
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="mainCity" placeholder="e.g., Ikeja" value="<%= profile ? profile.contactAddress?.main?.city : '' %>" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" name="mainPostalCode" placeholder="e.g., 100001" value="<%= profile ? profile.contactAddress?.main?.postalCode : '' %>" />
+                        </div>
+                    </div>
+
+                    <!-- Registered Address -->
+                    <h4 style="margin: 20px 0 10px; color: var(--text-main);">Registered Address</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" name="registeredCountry" value="NG" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="registeredState" placeholder="e.g., Lagos" value="<%= profile ? profile.contactAddress?.registered?.state : '' %>" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 1</label>
+                        <input type="text" name="registeredAddressLine1" placeholder="Street address" value="<%= profile ? profile.contactAddress?.registered?.addressLine_1 : '' %>" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 2</label>
+                        <input type="text" name="registeredAddressLine2" placeholder="Additional address info" value="<%= profile ? profile.contactAddress?.registered?.addressLine_2 : '' %>" />
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="registeredCity" placeholder="e.g., Ikeja" value="<%= profile ? profile.contactAddress?.registered?.city : '' %>" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" name="registeredPostalCode" placeholder="e.g., 100001" value="<%= profile ? profile.contactAddress?.registered?.postalCode : '' %>" />
+                        </div>
+                    </div>
+
+                    <!-- Business Address -->
+                    <h4 style="margin: 20px 0 10px; color: var(--text-main);">Business Address</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" name="addressCountry" value="NG" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="addressState" placeholder="e.g., Lagos" value="<%= profile ? profile.address?.state : '' %>" required />
+                        </div>
+                    </div>
+
+                    <!-- Officers Section -->
+                    <h3 style="margin: 40px 0 20px; color: var(--primary);">Officers / Shareholders</h3>
+                    <div id="officersContainer">
+                        <!-- Officers will be added here -->
+                    </div>
+                    <button type="button" id="addOfficerBtn" class="btn" style="background: var(--secondary); margin-bottom: 20px;">Add Officer</button>
+
+                    <button type="submit" class="btn">
+                        Submit Registration <i class='bx bx-right-arrow-alt'></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    let officerCount = 0;
+
+    function addOfficer(officerData = {}) {
+      officerCount++;
+      const officerHtml = `
+        <div class="officer-card" style="border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #fafafa;">
+          <h4 style="margin-bottom: 15px; color: var(--text-main);">Officer ${officerCount}</h4>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Role</label>
+              <select name="officers[${officerCount-1}][role]" required>
+                <option value="">Select Role</option>
+                <option value="DIRECTOR" ${officerData.role === 'DIRECTOR' ? 'selected' : ''}>Director</option>
+                <option value="OWNER" ${officerData.role === 'OWNER' ? 'selected' : ''}>Owner</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" name="officers[${officerCount-1}][title]" placeholder="e.g., CEO" value="${officerData.title || ''}" required />
+            </div>
+          </div>
+
+          <h5 style="margin: 15px 0 10px;">Full Name</h5>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" name="officers[${officerCount-1}][firstName]" value="${officerData.fullName?.firstName || ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" name="officers[${officerCount-1}][lastName]" value="${officerData.fullName?.lastName || ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Middle Name</label>
+              <input type="text" name="officers[${officerCount-1}][middleName]" value="${officerData.fullName?.middleName || ''}" />
+            </div>
+            <div class="form-group">
+              <label>Maiden Name</label>
+              <input type="text" name="officers[${officerCount-1}][maidenName]" value="${officerData.fullName?.maidenName || ''}" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Nationality</label>
+              <input type="text" name="officers[${officerCount-1}][nationality]" value="${officerData.nationality || 'NG'}" required />
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" name="officers[${officerCount-1}][dateOfBirth]" value="${officerData.dateOfBirth ? new Date(officerData.dateOfBirth).toISOString().split('T')[0] : ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Percentage Owned</label>
+              <input type="number" name="officers[${officerCount-1}][percentageOwned]" placeholder="0" value="${officerData.percentageOwned || 0}" min="0" max="100" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="officers[${officerCount-1}][email]" value="${officerData.email || ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" name="officers[${officerCount-1}][phoneNumber]" placeholder="+234..." value="${officerData.phoneNumber || ''}" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>BVN</label>
+            <input type="text" name="officers[${officerCount-1}][bvn]" placeholder="11-digit BVN" pattern="[0-9]{11}" value="${officerData.bvn || ''}" required />
+          </div>
+
+          <h5 style="margin: 15px 0 10px;">Address</h5>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" name="officers[${officerCount-1}][country]" value="${officerData.address?.country || 'NG'}" readonly />
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" name="officers[${officerCount-1}][state]" placeholder="e.g., Lagos" value="${officerData.address?.state || ''}" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Address Line 1</label>
+            <input type="text" name="officers[${officerCount-1}][addressLine1]" placeholder="Street address" value="${officerData.address?.addressLine_1 || ''}" required />
+          </div>
+          <div class="form-group">
+            <label>Address Line 2</label>
+            <input type="text" name="officers[${officerCount-1}][addressLine2]" placeholder="Additional address info" value="${officerData.address?.addressLine_2 || ''}" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" name="officers[${officerCount-1}][city]" placeholder="e.g., Ikeja" value="${officerData.address?.city || ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Postal Code</label>
+              <input type="text" name="officers[${officerCount-1}][postalCode]" placeholder="e.g., 100001" value="${officerData.address?.postalCode || ''}" />
+            </div>
+          </div>
+
+          <button type="button" onclick="removeOfficer(this)" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">Remove Officer</button>
+        </div>
+      `;
+      document.getElementById('officersContainer').insertAdjacentHTML('beforeend', officerHtml);
+    }
+
+    function removeOfficer(button) {
+      button.closest('.officer-card').remove();
+      officerCount--;
+    }
+
+    document.getElementById('addOfficerBtn').addEventListener('click', () => addOfficer());
+
+    // Load existing officers if editing
+    <% if (profile && profile.officers && profile.officers.length > 0) { %>
+      <% profile.officers.forEach(officer => { %>
+        addOfficer(<%= JSON.stringify(officer) %>);
+      <% }); %>
+    <% } else { %>
+      // Add at least one officer by default
+      addOfficer();
+    <% } %>
+  </script>
+</body>
+</html>

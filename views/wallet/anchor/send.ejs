@@ -1,0 +1,36 @@
+<%- include('../../_sidebar1') %>
+<%- include('../../dashboard/_topnav') %>
+
+<style>
+  .anchor-container { padding:24px; max-width:720px; margin:20px auto }
+  .anchor-card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06) }
+  .form-group{ margin-bottom:12px }
+  label{ display:block; margin-bottom:6px; font-weight:600 }
+  input{ width:100%; padding:10px; border:1px solid #ddd; border-radius:6px }
+  .btn{ background:#007bff; color:#fff; padding:10px 14px; border-radius:6px; border:none }
+</style>
+
+<div class="anchor-container">
+  <div class="anchor-card">
+    <h2>Send via Anchor</h2>
+    <form method="post" action="/wallet/anchor/send">
+      <div class="form-group">
+        <label>Recipient Account</label>
+        <input type="text" name="recipientAccount" required />
+      </div>
+      <div class="form-group">
+        <label>Bank</label>
+        <input type="text" name="bank" required />
+      </div>
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" step="0.01" name="amount" required />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" name="description" />
+      </div>
+      <button type="submit" class="btn">Send</button>
+    </form>
+  </div>
+</div>

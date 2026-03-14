@@ -1,0 +1,46 @@
+<%- include('../../_sidebar1') %>
+<%- include('../../dashboard/_topnav') %>
+
+<style>
+  .anchor-container{ padding:24px; max-width:980px; margin:20px auto }
+  .anchor-card{ background:#fff; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06) }
+  table.anchor-table{ width:100%; border-collapse:collapse; margin-top:12px }
+  table.anchor-table th, table.anchor-table td{ padding:10px 12px; border-bottom:1px solid #eee; text-align:left }
+  .alert-success{ background:#e6ffed; color:#0a7a2f; padding:8px 12px; border-radius:6px }
+</style>
+
+<div class="anchor-container">
+  <div class="anchor-card">
+    <h2>Anchor Transactions</h2>
+    <% if (typeof sent !== 'undefined') { %>
+      <p class="alert-success">Payment initiated successfully.</p>
+    <% } %>
+
+    <% if (transactions && transactions.length) { %>
+      <table class="anchor-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(tx => { %>
+            <tr>
+              <td><%= new Date(tx.createdAt).toLocaleString() %></td>
+              <td><%= tx.type %></td>
+              <td>₦<%= (tx.amount || 0).toFixed(2) %></td>
+              <td><%= tx.status %></td>
+              <td><%= tx.description || '' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="muted">No transactions found.</p>
+    <% } %>
+  </div>
+</div>

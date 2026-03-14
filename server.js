@@ -90,6 +90,7 @@ const adminDashboardRoutes = require('./routes/adminDashboard');
 const userActivities = require('./routes/adminActivities');
 const subscriptionRoutes = require('./routes/subscriptions');
 const auditRoutes = require('./routes/auditRoutes');
+const anchorRoutes = require('./routes/anchorRoutes');
 const { expireSubscriptions } = require('./utils/subscriptionManager');
 
 
@@ -183,6 +184,8 @@ app.use('/api/admin', adminDashboardRoutes);
 app.use('/api/userActivities', userActivities);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/audit', auditRoutes);
+// wallet anchor module (modular, mountable)
+app.use('/wallet/anchor', anchorRoutes);
 
 
 
